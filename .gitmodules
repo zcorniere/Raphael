@@ -4,3 +4,6 @@
 [submodule "External/logger-cpp"]
 	path = External/logger-cpp
 	url = git@github.com:zcorniere/logger-cpp.git
+[submodule "External/glfw"]
+	path = External/glfw
+	url = git@github.com:glfw/glfw.git
