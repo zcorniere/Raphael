@@ -23,5 +23,6 @@ else()
     message(STATUS "LTO not supported")
 endif()
 
+add_subdirectory(External/)
 add_subdirectory(Engine/)
 add_subdirectory(Editor/)

@@ -1,23 +1,9 @@
 project(RaphaelEngine)
 
-fetchcontent_declare(
-    logger
-    GIT_REPOSITORY https://github.com/zcorniere/logger-cpp.git
-    GIT_TAG v1.0.3
-)
-fetchcontent_getproperties(logger)
-if(NOT logger_POPULATED)
-    message(STATUS "Populating logger")
-    fetchcontent_populate(logger)
-    add_subdirectory(${logger_SOURCE_DIR} ${logger_BINARY_DIR})
-    target_compile_definitions(logger PUBLIC LOGGER_EXTERN_DECLARATION)
-endif()
-
 add_library(
     ${PROJECT_NAME} STATIC
     Threading/Thread.cxx
     Threading/ThreadPool.cxx
-    
     # Select the correct platform to compile
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:
     Platforms/Unix/UnixPlatform.cxx>
@@ -26,7 +12,7 @@ add_library(
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC logger)
+target_link_libraries(${PROJECT_NAME} PUBLIC logger glm)
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE Raphael.hxx)
 
