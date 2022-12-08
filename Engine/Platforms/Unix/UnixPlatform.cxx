@@ -10,9 +10,6 @@
     #include <sys/utsname.h>
     #include <unistd.h>
 
-namespace raphael
-{
-
 bool UnixPlateform::isDebuggerPresent()
 {
     // If a process is tracing this one then TracerPid in /proc/self/status will
@@ -83,7 +80,5 @@ std::string UnixPlateform::getThreadName(std::jthread &thread)
     }
     return std::string(name);
 }
-
-}    // namespace pivot
 
 #endif

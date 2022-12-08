@@ -9,9 +9,6 @@ static_assert(false, "Clang Compiler header included without compiling with clan
 
 #endif
 
-namespace raphael
-{
-
 ///
 /// @brief Wrapper arround clang intrinsics function
 ///
@@ -29,5 +26,3 @@ public:
 
 /// Alias of the correct compiler currently used
 using Compiler = ClangCompiler;
-
-}    // namespace raphael

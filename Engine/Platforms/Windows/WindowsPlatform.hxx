@@ -11,9 +11,6 @@ static_assert(false, "Windows Platform header included on a non windows platform
 
 #include <intrin.h>
 
-namespace raphael
-{
-
 ///
 /// @brief Windows-specific function and commands
 ///
@@ -46,5 +43,3 @@ public:
 
 /// Alias to the current platform
 using Platform = WindowsPlatform;
-
-}    // namespace pivot

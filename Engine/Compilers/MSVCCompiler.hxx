@@ -11,8 +11,6 @@ static_assert(false, "MSVC Compiler header included without compiling with MSVC"
 
 #include <intrin.h>
 
-namespace raphael
-{
 
 ///
 /// @brief Wrapper around MSCV intrisics functions
@@ -31,5 +29,3 @@ public:
 
 /// Alias of the correct compiler currently used
 using Compiler = MSVCCompiler;
-
-}    // namespace raphael

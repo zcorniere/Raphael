@@ -13,9 +13,6 @@ static_assert(false, "Unix Platform header included on a non Unix platform");
 
 #endif
 
-namespace raphael
-{
-
 ///
 /// @brief Unix-specific functions
 ///
@@ -52,4 +49,3 @@ public:
 /// Alias to the current platform
 using Platform = UnixPlateform;
 
-}    // namespace pivot

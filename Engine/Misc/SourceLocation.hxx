@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <source_location>
 
-namespace raphael::utils
+namespace Utils
 {
 
 std::string function_name(const std::source_location &location = std::source_location::current())

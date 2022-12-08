@@ -3,9 +3,6 @@
 #include <debugapi.h>
 #include <processthreadsapi.h>
 
-namespace raphael
-{
-
 bool WindowsPlatform::isDebuggerPresent() { return !!::IsDebuggerPresent(); }
 
 void WindowsPlatform::setThreadName(std::jthread &thread, const std::string &name)
@@ -26,5 +23,3 @@ static std::string getThreadName(std::jthread &thread)
     }
     return "";
 }
-
-}    // namespace pivot

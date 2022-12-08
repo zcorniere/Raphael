@@ -6,8 +6,8 @@
 
 #include <atomic>
 
-#define PIVOT_MACRO_EXPENDER_INTERNAL(X, Y) X##Y
-#define PIVOT_MACRO_EXPENDER(X, Y) PIVOT_MACRO_EXPENDER_INTERNAL(X, Y)
+#define MACRO_EXPENDER_INTERNAL(X, Y) X##Y
+#define MACRO_EXPENDER(X, Y) PIVOT_MACRO_EXPENDER_INTERNAL(X, Y)
 
 #define STR(x) #x
 
@@ -18,14 +18,14 @@
                                          static std::atomic_bool bExecuted = false;                             \
                                          if (!bExecuted && Always) {                                            \
                                              bExecuted = true;                                                  \
-                                             logger.err(raphael::utils::function_name())                        \
+                                             logger.err(Utils::function_name())                        \
                                                  << "Assertion failed: " STR(#Expression) __VA_OPT__(" :: " <<) \
                                                         __VA_ARGS__;                                            \
-                                             return raphael::Platform::isDebuggerPresent();                       \
+                                             return Platform::isDebuggerPresent();                       \
                                          }                                                                      \
                                          return false;                                                          \
                                      }()) &&                                                                    \
-                                         ([]() { raphael::Platform::breakpoint(); }(), false))
+                                         ([]() { Platform::breakpoint(); }(), false))
 
     #define verify(Expression) RAPHAEL_VERIFY_IMPL(, false, Expression)
     #define verifyMsg(Expression, ...) RAPHAEL_VERIFY_IMPL(&, false, Expression, ##__VA_ARGS__)
@@ -35,10 +35,10 @@
     #define RAPHAEL_ASSERT_IMPL(Always, Expression, ...)                                        \
         {                                                                                       \
             if (UNLIKELY(!(Expression))) {                                                      \
-                logger.err(::raphael::utils::function_name())                                     \
+                logger.err(Utils::function_name())                                     \
                     << "Assertion failed: " STR(#Expression) __VA_OPT__(" :: " <<) __VA_ARGS__; \
                 logger.stop();                                                                  \
-                if (raphael::Platform::isDebuggerPresent()) { raphael::Platform::breakpoint(); }    \
+                if (Platform::isDebuggerPresent()) { Platform::breakpoint(); }    \
                 std::abort();                                                                   \
             }                                                                                   \
         }
@@ -48,13 +48,13 @@
     #define checkNoEntry()                                             \
         {                                                              \
             checkMsg(false, "Enclosing block should never be called"); \
-            raphael::Compiler::unreachable();                            \
+            Compiler::unreachable();                            \
         }
     #define checkNoReentry()                                                                                    \
         {                                                                                                       \
-            static std::atomic_bool RAPHAEL_MACRO_EXPENDER(beenHere, __LINE__) = false;                         \
-            checkMsg(!RAPHAEL_MACRO_EXPENDER(beenHere, __LINE__), "Enclosing block was called more than once"); \
-            RAPHAEL_MACRO_EXPENDER(beenHere, __LINE__) = true;                                                  \
+            static std::atomic_bool MACRO_EXPENDER(beenHere, __LINE__) = false;                         \
+            checkMsg(!MACRO_EXPENDER(beenHere, __LINE__), "Enclosing block was called more than once"); \
+            MACRO_EXPENDER(beenHere, __LINE__) = true;                                                  \
         }
 
 #else

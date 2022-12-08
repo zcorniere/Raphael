@@ -9,8 +9,6 @@ static_assert(false, "GNU Compiler header included without compiling with GNU");
 
 #endif
 
-namespace raphael
-{
 
 ///
 /// @brief Wrapper around GCC intrisics functions
@@ -29,5 +27,3 @@ public:
 
 /// Alias of the correct compiler currently used
 using Compiler = GNUCompiler;
-
-}    // namespace raphael
