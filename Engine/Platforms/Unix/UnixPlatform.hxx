@@ -13,6 +13,9 @@ static_assert(false, "Unix Platform header included on a non Unix platform");
 
 #endif
 
+namespace Raphael
+{
+
 ///
 /// @brief Unix-specific functions
 ///
@@ -27,7 +30,10 @@ public:
     static bool isDebuggerPresent();
 
     /// Break into the debugger
-    FORCEINLINE static void breakpoint() { raise(SIGTRAP); }
+    FORCEINLINE static void breakpoint()
+    {
+        raise(SIGTRAP);
+    }
 
     ///
     /// @brief Set the Thread Name
@@ -49,3 +55,4 @@ public:
 /// Alias to the current platform
 using Platform = UnixPlateform;
 
+}    // namespace Raphael

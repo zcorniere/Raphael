@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Engine/Compilers/Compiler.hxx"
-#include "Engine/Platforms/Platform.hxx"
 #include "Engine/Misc/SourceLocation.hxx"
+#include "Engine/Platforms/Platform.hxx"
 
 #include <atomic>
 
@@ -15,17 +15,18 @@
 
     #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, ...)                                               \
         ((LIKELY(!!(Expression))) || ([Capture]() {                                                             \
+                                         using namespace Raphael;                                               \
                                          static std::atomic_bool bExecuted = false;                             \
                                          if (!bExecuted && Always) {                                            \
                                              bExecuted = true;                                                  \
-                                             logger.err(Utils::function_name())                        \
+                                             logger.err(Utils::function_name())                                 \
                                                  << "Assertion failed: " STR(#Expression) __VA_OPT__(" :: " <<) \
                                                         __VA_ARGS__;                                            \
-                                             return Platform::isDebuggerPresent();                       \
+                                             return Platform::isDebuggerPresent();                              \
                                          }                                                                      \
                                          return false;                                                          \
                                      }()) &&                                                                    \
-                                         ([]() { Platform::breakpoint(); }(), false))
+                                         ([]() { Raphael::Platform::breakpoint(); }(), false))
 
     #define verify(Expression) RAPHAEL_VERIFY_IMPL(, false, Expression)
     #define verifyMsg(Expression, ...) RAPHAEL_VERIFY_IMPL(&, false, Expression, ##__VA_ARGS__)
@@ -34,11 +35,13 @@
 
     #define RAPHAEL_ASSERT_IMPL(Always, Expression, ...)                                        \
         {                                                                                       \
+            using namespace Raphael;                                                            \
+                                                                                                \
             if (UNLIKELY(!(Expression))) {                                                      \
-                logger.err(Utils::function_name())                                     \
+                logger.err(Utils::function_name())                                              \
                     << "Assertion failed: " STR(#Expression) __VA_OPT__(" :: " <<) __VA_ARGS__; \
                 logger.stop();                                                                  \
-                if (Platform::isDebuggerPresent()) { Platform::breakpoint(); }    \
+                if (Platform::isDebuggerPresent()) { Platform::breakpoint(); }                  \
                 std::abort();                                                                   \
             }                                                                                   \
         }
@@ -47,11 +50,13 @@
     #define checkMsg(Expression, ...) RAPHAEL_ASSERT_IMPL(false, Expression, ##__VA_ARGS__)
     #define checkNoEntry()                                             \
         {                                                              \
+            using namespace Raphael;                                   \
+                                                                       \
             checkMsg(false, "Enclosing block should never be called"); \
-            Compiler::unreachable();                            \
+            Compiler::unreachable();                                   \
         }
-    #define checkNoReentry()                                                                                    \
-        {                                                                                                       \
+    #define checkNoReentry()                                                                            \
+        {                                                                                               \
             static std::atomic_bool MACRO_EXPENDER(beenHere, __LINE__) = false;                         \
             checkMsg(!MACRO_EXPENDER(beenHere, __LINE__), "Enclosing block was called more than once"); \
             MACRO_EXPENDER(beenHere, __LINE__) = true;                                                  \

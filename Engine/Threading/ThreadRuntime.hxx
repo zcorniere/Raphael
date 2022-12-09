@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace Interface
+namespace Raphael::Interface
 {
 
 ///
@@ -14,8 +14,10 @@ public:
     ///
     /// @brief Destroy the IThreadRuntime object
     ///
-    virtual ~ThreadRuntime() {}
-    
+    virtual ~ThreadRuntime()
+    {
+    }
+
     /// Initialize the runtime
     virtual bool init() = 0;
     /// Start the main loop of the thread
@@ -26,4 +28,4 @@ public:
     virtual void exit() = 0;
 };
 
-}    // namespace Interface
+}    // namespace Raphael::Interface

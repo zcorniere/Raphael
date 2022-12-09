@@ -1,14 +1,15 @@
 #include "Engine/Platforms/Unix/UnixPlatform.hxx"
 #include "Engine/Misc/Assertions.hxx"
 
-#if defined(PLATFORM_UNIX)
+#include <cstring>
+#include <fcntl.h>
+#include <iterator>
+#include <string.h>
+#include <sys/utsname.h>
+#include <unistd.h>
 
-    #include <cstring>
-    #include <fcntl.h>
-    #include <iterator>
-    #include <string.h>
-    #include <sys/utsname.h>
-    #include <unistd.h>
+namespace Raphael
+{
 
 bool UnixPlateform::isDebuggerPresent()
 {
@@ -81,4 +82,4 @@ std::string UnixPlateform::getThreadName(std::jthread &thread)
     return std::string(name);
 }
 
-#endif
+}    // namespace Raphael

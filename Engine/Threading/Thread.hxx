@@ -6,6 +6,9 @@
 
 #include "Engine/Threading/ThreadRuntime.hxx"
 
+namespace Raphael
+{
+
 ///
 /// @brief Wrapper of the std::jthread
 ///
@@ -21,7 +24,7 @@ public:
     Thread(Thread &other) = delete;
     /// Default move ctor
     Thread(Thread &&other) = default;
-    
+
     virtual ~Thread();
     /// Initialize the thread
     void start();
@@ -54,3 +57,5 @@ private:
     std::jthread m_managedThread;
     std::unique_ptr<Interface::ThreadRuntime> m_internalRuntime;
 };
+
+}    // namespace Raphael

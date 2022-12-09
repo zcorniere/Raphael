@@ -11,6 +11,9 @@
 #include "Engine/Threading/Thread.hxx"
 #include "Engine/Threading/ThreadRuntime.hxx"
 
+namespace Raphael
+{
+
 /// Manage a set of thread for sheduling work
 class ThreadPool
 {
@@ -52,7 +55,10 @@ public:
     /// Stop and join all of the thread
     void stop();
     /// Return the amount of thread in the pool
-    size_t size() { return thread_p.size(); }
+    size_t size()
+    {
+        return thread_p.size();
+    }
     /// Resize the thread pool
     void resize(unsigned size);
 
@@ -79,3 +85,5 @@ private:
     std::shared_ptr<State> state;
     std::vector<Thread> thread_p;
 };
+
+}    // namespace Raphael

@@ -1,11 +1,20 @@
 #include "Engine/Threading/Thread.hxx"
 
+namespace Raphael
+{
 
-Thread::Thread(): m_name(), m_internalRuntime(nullptr) {}
+Thread::Thread(): m_name(), m_internalRuntime(nullptr)
+{
+}
 
-Thread::~Thread() { end(); }
+Thread::~Thread()
+{
+    end();
+}
 
-void Thread::start() {}
+void Thread::start()
+{
+}
 
 void Thread::end(bool bShouldWait)
 {
@@ -29,7 +38,9 @@ void Thread::create(const std::string &name, std::unique_ptr<Interface::ThreadRu
     Platform::setThreadName(m_managedThread, m_name);
 }
 
-void Thread::preRun() {}
+void Thread::preRun()
+{
+}
 
 std::uint32_t Thread::run()
 {
@@ -46,7 +57,9 @@ std::uint32_t Thread::run()
     return exitCode;
 }
 
-void Thread::postRun() {}
+void Thread::postRun()
+{
+}
 
 void Thread::thread_runtime(Thread *pThis)
 {
@@ -55,3 +68,5 @@ void Thread::thread_runtime(Thread *pThis)
     pThis->run();
     pThis->postRun();
 }
+
+}    // namespace Raphael

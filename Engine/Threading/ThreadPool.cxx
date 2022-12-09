@@ -1,6 +1,11 @@
 #include "Engine/Threading/ThreadPool.hxx"
 
-ThreadPool::ThreadPool(): state(std::make_shared<ThreadPool::State>()) {}
+namespace Raphael
+{
+
+ThreadPool::ThreadPool(): state(std::make_shared<ThreadPool::State>())
+{
+}
 
 void ThreadPool::start(unsigned i)
 {
@@ -63,6 +68,14 @@ std::uint32_t ThreadPool::WorkerPoolRuntime::run()
     return 0;
 }
 
-void ThreadPool::WorkerPoolRuntime::stop() { b_requestExit = true; }
+void ThreadPool::WorkerPoolRuntime::stop()
+{
+    b_requestExit = true;
+}
 
-void ThreadPool::WorkerPoolRuntime::exit() { b_requestExit = true; }
+void ThreadPool::WorkerPoolRuntime::exit()
+{
+    b_requestExit = true;
+}
+
+}    // namespace Raphael

@@ -3,7 +3,13 @@
 #include <debugapi.h>
 #include <processthreadsapi.h>
 
-bool WindowsPlatform::isDebuggerPresent() { return !!::IsDebuggerPresent(); }
+namespace Raphael
+{
+
+bool WindowsPlatform::isDebuggerPresent()
+{
+    return !!::IsDebuggerPresent();
+}
 
 void WindowsPlatform::setThreadName(std::jthread &thread, const std::string &name)
 {
@@ -23,3 +29,5 @@ static std::string getThreadName(std::jthread &thread)
     }
     return "";
 }
+
+}    // namespace Raphael

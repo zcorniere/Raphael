@@ -5,28 +5,28 @@ AccessModifierOffset: -4
 AlignEscapedNewlinesLeft: true
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortFunctionsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: true
-AllowShortLoopsOnASingleLine: true
+AllowShortLoopsOnASingleLine: false
 AllowShortBlocksOnASingleLine: Always
+AllowShortEnumsOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: true
 AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: true
-#BitFieldColonSpacingStyle: After
 BreakBeforeBraces: Linux
 BraceWrapping:
-  AfterEnum: false
-  AfterClass: false
+  AfterEnum: true
+  AfterClass: true
   AfterUnion: true
   BeforeElse: false
-  #  BeforeWhile: false
+  BeforeWhile: false
   BeforeCatch: false
-  AfterStruct: false
-  AfterFunction: false
-  AfterNamespace: false
+  AfterStruct: true
+  AfterFunction: true
+  AfterNamespace: true
   AfterCaseLabel: false
   AfterExternBlock: false
-  #  BeforeLambdaBody: false
+  BeforeLambdaBody: false
   SplitEmptyFunction: false
 #  BraceWrappingAfterControlStatementStyle: Never
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
