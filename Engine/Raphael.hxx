@@ -9,9 +9,10 @@
 #include <variant>
 #include <vector>
 
+#include <cpplogger/Logger.hpp>
+
 #include <Engine/Compilers/Compiler.hxx>
+#include <Engine/Core/Log.hxx>
 #include <Engine/Misc/Assertions.hxx>
 #include <Engine/Misc/MiscDefines.hxx>
 #include <Engine/Platforms/Platform.hxx>
-
-#include <cpplogger/Logger.hpp>

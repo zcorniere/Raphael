@@ -6,12 +6,12 @@
 namespace Raphael::Utils
 {
 
-std::string function_name(const std::source_location &location = std::source_location::current())
+inline std::string function_name(const std::source_location &location = std::source_location::current())
 {
     return location.function_name();
 }
 
-std::string file_position(const std::source_location &location = std::source_location::current())
+inline std::string file_position(const std::source_location &location = std::source_location::current())
 {
     return std::string() +
            ::std::filesystem::relative(location.file_name(), ::std::filesystem::current_path()).string() + ":" +

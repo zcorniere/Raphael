@@ -1,18 +1,24 @@
 project(RaphaelEngine)
 
+if(WIN32)
+    file(GLOB PLATFORM_SOURCE_FILES Platforms/Windows/*.cxx)
+elseif(UNIX)
+    file(GLOB PLATFORM_SOURCE_FILES Platforms/Unix/*.cxx)
+else()
+    message(FATAL_ERROR "Platform Not supported !")
+endif()
+
 add_library(
     ${PROJECT_NAME} STATIC
     Threading/Thread.cxx
     Threading/ThreadPool.cxx
-    # Select the correct platform to compile
-    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:
-    Platforms/Unix/UnixPlatform.cxx>
-    $<$<CXX_COMPILER_ID:MSVC>:
-    Platforms/Windows/WindowsPlatform.cxx>
+    Core/Application.cxx
+    Core/Ref.cxx
+    ${PLATFORM_SOURCE_FILES}
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC logger glm)
+target_link_libraries(${PROJECT_NAME} PUBLIC logger glm glfw)
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE Raphael.hxx)
 

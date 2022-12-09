@@ -17,7 +17,7 @@ namespace Raphael
 /// Manage a set of thread for sheduling work
 class ThreadPool
 {
-    RAPHAEL_NONCOPYABLE(ThreadPool)
+    RPH_NONCOPYABLE(ThreadPool)
 private:
     using WorkUnits = std::function<void(unsigned id)>;
 
