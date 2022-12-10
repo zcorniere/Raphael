@@ -4,6 +4,7 @@
 #include "Engine/Core/Events/WindowEvent.hxx"
 #include "Engine/Core/TimeStep.hxx"
 #include "Engine/Core/Window/Window.hxx"
+#include "Engine/Renderer/Renderer.hxx"
 
 #include <queue>
 
@@ -19,7 +20,8 @@ struct ApplicationSpecification {
     std::string WorkingDirectory;
     bool StartMaximized = true;
     bool Resizable = true;
-    // bool EnableImGui = true;
+
+    RendererConfig rendererConfig;
 };
 
 class Application
@@ -46,6 +48,7 @@ public:
     virtual void OnShutdown();
     virtual void OnUpdate(Timestep ts)
     {
+        (void)ts;
     }
 
     virtual void OnEvent(Event &event);

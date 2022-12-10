@@ -7,9 +7,13 @@ Application *Application::s_Instance = nullptr;
 
 Application::Application(const ApplicationSpecification &specification): m_Specification(specification)
 {
+    logger.start();
+    Platform::setThreadName(logger.getThreadHandle(), "Logger Thread");
     s_Instance = this;
 
     if (!m_Specification.WorkingDirectory.empty()) { std::filesystem::current_path(m_Specification.WorkingDirectory); }
+
+    Renderer::SetConfig(m_Specification.rendererConfig);
 
     WindowSpecification windowSpec;
     windowSpec.Title = m_Specification.Name;
@@ -26,12 +30,15 @@ Application::Application(const ApplicationSpecification &specification): m_Speci
     else
         m_Window->CenterWindow();
     m_Window->SetResizable(m_Specification.Resizable);
+
+    Renderer::Init();
 }
 
 Application::~Application()
 {
-    m_Window->SetEventCallback([](Event &e) {});
+    m_Window->SetEventCallback([](Event &) {});
 
+    Renderer::Shutdown();
     s_Instance = nullptr;
 }
 
@@ -99,7 +106,7 @@ bool Application::OnWindowMinimize(WindowMinimizeEvent &e)
     return false;
 }
 
-bool Application::OnWindowClose(WindowCloseEvent &e)
+bool Application::OnWindowClose(WindowCloseEvent &)
 {
     Close();
     return false;    // give other things a chance to react to window close

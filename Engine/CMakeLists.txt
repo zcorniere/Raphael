@@ -8,13 +8,21 @@ else()
     message(FATAL_ERROR "Platform Not supported !")
 endif()
 
+file(GLOB VULKAN_RENDERER_FILES Renderer/Vulkan/*.cxx)
+
 add_library(
     ${PROJECT_NAME} STATIC
-    Threading/Thread.cxx
-    Threading/ThreadPool.cxx
     Core/Application.cxx
     Core/Ref.cxx
+    
+    Renderer/Renderer.cxx
+
+    Threading/Thread.cxx
+    Threading/ThreadPool.cxx
+
     ${PLATFORM_SOURCE_FILES}
+
+    ${VULKAN_RENDERER_FILES}
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
