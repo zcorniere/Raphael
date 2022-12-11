@@ -13,19 +13,18 @@
 
 #ifndef NDEBUG
 
-    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, ...)                                               \
-        ((LIKELY(!!(Expression))) || ([Capture]() {                                                             \
-                                         using namespace Raphael;                                               \
-                                         static std::atomic_bool bExecuted = false;                             \
-                                         if (!bExecuted && Always) {                                            \
-                                             bExecuted = true;                                                  \
-                                             logger.err(Utils::function_name())                                 \
-                                                 << "Assertion failed: " STR(#Expression) __VA_OPT__(" :: " <<) \
-                                                        __VA_ARGS__;                                            \
-                                             return Platform::isDebuggerPresent();                              \
-                                         }                                                                      \
-                                         return false;                                                          \
-                                     }()) &&                                                                    \
+    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, ...)                                              \
+        ((LIKELY(!!(Expression))) || ([Capture](const std::string FunctionName = Utils::function_name()) {     \
+                                         using namespace Raphael;                                              \
+                                         static std::atomic_bool bExecuted = false;                            \
+                                         if (!bExecuted || Always) {                                           \
+                                             bExecuted = true;                                                 \
+                                             logger.err(FunctionName) << "Assertion failed: " STR(#Expression) \
+                                                     __VA_OPT__(" :: " <<) __VA_ARGS__;                        \
+                                             return Platform::isDebuggerPresent();                             \
+                                         }                                                                     \
+                                         return false;                                                         \
+                                     }()) &&                                                                   \
                                          ([]() { Raphael::Platform::breakpoint(); }(), false))
 
     #define verify(Expression) RAPHAEL_VERIFY_IMPL(, false, Expression)
