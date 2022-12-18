@@ -14,6 +14,7 @@ add_library(
     ${PROJECT_NAME} STATIC
     Core/Application.cxx
     Core/Ref.cxx
+    Core/Log.cxx
     
     Renderer/Renderer.cxx
 

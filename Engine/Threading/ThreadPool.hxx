@@ -38,7 +38,7 @@ private:
         void exit() override;
 
     private:
-        static std::atomic_int i_threadIDCounter;
+        static std::atomic_int s_threadIDCounter;
 
     private:
         int i_threadID;

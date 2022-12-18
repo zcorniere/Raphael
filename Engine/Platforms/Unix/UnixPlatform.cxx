@@ -8,6 +8,8 @@
 #include <sys/utsname.h>
 #include <unistd.h>
 
+DECLARE_LOGGER_CATEGORY(Core, LogUnixPlateform, Info)
+
 namespace Raphael
 {
 
@@ -64,8 +66,8 @@ void UnixPlateform::setThreadName(std::jthread &thread, const std::string &name)
 
     int errorCode = pthread_setname_np(thread.native_handle(), sizeLimitedThreadName.c_str());
     if (errorCode != 0) {
-        logger.err("UnixPlateform::setThreadName") << "pthread_setname_np('" << name << "') failed with error "
-                                                   << errorCode << "(" << strerror(errorCode) << ").";
+        LOG(LogUnixPlateform, Error, "pthread_setname_np(\"{}\") failed with error {} ({})", name, errorCode,
+            strerror(errorCode));
     }
 }
 
@@ -75,8 +77,7 @@ std::string UnixPlateform::getThreadName(std::jthread &thread)
 
     int errorCode = pthread_getname_np(thread.native_handle(), name, std::size(name));
     if (errorCode != 0) {
-        logger.err("UnixPlateform::getThreadName")
-            << "pthread_getname_np() failed with error " << errorCode << "(" << strerror(errorCode) << ").";
+        LOG(LogUnixPlateform, Error, "pthread_getname_np() failed with error {}({})", errorCode, strerror(errorCode));
     }
     return std::string(name);
 }

@@ -1,5 +1,7 @@
 #include "Engine/Threading/ThreadPool.hxx"
 
+DECLARE_LOGGER_CATEGORY(Core, LogWorkerThreadRuntime, Info);
+
 namespace Raphael
 {
 
@@ -28,7 +30,7 @@ void ThreadPool::resize(unsigned size)
     }
 }
 
-std::atomic_int ThreadPool::WorkerPoolRuntime::i_threadIDCounter = 0;
+std::atomic_int ThreadPool::WorkerPoolRuntime::s_threadIDCounter = 0;
 
 ThreadPool::WorkerPoolRuntime::WorkerPoolRuntime(std::shared_ptr<ThreadPool::State> context)
     : i_threadID(0), b_requestExit(false), p_state(std::move(context))
@@ -37,7 +39,7 @@ ThreadPool::WorkerPoolRuntime::WorkerPoolRuntime(std::shared_ptr<ThreadPool::Sta
 
 bool ThreadPool::WorkerPoolRuntime::init()
 {
-    i_threadID = i_threadIDCounter++;
+    i_threadID = s_threadIDCounter++;
     return true;
 }
 
@@ -60,9 +62,9 @@ std::uint32_t ThreadPool::WorkerPoolRuntime::run()
             }
             if (work) work(i_threadID);
         } catch (const std::exception &e) {
-            logger.err("Thread Pool") << i_threadID << " : " << e.what();
+            LOG(LogWorkerThreadRuntime, Fatal, "{} : {}", i_threadID, e.what());
         } catch (...) {
-            logger.err("Thread Pool") << "Unkown error on thread " << i_threadID;
+            LOG(LogWorkerThreadRuntime, Fatal, "Unkown error on thread {}", i_threadID);
         }
     }
     return 0;
@@ -71,11 +73,13 @@ std::uint32_t ThreadPool::WorkerPoolRuntime::run()
 void ThreadPool::WorkerPoolRuntime::stop()
 {
     b_requestExit = true;
+    LOG(LogWorkerThreadRuntime, Info, "Thread {}: exit requested", i_threadID);
 }
 
 void ThreadPool::WorkerPoolRuntime::exit()
 {
     b_requestExit = true;
+    LOG(LogWorkerThreadRuntime, Info, "Thread {}: exit requested", i_threadID);
 }
 
 }    // namespace Raphael

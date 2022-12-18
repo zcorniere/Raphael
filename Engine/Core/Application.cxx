@@ -1,5 +1,7 @@
 #include "Engine/Core/Application.hxx"
 
+#include "Engine/Core/Log.hxx"
+
 namespace Raphael
 {
 
@@ -7,8 +9,7 @@ Application *Application::s_Instance = nullptr;
 
 Application::Application(const ApplicationSpecification &specification): m_Specification(specification)
 {
-    logger.start();
-    Platform::setThreadName(logger.getThreadHandle(), "Logger Thread");
+    Log::Init();
     s_Instance = this;
 
     if (!m_Specification.WorkingDirectory.empty()) { std::filesystem::current_path(m_Specification.WorkingDirectory); }

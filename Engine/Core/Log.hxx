@@ -7,14 +7,14 @@
 #define RPH_WARN_TAG(Tag, ...) ::Raphael::Log::PrintMessage(cpplogger::Level::Warn, Tag, __VA_ARGS__)
 #define RPH_ERROR_TAG(Tag, ...) ::Raphael::Log::PrintMessage(cpplogger::Level::Error, Tag, __VA_ARGS__)
 
-namespace Raphael::Log
+namespace Raphael
 {
 
-template <typename... Args>
-void PrintMessage(cpplogger::Level level, const std::string &tag, Args... args)
+class Log
 {
-    cpplogger::Stream stream = logger.level(level, tag);
-    ((stream << args), ...);
-}
+public:
+    static void Init();
+    static void Shutdown();
+};
 
 }    // namespace Raphael::Log

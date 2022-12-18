@@ -13,40 +13,38 @@
 
 #ifndef NDEBUG
 
-    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, ...)                                              \
-        ((LIKELY(!!(Expression))) || ([Capture](const std::string FunctionName = Utils::function_name()) {     \
-                                         using namespace Raphael;                                              \
-                                         static std::atomic_bool bExecuted = false;                            \
-                                         if (!bExecuted || Always) {                                           \
-                                             bExecuted = true;                                                 \
-                                             logger.err(FunctionName) << "Assertion failed: " STR(#Expression) \
-                                                     __VA_OPT__(" :: " <<) __VA_ARGS__;                        \
-                                             return Platform::isDebuggerPresent();                             \
-                                         }                                                                     \
-                                         return false;                                                         \
-                                     }()) &&                                                                   \
+    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, Format, ...)                                  \
+        ((LIKELY(!!(Expression))) || ([Capture](const std::string FunctionName = Utils::function_name()) { \
+                                         using namespace Raphael;                                          \
+                                         static std::atomic_bool bExecuted = false;                        \
+                                         if (!bExecuted || Always) {                                       \
+                                             bExecuted = true;                                             \
+                                             fprintf(stderr, "Assertion failed:" STR(#Expression)          \
+                                                                 __VA_OPT__(" :: " Format, ) __VA_ARGS__); \
+                                             return Platform::isDebuggerPresent();                         \
+                                         }                                                                 \
+                                         return false;                                                     \
+                                     }()) &&                                                               \
                                          ([]() { Raphael::Platform::breakpoint(); }(), false))
 
-    #define verify(Expression) RAPHAEL_VERIFY_IMPL(, false, Expression)
-    #define verifyMsg(Expression, ...) RAPHAEL_VERIFY_IMPL(&, false, Expression, ##__VA_ARGS__)
-    #define verifyAlways(Expression) RAPHAEL_VERIFY_IMPL(, true, Expression)
-    #define verifyAlwaysMsg(Expression, ...) RAPHAEL_VERIFY_IMPL(&, true, Expression, ##__VA_ARGS__)
+    #define verify(Expression) RAPHAEL_VERIFY_IMPL(, false, Expression, )
+    #define verifyMsg(Expression, Format, ...) RAPHAEL_VERIFY_IMPL(&, false, Expression, Format, ##__VA_ARGS__)
+    #define verifyAlways(Expression) RAPHAEL_VERIFY_IMPL(, true, Expression, )
+    #define verifyAlwaysMsg(Expression, Format, ...) RAPHAEL_VERIFY_IMPL(&, true, Expression, Format, ##__VA_ARGS__)
 
-    #define RAPHAEL_ASSERT_IMPL(Always, Expression, ...)                                        \
-        {                                                                                       \
-            using namespace Raphael;                                                            \
-                                                                                                \
-            if (UNLIKELY(!(Expression))) {                                                      \
-                logger.err(Utils::function_name())                                              \
-                    << "Assertion failed: " STR(#Expression) __VA_OPT__(" :: " <<) __VA_ARGS__; \
-                logger.stop();                                                                  \
-                if (Platform::isDebuggerPresent()) { Platform::breakpoint(); }                  \
-                std::abort();                                                                   \
-            }                                                                                   \
+    #define RAPHAEL_CHECK_IMPL(Expression, Format, ...)                                                        \
+        {                                                                                                      \
+            using namespace Raphael;                                                                           \
+                                                                                                               \
+            if (UNLIKELY(!(Expression))) {                                                                     \
+                fprintf(stderr, "Assertion failed:" STR(#Expression) __VA_OPT__(" :: " Format, ) __VA_ARGS__); \
+                if (Platform::isDebuggerPresent()) { Platform::breakpoint(); }                                 \
+                std::abort();                                                                                  \
+            }                                                                                                  \
         }
 
-    #define check(Expression) RAPHAEL_ASSERT_IMPL(false, Expression)
-    #define checkMsg(Expression, ...) RAPHAEL_ASSERT_IMPL(false, Expression, ##__VA_ARGS__)
+    #define check(Expression) RAPHAEL_CHECK_IMPL(Expression, )
+    #define checkMsg(Expression, Format, ...) RAPHAEL_CHECK_IMPL(Expression, Format, ##__VA_ARGS__)
     #define checkNoEntry()                                             \
         {                                                              \
             using namespace Raphael;                                   \

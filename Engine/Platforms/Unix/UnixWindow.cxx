@@ -7,6 +7,8 @@
 
 #include <GLFW/glfw3.h>
 
+DECLARE_LOGGER_CATEGORY(Core, LogUnixWindow, Info)
+
 namespace Raphael
 {
 
@@ -14,7 +16,7 @@ static bool s_GLFWInitialized = false;
 
 static void GLFWErrorCallback(int errorCode, const char *message)
 {
-    RPH_ERROR_TAG("GLFW Error", "Error code: ", errorCode, " -> ", message);
+    LOG(LogUnixWindow, Error, "GLFW Error({}) -> {} ", errorCode, message);
 }
 
 Window *Window::Create(const WindowSpecification &specification)
@@ -37,8 +39,8 @@ void UnixWindow::Init()
     m_Data.Width = m_Specification.Width;
     m_Data.Height = m_Specification.Height;
 
-    RPH_INFO_TAG("UnixWindow", "Creating window ", m_Specification.Title, " (", m_Specification.Width, ", ",
-                 m_Specification.Height, ")");
+    LOG(LogUnixWindow, Info, "Creating window {} ({}, {})", m_Specification.Title, m_Specification.Width,
+        m_Specification.Height);
 
     if (!s_GLFWInitialized) {
         s_GLFWInitialized = glfwInit();
@@ -72,7 +74,7 @@ void UnixWindow::Init()
     if (glfwRawMouseMotionSupported()) {
         glfwSetInputMode(m_Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     } else {
-        RPH_WARN_TAG("Platform", "Raw mouse motion not supported.");
+        LOG(LogUnixWindow, Warn, "Raw mouse motion not supported.");
     }
 
     // Set GLFW callbacks

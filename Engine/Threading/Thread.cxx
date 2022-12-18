@@ -1,5 +1,7 @@
 #include "Engine/Threading/Thread.hxx"
 
+DECLARE_LOGGER_CATEGORY(Core, LogThread, Info)
+
 namespace Raphael
 {
 
@@ -53,7 +55,7 @@ std::uint32_t Thread::run()
         m_internalRuntime->exit();
     }
 
-    logger.info("Thread") << "Thread (\"" << m_name << "\") exited with code " << exitCode;
+    LOG(LogThread, Info, "Thread (\"{}\") exited with code {}", m_name, exitCode);
     return exitCode;
 }
 

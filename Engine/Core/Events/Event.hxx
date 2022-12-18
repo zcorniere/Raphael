@@ -2,6 +2,8 @@
 
 #include "Engine/Misc/MiscDefines.hxx"
 
+#include <functional>
+
 namespace Raphael
 {
 
