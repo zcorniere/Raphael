@@ -4,6 +4,7 @@
 #include "Engine/Core/Events/MouseEvent.hxx"
 #include "Engine/Core/Events/WindowEvent.hxx"
 #include "Engine/Core/Window/Input.hxx"
+#include "Engine/Renderer/RendererAPI.hxx"
 
 #include <GLFW/glfw3.h>
 
@@ -48,8 +49,7 @@ void UnixWindow::Init()
         glfwSetErrorCallback(GLFWErrorCallback);
     }
 
-    // TODO: If Vulkan
-    if (true) { glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); }
+    if (RendererAPI::Current() == RendererAPIType::Vulkan) { glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); }
 
     glfwWindowHint(GLFW_DECORATED, m_Specification.Decorated);
 
