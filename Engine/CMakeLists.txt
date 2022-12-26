@@ -13,9 +13,9 @@ file(GLOB VULKAN_RENDERER_FILES Renderer/Vulkan/*.cxx)
 add_library(
     ${PROJECT_NAME} STATIC
     Core/Application.cxx
-    Core/Ref.cxx
+    Core/RObject.cxx
     Core/Log.cxx
-    
+
     Renderer/Renderer.cxx
 
     Threading/Thread.cxx

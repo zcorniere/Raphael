@@ -8,7 +8,7 @@ namespace Raphael
 {
 
 enum class EventType {
-    None = 0,
+    None,
 
     WindowClose,
     WindowMinimize,

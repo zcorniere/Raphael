@@ -16,13 +16,15 @@ Application::Application(const ApplicationSpecification &specification): m_Speci
 
     Renderer::SetConfig(m_Specification.rendererConfig);
 
-    WindowSpecification windowSpec;
-    windowSpec.Title = m_Specification.Name;
-    windowSpec.Width = m_Specification.WindowWidth;
-    windowSpec.Height = m_Specification.WindowHeight;
-    windowSpec.Decorated = m_Specification.WindowDecorated;
-    windowSpec.Fullscreen = m_Specification.Fullscreen;
-    windowSpec.VSync = m_Specification.VSync;
+    WindowSpecification windowSpec{
+        .Title = m_Specification.Name,
+        .Width = m_Specification.WindowWidth,
+        .Height = m_Specification.WindowHeight,
+        .Decorated = m_Specification.WindowDecorated,
+        .Fullscreen = m_Specification.Fullscreen,
+        .VSync = m_Specification.VSync,
+    };
+
     m_Window = std::unique_ptr<Window>(Window::Create(windowSpec));
     m_Window->Init();
     m_Window->SetEventCallback([this](Event &e) { OnEvent(e); });

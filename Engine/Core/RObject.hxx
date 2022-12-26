@@ -5,14 +5,14 @@
 namespace Raphael
 {
 
-namespace RefUtils
+namespace RObjectUtils
 {
     void AddToLiveReferences(void *instance);
     void RemoveFromLiveReferences(void *instance);
     bool IsLive(void *instance);
 }    // namespace RefUtils
 
-class RefCounted
+class RObject
 {
 public:
     void IncRefCount() const
@@ -34,15 +34,14 @@ private:
 };
 
 template <typename T>
-requires std::is_base_of_v<RefCounted, T>
+requires std::is_base_of_v<RObject, T>
 class Ref
 {
 public:
-    static Ref<T> CopyWithoutIncrement(const Ref<T> &other)
+    template <typename... Args>
+    static Ref<T> Create(Args &&...args)
     {
-        Ref<T> Result(nullptr);
-        Result->m_ObjPtr = other.m_ObjPtr;
-        return Result;
+        return Ref<T>(new T(std::forward<Args>(args)...));
     }
 
 public:
@@ -54,44 +53,44 @@ public:
     }
     Ref(T *Object): m_ObjPtr(Object)
     {
-        IncRef();
+        IncrementRefCount();
     }
 
     Ref(const Ref<T> &other): m_ObjPtr(other.m_ObjPtr)
     {
-        IncRef();
+        IncrementRefCount();
     }
 
     template <typename Other>
     Ref(const Ref<Other> &other)
     {
         m_ObjPtr = (T *)other.m_ObjPtr;
-        IncRef();
+        IncrementRefCount();
     }
 
     template <typename Other>
     Ref(const Ref<Other> &&other)
     {
         m_ObjPtr = (T *)other.m_ObjPtr;
-        IncRef();
+        IncrementRefCount();
     }
 
     ~Ref()
     {
-        DecRef();
+        DecrementRefCount();
     }
 
     Ref &operator=(std::nullptr_t)
     {
-        DecRef();
+        DecrementRefCount();
         m_ObjPtr = nullptr;
         return *this;
     }
 
     Ref &operator=(const Ref<T> &other)
     {
-        other.IncRef();
-        DecRef();
+        other.IncrementRefCount();
+        DecrementRefCount();
 
         m_ObjPtr = other.m_ObjPtr;
         return *this;
@@ -100,8 +99,8 @@ public:
     template <typename Other>
     Ref &operator=(const Ref<Other> &other)
     {
-        other.IncRef();
-        DecRef();
+        other.IncrementRefCount();
+        DecrementRefCount();
 
         m_ObjPtr = other.m_ObjPtr;
         return *this;
@@ -110,7 +109,7 @@ public:
     template <typename Other>
     Ref &operator=(Ref<Other> &&other)
     {
-        DecRef();
+        DecrementRefCount();
 
         m_ObjPtr = other.m_ObjPtr;
         other.m_ObjPtr = nullptr;
@@ -155,7 +154,7 @@ public:
 
     void Reset(T *instance = nullptr)
     {
-        DecRef();
+        DecrementRefCount();
         m_ObjPtr = instance;
     }
 
@@ -163,12 +162,6 @@ public:
     Ref<Other> As() const
     {
         return Ref<Other>(*this);
-    }
-
-    template <typename... Args>
-    static Ref<T> Create(Args &&...args)
-    {
-        return Ref<T>(new T(std::forward<Args>(args)...));
     }
 
     bool operator==(const Ref<T> &other) const
@@ -189,20 +182,20 @@ public:
     }
 
 private:
-    void IncRef() const
+    void IncrementRefCount() const
     {
         if (m_ObjPtr) {
-            m_ObjPtr->IncRefCount();
-            RefUtils::AddToLiveReferences((void *)m_ObjPtr);
+            m_ObjPtr->IncrementRefCount();
+            RObjectUtils::AddToLiveReferences((void *)m_ObjPtr);
         }
     }
 
-    void DecRef() const
+    void DecrementRefCount() const
     {
         if (m_ObjPtr) {
-            m_ObjPtr->DecRefCount();
+            m_ObjPtr->DecrementRefCount();
             if (m_ObjPtr->GetRefCount() == 0) {
-                RefUtils::RemoveFromLiveReferences((void *)m_ObjPtr);
+                RObjectUtils::RemoveFromLiveReferences((void *)m_ObjPtr);
                 delete m_ObjPtr;
                 m_ObjPtr = nullptr;
             }

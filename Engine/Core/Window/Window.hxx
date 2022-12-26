@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Engine/Core/Events/Event.hxx"
-#include "Engine/Core/Ref.hxx"
 
 namespace Raphael
 {
@@ -15,7 +14,7 @@ struct WindowSpecification {
     bool VSync = true;
 };
 
-class Window : public RefCounted
+class Window : public RObject
 {
 public:
     using EventCallbackFn = std::function<void(Event &)>;

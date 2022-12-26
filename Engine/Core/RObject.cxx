@@ -1,4 +1,3 @@
-#include "Engine/Core/Ref.hxx"
 
 #include <unordered_set>
 
@@ -8,7 +7,7 @@ namespace Raphael
 static std::unordered_set<void *> s_LiveReferences;
 static std::mutex s_LiveReferenceMutex;
 
-namespace RefUtils
+namespace RObjectUtils
 {
 
     void AddToLiveReferences(void *instance)
@@ -31,6 +30,6 @@ namespace RefUtils
         check(instance);
         return s_LiveReferences.find(instance) != s_LiveReferences.end();
     }
-}    // namespace RefUtils
+}    // namespace RObjectUtils
 
 }    // namespace Raphael
