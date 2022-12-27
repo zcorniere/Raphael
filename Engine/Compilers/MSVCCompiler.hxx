@@ -14,31 +14,32 @@ static_assert(false, "MSVC Compiler header included without compiling with MSVC"
 namespace Raphael
 {
 
-///
-/// @brief Wrapper around MSCV intrisics functions
-///
-class MSVCCompiler
+namespace Compilers
 {
-public:
-    /// Return the address of the current function,
-    FORCEINLINE static void *return_address()
+    ///
+    /// @brief Wrapper around MSCV intrisics functions
+    ///
+    class MSVCCompiler
     {
-        return _ReturnAddress();
-    }
-    /// Returns the address of the function frame
-    FORCEINLINE static void *return_address_pointer()
-    {
-        return _AddressOfReturnAddress();
-    }
+    public:
+        /// Return the address of the current function,
+        FORCEINLINE static void *ReturnAddress()
+        {
+            return _ReturnAddress();
+        }
 
-    /// Mark a branch as unreachable
-    [[noreturn]] FORCEINLINE static void unreachable()
-    {
-        __assume(false);
-    }
-};
+        /// Mark a branch as unreachable
+        [[noreturn]] FORCEINLINE static void Unreachable()
+        {
+            __assume(false);
+        }
+
+        static std::string Demangle(const std::string_view &name);
+    };
+
+}    // namespace Compilers
 
 /// Alias of the correct compiler currently used
-using Compiler = MSVCCompiler;
+using Compiler = Compilers::MSVCCompiler;
 
 }    // namespace Raphael

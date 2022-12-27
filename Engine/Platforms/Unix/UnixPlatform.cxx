@@ -2,6 +2,8 @@
 #include "Engine/Misc/Assertions.hxx"
 
 #include <cstring>
+#include <dlfcn.h>
+#include <execinfo.h>
 #include <fcntl.h>
 #include <iterator>
 #include <string.h>
@@ -10,7 +12,7 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogUnixPlateform, Info)
 
-namespace Raphael
+namespace Raphael::Platforms
 {
 
 bool UnixPlateform::isDebuggerPresent()
@@ -80,6 +82,22 @@ std::string UnixPlateform::getThreadName(std::jthread &thread)
         LOG(LogUnixPlateform, Error, "pthread_getname_np() failed with error {}({})", errorCode, strerror(errorCode));
     }
     return std::string(name);
+}
+
+StacktraceContent UnixPlateform::StackTrace(void *return_address)
+{
+    StacktraceContent trace;
+    trace.Depth = backtrace(reinterpret_cast<void **>(trace.StackTrace), trace.MaxDepth);
+
+    if (return_address != nullptr) {
+        for (std::uint32_t i = 0; i < trace.Depth; ++i) {
+            if (trace.StackTrace[i] != std::uint64_t(return_address)) { continue; }
+            trace.CurrentDepth = i;
+            break;
+        }
+    }
+
+    return trace;
 }
 
 }    // namespace Raphael

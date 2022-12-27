@@ -19,3 +19,4 @@ target_compile_options(
             /wd4324>
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
+set_target_properties(${PROJECT_NAME} PROPERTIES ENABLE_EXPORTS 1)

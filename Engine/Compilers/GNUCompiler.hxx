@@ -1,7 +1,10 @@
 #pragma once
 
 #include "Engine/Compilers/Compiler.hxx"
+#include "Engine/Misc/UniquePtr.hxx"
 #include "Engine/Platforms/Platform.hxx"
+
+#include <cxxabi.h>
 
 #if !defined(COMPILER_GNU)
 
@@ -12,31 +15,33 @@ static_assert(false, "GNU Compiler header included without compiling with GNU");
 namespace Raphael
 {
 
-///
-/// @brief Wrapper around GCC intrisics functions
-///
-class GNUCompiler
+namespace Compilers
 {
-public:
-    /// Return the address of the current function,
-    FORCEINLINE static void *return_address()
-    {
-        return __builtin_return_address(0);
-    }
-    /// Returns the address of the function frame
-    FORCEINLINE static void *return_address_pointer()
-    {
-        return __builtin_frame_address(0);
-    }
 
-    /// Mark a branch as unreachable
-    [[noreturn]] FORCEINLINE static void unreachable()
+    ///
+    /// @brief Wrapper around GCC intrisics functions
+    ///
+    class GNUCompiler
     {
-        __builtin_unreachable();
-    }
-};
+    public:
+        /// Return the address of the current function,
+        FORCEINLINE static void *ReturnAddress()
+        {
+            return __builtin_return_address(0);
+        }
+
+        /// Mark a branch as unreachable
+        [[noreturn]] FORCEINLINE static void Unreachable()
+        {
+            __builtin_unreachable();
+        }
+
+        static std::string Demangle(const std::string_view &name);
+    };
+
+}    // namespace Compilers
 
 /// Alias of the correct compiler currently used
-using Compiler = GNUCompiler;
+using Compiler = Compilers::GNUCompiler;
 
 }    // namespace Raphael

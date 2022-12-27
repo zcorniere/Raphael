@@ -6,6 +6,11 @@
 
 #include <atomic>
 
+namespace Raphael::Assertions
+{
+void CollectAndPrintStackTrace(void *ReturnAddress);
+}
+
 #define MACRO_EXPENDER_INTERNAL(X, Y) X##Y
 #define MACRO_EXPENDER(X, Y) PIVOT_MACRO_EXPENDER_INTERNAL(X, Y)
 
@@ -13,18 +18,19 @@
 
 #ifndef NDEBUG
 
-    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, Format, ...)                                  \
-        ((LIKELY(!!(Expression))) || ([Capture](const std::string FunctionName = Utils::function_name()) { \
-                                         using namespace Raphael;                                          \
-                                         static std::atomic_bool bExecuted = false;                        \
-                                         if (!bExecuted || Always) {                                       \
-                                             bExecuted = true;                                             \
-                                             fprintf(stderr, "Assertion failed:" STR(#Expression)          \
-                                                                 __VA_OPT__(" :: " Format, ) __VA_ARGS__); \
-                                             return Platform::isDebuggerPresent();                         \
-                                         }                                                                 \
-                                         return false;                                                     \
-                                     }()) &&                                                               \
+    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, Format, ...)                                      \
+        ((LIKELY(!!(Expression))) || ([Capture](const std::string FunctionName = Utils::function_name()) {     \
+                                         using namespace Raphael;                                              \
+                                         static std::atomic_bool bExecuted = false;                            \
+                                         if (!bExecuted || Always) {                                           \
+                                             Assertions::CollectAndPrintStackTrace(Compiler::ReturnAddress()); \
+                                             bExecuted = true;                                                 \
+                                             fprintf(stderr, "Assertion failed:" STR(#Expression)              \
+                                                                 __VA_OPT__(" :: " Format, ) __VA_ARGS__);     \
+                                             return Platform::isDebuggerPresent();                             \
+                                         }                                                                     \
+                                         return false;                                                         \
+                                     }()) &&                                                                   \
                                          ([]() { Raphael::Platform::breakpoint(); }(), false))
 
     #define verify(Expression) RAPHAEL_VERIFY_IMPL(, false, Expression, )
@@ -37,7 +43,9 @@
             using namespace Raphael;                                                                           \
                                                                                                                \
             if (UNLIKELY(!(Expression))) {                                                                     \
+                Assertions::CollectAndPrintStackTrace(Compiler::ReturnAddress());                              \
                 fprintf(stderr, "Assertion failed:" STR(#Expression) __VA_OPT__(" :: " Format, ) __VA_ARGS__); \
+                fflush(stderr);                                                                                \
                 if (Platform::isDebuggerPresent()) { Platform::breakpoint(); }                                 \
                 std::abort();                                                                                  \
             }                                                                                                  \
@@ -50,7 +58,7 @@
             using namespace Raphael;                                   \
                                                                        \
             checkMsg(false, "Enclosing block should never be called"); \
-            Compiler::unreachable();                                   \
+            Compiler::Unreachable();                                   \
         }
     #define checkNoReentry()                                                                            \
         {                                                                                               \

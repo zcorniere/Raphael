@@ -1,7 +1,10 @@
 #pragma once
 
 #include "Engine/Compilers/Compiler.hxx"
+#include "Engine/Misc/UniquePtr.hxx"
 #include "Engine/Platforms/Platform.hxx"
+
+#include <cxxabi.h>
 
 #if !defined(COMPILER_CLANG)
 
@@ -12,31 +15,32 @@ static_assert(false, "Clang Compiler header included without compiling with clan
 namespace Raphael
 {
 
-///
-/// @brief Wrapper arround clang intrinsics function
-///
-class ClangCompiler
+namespace Compilers
 {
-public:
-    /// Return the address of the current function,
-    FORCEINLINE static void *return_address()
+    ///
+    /// @brief Wrapper arround clang intrinsics function
+    ///
+    class ClangCompiler
     {
-        return __builtin_return_address(0);
-    }
-    /// Returns the address of the function frame
-    FORCEINLINE static void *return_address_pointer()
-    {
-        return __builtin_frame_address(0);
-    }
+    public:
+        /// Return the address of the current function,
+        FORCEINLINE static void *ReturnAddress()
+        {
+            return __builtin_return_address(0);
+        }
 
-    /// Mark a branch as unreachable
-    [[noreturn]] FORCEINLINE static void unreachable()
-    {
-        __builtin_unreachable();
-    }
-};
+        /// Mark a branch as unreachable
+        [[noreturn]] FORCEINLINE static void Unreachable()
+        {
+            __builtin_unreachable();
+        }
+
+        static std::string Demangle(const std::string_view &name);
+    };
+
+}    // namespace Compilers
 
 /// Alias of the correct compiler currently used
-using Compiler = ClangCompiler;
+using Compiler = Compilers::ClangCompiler;
 
 }    // namespace Raphael

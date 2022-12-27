@@ -3,7 +3,7 @@
 #include <debugapi.h>
 #include <processthreadsapi.h>
 
-namespace Raphael
+namespace Raphael::Platforms
 {
 
 bool WindowsPlatform::isDebuggerPresent()

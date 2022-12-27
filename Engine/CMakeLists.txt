@@ -8,6 +8,16 @@ else()
     message(FATAL_ERROR "Platform Not supported !")
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(COMPILER_SOURCE_FILE Compilers/ClangCompiler.cxx)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(COMPILER_SOURCE_FILE Compilers/GNUCompiler.cxx)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(COMPILER_SOURCE_FILE Compilers/MSVCCompiler.cxx)
+else()
+    message(FATAL_ERROR "Compiler not supported !")
+endif()
+
 file(GLOB VULKAN_RENDERER_FILES Renderer/Vulkan/*.cxx)
 
 add_library(
@@ -15,6 +25,7 @@ add_library(
     Core/Application.cxx
     Core/RObject.cxx
     Core/Log.cxx
+    Misc/Assertions.cxx
 
     Renderer/Renderer.cxx
 
@@ -22,8 +33,10 @@ add_library(
     Threading/ThreadPool.cxx
 
     ${PLATFORM_SOURCE_FILES}
+    ${COMPILER_SOURCE_FILE}
 
     ${VULKAN_RENDERER_FILES}
+
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
