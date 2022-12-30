@@ -7,6 +7,8 @@
 #include "Engine/Compilers/Compiler.hxx"
 #include "Engine/Platforms/Platform.hxx"
 
+#include <sys/param.h>
+
 #if !defined(PLATFORM_UNIX)
 
 static_assert(false, "Unix Platform header included on a non Unix platform");
@@ -54,6 +56,7 @@ namespace Platforms
         ///
         static std::string getThreadName(std::jthread &thread);
 
+        /// @brief Return a stacktrace of the current running process
         static StacktraceContent StackTrace(void *returnAddress);
     };
 

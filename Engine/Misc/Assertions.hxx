@@ -8,6 +8,7 @@
 
 namespace Raphael::Assertions
 {
+
 void CollectAndPrintStackTrace(void *ReturnAddress);
 }
 
@@ -23,10 +24,12 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
                                          using namespace Raphael;                                              \
                                          static std::atomic_bool bExecuted = false;                            \
                                          if (!bExecuted || Always) {                                           \
-                                             Assertions::CollectAndPrintStackTrace(Compiler::ReturnAddress()); \
                                              bExecuted = true;                                                 \
+                                             /* TODO: Check if another assertion is in progress */             \
+                                             Assertions::CollectAndPrintStackTrace(Compiler::ReturnAddress()); \
                                              fprintf(stderr, "Assertion failed:" STR(#Expression)              \
                                                                  __VA_OPT__(" :: " Format, ) __VA_ARGS__);     \
+                                             fprintf(stderr, "\n");                                            \
                                              return Platform::isDebuggerPresent();                             \
                                          }                                                                     \
                                          return false;                                                         \

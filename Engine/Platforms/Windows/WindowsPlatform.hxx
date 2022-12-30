@@ -48,6 +48,7 @@ namespace Platforms
         ///
         static std::string getThreadName(std::jthread &thread);
 
+        /// @brief Return a stacktrace of the current running process
         static StacktraceContent StackTrace(void *returnAddress);
     };
 
