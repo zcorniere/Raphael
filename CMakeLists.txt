@@ -6,6 +6,7 @@ include(CheckIPOSupported)
 include(GNUInstallDirs)
 include(cmake/find_linker.cmake)
 include(cmake/CompileShaders.cmake)
+include(cmake/StripDebugFile.cmake)
 
 find_linker()
 
