@@ -53,6 +53,11 @@ public:
         return m_Window;
     }
 
+    virtual Ref<RendererContext> GetRenderContext() override
+    {
+        return m_RendererContext;
+    }
+
 private:
     virtual void Shutdown();
 
@@ -68,6 +73,8 @@ private:
         EventCallbackFn EventCallback;
     };
     WindowData m_Data;
+
+    Ref<RendererContext> m_RendererContext;
 };
 
 }    // namespace Raphael

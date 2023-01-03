@@ -69,6 +69,9 @@ void UnixWindow::Init()
                                     nullptr, nullptr);
     }
 
+    m_RendererContext = RendererContext::Create();
+    m_RendererContext->Init();
+
     glfwSetWindowUserPointer(m_Window, &m_Data);
 
     if (glfwRawMouseMotionSupported()) {

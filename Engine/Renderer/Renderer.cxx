@@ -42,4 +42,9 @@ void Renderer::SetConfig(const RendererConfig &config)
     s_Config = config;
 }
 
+const RendererCapabilities &Renderer::GetCapabilities()
+{
+    return s_RendererAPI->GetCapabilities();
+}
+
 }    // namespace Raphael

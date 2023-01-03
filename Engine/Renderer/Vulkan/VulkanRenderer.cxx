@@ -1,11 +1,13 @@
 #include "Engine/Renderer/Vulkan/VulkanRenderer.hxx"
 
+#include "Engine/Renderer/Vulkan/VulkanContext.hxx"
+
 namespace Raphael
 {
-
 namespace Utils
 {
-    static const std::string_view VulkanVendorIDToString(std::uint32_t vendorID)
+
+    static constexpr std::string_view VulkanVendorIDToString(std::uint32_t vendorID)
     {
         switch (vendorID) {
             case 0x10DE: return "NVIDIA";
@@ -14,6 +16,7 @@ namespace Utils
         }
         return "Unknown";
     }
+
 }    // namespace Utils
 
 struct VulkanRendererData {
@@ -25,6 +28,14 @@ static VulkanRendererData *s_Data = nullptr;
 void VulkanRenderer::Init()
 {
     s_Data = new VulkanRendererData();
+
+    auto &caps = s_Data->RenderCapabilities;
+    auto &properties = VulkanContext::GetCurrentDevice()->GetPhysicalDevice()->GetProperties();
+    caps.Vendor = Utils::VulkanVendorIDToString(properties.vendorID);
+    caps.Device = properties.deviceName;
+    caps.Version = std::to_string(properties.driverVersion);
+
+    Utils::DumpGPUInfo();
 }
 
 void VulkanRenderer::Shutdown()

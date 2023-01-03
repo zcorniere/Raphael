@@ -4,7 +4,7 @@
 #include "Engine/Core/Events/WindowEvent.hxx"
 #include "Engine/Core/TimeStep.hxx"
 #include "Engine/Core/Window/Window.hxx"
-#include "Engine/Renderer/Renderer.hxx"
+#include "Engine/Renderer/RendererConfig.hxx"
 
 #include <queue>
 

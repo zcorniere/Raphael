@@ -15,11 +15,11 @@ namespace RObjectUtils
 class RObject
 {
 public:
-    void IncRefCount() const
+    void IncrementRefCount() const
     {
         ++m_RefCount;
     }
-    void DecRefCount() const
+    void DecrementRefCount() const
     {
         --m_RefCount;
     }
@@ -34,7 +34,6 @@ private:
 };
 
 template <typename T>
-requires std::is_base_of_v<RObject, T>
 class Ref
 {
 public:
@@ -53,6 +52,8 @@ public:
     }
     Ref(T *Object): m_ObjPtr(Object)
     {
+        static_assert(std::is_base_of<RObject, T>::value, "Class is not RefCounted!");
+
         IncrementRefCount();
     }
 

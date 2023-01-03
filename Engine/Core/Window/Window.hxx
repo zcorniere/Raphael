@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/Events/Event.hxx"
+#include "Engine/Renderer/RendererContext.hxx"
 
 namespace Raphael
 {
@@ -43,6 +44,8 @@ public:
     virtual void SetTitle(const std::string &Title) = 0;
 
     virtual void *GetNativeWindow() const = 0;
+
+    virtual Ref<RendererContext> GetRenderContext() = 0;
 
     static Window *Create(const WindowSpecification &spec = WindowSpecification());
 };

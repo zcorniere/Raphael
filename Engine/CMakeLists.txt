@@ -1,5 +1,7 @@
 project(RaphaelEngine)
 
+find_package(Vulkan REQUIRED)
+
 if(WIN32)
     file(GLOB PLATFORM_SOURCE_FILES Platforms/Windows/*.cxx)
 elseif(UNIX)
@@ -26,21 +28,18 @@ add_library(
     Core/RObject.cxx
     Core/Log.cxx
     Misc/Assertions.cxx
-
     Renderer/Renderer.cxx
-
+    Renderer/RendererContext.cxx
     Threading/Thread.cxx
     Threading/ThreadPool.cxx
-
     ${PLATFORM_SOURCE_FILES}
     ${COMPILER_SOURCE_FILE}
-
     ${VULKAN_RENDERER_FILES}
-
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC logger glm glfw)
+target_link_libraries(${PROJECT_NAME} PUBLIC logger glm glfw Vulkan::Vulkan)
+target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:RPH_DEBUG>)
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE Raphael.hxx)
 

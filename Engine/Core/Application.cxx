@@ -1,6 +1,7 @@
 #include "Engine/Core/Application.hxx"
 
 #include "Engine/Core/Log.hxx"
+#include "Engine/Renderer/Renderer.hxx"
 
 namespace Raphael
 {
