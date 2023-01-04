@@ -24,6 +24,8 @@ else()
     message(STATUS "LTO not supported")
 endif()
 
+find_package(Vulkan REQUIRED)
+
 add_subdirectory(External/)
 add_subdirectory(Engine/)
 add_subdirectory(Editor/)

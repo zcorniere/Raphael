@@ -1,7 +1,5 @@
 project(RaphaelEngine)
 
-find_package(Vulkan REQUIRED)
-
 if(WIN32)
     file(GLOB PLATFORM_SOURCE_FILES Platforms/Windows/*.cxx)
 elseif(UNIX)
@@ -41,7 +39,7 @@ add_library(
 target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:RPH_DEBUG>)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC logger glm glfw Vulkan::Vulkan)
+target_link_libraries(${PROJECT_NAME} PUBLIC logger glm glfw VulkanMemoryAllocator Vulkan::Vulkan )
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
 
 

@@ -16,3 +16,6 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glfw)
 option(TRACY_ENABLE "" ON)
 option(TRACY_ON_DEMAND "" ON)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tracy)
+
+# vma
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/VulkanMemoryAllocator)
