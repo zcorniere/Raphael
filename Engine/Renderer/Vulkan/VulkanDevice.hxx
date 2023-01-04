@@ -48,6 +48,9 @@ private:
     Ref<VulkanPhysicalDevice> m_PhysicalDevice;
     VkPhysicalDeviceFeatures m_EnabledFeatures;
 
+    VkCommandPool m_CommandPool = nullptr;
+    VkCommandPool m_ComputeCommandPool = nullptr;
+
     VkQueue m_GraphicsQueue;
     VkQueue m_ComputeQueue;
 

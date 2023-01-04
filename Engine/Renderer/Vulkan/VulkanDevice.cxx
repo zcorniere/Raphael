@@ -61,4 +61,59 @@ void VulkanDevice::Destroy()
     vkDestroyDevice(m_LogicalDevice, nullptr);
 }
 
+VkCommandBuffer VulkanDevice::GetCommandBuffer(bool begin, bool compute)
+{
+    VkCommandBuffer cmdBuffer;
+
+    VkCommandBufferAllocateInfo cmdBufAllocateInfo{
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .commandPool = (compute) ? (m_ComputeCommandPool) : (m_CommandPool),
+        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .commandBufferCount = 1,
+    };
+    VK_CHECK_RESULT(vkAllocateCommandBuffers(m_LogicalDevice, &cmdBufAllocateInfo, &cmdBuffer));
+
+    // If requested, also start the new command buffer
+    if (begin) {
+        VkCommandBufferBeginInfo cmdBufferBeginInfo{
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        };
+        VK_CHECK_RESULT(vkBeginCommandBuffer(cmdBuffer, &cmdBufferBeginInfo));
+    }
+
+    return cmdBuffer;
+}
+
+void VulkanDevice::FlushCommandBuffer(VkCommandBuffer commandBuffer)
+{
+    FlushCommandBuffer(commandBuffer, m_GraphicsQueue);
+}
+
+void VulkanDevice::FlushCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue)
+{
+    check(commandBuffer != VK_NULL_HANDLE);
+
+    VK_CHECK_RESULT(vkEndCommandBuffer(commandBuffer));
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    // Create fence to ensure that the command buffer has finished executing
+    VkFenceCreateInfo fenceCreateInfo = {};
+    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceCreateInfo.flags = 0;
+    VkFence fence;
+    VK_CHECK_RESULT(vkCreateFence(m_LogicalDevice, &fenceCreateInfo, nullptr, &fence));
+
+    // Submit to the queue
+    VK_CHECK_RESULT(vkQueueSubmit(queue, 1, &submitInfo, fence));
+    // Wait for the fence to signal that command buffer has finished executing
+    VK_CHECK_RESULT(vkWaitForFences(m_LogicalDevice, 1, &fence, VK_TRUE, std::numeric_limits<std::uint64_t>::max()));
+
+    vkDestroyFence(m_LogicalDevice, fence, nullptr);
+    vkFreeCommandBuffers(m_LogicalDevice, m_CommandPool, 1, &commandBuffer);
+}
+
 }    // namespace Raphael
