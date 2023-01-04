@@ -22,6 +22,8 @@ endif()
 
 file(GLOB VULKAN_RENDERER_FILES Renderer/Vulkan/*.cxx)
 
+option(NO_PROFILING "Disable the profiling" OFF)
+
 add_library(
     ${PROJECT_NAME} STATIC
     Core/Application.cxx
@@ -36,12 +38,15 @@ add_library(
     ${COMPILER_SOURCE_FILE}
     ${VULKAN_RENDERER_FILES}
 )
-
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC logger glm glfw Vulkan::Vulkan)
 target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:RPH_DEBUG>)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC logger glm glfw Vulkan::Vulkan)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
+
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE Raphael.hxx)
+
 
 target_compile_options(
     ${PROJECT_NAME}
@@ -57,4 +62,7 @@ target_compile_options(
             /wd4244
             /wd4324>
 )
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
+
+if(NO_PROFILING)
+    target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
+endif(NO_PROFILING)

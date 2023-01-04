@@ -7,3 +7,6 @@
 [submodule "External/glfw"]
 	path = External/glfw
 	url = git@github.com:glfw/glfw.git
+[submodule "External/tracy"]
+	path = External/tracy
+	url = git@github.com:wolfpld/tracy.git
