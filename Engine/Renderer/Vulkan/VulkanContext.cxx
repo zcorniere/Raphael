@@ -1,7 +1,7 @@
 #include "Engine/Renderer/Vulkan/VulkanContext.hxx"
 
 #include "Engine/Renderer/Vulkan/Vulkan.hxx"
-
+#include "Engine/Renderer/Vulkan/VulkanAllocator.hxx"
 #include <GLFW/glfw3.h>
 
 #ifndef VK_API_VERSION_1_2
@@ -226,6 +226,8 @@ void VulkanContext::Init()
     enabledFeatures.independentBlend = true;
     enabledFeatures.pipelineStatisticsQuery = true;
     m_Device = Ref<VulkanDevice>::Create(m_PhysicalDevice, enabledFeatures);
+
+    VulkanAllocator::Init(m_Device);
 }
 
 }    // namespace Raphael

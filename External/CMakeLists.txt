@@ -19,3 +19,4 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tracy)
 
 # vma
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/VulkanMemoryAllocator)
+target_compile_features(VulkanMemoryAllocator PUBLIC cxx_std_23)

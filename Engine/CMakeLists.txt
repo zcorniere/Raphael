@@ -27,6 +27,7 @@ add_library(
     Core/Application.cxx
     Core/RObject.cxx
     Core/Log.cxx
+    Misc/StringUtils.cxx
     Misc/Assertions.cxx
     Renderer/Renderer.cxx
     Renderer/RendererContext.cxx
@@ -36,7 +37,7 @@ add_library(
     ${COMPILER_SOURCE_FILE}
     ${VULKAN_RENDERER_FILES}
 )
-target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:RPH_DEBUG>)
+target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:RPH_DEBUG> RPH_LOG_ALLOCATION)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC logger glm glfw VulkanMemoryAllocator Vulkan::Vulkan )
