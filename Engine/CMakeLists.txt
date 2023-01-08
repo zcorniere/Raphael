@@ -31,6 +31,7 @@ add_library(
     Misc/Assertions.cxx
     Renderer/Renderer.cxx
     Renderer/RendererContext.cxx
+    Renderer/RenderCommandQueue.cxx
     Threading/Thread.cxx
     Threading/ThreadPool.cxx
     ${PLATFORM_SOURCE_FILES}
