@@ -132,3 +132,21 @@ inline void VulkanCheckResult(VkResult result, const std::source_location &locat
         VkResult res = (f);                       \
         ::Raphael::Utils::VulkanCheckResult(res); \
     }
+
+namespace Raphael::VKUtils
+{
+
+inline static void SetDebugUtilsObjectName(const VkDevice device, const VkObjectType objectType,
+                                           const std::string &name, const void *handle)
+{
+    VkDebugUtilsObjectNameInfoEXT nameInfo{
+        .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+        .pNext = VK_NULL_HANDLE,
+        .objectType = objectType,
+        .objectHandle = (uint64_t)handle,
+        .pObjectName = name.c_str(),
+    };
+    VK_CHECK_RESULT(fpSetDebugUtilsObjectNameEXT(device, &nameInfo));
+}
+
+}    // namespace Raphael::VKUtils

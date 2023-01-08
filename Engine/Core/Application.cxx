@@ -53,7 +53,11 @@ void Application::Run()
         static std::uint64_t frameCounter = 0;
         ProcessEvents();
 
-        if (!m_Minimized) { frameCounter++; }
+        if (!m_Minimized) {
+            m_Window->GetSwapChain().BeginFrame();
+            m_Window->SwapBuffers();
+        }
+        frameCounter++;
     }
     OnShutdown();
 }

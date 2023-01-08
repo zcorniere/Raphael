@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/Window/Window.hxx"
+#include "Engine/Renderer/Vulkan/VulkanSwapchain.hxx"
 
 #include <GLFW/glfw3.h>
 
@@ -57,6 +58,7 @@ public:
     {
         return m_RendererContext;
     }
+    VulkanSwapChain &GetSwapChain() override;
 
 private:
     virtual void Shutdown();
@@ -73,6 +75,7 @@ private:
         EventCallbackFn EventCallback;
     };
     WindowData m_Data;
+    VulkanSwapChain m_Swapchain;
 
     Ref<RendererContext> m_RendererContext;
 };

@@ -42,6 +42,11 @@ void Renderer::SetConfig(const RendererConfig &config)
     s_Config = config;
 }
 
+RendererConfig &Renderer::GetConfig()
+{
+    return s_Config;
+}
+
 const RendererCapabilities &Renderer::GetCapabilities()
 {
     return s_RendererAPI->GetCapabilities();

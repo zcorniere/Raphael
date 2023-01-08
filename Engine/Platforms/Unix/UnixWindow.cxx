@@ -6,6 +6,8 @@
 #include "Engine/Core/Window/Input.hxx"
 #include "Engine/Renderer/RendererAPI.hxx"
 
+#include "Engine/Renderer/Vulkan/VulkanContext.hxx"
+
 #include <GLFW/glfw3.h>
 
 DECLARE_LOGGER_CATEGORY(Core, LogUnixWindow, Info)
@@ -71,6 +73,12 @@ void UnixWindow::Init()
 
     m_RendererContext = RendererContext::Create();
     m_RendererContext->Init();
+
+    Ref<VulkanContext> context = m_RendererContext.As<VulkanContext>();
+
+    m_Swapchain.Init(VulkanContext::GetInstance(), context->GetDevice());
+    m_Swapchain.InitSurface(m_Window);
+    m_Swapchain.Create(&m_Data.Width, &m_Data.Height, m_Specification.VSync);
 
     glfwSetWindowUserPointer(m_Window, &m_Data);
 
@@ -198,7 +206,7 @@ void UnixWindow::ProcessEvents()
 
 void UnixWindow::SwapBuffers()
 {
-    // present
+    m_Swapchain.Present();
 }
 
 void UnixWindow::SetVSync(bool enabled)
@@ -233,6 +241,11 @@ void UnixWindow::SetTitle(const std::string &title)
 {
     m_Data.Title = title;
     glfwSetWindowTitle(m_Window, m_Data.Title.c_str());
+}
+
+VulkanSwapChain &UnixWindow::GetSwapChain()
+{
+    return m_Swapchain;
 }
 
 }    // namespace Raphael

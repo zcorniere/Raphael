@@ -62,6 +62,6 @@ target_compile_options(
             /wd4324>
 )
 
-if(NO_PROFILING)
+if(NOT NO_PROFILING)
     target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
-endif(NO_PROFILING)
+endif(NOT NO_PROFILING)

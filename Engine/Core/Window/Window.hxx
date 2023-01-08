@@ -3,6 +3,8 @@
 #include "Engine/Core/Events/Event.hxx"
 #include "Engine/Renderer/RendererContext.hxx"
 
+#include "Engine/Renderer/Vulkan/VulkanSwapchain.hxx"
+
 namespace Raphael
 {
 
@@ -46,6 +48,7 @@ public:
     virtual void *GetNativeWindow() const = 0;
 
     virtual Ref<RendererContext> GetRenderContext() = 0;
+    virtual VulkanSwapChain &GetSwapChain() = 0;
 
     static Window *Create(const WindowSpecification &spec = WindowSpecification());
 };

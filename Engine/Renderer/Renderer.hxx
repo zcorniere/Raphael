@@ -24,6 +24,7 @@ public:
     static void Shutdown();
 
     static void SetConfig(const RendererConfig &config);
+    static RendererConfig &GetConfig();
 
     static const RendererCapabilities &GetCapabilities();
 };
