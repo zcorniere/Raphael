@@ -25,6 +25,9 @@ public:
     static void SetConfig(const RendererConfig &config);
     static RendererConfig &GetConfig();
 
+    static void BeginFrame();
+    static void EndFrame();
+
     static const RendererCapabilities &GetCapabilities();
     static std::uint32_t GetCurrentSwapchainIndex();
 
@@ -60,6 +63,8 @@ public:
             new (storageBuffer) FuncT(std::forward<FuncT>((FuncT &&) func));
         });
     }
+
+    static void WaitAndRender();
 };
 
 namespace Utils

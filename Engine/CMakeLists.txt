@@ -29,6 +29,7 @@ add_library(
     Core/Log.cxx
     Misc/StringUtils.cxx
     Misc/Assertions.cxx
+    Renderer/Image.cxx
     Renderer/Renderer.cxx
     Renderer/RendererContext.cxx
     Renderer/RenderCommandQueue.cxx

@@ -30,10 +30,11 @@ static RendererAPI *InitRendererAPI()
 void Renderer::Init()
 {
     s_RendererAPI = InitRendererAPI();
-    s_RendererAPI->Init();
 
     s_ResourceFreeQueue = new RenderCommandQueue[s_Config.FramesInFlight];
     s_CommandQueue = new RenderCommandQueue();
+
+    s_RendererAPI->Init();
 }
 
 void Renderer::Shutdown()
@@ -42,6 +43,16 @@ void Renderer::Shutdown()
 
     delete s_CommandQueue;
     delete[] s_ResourceFreeQueue;
+}
+
+void Renderer::BeginFrame()
+{
+    return s_RendererAPI->BeginFrame();
+}
+
+void Renderer::EndFrame()
+{
+    return s_RendererAPI->EndFrame();
 }
 
 void Renderer::SetConfig(const RendererConfig &config)
@@ -72,6 +83,11 @@ RenderCommandQueue &Renderer::GetRenderResourceReleaseQueue(uint32_t index)
 RenderCommandQueue &Renderer::GetRenderCommandQueue()
 {
     return *s_CommandQueue;
+}
+
+void Renderer::WaitAndRender()
+{
+    s_CommandQueue->Execute();
 }
 
 }    // namespace Raphael
