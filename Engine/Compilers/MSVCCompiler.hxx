@@ -19,7 +19,7 @@ namespace Compilers
     ///
     /// @brief Wrapper around MSCV intrisics functions
     ///
-    class MSVCCompiler
+    class MSVCCompiler : public GenericCompiler
     {
     public:
         /// Return the address of the current function,

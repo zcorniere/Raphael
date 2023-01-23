@@ -19,11 +19,10 @@ constexpr std::false_type AlwaysFalse{};
 
 template <typename T>
 /// Only accept hashable type
-concept Hashable = requires(T a)
-{
-    {
-        std::hash<T>{}(a)
-        } -> std::convertible_to<std::size_t>;
-};
+concept Hashable = requires(T a) {
+                       {
+                           std::hash<T>{}(a)
+                           } -> std::convertible_to<std::size_t>;
+                   };
 
 }    // namespace Raphael

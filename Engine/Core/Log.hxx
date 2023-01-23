@@ -12,4 +12,4 @@ public:
     static void Shutdown();
 };
 
-}    // namespace Raphael::Log
+}    // namespace Raphael

@@ -11,6 +11,9 @@ static_assert(false, "Windows Platform header included on a non windows platform
 
 #include <intrin.h>
 
+#define _CRT_SECURE_NO_WARNINGS
+#define PLATFORM_BREAK() (__nop(), __debugbreak())
+
 namespace Raphael
 {
 
@@ -20,17 +23,11 @@ namespace Platforms
     /// @brief Windows-specific function and commands
     ///
     ///
-    class WindowsPlatform
+    class WindowsPlatform : public GenericPlatform
     {
     public:
         /// Is a debugger attached to the current process
         static bool isDebuggerPresent();
-
-        /// Break into the debugger
-        FORCEINLINE static void breakpoint()
-        {
-            (__nop(), __debugbreak());
-        }
 
         ///
         /// @brief Set the Thread Name

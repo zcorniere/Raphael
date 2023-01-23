@@ -20,7 +20,7 @@ namespace Compilers
     ///
     /// @brief Wrapper arround clang intrinsics function
     ///
-    class ClangCompiler
+    class ClangCompiler : public GenericCompiler
     {
     public:
         /// Return the address of the current function,

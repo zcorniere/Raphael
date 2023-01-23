@@ -1,9 +1,14 @@
 project(RaphaelEngine)
 
+option(NO_PROFILING "Disable the profiling" OFF)
+option(ENABLE_VULKAN_DEBUGGING "" ON)
+
 if(WIN32)
     file(GLOB PLATFORM_SOURCE_FILES Platforms/Windows/*.cxx)
+    file(GLOB RENDERER_PLATFORM_SOURCE_FILES Renderer/Vulkan/Windows/*.cxx)
 elseif(UNIX)
-    file(GLOB PLATFORM_SOURCE_FILES Platforms/Unix/*.cxx)
+    file(GLOB PLATFORM_SOURCE_FILES Platforms/Linux/*.cxx)
+    file(GLOB RENDERER_PLATFORM_SOURCE_FILES Renderer/Vulkan/Linux/*.cxx)
 else()
     message(FATAL_ERROR "Platform Not supported !")
 endif()
@@ -20,29 +25,27 @@ endif()
 
 file(GLOB VULKAN_RENDERER_FILES Renderer/Vulkan/*.cxx)
 
-option(NO_PROFILING "Disable the profiling" OFF)
-
 add_library(
     ${PROJECT_NAME} STATIC
-    Core/Application.cxx
     Core/RObject.cxx
     Core/Log.cxx
+
+    Renderer/RHI/IDynamicRHI.cxx
+
     Misc/StringUtils.cxx
     Misc/Assertions.cxx
-    Renderer/Image.cxx
-    Renderer/Renderer.cxx
-    Renderer/RendererContext.cxx
-    Renderer/RenderCommandQueue.cxx
+
     Threading/Thread.cxx
     Threading/ThreadPool.cxx
     ${PLATFORM_SOURCE_FILES}
     ${COMPILER_SOURCE_FILE}
     ${VULKAN_RENDERER_FILES}
+    ${RENDERER_PLATFORM_SOURCE_FILES}
 )
 target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:RPH_DEBUG> RPH_LOG_ALLOCATION)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC logger glm glfw VulkanMemoryAllocator Vulkan::Vulkan )
+target_link_libraries(${PROJECT_NAME} PUBLIC logger glm glfw VulkanMemoryAllocator Vulkan::Headers )
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
 
 
@@ -61,8 +64,13 @@ target_compile_options(
             /wd4267
             /wd4201
             /wd4244
-            /wd4324>
+            /wd4324
+            /wd4702>
 )
+
+IF(ENABLE_VULKAN_DEBUGGING)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC VULKAN_DEBUGGING_ENABLED=1)
+endif()
 
 if(NOT NO_PROFILING)
     target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)

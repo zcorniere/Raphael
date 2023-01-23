@@ -53,6 +53,5 @@ SpacesInContainerLiterals: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 UseTab: Never
-# TODO: Reenable when everyone has llvm 15
-# IndentRequiresClause: false
-# RequiresClausePosition: OwnLine
+IndentRequiresClause: false
+RequiresClausePosition: OwnLine

@@ -10,7 +10,7 @@ namespace RObjectUtils
     void AddToLiveReferences(void *instance);
     void RemoveFromLiveReferences(void *instance);
     bool IsLive(void *instance);
-}    // namespace RefUtils
+}    // namespace RObjectUtils
 
 class RObject
 {

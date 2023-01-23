@@ -20,7 +20,7 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
 #ifndef NDEBUG
 
     #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, Format, ...)                                      \
-        ((LIKELY(!!(Expression))) || ([Capture](const std::string FunctionName = Utils::function_name()) {     \
+        ((LIKELY(!!(Expression))) || ([Capture]() {                                                            \
                                          using namespace Raphael;                                              \
                                          static std::atomic_bool bExecuted = false;                            \
                                          if (!bExecuted || Always) {                                           \
@@ -34,7 +34,7 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
                                          }                                                                     \
                                          return false;                                                         \
                                      }()) &&                                                                   \
-                                         ([]() { Raphael::Platform::breakpoint(); }(), false))
+                                         ([]() { PLATFORM_BREAK(); }(), false))
 
     #define verify(Expression) RAPHAEL_VERIFY_IMPL(, false, Expression, )
     #define verifyMsg(Expression, Format, ...) RAPHAEL_VERIFY_IMPL(&, false, Expression, Format, ##__VA_ARGS__)
@@ -49,7 +49,7 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
                 Assertions::CollectAndPrintStackTrace(Compiler::ReturnAddress());                              \
                 fprintf(stderr, "Assertion failed:" STR(#Expression) __VA_OPT__(" :: " Format, ) __VA_ARGS__); \
                 fflush(stderr);                                                                                \
-                if (Platform::isDebuggerPresent()) { Platform::breakpoint(); }                                 \
+                if (Platform::isDebuggerPresent()) { PLATFORM_BREAK(); }                                       \
                 std::abort();                                                                                  \
             }                                                                                                  \
         }

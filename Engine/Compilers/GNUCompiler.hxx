@@ -21,7 +21,7 @@ namespace Compilers
     ///
     /// @brief Wrapper around GCC intrisics functions
     ///
-    class GNUCompiler
+    class GNUCompiler : public GenericCompiler
     {
     public:
         /// Return the address of the current function,

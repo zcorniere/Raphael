@@ -1,60 +1,42 @@
 #pragma once
 
-#include "Engine/Core/RObject.hxx"
-#include "Engine/Renderer/Vulkan/Vulkan.hxx"
-#include "Engine/Renderer/Vulkan/VulkanPhysicalDevice.hxx"
+#define VK_NO_PROTOTYPES
+#include <vulkan/vulkan.h>
 
-#include <map>
-#include <unordered_set>
+#include "Engine/Renderer/Vulkan/VulkanDynamicRHI.hxx"
 
-namespace Raphael
+namespace Raphael::RHI
 {
 
-// Represents a logical device
-class VulkanDevice : public RObject
+class VulkanDevice
 {
 public:
-    VulkanDevice(const Ref<VulkanPhysicalDevice> &physicalDevice, VkPhysicalDeviceFeatures enabledFeatures);
+    VulkanDevice(VulkanDynamicRHI *InRHI, VkPhysicalDevice Gpu);
     ~VulkanDevice();
 
+    void InitGPU();
+    void CreateDevice(std::vector<const char *> DeviceLayers, std::vector<const char *> DeviceExtensions);
+
+    void PrepareForDestroy();
     void Destroy();
 
-    VkQueue GetGraphicsQueue()
-    {
-        return m_GraphicsQueue;
-    }
-    VkQueue GetComputeQueue()
-    {
-        return m_ComputeQueue;
-    }
+    void WaitUntilIdle();
 
-    VkCommandBuffer GetCommandBuffer(bool begin, bool compute = false);
-    void FlushCommandBuffer(VkCommandBuffer commandBuffer);
-    void FlushCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue);
-
-    VkCommandBuffer CreateSecondaryCommandBuffer(const char *debugName);
-
-    const Ref<VulkanPhysicalDevice> &GetPhysicalDevice() const
+    VkPhysicalDevice GetPhysicalHandle() const
     {
-        return m_PhysicalDevice;
+        return Gpu;
     }
-    VkDevice GetVulkanDevice() const
+    inline VkDevice GetInstanceHandle() const
     {
-        return m_LogicalDevice;
+        return Device;
     }
 
 private:
-    VkDevice m_LogicalDevice = nullptr;
-    Ref<VulkanPhysicalDevice> m_PhysicalDevice;
-    VkPhysicalDeviceFeatures m_EnabledFeatures;
+    VkDevice Device;
+    VkPhysicalDevice Gpu;
+    VkPhysicalDeviceProperties GpuProps;
 
-    VkCommandPool m_CommandPool = nullptr;
-    VkCommandPool m_ComputeCommandPool = nullptr;
-
-    VkQueue m_GraphicsQueue;
-    VkQueue m_ComputeQueue;
-
-    bool m_EnableDebugMarkers = false;
+    VkPhysicalDeviceFeatures PhysicalFeatures;
 };
 
-}    // namespace Raphael
+}    // namespace Raphael::RHI

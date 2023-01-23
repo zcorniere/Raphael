@@ -1,4 +1,4 @@
-#include "Engine/Compilers/GNUCompiler.hxx"
+#include "Engine/Compilers/ClangCompiler.hxx"
 
 DECLARE_LOGGER_CATEGORY(Core, LogClangCompiler, Info);
 

@@ -42,6 +42,34 @@
     #define FORCENOINLINE
 #endif
 
+namespace Raphael::Compilers
+{
+
+///
+/// @brief Wrapper arround generic intrinsics function
+///
+class GenericCompiler
+{
+public:
+    /// Return the address of the current function,
+    static void *ReturnAddress()
+    {
+        return nullptr;
+    }
+
+    /// Mark a branch as unreachable
+    [[noreturn]] FORCEINLINE static void Unreachable()
+    {
+    }
+
+    static std::string Demangle(const std::string_view &name)
+    {
+        return std::string(name);
+    }
+};
+
+}    // namespace Raphael::Compilers
+
 #if defined(COMPILER_CLANG)
     #include "Engine/Compilers/ClangCompiler.hxx"
 #elif defined(COMPILER_GNU)
@@ -49,5 +77,5 @@
 #elif defined(COMPILER_MSVC)
     #include "Engine/Compilers/MSVCCompiler.hxx"
 #else
-static_assert(false, "Unsuported Platform !");
+    #error "Unsuported Compiler !"
 #endif

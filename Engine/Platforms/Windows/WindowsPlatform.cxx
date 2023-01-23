@@ -3,6 +3,8 @@
 #include <debugapi.h>
 #include <processthreadsapi.h>
 
+DECLARE_LOGGER_CATEGORY(Core, LogWindowsPlateform, Info)
+
 namespace Raphael::Platforms
 {
 
@@ -15,7 +17,7 @@ void WindowsPlatform::setThreadName(std::jthread &thread, const std::string &nam
 {
     std::wstring nameStupidType(name.begin(), name.end());
     HRESULT hr = ::SetThreadDescription(thread.native_handle(), nameStupidType.c_str());
-    if (FAILED(hr)) { logger.err("WindowsPlatform::setThreadName") << "SetThreadDescription('" << name << "') failed"; }
+    if (FAILED(hr)) { LOG(LogWindowsPlateform, Error, "SetThreadDescription('{}') failed", name); }
 }
 
 static std::string getThreadName(std::jthread &thread)
@@ -30,4 +32,4 @@ static std::string getThreadName(std::jthread &thread)
     return "";
 }
 
-}    // namespace Raphael
+}    // namespace Raphael::Platforms

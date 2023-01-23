@@ -1,19 +1,19 @@
 #pragma once
 
 #include <signal.h>
-#include <string>
-#include <thread>
 
 #include "Engine/Compilers/Compiler.hxx"
 #include "Engine/Platforms/Platform.hxx"
 
 #include <sys/param.h>
 
-#if !defined(PLATFORM_UNIX)
+#if !defined(PLATFORM_LINUX)
 
 static_assert(false, "Unix Platform header included on a non Unix platform");
 
 #endif
+
+#define PLATFORM_BREAK() raise(SIGTRAP)
 
 namespace Raphael
 {
@@ -24,7 +24,7 @@ namespace Platforms
     ///
     /// @brief Unix-specific functions
     ///
-    class UnixPlateform
+    class LinuxPlateform : public GenericPlatform
     {
     private:
         /// Unix limit thread names to only 15 char + '\0'
@@ -33,12 +33,6 @@ namespace Platforms
     public:
         /// Is a debugger attached to the current process
         static bool isDebuggerPresent();
-
-        /// Break into the debugger
-        FORCEINLINE static void breakpoint()
-        {
-            raise(SIGTRAP);
-        }
 
         ///
         /// @brief Set the Thread Name
@@ -63,6 +57,6 @@ namespace Platforms
 }    // namespace Platforms
 
 /// Alias to the current platform
-using Platform = Platforms::UnixPlateform;
+using Platform = Platforms::LinuxPlateform;
 
 }    // namespace Raphael

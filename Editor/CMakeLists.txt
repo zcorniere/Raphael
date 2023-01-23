@@ -20,4 +20,4 @@ target_compile_options(
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 set_target_properties(${PROJECT_NAME} PROPERTIES ENABLE_EXPORTS 1)
-target_generate_debug_file(${PROJECT_NAME})
+# target_generate_debug_file(${PROJECT_NAME})

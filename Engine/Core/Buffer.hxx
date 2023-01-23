@@ -5,11 +5,8 @@ namespace Raphael
 
 template <typename T>
 /// Check if the type is safe to use in a GLSL shader
-concept PlainOldDataAligned =
-    std::is_standard_layout_v<T> && std::is_trivially_copyable_v<T> && std::is_trivially_destructible_v<T> && requires
-{
-    sizeof(T) % 4 == 0;
-};
+concept PlainOldDataAligned = std::is_standard_layout_v<T> && std::is_trivially_copyable_v<T> &&
+                              std::is_trivially_destructible_v<T> && requires { sizeof(T) % 4 == 0; };
 
 template <typename T>
 /// Check if the type is usable in a GLSL shader and allow the void type
@@ -59,12 +56,14 @@ public:
     }
 
     template <typename T2>
-    T2 &Read(std::uint32_t offset = 0) requires(!std::is_same_v<T, void>)
+    T2 &Read(std::uint32_t offset = 0)
+    requires(!std::is_same_v<T, void>)
     {
         return *(T2 *)p_Data + offset;
     }
 
-    void Write(const T *Data, std::uint32_t Size, std::uint32_t Offset = 0) requires(!std::is_same_v<T, void>)
+    void Write(const T *Data, std::uint32_t Size, std::uint32_t Offset = 0)
+    requires(!std::is_same_v<T, void>)
     {
         check(p_Data);
         check(m_Size >= Offset + Size);

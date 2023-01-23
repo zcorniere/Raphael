@@ -1,4 +1,4 @@
-#include "Engine/Platforms/Unix/UnixPlatform.hxx"
+#include "Engine/Platforms/Linux/LinuxPlatform.hxx"
 #include "Engine/Misc/Assertions.hxx"
 
 #include <cstring>
@@ -15,7 +15,7 @@ DECLARE_LOGGER_CATEGORY(Core, LogUnixPlateform, Info)
 namespace Raphael::Platforms
 {
 
-bool UnixPlateform::isDebuggerPresent()
+bool LinuxPlateform::isDebuggerPresent()
 {
     // If a process is tracing this one then TracerPid in /proc/self/status will
     // be the id of the tracing process. Use SignalHandler safe functions
@@ -38,7 +38,7 @@ bool UnixPlateform::isDebuggerPresent()
     close(StatusFile);
 
     constexpr char TracerString[] = "TracerPid:\t";
-    constexpr ssize_t LenTracerString = std::strlen(TracerString);
+    const ssize_t LenTracerString = std::strlen(TracerString);
 
     const char *foundStr = std::strstr(Buffer, TracerString);
 
@@ -49,7 +49,7 @@ bool UnixPlateform::isDebuggerPresent()
     }
 }
 
-void UnixPlateform::setThreadName(std::jthread &thread, const std::string &name)
+void LinuxPlateform::setThreadName(std::jthread &thread, const std::string &name)
 {
     std::string sizeLimitedThreadName = name;
 
@@ -73,7 +73,7 @@ void UnixPlateform::setThreadName(std::jthread &thread, const std::string &name)
     }
 }
 
-std::string UnixPlateform::getThreadName(std::jthread &thread)
+std::string LinuxPlateform::getThreadName(std::jthread &thread)
 {
     char name[UnixThreadNameLimit + 1] = {'\0'};
 
@@ -84,7 +84,7 @@ std::string UnixPlateform::getThreadName(std::jthread &thread)
     return std::string(name);
 }
 
-StacktraceContent UnixPlateform::StackTrace(void *return_address)
+StacktraceContent LinuxPlateform::StackTrace(void *return_address)
 {
     StacktraceContent trace;
     trace.Depth = backtrace(reinterpret_cast<void **>(trace.StackTrace), trace.MaxDepth);
@@ -100,4 +100,4 @@ StacktraceContent UnixPlateform::StackTrace(void *return_address)
     return trace;
 }
 
-}    // namespace Raphael
+}    // namespace Raphael::Platforms
