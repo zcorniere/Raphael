@@ -42,7 +42,6 @@ add_library(
     ${VULKAN_RENDERER_FILES}
     ${RENDERER_PLATFORM_SOURCE_FILES}
 )
-target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:RPH_DEBUG> RPH_LOG_ALLOCATION)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC logger glm glfw VulkanMemoryAllocator Vulkan::Headers )
@@ -73,5 +72,6 @@ IF(ENABLE_VULKAN_DEBUGGING)
 endif()
 
 if(NOT NO_PROFILING)
+    message(STATUS "Profiling is disabled")
     target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
 endif(NOT NO_PROFILING)

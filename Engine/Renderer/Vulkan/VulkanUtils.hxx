@@ -10,6 +10,12 @@
         if (ScopedResult != VK_SUCCESS) { ::Raphael::RHI::VulkanCheckResult(ScopedResult, #f); } \
     }
 
+#define VK_CHECK_RESULT_EXPANDED(f)                                                             \
+    {                                                                                           \
+        const VkResult ScopedResult = (f);                                                      \
+        if (ScopedResult < VK_SUCCESS) { ::Raphael::RHI::VulkanCheckResult(ScopedResult, #f); } \
+    }
+
 namespace Raphael::RHI
 {
 

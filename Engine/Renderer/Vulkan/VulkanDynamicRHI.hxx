@@ -32,6 +32,8 @@ public:
         return m_Instance;
     }
 
+    void InitInstance();
+
 protected:
     void CreateInstance();
     void SelectDevice();
@@ -48,6 +50,8 @@ protected:
 protected:
     VkInstance m_Instance;
     VulkanDevice *Device;
+
+    std::vector<VulkanDevice *> Devices;
 };
 
 }    // namespace Raphael::RHI

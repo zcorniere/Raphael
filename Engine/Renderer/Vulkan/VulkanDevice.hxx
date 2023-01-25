@@ -4,6 +4,7 @@
 #include <vulkan/vulkan.h>
 
 #include "Engine/Renderer/Vulkan/VulkanDynamicRHI.hxx"
+#include "Engine/Renderer/Vulkan/VulkanQueue.hxx"
 
 namespace Raphael::RHI
 {
@@ -15,14 +16,14 @@ public:
     ~VulkanDevice();
 
     void InitGPU();
-    void CreateDevice(std::vector<const char *> DeviceLayers, std::vector<const char *> DeviceExtensions);
+    void CreateDevice(const std::vector<const char *> &DeviceLayers, const std::vector<const char *> &DeviceExtensions);
 
     void PrepareForDestroy();
     void Destroy();
 
     void WaitUntilIdle();
 
-    VkPhysicalDevice GetPhysicalHandle() const
+    inline VkPhysicalDevice GetPhysicalHandle() const
     {
         return Gpu;
     }
@@ -30,13 +31,25 @@ public:
     {
         return Device;
     }
+    inline const VkPhysicalDeviceProperties &GetDeviceProperties() const
+    {
+        return GpuProps;
+    }
 
 private:
+    VulkanDynamicRHI *RHI = nullptr;
+
     VkDevice Device;
     VkPhysicalDevice Gpu;
     VkPhysicalDeviceProperties GpuProps;
 
     VkPhysicalDeviceFeatures PhysicalFeatures;
+    std::vector<VkQueueFamilyProperties> QueueFamilyProps;
+
+    VulkanQueue *GraphicsQueue;
+    VulkanQueue *ComputeQueue;
+    VulkanQueue *TransferQueue;
+    VulkanQueue *PresentQueue;
 };
 
 }    // namespace Raphael::RHI

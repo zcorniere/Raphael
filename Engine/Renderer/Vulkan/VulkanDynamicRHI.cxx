@@ -40,6 +40,7 @@ VkPhysicalDevice VulkanDynamicRHI::RHIGetVkPhysicalDevice() const
 
 void VulkanDynamicRHI::Init()
 {
+    InitInstance();
 }
 
 void VulkanDynamicRHI::PostInit()
@@ -111,6 +112,62 @@ void VulkanDynamicRHI::CreateInstance()
 
 void VulkanDynamicRHI::SelectDevice()
 {
+    std::uint32_t GpuCount = 0;
+    VkResult Result = VulkanAPI::vkEnumeratePhysicalDevices(m_Instance, &GpuCount, nullptr);
+    if (Result == VK_ERROR_INITIALIZATION_FAILED) {
+        LOG(LogVulkanRHI, Fatal, "Vulkan failed to find enumerate device!");
+        _exit(1);
+    }
+    VK_CHECK_RESULT_EXPANDED(Result);
+    checkMsg(GpuCount >= 1, "No GPU(s)/Driver(s) that support Vulkan were found!");
+
+    std::vector<VkPhysicalDevice> PhysicalDevices(GpuCount);
+    VK_CHECK_RESULT_EXPANDED(VulkanAPI::vkEnumeratePhysicalDevices(m_Instance, &GpuCount, PhysicalDevices.data()));
+    checkMsg(GpuCount >= 1, "Couldn't enumerate physical devices!");
+
+    struct DeviceInfo {
+        VulkanDevice *Device;
+        std::uint32_t DeviceIndex;
+    };
+    std::vector<DeviceInfo> DiscreteDevice;
+    std::vector<DeviceInfo> IntegratedDevice;
+
+    LOG(LogVulkanRHI, Info, "Found {} device(s)", GpuCount);
+    for (std::uint32_t Index = 0; Index < GpuCount; Index++) {
+        LOG(LogVulkanRHI, Info, "Device {}:", Index);
+        VulkanDevice *NewDevice = new VulkanDevice(this, PhysicalDevices[Index]);
+        Devices.push_back(NewDevice);
+
+        const bool bIsDiscrete = (NewDevice->GetDeviceProperties().deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
+        const bool bIsCPUDevice = (NewDevice->GetDeviceProperties().deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU);
+
+        if (bIsDiscrete) {
+            DiscreteDevice.push_back({NewDevice, Index});
+        } else if (bIsCPUDevice) {
+            LOG(LogVulkanRHI, Info, "Skipping device[{}] of type VK_PHYSICAL_DEVICE_TYPE_CPU",
+                NewDevice->GetDeviceProperties().deviceName);
+        } else {
+            IntegratedDevice.push_back({NewDevice, Index});
+        }
+    }
+
+    std::uint32_t DeviceIndex = -1;
+    DiscreteDevice.insert(DiscreteDevice.end(), IntegratedDevice.begin(), IntegratedDevice.end());
+
+    if (DiscreteDevice.size() > 0) {
+        Device = DiscreteDevice[0].Device;
+        DeviceIndex = DiscreteDevice[0].DeviceIndex;
+    } else {
+        LOG(LogVulkanRHI, Info, "Cannot find compatible Vulkan device");
+        _exit(1);
+    }
+
+    LOG(LogVulkanRHI, Info, "Chosen device index: {}", DeviceIndex);
+}
+
+void VulkanDynamicRHI::InitInstance()
+{
+    Device->InitGPU();
 }
 
 }    // namespace Raphael::RHI
