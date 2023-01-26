@@ -24,12 +24,12 @@ void VulkanCheckResult(VkResult result, const char *VulkanFunction,
 
 template <class T>
 requires(!std::is_pointer_v<T>)
-FORCEINLINE void ZeroVulkanStruct(T &Struct, std::int32_t StructureType)
+FORCEINLINE void ZeroVulkanStruct(T &Struct, int32 StructureType)
 {
     static_assert(offsetof(T, sType) == 0, "Assumes sType is the first member in the Vulkan type!");
-    static_assert(sizeof(T::sType) == sizeof(std::int32_t), "Assumed sType is compatible with std::int32_t!");
+    static_assert(sizeof(T::sType) == sizeof(int32), "Assumed sType is compatible with int32!");
 
-    (std::int32_t &)Struct.sType = StructureType;
+    (int32 &)Struct.sType = StructureType;
     std::memset(((std::uint8_t *)&Struct) + sizeof(StructureType), 0, sizeof(T) - sizeof(StructureType));
 }
 

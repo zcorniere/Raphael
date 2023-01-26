@@ -3,6 +3,8 @@
 #include <string>
 #include <thread>
 
+#include "Engine/Misc/MiscDefines.hxx"
+
 #if defined(_WIN32) || defined(_WIN64)
     #define PLATFORM_WINDOWS
 #elif defined(__unix__) || defined(__unix)
@@ -17,7 +19,7 @@ constexpr auto MaxStacktraceDepth = 100;
 struct StacktraceContent {
     std::uint32_t Depth;
     std::uint32_t CurrentDepth;
-    std::uint64_t StackTrace[MaxStacktraceDepth];
+    int64 StackTrace[MaxStacktraceDepth];
     const std::uint32_t MaxDepth = MaxStacktraceDepth - 1;
 };
 

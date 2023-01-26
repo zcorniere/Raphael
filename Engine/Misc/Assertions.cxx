@@ -15,11 +15,11 @@ struct DetailedSymbolInfo final {
     char FunctionName[MaxNameLength] = {'\0'};
     // TODO: find out how to recover source file information
     // char Filename[MaxNameLength] = {'\0'};
-    // std::int32_t LineNumber;
-    std::uint64_t ProgramCounter;
+    // int32 LineNumber;
+    int64 ProgramCounter;
 };
 
-bool TryFillDetailedSymbolInfo(std::uint64_t ProgramCounter, DetailedSymbolInfo &detailed_info)
+bool TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedSymbolInfo &detailed_info)
 {
     Dl_info info;
     bool ret = dladdr(reinterpret_cast<void *>(ProgramCounter), &info);

@@ -20,25 +20,6 @@ namespace Raphael::RHI
 void *VulkanLinuxPlatform::VulkanLib = nullptr;
 bool VulkanLinuxPlatform::bAttemptedLoad = false;
 
-bool VulkanLinuxPlatform::IsSupported()
-{
-    // If we're not running offscreen mode, make sure we have a display envvar set
-    bool bHasX11Display = (getenv("DISPLAY") != nullptr);
-
-    if (!bHasX11Display) {
-        // check Wayland
-        bool bHasWaylandSession = (getenv("WAYLAND_DISPLAY") != nullptr);
-
-        if (!bHasWaylandSession) {
-            LOG(LogRHI, Warn, "Could not detect DISPLAY or WAYLAND_DISPLAY environment variables");
-            return false;
-        }
-    }
-
-    // Attempt to load the library
-    return LoadVulkanLibrary();
-}
-
 bool VulkanLinuxPlatform::LoadVulkanLibrary()
 {
     if (bAttemptedLoad) { return VulkanLib != nullptr; }

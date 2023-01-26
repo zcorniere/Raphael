@@ -100,13 +100,13 @@ void VulkanDevice::CreateDevice(const std::vector<const char *> &DeviceLayers,
     DeviceInfo.ppEnabledLayerNames = (DeviceInfo.enabledLayerCount > 0) ? (DeviceLayers.data()) : (nullptr);
 
     std::vector<VkDeviceQueueCreateInfo> QueueFamilyInfos;
-    std::int32_t GraphicsQueueFamilyIndex = -1;
-    std::int32_t ComputeQueueFamilyIndex = -1;
-    std::int32_t TransferQueueFamilyIndex = -1;
+    int32 GraphicsQueueFamilyIndex = -1;
+    int32 ComputeQueueFamilyIndex = -1;
+    int32 TransferQueueFamilyIndex = -1;
     LOG(LogVulkanRHI, Info, "Found {} Queue Families", QueueFamilyProps.size());
 
     std::uint32_t NumPriorities = 0;
-    for (std::int32_t FamilyIndex = 0; FamilyIndex < (std::int32_t)QueueFamilyProps.size(); FamilyIndex++) {
+    for (int32 FamilyIndex = 0; FamilyIndex < (int32)QueueFamilyProps.size(); FamilyIndex++) {
         const VkQueueFamilyProperties &CurrProps = QueueFamilyProps[FamilyIndex];
 
         bool bIsValidQueue = false;
@@ -139,7 +139,7 @@ void VulkanDevice::CreateDevice(const std::vector<const char *> &DeviceLayers,
             continue;
         }
 
-        std::int32_t QueueIndex = QueueFamilyInfos.size();
+        int32 QueueIndex = QueueFamilyInfos.size();
         QueueFamilyInfos.resize(1 + QueueFamilyInfos.size());
 
         VkDeviceQueueCreateInfo &CurrQueue = QueueFamilyInfos[QueueIndex];
@@ -154,7 +154,7 @@ void VulkanDevice::CreateDevice(const std::vector<const char *> &DeviceLayers,
     std::vector<float> QueuePriorities(NumPriorities);
     float *CurrentPriorities = QueuePriorities.data();
 
-    for (std::int32_t Index = 0; Index < (std::int32_t)QueueFamilyInfos.size(); Index++) {
+    for (int32 Index = 0; Index < (int32)QueueFamilyInfos.size(); Index++) {
         VkDeviceQueueCreateInfo &CurrQueue = QueueFamilyInfos[Index];
         CurrQueue.pQueuePriorities = CurrentPriorities;
 
@@ -195,6 +195,7 @@ void VulkanDevice::CreateDevice(const std::vector<const char *> &DeviceLayers,
 
 void VulkanDevice::PrepareForDestroy()
 {
+    WaitUntilIdle();
 }
 
 void VulkanDevice::Destroy()

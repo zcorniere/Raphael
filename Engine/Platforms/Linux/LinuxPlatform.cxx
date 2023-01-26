@@ -91,7 +91,7 @@ StacktraceContent LinuxPlateform::StackTrace(void *return_address)
 
     if (return_address != nullptr) {
         for (std::uint32_t i = 0; i < trace.Depth; ++i) {
-            if (trace.StackTrace[i] != std::uint64_t(return_address)) { continue; }
+            if (trace.StackTrace[i] != int64(return_address)) { continue; }
             trace.CurrentDepth = i;
             break;
         }

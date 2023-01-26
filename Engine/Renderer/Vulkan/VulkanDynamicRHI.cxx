@@ -49,6 +49,7 @@ void VulkanDynamicRHI::PostInit()
 
 void VulkanDynamicRHI::Shutdown()
 {
+    Device->PrepareForDestroy();
     Device->Destroy();
 
     delete Device;

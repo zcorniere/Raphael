@@ -3,6 +3,5 @@
 namespace Raphael::Utils
 {
 
-std::string BytesToString(std::uint64_t Bytes);
-
+std::string BytesToString(int64 Bytes);
 }

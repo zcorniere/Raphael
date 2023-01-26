@@ -55,6 +55,7 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
         }
 
     #define check(Expression) RAPHAEL_CHECK_IMPL(Expression, )
+    #define checkSlow(Expression) check(Expression)
     #define checkMsg(Expression, Format, ...) RAPHAEL_CHECK_IMPL(Expression, Format, ##__VA_ARGS__)
     #define checkNoEntry()                                             \
         {                                                              \
@@ -77,9 +78,13 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
     #define verifyAlways(Expression) (LIKELY(!!(Expression)))
     #define verifyAlwaysMsg(Expression, ...) (LIKELY(!!(Expression)))
 
-    #define check(Expression)
-    #define checkMsg(Expression, ...)
-    #define checkNoEntry()
+    #define check(Expression) (LIKELY(!!(Expression)))
+    #define checkSlow(Expression)
+    #define checkMsg(Expression, ...) (LIKELY(!!(Expression)))
+    #define checkNoEntry()           \
+        {                            \
+            Compiler::Unreachable(); \
+        }
     #define checkNoReentry()
 
 #endif

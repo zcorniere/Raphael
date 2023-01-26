@@ -14,8 +14,6 @@ namespace Raphael::RHI
 class VulkanLinuxPlatform : public VulkanGenericPlatform
 {
 public:
-    static bool IsSupported();
-
     static bool LoadVulkanLibrary();
     static bool LoadVulkanInstanceFunctions(VkInstance inInstance);
     static void FreeVulkanLibrary();
