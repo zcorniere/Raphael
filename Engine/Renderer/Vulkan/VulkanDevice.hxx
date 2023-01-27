@@ -9,10 +9,10 @@
 namespace Raphael::RHI
 {
 
-class VulkanDevice
+class VulkanDevice : public RObject
 {
 public:
-    VulkanDevice(VulkanDynamicRHI *InRHI, VkPhysicalDevice Gpu);
+    VulkanDevice(Ref<VulkanDynamicRHI> InRHI, VkPhysicalDevice Gpu);
     ~VulkanDevice();
 
     void InitGPU();
@@ -37,7 +37,7 @@ public:
     }
 
 private:
-    VulkanDynamicRHI *RHI = nullptr;
+    Ref<VulkanDynamicRHI> RHI;
 
     VkDevice Device;
     VkPhysicalDevice Gpu;
@@ -46,10 +46,10 @@ private:
     VkPhysicalDeviceFeatures PhysicalFeatures;
     std::vector<VkQueueFamilyProperties> QueueFamilyProps;
 
-    VulkanQueue *GraphicsQueue;
-    VulkanQueue *ComputeQueue;
-    VulkanQueue *TransferQueue;
-    VulkanQueue *PresentQueue;
+    Ref<VulkanQueue> GraphicsQueue;
+    Ref<VulkanQueue> ComputeQueue;
+    Ref<VulkanQueue> TransferQueue;
+    Ref<VulkanQueue> PresentQueue;
 };
 
 }    // namespace Raphael::RHI

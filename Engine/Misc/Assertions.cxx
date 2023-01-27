@@ -42,6 +42,11 @@ bool TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedSymbolInfo &detaile
 
 void CollectAndPrintStackTrace(void *ReturnAddress)
 {
+    static bool bIsAlreadyHandlerAssertions = false;
+
+    if (bIsAlreadyHandlerAssertions) return;
+    bIsAlreadyHandlerAssertions = true;
+
     Platforms::StacktraceContent trace = Platform::StackTrace(ReturnAddress);
 
     LOG(LogAssert, Trace, "StackTrace :");
@@ -54,6 +59,7 @@ void CollectAndPrintStackTrace(void *ReturnAddress)
         LOG(LogAssert, Trace, "{} {} [{}]", ProgramCounter,
             (detailed_info.FunctionName[0] == '\0') ? ("UnknownFunction") : (demangled), detailed_info.ModuleName);
     }
+    bIsAlreadyHandlerAssertions = false;
 }
 
 }    // namespace Raphael::Assertions

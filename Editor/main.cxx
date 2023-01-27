@@ -1,13 +1,15 @@
 #include "Engine/Core/Log.hxx"
 #include "Engine/Renderer/Vulkan/VulkanDynamicRHI.hxx"
 
+using namespace Raphael;
+
 int main(int ac, char **av)
 {
     Raphael::Log::Init();
 
-    Raphael::RHI::VulkanDynamicRHI RHI;
-    RHI.Init();
-    RHI.Shutdown();
+    Ref<RHI::VulkanDynamicRHI> RHI = Ref<RHI::VulkanDynamicRHI>::Create();
+    RHI->Init();
+    RHI->Shutdown();
 
     Raphael::Log::Shutdown();
     return 0;

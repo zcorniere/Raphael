@@ -7,10 +7,10 @@ namespace Raphael::RHI
 
 class VulkanDevice;
 
-class VulkanQueue
+class VulkanQueue : public RObject
 {
 public:
-    VulkanQueue(VulkanDevice *InDevice, std::uint32_t InFamilyIndex);
+    VulkanQueue(Ref<VulkanDevice> InDevice, std::uint32_t InFamilyIndex);
     ~VulkanQueue();
 
     inline std::uint32_t GetFamilyIndex() const
@@ -32,7 +32,7 @@ private:
     VkQueue Queue;
     std::uint32_t FamilyIndex;
     std::uint32_t QueueIndex;
-    VulkanDevice *Device;
+    Ref<VulkanDevice> Device;
 };
 
 }    // namespace Raphael::RHI

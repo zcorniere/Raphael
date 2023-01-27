@@ -31,6 +31,9 @@ public:
 
 private:
     mutable std::atomic<std::uint32_t> m_RefCount = 0;
+
+    template <class Other>
+    friend class Ref;
 };
 
 template <typename T>

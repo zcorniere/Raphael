@@ -33,7 +33,7 @@ static const std::vector<const char *> DefaultDeviceExtensions{VK_KHR_SWAPCHAIN_
 namespace Raphael::RHI
 {
 
-VulkanDevice::VulkanDevice(VulkanDynamicRHI *InRHI, VkPhysicalDevice InGpu)
+VulkanDevice::VulkanDevice(Ref<VulkanDynamicRHI> InRHI, VkPhysicalDevice InGpu)
     : Device(VK_NULL_HANDLE),
       Gpu(InGpu),
       GraphicsQueue(nullptr),
@@ -174,13 +174,13 @@ void VulkanDevice::CreateDevice(const std::vector<const char *> &DeviceLayers,
     }
     VK_CHECK_RESULT_EXPANDED(Result);
 
-    GraphicsQueue = new VulkanQueue(this, GraphicsQueueFamilyIndex);
+    GraphicsQueue = Ref<VulkanQueue>::Create(this, GraphicsQueueFamilyIndex);
 
     if (ComputeQueueFamilyIndex == -1) { ComputeQueueFamilyIndex = GraphicsQueueFamilyIndex; }
-    ComputeQueue = new VulkanQueue(this, ComputeQueueFamilyIndex);
+    ComputeQueue = Ref<VulkanQueue>::Create(this, ComputeQueueFamilyIndex);
 
     if (TransferQueueFamilyIndex == -1) { TransferQueueFamilyIndex = ComputeQueueFamilyIndex; }
-    TransferQueue = new VulkanQueue(this, TransferQueueFamilyIndex);
+    TransferQueue = Ref<VulkanQueue>::Create(this, TransferQueueFamilyIndex);
 
     LOG(LogVulkanRHI, Info, "Using {} device layers{}", DeviceLayers.size(), DeviceLayers.size() ? ":" : ".");
     for (const char *Layer: DeviceLayers) {
@@ -200,10 +200,6 @@ void VulkanDevice::PrepareForDestroy()
 
 void VulkanDevice::Destroy()
 {
-    delete TransferQueue;
-    delete ComputeQueue;
-    delete GraphicsQueue;
-
     VulkanAPI::vkDestroyDevice(Device, nullptr);
     Device = VK_NULL_HANDLE;
 }

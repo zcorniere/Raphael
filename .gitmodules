@@ -4,12 +4,12 @@
 [submodule "External/logger-cpp"]
 	path = External/logger-cpp
 	url = git@github.com:zcorniere/logger-cpp.git
-[submodule "External/glfw"]
-	path = External/glfw
-	url = git@github.com:glfw/glfw.git
 [submodule "External/tracy"]
 	path = External/tracy
 	url = git@github.com:wolfpld/tracy.git
 [submodule "External/VulkanMemoryAllocator"]
 	path = External/VulkanMemoryAllocator
 	url = git@github.com:GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+[submodule "External/SDL"]
+	path = External/SDL
+	url = git@github.com:libsdl-org/SDL.git

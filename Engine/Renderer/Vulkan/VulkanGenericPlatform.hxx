@@ -8,7 +8,7 @@ namespace Raphael::RHI
 
 class VulkanDevice;
 
-class VulkanGenericPlatform
+class VulkanGenericPlatform : public RObject
 {
 public:
     static bool LoadVulkanLibrary()

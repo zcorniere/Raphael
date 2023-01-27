@@ -44,7 +44,7 @@ add_library(
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC logger glm glfw VulkanMemoryAllocator Vulkan::Headers )
+target_link_libraries(${PROJECT_NAME} PUBLIC logger glm SDL3 VulkanMemoryAllocator Vulkan::Headers )
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
 
 

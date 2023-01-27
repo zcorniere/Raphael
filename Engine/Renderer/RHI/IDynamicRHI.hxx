@@ -10,7 +10,7 @@ enum class RHIInterfaceType {
     Vulkan,
 };
 
-class IDynamicRHI
+class IDynamicRHI : public RObject
 {
 public:
     virtual ~IDynamicRHI()
@@ -38,18 +38,12 @@ public:
     }
 };
 
-extern IDynamicRHI *GDynamicRHI;
+extern Ref<IDynamicRHI> GDynamicRHI;
 
 template <typename TRHI>
-FORCEINLINE TRHI *CastDynamicRHI(IDynamicRHI *InDynamicRHI)
+FORCEINLINE Ref<TRHI> GetDynamicRHI()
 {
-    return static_cast<TRHI *>(InDynamicRHI->GetNonValidationRHI());
-}
-
-template <typename TRHI>
-FORCEINLINE TRHI *GetDynamicRHI()
-{
-    return CastDynamicRHI<TRHI>(GDynamicRHI);
+    return GDynamicRHI.As<TRHI>();
 }
 
 }    // namespace Raphael::RHI

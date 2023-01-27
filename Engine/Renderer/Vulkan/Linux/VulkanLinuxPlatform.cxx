@@ -1,10 +1,14 @@
 #include "Engine/Renderer/Vulkan/Linux/VulkanLinuxPlatform.hxx"
-#include "Engine/Renderer/RHI/IDynamicRHI.hxx"
 
+#include "Engine/Renderer/RHI/IDynamicRHI.hxx"
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
-#include <GLFW/glfw3.h>
+#include "Engine/Platforms/Window.hxx"
+
+#include <SDL.h>
+#include <SDL_vulkan.h>
+
 #include <dlfcn.h>
 
 #define DEFINE_VK_ENTRYPOINTS(Type, Func) Type VulkanAPI::Func = NULL;
@@ -13,6 +17,8 @@ namespace Raphael
 VK_ENTRYPOINT_ALL(DEFINE_VK_ENTRYPOINTS)
 }
 #undef DEFINE_VK_ENTRYPOINTS
+
+DECLARE_LOGGER_CATEGORY(Core, LogVulkanLinux, Info)
 
 namespace Raphael::RHI
 {
@@ -30,10 +36,10 @@ bool VulkanLinuxPlatform::LoadVulkanLibrary()
     if (VulkanLib == nullptr) { return false; }
 
     bool bFoundAllEntryPoints = true;
-#define CHECK_VK_ENTRYPOINTS(Type, Func)                            \
-    if (VulkanAPI::Func == NULL) {                                  \
-        bFoundAllEntryPoints = false;                               \
-        LOG(LogRHI, Warn, "Failed to find entry point for " #Func); \
+#define CHECK_VK_ENTRYPOINTS(Type, Func)                                    \
+    if (VulkanAPI::Func == NULL) {                                          \
+        bFoundAllEntryPoints = false;                                       \
+        LOG(LogVulkanLinux, Warn, "Failed to find entry point for " #Func); \
     }
 #define GET_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = (Type)dlsym(VulkanLib, #Func);
     VK_ENTRYPOINTS_BASE(GET_VK_ENTRYPOINTS);
@@ -59,10 +65,10 @@ bool VulkanLinuxPlatform::LoadVulkanLibrary()
 bool VulkanLinuxPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
 {
     bool bFoundAllEntryPoints = true;
-#define CHECK_VK_ENTRYPOINTS(Type, Func)                               \
-    if (VulkanAPI::Func == NULL) {                                     \
-        bFoundAllEntryPoints = false;                                  \
-        LOG(LogRHI, Warn, "Failed to find entry point for {}", #Func); \
+#define CHECK_VK_ENTRYPOINTS(Type, Func)                                       \
+    if (VulkanAPI::Func == NULL) {                                             \
+        bFoundAllEntryPoints = false;                                          \
+        LOG(LogVulkanLinux, Warn, "Failed to find entry point for {}", #Func); \
     }
 
 #define GETINSTANCE_VK_ENTRYPOINTS(Type, Func) \
@@ -98,10 +104,17 @@ void VulkanLinuxPlatform::FreeVulkanLibrary()
 
 void VulkanLinuxPlatform::GetInstanceExtensions([[maybe_unused]] std::vector<const char *> &OutExtensions)
 {
-    uint32_t glfwExtensionCount = 0;
-    const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    for (unsigned i = 0; i < glfwExtensionCount; i++) {
-        OutExtensions.push_back(glfwExtensions[i]);
+    Window::EnsureSDLInit();
+
+    const char *SDLDriver = SDL_GetCurrentVideoDriver();
+    check(SDLDriver);
+
+    if (strcmp(SDLDriver, "x11") == 0) {
+        OutExtensions.push_back("VK_KHR_xlib_surface");
+    } else if (strcmp(SDLDriver, "wayland") == 0) {
+        OutExtensions.push_back("VK_KHR_wayland_surface");
+    } else {
+        checkNoEntry();
     }
 }
 
@@ -112,9 +125,12 @@ void VulkanLinuxPlatform::GetDeviceExtensions([[maybe_unused]] VulkanDevice *Dev
 
 void VulkanLinuxPlatform::CreateSurface(void *WindowHandle, VkInstance Instance, VkSurfaceKHR *OutSurface)
 {
-    check(WindowHandle);
+    Window::EnsureSDLInit();
 
-    VK_CHECK_RESULT(glfwCreateWindowSurface(Instance, (GLFWwindow *)WindowHandle, nullptr, OutSurface));
+    if (SDL_Vulkan_CreateSurface((SDL_Window *)WindowHandle, Instance, OutSurface) == SDL_FALSE) {
+        LOG(LogVulkanLinux, Fatal, "Error initializing SDL Vulkan Surface: {}", SDL_GetError());
+        checkNoEntry();
+    }
 }
 
 }    // namespace Raphael::RHI

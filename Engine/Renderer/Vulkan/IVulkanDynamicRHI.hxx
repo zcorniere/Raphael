@@ -18,7 +18,7 @@ public:
     virtual VkPhysicalDevice RHIGetVkPhysicalDevice() const = 0;
 };
 
-FORCEINLINE IVulkanDynamicRHI *GetIVulkanDynamicRHI()
+FORCEINLINE Ref<IVulkanDynamicRHI> GetIVulkanDynamicRHI()
 {
     checkMsg(GDynamicRHI, "Tried to fetch RHI too early");
     check(GDynamicRHI->GetInterfaceType() == RHIInterfaceType::Vulkan);
