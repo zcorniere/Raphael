@@ -202,7 +202,7 @@ bool LinuxWindow::InitializeSDL()
     SDL_GetVersion(&RunTimeSDLVersion);
     const char *SdlRevision = SDL_GetRevision();
 
-    LOG(LogLinuxWindow, Info, "Initialized GLFW {:d}.{:d}.{:d} revision {} (compiled against {:d}.{:d}.{:d})",
+    LOG(LogLinuxWindow, Info, "Initialized SDL {:d}.{:d}.{:d} revision {} (compiled against {:d}.{:d}.{:d})",
         RunTimeSDLVersion.major, RunTimeSDLVersion.minor, RunTimeSDLVersion.patch, SdlRevision,
         CompileTimeSDLVersion.major, CompileTimeSDLVersion.minor, CompileTimeSDLVersion.patch);
     char const *SdlVideoDriver = SDL_GetCurrentVideoDriver();

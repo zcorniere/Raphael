@@ -50,7 +50,9 @@ public:
 
     void Release()
     {
-        if (p_Data) delete[] p_Data;
+        if constexpr (!std::is_same_v<T, void>) {
+            if (p_Data) delete[] p_Data;
+        }
         p_Data = nullptr;
         m_Size = 0;
     }
@@ -73,15 +75,6 @@ public:
     operator bool() const
     {
         return p_Data;
-    }
-
-    T &operator[](unsigned Index)
-    {
-        return p_Data[Index];
-    }
-    const T &operator[](int Index) const
-    {
-        return p_Data[Index];
     }
 
     template <PlainOldDataAligned T2>

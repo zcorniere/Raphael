@@ -11,9 +11,7 @@ class VulkanDynamicRHI : public IVulkanDynamicRHI
 {
 public:
     VulkanDynamicRHI();
-    ~VulkanDynamicRHI()
-    {
-    }
+    ~VulkanDynamicRHI();
 
     virtual VkInstance RHIGetVkInstance() const final override;
     virtual VkDevice RHIGetVkDevice() const final override;
@@ -37,8 +35,6 @@ public:
 protected:
     void CreateInstance();
     void SelectDevice();
-    void InitGPU(VulkanDevice *Device);
-    void InitDevice(VulkanDevice *Device);
 
 #if VULKAN_DEBUGGING_ENABLED
     VkDebugUtilsMessengerEXT Messenger = VK_NULL_HANDLE;
@@ -49,9 +45,9 @@ protected:
 
 protected:
     VkInstance m_Instance;
-    VulkanDevice *Device;
+    Ref<VulkanDevice> Device;
 
-    std::vector<VulkanDevice *> Devices;
+    std::vector<Ref<VulkanDevice>> Devices;
 };
 
 }    // namespace Raphael::RHI

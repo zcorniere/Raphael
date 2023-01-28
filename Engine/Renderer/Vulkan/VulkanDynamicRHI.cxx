@@ -23,6 +23,10 @@ VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr
     SelectDevice();
 }
 
+VulkanDynamicRHI::~VulkanDynamicRHI()
+{
+}
+
 VkInstance VulkanDynamicRHI::RHIGetVkInstance() const
 {
     return GetInstance();
@@ -52,8 +56,8 @@ void VulkanDynamicRHI::Shutdown()
     Device->PrepareForDestroy();
     Device->Destroy();
 
-    delete Device;
     Device = nullptr;
+    Devices.clear();
 
 #if VULKAN_DEBUGGING_ENABLED
     RemoveDebugLayerCallback();
@@ -127,7 +131,7 @@ void VulkanDynamicRHI::SelectDevice()
     checkMsg(GpuCount >= 1, "Couldn't enumerate physical devices!");
 
     struct DeviceInfo {
-        VulkanDevice *Device;
+        Ref<VulkanDevice> Device;
         std::uint32_t DeviceIndex;
     };
     std::vector<DeviceInfo> DiscreteDevice;
@@ -136,7 +140,7 @@ void VulkanDynamicRHI::SelectDevice()
     LOG(LogVulkanRHI, Info, "Found {} device(s)", GpuCount);
     for (std::uint32_t Index = 0; Index < GpuCount; Index++) {
         LOG(LogVulkanRHI, Info, "Device {}:", Index);
-        VulkanDevice *NewDevice = new VulkanDevice(this, PhysicalDevices[Index]);
+        Ref<VulkanDevice> NewDevice = Ref<VulkanDevice>::Create(this, PhysicalDevices[Index]);
         Devices.push_back(NewDevice);
 
         const bool bIsDiscrete = (NewDevice->GetDeviceProperties().deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
