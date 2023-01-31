@@ -1,6 +1,5 @@
 project(RaphaelEngine)
 
-option(NO_PROFILING "Disable the profiling" OFF)
 option(ENABLE_VULKAN_DEBUGGING "" ON)
 
 if(WIN32)
@@ -43,13 +42,16 @@ add_library(
     ${RENDERER_PLATFORM_SOURCE_FILES}
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC logger glm SDL3 VulkanMemoryAllocator Vulkan::Headers )
+target_link_libraries(
+    ${PROJECT_NAME}
+    PUBLIC logger
+           glm
+           SDL3
+           VulkanMemoryAllocator
+           Vulkan::Headers
+)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
-
-
 target_precompile_headers(${PROJECT_NAME} PRIVATE Raphael.hxx)
-
 
 target_compile_options(
     ${PROJECT_NAME}
@@ -67,11 +69,6 @@ target_compile_options(
             /wd4702>
 )
 
-IF(ENABLE_VULKAN_DEBUGGING)
+if(ENABLE_VULKAN_DEBUGGING)
     target_compile_definitions(${PROJECT_NAME} PUBLIC VULKAN_DEBUGGING_ENABLED=1)
 endif()
-
-if(NOT NO_PROFILING)
-    message(STATUS "Profiling is disabled")
-    target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
-endif(NOT NO_PROFILING)

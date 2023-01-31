@@ -1,5 +1,7 @@
 project(RaphaelEditor)
 
+option(NO_PROFILING "Disable the profiling" OFF)
+
 add_executable(${PROJECT_NAME} main.cxx)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelEngine)
@@ -20,4 +22,11 @@ target_compile_options(
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 set_target_properties(${PROJECT_NAME} PROPERTIES ENABLE_EXPORTS 1)
+
+if(NOT NO_PROFILING)
+    message(STATUS "Profiling is disabled")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC TRACY_ENABLE=1)
+    target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
+endif(NOT NO_PROFILING)
+
 # target_generate_debug_file(${PROJECT_NAME})
