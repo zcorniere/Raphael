@@ -33,4 +33,10 @@ FORCEINLINE void ZeroVulkanStruct(T &Struct, int32 StructureType)
     std::memset(((std::uint8_t *)&Struct) + sizeof(StructureType), 0, sizeof(T) - sizeof(StructureType));
 }
 
+template <typename BitsType>
+constexpr bool VulkanHasAllFlags(VkFlags Flags, BitsType Contains)
+{
+    return (Flags & Contains) == Contains;
+}
+
 }    // namespace Raphael::RHI

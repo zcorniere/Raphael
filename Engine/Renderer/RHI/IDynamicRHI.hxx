@@ -32,10 +32,6 @@ public:
     {
         return RHIInterfaceType::Null;
     }
-    virtual IDynamicRHI *GetNonValidationRHI()
-    {
-        return this;
-    }
 };
 
 extern Ref<IDynamicRHI> GDynamicRHI;

@@ -20,10 +20,6 @@ public:
     virtual void Init() final override;
     virtual void PostInit() final override;
     virtual void Shutdown() final override;
-    virtual const char *GetName() final override
-    {
-        return "Vulkan";
-    }
 
     inline VkInstance GetInstance() const
     {

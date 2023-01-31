@@ -4,10 +4,12 @@
 #include <vulkan/vulkan.h>
 
 #include "Engine/Renderer/Vulkan/VulkanDynamicRHI.hxx"
-#include "Engine/Renderer/Vulkan/VulkanQueue.hxx"
 
 namespace Raphael::RHI
 {
+
+class VulkanMemoryManager;
+class VulkanQueue;
 
 class VulkanDevice : public RObject
 {
@@ -35,9 +37,14 @@ public:
     {
         return GpuProps;
     }
+    inline const VkPhysicalDeviceLimits &GetLimits() const
+    {
+        return GpuProps.limits;
+    }
 
 private:
     Ref<VulkanDynamicRHI> RHI;
+    Ref<VulkanMemoryManager> MemoryAllocator;
 
     VkDevice Device;
     VkPhysicalDevice Gpu;

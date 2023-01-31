@@ -21,6 +21,8 @@ VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr
 
     CreateInstance();
     SelectDevice();
+
+    GDynamicRHI = this;
 }
 
 VulkanDynamicRHI::~VulkanDynamicRHI()

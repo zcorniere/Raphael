@@ -3,7 +3,7 @@
 namespace Raphael::Utils
 {
 
-std::string BytesToString(uint64_t bytes)
+std::string BytesToString(uint64 bytes)
 {
     constexpr uint64_t GB = 1024 * 1024 * 1024;
     constexpr uint64_t MB = 1024 * 1024;

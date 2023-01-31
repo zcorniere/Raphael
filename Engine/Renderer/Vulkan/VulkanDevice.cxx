@@ -2,6 +2,8 @@
 
 #include "Engine/Renderer/Vulkan/VulkanGenericPlatform.hxx"
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
+#include "Engine/Renderer/Vulkan/VulkanMemoryManager.hxx"
+#include "Engine/Renderer/Vulkan/VulkanQueue.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
 #include "vulkan/vk_enum_string_helper.h"
@@ -81,10 +83,10 @@ void VulkanDevice::InitGPU()
     // Setup layers and extensions
     std::vector<const char *> DeviceExtensions = DefaultDeviceExtensions;
     VulkanPlatform::GetDeviceExtensions(this, DeviceExtensions);
-
-    LOG(LogVulkanRHI, Info, "Device properties: Geometry {}", PhysicalFeatures.geometryShader);
-
     CreateDevice({}, DeviceExtensions);
+
+    MemoryAllocator = Ref<VulkanMemoryManager>::Create();
+    MemoryAllocator->Init(this);
 }
 
 void VulkanDevice::CreateDevice(const std::vector<const char *> &DeviceLayers,
@@ -134,7 +136,7 @@ void VulkanDevice::CreateDevice(const std::vector<const char *> &DeviceLayers,
         }
 
         if (!bIsValidQueue) {
-            LOG(LogVulkanRHI, Info, "Skipping unnecessary Queue Family {}: {} queues{}", FamilyIndex,
+            LOG(LogVulkanRHI, Info, "Skipping unnecessary Queue Family {:d}: {:d} queues{:s}", FamilyIndex,
                 CurrProps.queueCount, GetQueueInfoString(CurrProps));
             continue;
         }
@@ -148,7 +150,7 @@ void VulkanDevice::CreateDevice(const std::vector<const char *> &DeviceLayers,
         CurrQueue.queueCount = CurrProps.queueCount;
         NumPriorities += CurrProps.queueCount;
 
-        LOG(LogVulkanRHI, Info, "Initializing Queue Family {}: {} queues{}", FamilyIndex, CurrProps.queueCount,
+        LOG(LogVulkanRHI, Info, "Initializing Queue Family {:d}: {:d} queues{:s}", FamilyIndex, CurrProps.queueCount,
             GetQueueInfoString(CurrProps));
     }
     std::vector<float> QueuePriorities(NumPriorities);
@@ -200,6 +202,8 @@ void VulkanDevice::PrepareForDestroy()
 
 void VulkanDevice::Destroy()
 {
+    MemoryAllocator->Shutdown();
+
     VulkanAPI::vkDestroyDevice(Device, nullptr);
     Device = VK_NULL_HANDLE;
 }

@@ -2,11 +2,15 @@
 
 #include <atomic>
 
+#include <Engine/Misc/Assertions.hxx>
+
 namespace Raphael
 {
 
 namespace RObjectUtils
 {
+    DECLARE_LOGGER_CATEGORY(Core, LogRObject, Error);
+
     void AddToLiveReferences(void *instance);
     void RemoveFromLiveReferences(void *instance);
     bool IsLive(void *instance);
@@ -17,10 +21,12 @@ class RObject
 public:
     void IncrementRefCount() const
     {
+        checkMsg(m_RefCount <= UINT32_MAX - 1, "Ref count have overflowed !");
         ++m_RefCount;
     }
     void DecrementRefCount() const
     {
+        checkMsg(m_RefCount > 0, "Ref count is already at 0");
         --m_RefCount;
     }
 
@@ -31,9 +37,6 @@ public:
 
 private:
     mutable std::atomic<std::uint32_t> m_RefCount = 0;
-
-    template <class Other>
-    friend class Ref;
 };
 
 template <typename T>
@@ -231,19 +234,23 @@ public:
 
     T *operator->()
     {
+        check(IsValid());
         return m_Instance;
     }
     const T *operator->() const
     {
+        check(IsValid());
         return m_Instance;
     }
 
     T &operator*()
     {
+        check(IsValid());
         return *m_Instance;
     }
     const T &operator*() const
     {
+        check(IsValid());
         return *m_Instance;
     }
 

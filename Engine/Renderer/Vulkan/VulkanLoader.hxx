@@ -170,6 +170,33 @@
     VK_ENTRYPOINTS_BASE(LoadMacro);             \
     VK_ENTRYPOINTS_OPTIONAL_BASE(LoadMacro);
 
+// Get Vulkan function to vma
+#define VK_ENTRYPOINTS_VMA(LoadMacro)                                                        \
+    LoadMacro(PFN_vkGetInstanceProcAddr, vkGetInstanceProcAddr);                             \
+    LoadMacro(PFN_vkGetDeviceProcAddr, vkGetDeviceProcAddr);                                 \
+    LoadMacro(PFN_vkGetPhysicalDeviceProperties, vkGetPhysicalDeviceProperties);             \
+    LoadMacro(PFN_vkGetPhysicalDeviceMemoryProperties, vkGetPhysicalDeviceMemoryProperties); \
+    LoadMacro(PFN_vkAllocateMemory, vkAllocateMemory);                                       \
+    LoadMacro(PFN_vkFreeMemory, vkFreeMemory);                                               \
+    LoadMacro(PFN_vkMapMemory, vkMapMemory);                                                 \
+    LoadMacro(PFN_vkUnmapMemory, vkUnmapMemory);                                             \
+    LoadMacro(PFN_vkFlushMappedMemoryRanges, vkFlushMappedMemoryRanges);                     \
+    LoadMacro(PFN_vkInvalidateMappedMemoryRanges, vkInvalidateMappedMemoryRanges);           \
+    LoadMacro(PFN_vkBindBufferMemory, vkBindBufferMemory);                                   \
+    LoadMacro(PFN_vkBindImageMemory, vkBindImageMemory);                                     \
+    LoadMacro(PFN_vkGetBufferMemoryRequirements, vkGetBufferMemoryRequirements);             \
+    LoadMacro(PFN_vkGetImageMemoryRequirements, vkGetImageMemoryRequirements);               \
+    LoadMacro(PFN_vkCreateBuffer, vkCreateBuffer);                                           \
+    LoadMacro(PFN_vkDestroyBuffer, vkDestroyBuffer);                                         \
+    LoadMacro(PFN_vkCreateImage, vkCreateImage);                                             \
+    LoadMacro(PFN_vkDestroyImage, vkDestroyImage);                                           \
+    LoadMacro(PFN_vkCmdCopyBuffer, vkCmdCopyBuffer);                                         \
+    LoadMacro(PFN_vkGetBufferMemoryRequirements2KHR, vkGetBufferMemoryRequirements2KHR);     \
+    LoadMacro(PFN_vkGetImageMemoryRequirements2KHR, vkGetImageMemoryRequirements2KHR);       \
+    LoadMacro(PFN_vkBindBufferMemory2KHR, vkBindBufferMemory2KHR);                           \
+    LoadMacro(PFN_vkBindImageMemory2KHR, vkBindImageMemory2KHR);                             \
+    LoadMacro(PFN_vkGetPhysicalDeviceMemoryProperties2KHR, vkGetPhysicalDeviceMemoryProperties2KHR);
+
 #define DECLARE_VK_ENTRYPOINTS(Type, Func) extern Type Func;
 
 namespace Raphael
