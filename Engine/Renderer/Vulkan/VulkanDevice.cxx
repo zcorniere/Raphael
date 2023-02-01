@@ -213,4 +213,16 @@ void VulkanDevice::WaitUntilIdle()
     VK_CHECK_RESULT(VulkanAPI::vkDeviceWaitIdle(Device));
 }
 
+void VulkanDevice::SetObjectName(VkObjectType Type, uint64 Handle, const std::string Name)
+{
+    VkDebugUtilsObjectNameInfoEXT NameInfo;
+    ZeroVulkanStruct(NameInfo, VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT);
+
+    NameInfo.objectHandle = Handle;
+    NameInfo.objectType = Type;
+    NameInfo.pObjectName = Name.data();
+
+    VK_CHECK_RESULT(VulkanAPI::vkSetDebugUtilsObjectNameEXT(Device, &NameInfo));
+}
+
 }    // namespace Raphael::RHI

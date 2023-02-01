@@ -39,4 +39,10 @@ constexpr bool VulkanHasAllFlags(VkFlags Flags, BitsType Contains)
     return (Flags & Contains) == Contains;
 }
 
+template <typename BitsType>
+constexpr bool VKHasAnyFlags(VkFlags Flags, BitsType Contains)
+{
+    return (Flags & Contains) != 0;
+}
+
 }    // namespace Raphael::RHI

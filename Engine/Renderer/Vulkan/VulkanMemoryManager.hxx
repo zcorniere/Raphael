@@ -41,6 +41,8 @@ public:
 
     void FlushMappedMemory(VkDeviceSize InOffset, VkDeviceSize InSize);
     void InvalidateMappedMemory(VkDeviceSize InOffset, VkDeviceSize InSize);
+    void BindBuffer(VkBuffer Buffer);
+    void BindImage(VkImage Image);
 
     VmaAllocation &GetHandle()
     {

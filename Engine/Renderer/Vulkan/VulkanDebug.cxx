@@ -80,41 +80,21 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
 
 void VulkanDynamicRHI::SetupDebugLayerCallback()
 {
-    PFN_vkCreateDebugUtilsMessengerEXT CreateDebugUtilsMessengerEXT =
-        (PFN_vkCreateDebugUtilsMessengerEXT)(void *)VulkanAPI::vkGetInstanceProcAddr(m_Instance,
-                                                                                     "vkCreateDebugUtilsMessengerEXT");
-    if (CreateDebugUtilsMessengerEXT) {
-        // vk::DebugUtilsMessengerCreateInfoEXT
-        // {
-        //     .messageSeverity =
-        //         vk::DebugUtilsMessageSeverityFlagBitsEXT::eError |
-        //         vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning,
-        //     .messageType = vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
-        //                    vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
-        //                    vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance,
-        //     .pfnUserCallback = debugCallback,
-        // }
-        VkDebugUtilsMessengerCreateInfoEXT CreateInfo;
-        ZeroVulkanStruct(CreateInfo, VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT);
-        CreateInfo.messageSeverity =
-            VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
-        CreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                                 VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                                 VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-        CreateInfo.pfnUserCallback = VulkanDebugUtilsMessengerCallback;
-        VkResult Result = (*CreateDebugUtilsMessengerEXT)(m_Instance, &CreateInfo, nullptr, &Messenger);
-        verify(Result == VK_SUCCESS);
-    }
+    VkDebugUtilsMessengerCreateInfoEXT CreateInfo;
+    ZeroVulkanStruct(CreateInfo, VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT);
+    CreateInfo.messageSeverity =
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
+    CreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                             VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                             VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    CreateInfo.pfnUserCallback = VulkanDebugUtilsMessengerCallback;
+    VkResult Result = VulkanAPI::vkCreateDebugUtilsMessengerEXT(m_Instance, &CreateInfo, nullptr, &Messenger);
+    verify(Result == VK_SUCCESS);
 }
 
 void VulkanDynamicRHI::RemoveDebugLayerCallback()
 {
-    if (Messenger != VK_NULL_HANDLE) {
-        PFN_vkDestroyDebugUtilsMessengerEXT DestroyDebugUtilsMessengerEXT =
-            (PFN_vkDestroyDebugUtilsMessengerEXT)(void *)VulkanAPI::vkGetInstanceProcAddr(
-                m_Instance, "vkDestroyDebugUtilsMessengerEXT");
-        if (DestroyDebugUtilsMessengerEXT) { (*DestroyDebugUtilsMessengerEXT)(m_Instance, Messenger, nullptr); }
-    }
+    if (Messenger != VK_NULL_HANDLE) { VulkanAPI::vkDestroyDebugUtilsMessengerEXT(m_Instance, Messenger, nullptr); }
 }
 
 }    // namespace Raphael::RHI

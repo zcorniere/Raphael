@@ -46,6 +46,20 @@ void VulkanMemoryAllocation::InvalidateMappedMemory(VkDeviceSize InOffset, VkDev
     }
 }
 
+void VulkanMemoryAllocation::BindBuffer(VkBuffer Buffer)
+{
+    vmaBindBufferMemory(ManagerHandle->GetAllocator(), Allocation, Buffer);
+}
+
+void VulkanMemoryAllocation::BindImage(VkImage Image)
+{
+    vmaBindImageMemory(ManagerHandle->GetAllocator(), Allocation, Image);
+}
+
+////////////////////////////////////////////////////////////////////
+/// VulkanMemoryManager
+////////////////////////////////////////////////////////////////////
+
 VulkanMemoryManager::VulkanMemoryManager(): Allocator(VK_NULL_HANDLE)
 {
 }

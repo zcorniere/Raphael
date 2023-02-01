@@ -5,6 +5,15 @@
 
 #include "Engine/Renderer/Vulkan/VulkanDynamicRHI.hxx"
 
+#define VULKAN_USE_DEBUG_NAMES 1
+
+#if VULKAN_USE_DEBUG_NAMES
+    #define VULKAN_SET_DEBUG_NAME(Device, Type, Handle, Format, ...) \
+        Device->SetObjectName(Type, (uint64)Handle, cpplogger::fmt::format(Format, __VA_ARGS__));
+#else
+    #define VULKAN_SET_DEBUG_NAME(Device, Type, Handle, Format, ...)
+#endif
+
 namespace Raphael::RHI
 {
 
@@ -25,6 +34,8 @@ public:
 
     void WaitUntilIdle();
 
+    void SetObjectName(VkObjectType Type, uint64 Handle, const std::string Name);
+
     inline VkPhysicalDevice GetPhysicalHandle() const
     {
         return Gpu;
@@ -40,6 +51,10 @@ public:
     inline const VkPhysicalDeviceLimits &GetLimits() const
     {
         return GpuProps.limits;
+    }
+    inline Ref<VulkanMemoryManager> &GetMemoryManager()
+    {
+        return MemoryAllocator;
     }
 
 private:

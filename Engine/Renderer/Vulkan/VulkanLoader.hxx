@@ -164,6 +164,19 @@
     LoadMacro(PFN_vkCreateDisplayModeKHR, vkCreateDisplayModeKHR);                                             \
     LoadMacro(PFN_vkGetDisplayPlaneCapabilitiesKHR, vkGetDisplayPlaneCapabilitiesKHR);
 
+#define VK_ENTRYPOINTS_DEBUG_UTILS(LoadMacro)                                        \
+    LoadMacro(PFN_vkCmdBeginDebugUtilsLabelEXT, vkCmdBeginDebugUtilsLabelEXT);       \
+    LoadMacro(PFN_vkCmdEndDebugUtilsLabelEXT, vkCmdEndDebugUtilsLabelEXT);           \
+    LoadMacro(PFN_vkCmdInsertDebugUtilsLabelEXT, vkCmdInsertDebugUtilsLabelEXT);     \
+    LoadMacro(PFN_vkCreateDebugUtilsMessengerEXT, vkCreateDebugUtilsMessengerEXT);   \
+    LoadMacro(PFN_vkDestroyDebugUtilsMessengerEXT, vkDestroyDebugUtilsMessengerEXT); \
+    LoadMacro(PFN_vkQueueBeginDebugUtilsLabelEXT, vkQueueBeginDebugUtilsLabelEXT);   \
+    LoadMacro(PFN_vkQueueEndDebugUtilsLabelEXT, vkQueueEndDebugUtilsLabelEXT);       \
+    LoadMacro(PFN_vkQueueInsertDebugUtilsLabelEXT, vkQueueInsertDebugUtilsLabelEXT); \
+    LoadMacro(PFN_vkSetDebugUtilsObjectNameEXT, vkSetDebugUtilsObjectNameEXT);       \
+    LoadMacro(PFN_vkSetDebugUtilsObjectTagEXT, vkSetDebugUtilsObjectTagEXT);         \
+    LoadMacro(PFN_vkSubmitDebugUtilsMessageEXT, vkSubmitDebugUtilsMessageEXT);
+
 #define VK_ENTRYPOINT_ALL(LoadMacro)            \
     VK_ENTRYPOINTS_INSTANCE(LoadMacro);         \
     VK_ENTRYPOINTS_SURFACE_INSTANCE(LoadMacro); \
@@ -205,6 +218,7 @@ namespace Raphael
 namespace VulkanAPI
 {
     VK_ENTRYPOINT_ALL(DECLARE_VK_ENTRYPOINTS);
+    VK_ENTRYPOINTS_DEBUG_UTILS(DECLARE_VK_ENTRYPOINTS);
 }
 
 }    // namespace Raphael
