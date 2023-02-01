@@ -8,7 +8,7 @@ int main(int, char **)
     Ref<Application> App = Ref<Application>::Create();
 
     check(App->Initialize());
-    while (App->ShouldExit()) {
+    while (!App->ShouldExit()) {
         App->Tick(0.0f);
     }
     App->Shutdown();

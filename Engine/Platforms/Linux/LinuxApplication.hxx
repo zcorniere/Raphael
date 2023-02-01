@@ -16,14 +16,23 @@ public:
     bool Initialize() override;
     void Shutdown() override;
 
+    void ProcessEvent(SDL_Event SDLEvent) override;
+
     void Tick(const float DeltaTime) override;
     bool ShouldExit() const override;
 
 private:
+    Ref<Windows::LinuxWindow> FindEventWindow(SDL_Event &Event);
+
+private:
+    bool bShouldExit = false;
     Ref<RHI::VulkanDynamicRHI> RHI;
-    Ref<Windows::LinuxWindow> Window;
+
+    std::vector<Ref<Windows::LinuxWindow>> Windows;
 };
 
 using Application = LinuxApplication;
+
+extern Ref<Application> GApplication;
 
 }    // namespace Raphael

@@ -4,6 +4,8 @@
 #include "Engine/Core/RObject.hxx"
 #include "Engine/Platforms/Platform.hxx"
 
+#include <SDL3/SDL.h>
+
 namespace Raphael
 {
 
@@ -25,6 +27,10 @@ public:
         return true;
     }
     virtual void Shutdown()
+    {
+    }
+
+    virtual void ProcessEvent(SDL_Event)
     {
     }
 

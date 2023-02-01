@@ -45,9 +45,9 @@ namespace Windows
         virtual void SetText(const std::string_view Text) override;
         virtual void DrawAttention(bool bStop = false) override;
 
-    private:
         SDL_Window *GetHandle();
 
+    private:
         static bool InitializeSDL();
 
     private:
