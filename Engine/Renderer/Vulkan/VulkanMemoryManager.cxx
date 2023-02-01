@@ -83,6 +83,7 @@ void VulkanMemoryManager::Init(Ref<VulkanDevice> InDevice)
 void VulkanMemoryManager::Shutdown()
 {
     vmaDestroyAllocator(Allocator);
+    Allocator = VK_NULL_HANDLE;
 }
 
 Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(VkDeviceSize AllocationSize, VmaMemoryUsage MemUsage,

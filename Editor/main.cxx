@@ -1,16 +1,17 @@
 #include <Engine/Core/Log.hxx>
-#include <Engine/Renderer/Vulkan/VulkanDynamicRHI.hxx>
+#include <Engine/Platforms/Application.hxx>
 
 using namespace Raphael;
 
-int main(int ac, char **av)
+int main(int, char **)
 {
-    Raphael::Log::Init();
+    Ref<Application> App = Ref<Application>::Create();
 
-    Ref<RHI::VulkanDynamicRHI> RHI = Ref<RHI::VulkanDynamicRHI>::Create();
-    RHI->Init();
-    RHI->Shutdown();
+    check(App->Initialize());
+    while (App->ShouldExit()) {
+        App->Tick(0.0f);
+    }
+    App->Shutdown();
 
-    Raphael::Log::Shutdown();
     return 0;
 }

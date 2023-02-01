@@ -7,19 +7,22 @@
 namespace Raphael
 {
 
-std::unique_ptr<cpplogger::Logger> s_CoreLogger = nullptr;
+cpplogger::Logger *s_CoreLogger = nullptr;
 
 void Log::Init()
 {
-    s_CoreLogger = std::make_unique<cpplogger::Logger>("Core");
+    if (!s_CoreLogger) {
+        s_CoreLogger = new cpplogger::Logger("Core");
 
-    s_CoreLogger->addSink(std::make_unique<cpplogger::StdoutSink>(stdout),
-                          std::make_unique<cpplogger::ColorFormatter>());
+        s_CoreLogger->addSink(std::make_unique<cpplogger::StdoutSink>(stdout),
+                              std::make_unique<cpplogger::ColorFormatter>());
+    }
 }
 
 void Log::Shutdown()
 {
-    s_CoreLogger.reset();
+    delete s_CoreLogger;
+    s_CoreLogger = nullptr;
 }
 
 }    // namespace Raphael

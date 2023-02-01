@@ -134,19 +134,23 @@ public:
 
     T *operator->()
     {
+        check(m_ObjPtr);
         return m_ObjPtr;
     }
     const T *operator->() const
     {
+        check(m_ObjPtr);
         return m_ObjPtr;
     }
 
     T &operator*()
     {
+        check(m_ObjPtr);
         return *m_ObjPtr;
     }
     const T &operator*() const
     {
+        check(m_ObjPtr);
         return *m_ObjPtr;
     }
 

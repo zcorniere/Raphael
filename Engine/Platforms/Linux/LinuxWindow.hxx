@@ -14,10 +14,8 @@ namespace Windows
     public:
         static void EnsureSDLInit();
 
-    private:
-        LinuxWindow();
-
     public:
+        LinuxWindow();
         virtual ~LinuxWindow();
 
         void Initialize(const std::shared_ptr<WindowDefinition> &InDefinition, const Ref<LinuxWindow> &InParent);

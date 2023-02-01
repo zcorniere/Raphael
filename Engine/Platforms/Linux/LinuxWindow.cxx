@@ -61,7 +61,7 @@ void LinuxWindow::Initialize(const std::shared_ptr<WindowDefinition> &InDefiniti
     }
 
     if (WindowStyle & SDL_WINDOW_RESIZABLE) { SDL_SetWindowMinimumSize(p_HWnd, 100, 100); }
-    SDL_SetWindowModalFor(p_HWnd, p_ParentWindow->GetHandle());
+    if (p_ParentWindow) { SDL_SetWindowModalFor(p_HWnd, p_ParentWindow->GetHandle()); }
 }
 
 const Ref<LinuxWindow> &LinuxWindow::GetParent() const
