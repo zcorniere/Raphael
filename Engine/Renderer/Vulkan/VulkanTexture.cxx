@@ -10,6 +10,7 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
     : RHITexture(InDesc), Device(InDevice), Allocation(nullptr)
 {
     SetName(InDesc.DebugName);
+    const VkPhysicalDeviceProperties &DeviceProperties = Device->GetDeviceProperties();
 
     VkImageCreateInfo ImageCreateInfo;
     ZeroVulkanStruct(ImageCreateInfo, VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO);
@@ -28,6 +29,16 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
     ImageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     ImageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     ImageCreateInfo.usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
+
+    const VkImageViewType ResourceType = TextureDimensionToVkImageViewType(InDesc.Dimension);
+    switch (ResourceType) {
+        case VK_IMAGE_VIEW_TYPE_2D:
+            ImageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+            check(InDesc.Extent.x <= DeviceProperties.limits.maxImageDimension2D);
+            check(InDesc.Extent.y <= DeviceProperties.limits.maxImageDimension2D);
+            break;
+        default: checkNoEntry();
+    }
 
     switch (InDesc.NumSamples) {
         case 1: ImageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT; break;

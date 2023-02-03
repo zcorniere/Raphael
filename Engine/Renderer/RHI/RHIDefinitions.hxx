@@ -9,7 +9,6 @@ namespace Raphael::RHI
 enum class RHIResourceType : uint8 {
     None,
 
-    Buffer,
     Texture,
 
     MAX_VALUE,
@@ -23,32 +22,21 @@ enum class TextureCreateFlags {
 };
 ENUM_CLASS_FLAGS(TextureCreateFlags)
 
-class RHITextureCreateDesc
-{
-public:
-    static RHITextureCreateDesc Create(std::string_view InDebugName);
+enum class TextureDimension {
+    Texture2D,
+};
 
-public:
-    RHITextureCreateDesc(std::string_view InDebugName): DebugName(InDebugName)
-    {
-    }
-
-    constexpr uint8 GetMaxMipLevel()
-    {
-        return std::floor(std::log2(std::max(Extent.x, Extent.y))) + 1;
-    }
-
+struct RHITextureCreateDesc {
     const std::string DebugName;
     Ref<Buffer> InitialData = nullptr;
 
     TextureCreateFlags Flags = TextureCreateFlags::None;
+    TextureDimension Dimension = TextureDimension::Texture2D;
+
     glm::uvec2 Extent = {1, 1};
     uint32 Depth = 1;
     uint8 NumMips = 1;
     uint8 NumSamples = 0;
-
-private:
-    static bool Validate(const RHITextureCreateDesc &Desc, std::string_view Name);
 };
 
 }    // namespace Raphael::RHI

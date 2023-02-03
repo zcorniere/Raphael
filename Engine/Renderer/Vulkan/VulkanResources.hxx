@@ -7,6 +7,13 @@ namespace Raphael::RHI
 
 class VulkanDevice;
 
+VkImageViewType TextureDimensionToVkImageViewType(TextureDimension Dimension)
+{
+    (void)Dimension;
+    // Only support 2D for now
+    return VK_IMAGE_VIEW_TYPE_2D;
+}
+
 class VulkanTexture : public RHITexture
 {
 public:
