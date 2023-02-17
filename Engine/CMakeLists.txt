@@ -41,7 +41,7 @@ add_library(
     ${VULKAN_RENDERER_FILES}
     ${RENDERER_PLATFORM_SOURCE_FILES}
 )
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 target_link_libraries(
     ${PROJECT_NAME}
     PUBLIC logger

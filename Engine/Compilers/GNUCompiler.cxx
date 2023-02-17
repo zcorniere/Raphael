@@ -2,9 +2,6 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogGNUCompiler, Info);
 
-namespace Raphael::Compilers
-{
-
 std::string GNUCompiler::Demangle(const std::string_view &name)
 {
     if (name.empty()) return "";
@@ -20,5 +17,3 @@ std::string GNUCompiler::Demangle(const std::string_view &name)
     }
     return std::string(demangled.get());
 }
-
-}    // namespace Raphael::Compilers

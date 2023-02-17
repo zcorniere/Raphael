@@ -11,9 +11,6 @@
     #define PLATFORM_LINUX
 #endif
 
-namespace Raphael::Platforms
-{
-
 constexpr auto MaxStacktraceDepth = 100;
 
 struct StacktraceContent {
@@ -62,8 +59,6 @@ public:
         return {};
     }
 };
-
-}    // namespace Raphael::Platforms
 
 #if defined(PLATFORM_WINDOWS)
     #include "Engine/Platforms/Windows/WindowsPlatform.hxx"

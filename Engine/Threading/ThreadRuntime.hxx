@@ -2,9 +2,6 @@
 
 #include <cstdint>
 
-namespace Raphael::Interface
-{
-
 ///
 /// @brief The internal runtime of a thread (ie: the code that will run on the thread)
 ///
@@ -27,5 +24,3 @@ public:
     /// Tell the thread to exit as soon as possible
     virtual void exit() = 0;
 };
-
-}    // namespace Raphael::Interface

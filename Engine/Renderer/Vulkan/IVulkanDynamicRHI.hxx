@@ -5,9 +5,6 @@
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
-namespace Raphael::RHI
-{
-
 DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Info);
 
 class IVulkanDynamicRHI : public IDynamicRHI
@@ -33,5 +30,3 @@ FORCEINLINE Ref<IVulkanDynamicRHI> GetIVulkanDynamicRHI()
     check(GDynamicRHI->GetInterfaceType() == RHIInterfaceType::Vulkan);
     return GetDynamicRHI<IVulkanDynamicRHI>();
 }
-
-}    // namespace Raphael::RHI

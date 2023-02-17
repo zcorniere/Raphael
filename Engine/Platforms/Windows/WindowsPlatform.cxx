@@ -5,9 +5,6 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogWindowsPlateform, Info)
 
-namespace Raphael::Platforms
-{
-
 bool WindowsPlatform::isDebuggerPresent()
 {
     return !!::IsDebuggerPresent();
@@ -31,5 +28,3 @@ static std::string getThreadName(std::jthread &thread)
     }
     return "";
 }
-
-}    // namespace Raphael::Platforms

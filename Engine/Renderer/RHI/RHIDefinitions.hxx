@@ -3,13 +3,11 @@
 #include "Engine/Core/Buffer.hxx"
 #include "Engine/Misc/EnumFlags.hxx"
 
-namespace Raphael::RHI
-{
-
 enum class RHIResourceType : uint8 {
     None,
 
     Texture,
+    Viewport,
 
     MAX_VALUE,
 };
@@ -38,5 +36,3 @@ struct RHITextureCreateDesc {
     uint8 NumMips = 1;
     uint8 NumSamples = 0;
 };
-
-}    // namespace Raphael::RHI

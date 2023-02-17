@@ -2,7 +2,7 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogClangCompiler, Info);
 
-namespace Raphael::Compilers
+namespace Compilers
 {
 
 std::string ClangCompiler::Demangle(const std::string_view &name)
@@ -21,4 +21,4 @@ std::string ClangCompiler::Demangle(const std::string_view &name)
     return std::string(demangled.get());
 }
 
-}    // namespace Raphael::Compilers
+}    // namespace Compilers

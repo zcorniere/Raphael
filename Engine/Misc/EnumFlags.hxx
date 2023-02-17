@@ -35,9 +35,6 @@
         return (Enum) ~(std::underlying_type_t<Enum>)E;                                             \
     }
 
-namespace Raphael
-{
-
 template <typename Enum>
 constexpr bool EnumHasAllFlags(Enum Flags, Enum Contains)
 {
@@ -73,6 +70,4 @@ template <typename Enum>
 void EnumRemoveFlags(Enum &Flags, Enum FlagsToRemove)
 {
     Flags &= ~FlagsToRemove;
-}
-
 }

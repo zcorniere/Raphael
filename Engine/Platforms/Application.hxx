@@ -6,9 +6,6 @@
 
 #include <SDL3/SDL.h>
 
-namespace Raphael
-{
-
 class GenericApplication : public RObject
 {
 public:
@@ -40,8 +37,6 @@ public:
         return false;
     }
 };
-
-};    // namespace Raphael
 
 #if defined(PLATFORM_WINDOWS)
     #include "Engine/Platforms/Windows/WindowsApplication.hxx"

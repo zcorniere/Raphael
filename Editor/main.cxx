@@ -1,8 +1,6 @@
 #include <Engine/Core/Log.hxx>
 #include <Engine/Platforms/Application.hxx>
 
-using namespace Raphael;
-
 int main(int, char **)
 {
     Ref<Application> App = Ref<Application>::Create();

@@ -6,11 +6,7 @@
 
 #include <atomic>
 
-namespace Raphael::Assertions
-{
-
 void CollectAndPrintStackTrace(void *ReturnAddress);
-}
 
 #define MACRO_EXPENDER_INTERNAL(X, Y) X##Y
 #define MACRO_EXPENDER(X, Y) PIVOT_MACRO_EXPENDER_INTERNAL(X, Y)
@@ -19,21 +15,20 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
 
 #ifndef NDEBUG
 
-    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, Format, ...)                                      \
-        ((LIKELY(!!(Expression))) || ([Capture]() {                                                            \
-                                         using namespace Raphael;                                              \
-                                         static std::atomic_bool bExecuted = false;                            \
-                                         if (!bExecuted || Always) {                                           \
-                                             bExecuted = true;                                                 \
-                                             /* TODO: Check if another assertion is in progress */             \
-                                             Assertions::CollectAndPrintStackTrace(Compiler::ReturnAddress()); \
-                                             fprintf(stderr, "Assertion failed:" STR(#Expression)              \
-                                                                 __VA_OPT__(" :: " Format, ) __VA_ARGS__);     \
-                                             fprintf(stderr, "\n");                                            \
-                                             return Platform::isDebuggerPresent();                             \
-                                         }                                                                     \
-                                         return false;                                                         \
-                                     }()) &&                                                                   \
+    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, Format, ...)                                  \
+        ((LIKELY(!!(Expression))) || ([Capture]() {                                                        \
+                                         static std::atomic_bool bExecuted = false;                        \
+                                         if (!bExecuted || Always) {                                       \
+                                             bExecuted = true;                                             \
+                                             /* TODO: Check if another assertion is in progress */         \
+                                             CollectAndPrintStackTrace(Compiler::ReturnAddress());         \
+                                             fprintf(stderr, "Assertion failed:" STR(#Expression)          \
+                                                                 __VA_OPT__(" :: " Format, ) __VA_ARGS__); \
+                                             fprintf(stderr, "\n");                                        \
+                                             return Platform::isDebuggerPresent();                         \
+                                         }                                                                 \
+                                         return false;                                                     \
+                                     }()) &&                                                               \
                                          ([]() { PLATFORM_BREAK(); }(), false))
 
     #define verify(Expression) RAPHAEL_VERIFY_IMPL(, false, Expression, )
@@ -43,10 +38,8 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
 
     #define RAPHAEL_CHECK_IMPL(Expression, Format, ...)                                                        \
         {                                                                                                      \
-            using namespace Raphael;                                                                           \
-                                                                                                               \
             if (UNLIKELY(!(Expression))) {                                                                     \
-                Assertions::CollectAndPrintStackTrace(Compiler::ReturnAddress());                              \
+                CollectAndPrintStackTrace(Compiler::ReturnAddress());                                          \
                 fprintf(stderr, "Assertion failed:" STR(#Expression) __VA_OPT__(" :: " Format, ) __VA_ARGS__); \
                 fprintf(stderr, "\n");                                                                         \
                 fflush(stderr);                                                                                \
@@ -60,10 +53,8 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
     #define checkMsg(Expression, Format, ...) RAPHAEL_CHECK_IMPL(Expression, Format, ##__VA_ARGS__)
     #define checkNoEntry()                                             \
         {                                                              \
-            using namespace Raphael;                                   \
-                                                                       \
             checkMsg(false, "Enclosing block should never be called"); \
-            Compiler::Unreachable();                                   \
+            ::Compiler::Unreachable();                                 \
         }
     #define checkNoReentry()                                                                            \
         {                                                                                               \
@@ -82,10 +73,15 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
     #define check(Expression) (LIKELY(!!(Expression)))
     #define checkSlow(Expression)
     #define checkMsg(Expression, ...) (LIKELY(!!(Expression)))
-    #define checkNoEntry()           \
-        {                            \
-            Compiler::Unreachable(); \
+    #define checkNoEntry()                      \
+        {                                       \
+            ::Raphael::Compiler::Unreachable(); \
         }
-    #define checkNoReentry()
+    #define checkNoReentry()                                                                        \
+        {                                                                                           \
+            static std::atomic_bool MACRO_EXPENDER(beenHere, __LINE__) = false;                     \
+            if (MACRO_EXPENDER(beenHere, __LINE__) == true) { ::Raphael::Compiler::Unreachable(); } \
+            MACRO_EXPENDER(beenHere, __LINE__) = true;                                              \
+        }
 
 #endif

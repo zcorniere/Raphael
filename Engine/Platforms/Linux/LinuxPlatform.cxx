@@ -12,9 +12,6 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogUnixPlateform, Info)
 
-namespace Raphael::Platforms
-{
-
 bool LinuxPlateform::isDebuggerPresent()
 {
     // If a process is tracing this one then TracerPid in /proc/self/status will
@@ -99,5 +96,3 @@ StacktraceContent LinuxPlateform::StackTrace(void *return_address)
 
     return trace;
 }
-
-}    // namespace Raphael::Platforms

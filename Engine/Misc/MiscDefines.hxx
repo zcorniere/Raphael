@@ -10,9 +10,6 @@
 
 #define CONSTEXPR_ELSE_ERROR(Type, Message) static_assert(AlwaysFalse<Type>, Message);
 
-namespace Raphael
-{
-
 template <class...>
 /// Used to error out in constexpr if
 constexpr std::false_type AlwaysFalse{};
@@ -24,8 +21,6 @@ concept Hashable = requires(T a) {
                            std::hash<T>{}(a)
                            } -> std::convertible_to<std::size_t>;
                    };
-
-}    // namespace Raphael
 
 typedef std::uint8_t uint8;
 typedef std::uint16_t uint16;

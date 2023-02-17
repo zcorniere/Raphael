@@ -5,9 +5,6 @@
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
-namespace Raphael::RHI
-{
-
 VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr)
 {
     LOG(LogVulkanRHI, Info, "Built with Vulkan header version {}.{}.{}",
@@ -67,6 +64,11 @@ void VulkanDynamicRHI::Shutdown()
 
     VulkanAPI::vkDestroyInstance(m_Instance, nullptr);
     VulkanPlatform::FreeVulkanLibrary();
+}
+
+Ref<VulkanDevice> VulkanDynamicRHI::GetDevice()
+{
+    return Device;
 }
 
 void VulkanDynamicRHI::CreateInstance()
@@ -176,5 +178,3 @@ void VulkanDynamicRHI::InitInstance()
 {
     Device->InitGPU();
 }
-
-}    // namespace Raphael::RHI

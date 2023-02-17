@@ -3,11 +3,8 @@
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
-namespace Raphael::RHI
-{
-
 VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateDesc &InDesc)
-    : RHITexture(InDesc), Device(InDevice), Allocation(nullptr)
+    : RHITexture(InDesc), Description(InDesc), Device(InDevice), Allocation(nullptr)
 {
     SetName(InDesc.DebugName);
     const VkPhysicalDeviceProperties &DeviceProperties = Device->GetDeviceProperties();
@@ -61,4 +58,35 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
     Allocation->BindImage(Image);
 }
 
-}    // namespace Raphael::RHI
+VulkanTexture::~VulkanTexture()
+{
+    VulkanAPI::vkDestroyImage(Device->GetInstanceHandle(), Image, nullptr);
+}
+
+void VulkanTextureView::Create(Ref<VulkanDevice> &Device, VkImage InImage, VkImageViewType ViewType,
+                               VkImageAspectFlags AspectFlags, VkFormat Format, uint32 FirstMip, uint32 NumMips)
+{
+    VkImageViewCreateInfo ViewInfo{
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .image = InImage,
+        .viewType = ViewType,
+        .format = Format,
+        .subresourceRange =
+            {
+                .aspectMask = AspectFlags,
+                .baseMipLevel = FirstMip,
+                .levelCount = NumMips,
+                .baseArrayLayer = 0,
+                .layerCount = 1,
+            },
+    };
+
+    VK_CHECK_RESULT(VulkanAPI::vkCreateImageView(Device->GetInstanceHandle(), &ViewInfo, nullptr, &View));
+
+    Image = InImage;
+}
+
+void VulkanTextureView::Destroy(Ref<VulkanDevice> &Device)
+{
+    if (View) { VulkanAPI::vkDestroyImageView(Device->GetInstanceHandle(), View, nullptr); }
+}

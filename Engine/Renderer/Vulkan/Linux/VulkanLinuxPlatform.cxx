@@ -12,17 +12,13 @@
 #include <dlfcn.h>
 
 #define DEFINE_VK_ENTRYPOINTS(Type, Func) Type VulkanAPI::Func = NULL;
-namespace Raphael
-{
+
 VK_ENTRYPOINT_ALL(DEFINE_VK_ENTRYPOINTS)
 VK_ENTRYPOINTS_DEBUG_UTILS(DEFINE_VK_ENTRYPOINTS)
-}
+
 #undef DEFINE_VK_ENTRYPOINTS
 
 DECLARE_LOGGER_CATEGORY(Core, LogVulkanLinux, Info)
-
-namespace Raphael::RHI
-{
 
 void *VulkanLinuxPlatform::VulkanLib = nullptr;
 bool VulkanLinuxPlatform::bAttemptedLoad = false;
@@ -135,5 +131,3 @@ void VulkanLinuxPlatform::CreateSurface(void *WindowHandle, VkInstance Instance,
         checkNoEntry();
     }
 }
-
-}    // namespace Raphael::RHI

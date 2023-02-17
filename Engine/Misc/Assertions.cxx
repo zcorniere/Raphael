@@ -5,9 +5,6 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogAssert, Trace)
 
-namespace Raphael::Assertions
-{
-
 struct DetailedSymbolInfo final {
     static constexpr unsigned MaxNameLength = 1024;
 
@@ -47,7 +44,7 @@ void CollectAndPrintStackTrace(void *ReturnAddress)
     if (bIsAlreadyHandlerAssertions) return;
     bIsAlreadyHandlerAssertions = true;
 
-    Platforms::StacktraceContent trace = Platform::StackTrace(ReturnAddress);
+    StacktraceContent trace = Platform::StackTrace(ReturnAddress);
 
     LOG(LogAssert, Trace, "StackTrace :");
     for (std::uint32_t CurrentDepth = trace.CurrentDepth; CurrentDepth < trace.Depth; CurrentDepth++) {
@@ -61,5 +58,3 @@ void CollectAndPrintStackTrace(void *ReturnAddress)
     }
     bIsAlreadyHandlerAssertions = false;
 }
-
-}    // namespace Raphael::Assertions

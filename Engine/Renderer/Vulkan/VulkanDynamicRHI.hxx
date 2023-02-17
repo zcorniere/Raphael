@@ -2,9 +2,6 @@
 
 #include "Engine/Renderer/Vulkan/IVulkanDynamicRHI.hxx"
 
-namespace Raphael::RHI
-{
-
 class VulkanDevice;
 
 class VulkanDynamicRHI : public IVulkanDynamicRHI
@@ -26,6 +23,8 @@ public:
         return m_Instance;
     }
 
+    Ref<VulkanDevice> GetDevice();
+
     void InitInstance();
 
 protected:
@@ -45,5 +44,3 @@ protected:
 
     std::vector<Ref<VulkanDevice>> Devices;
 };
-
-}    // namespace Raphael::RHI

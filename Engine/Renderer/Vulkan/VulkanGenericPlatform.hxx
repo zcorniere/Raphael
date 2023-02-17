@@ -3,9 +3,6 @@
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
-namespace Raphael::RHI
-{
-
 class VulkanDevice;
 
 class VulkanGenericPlatform : public RObject
@@ -40,8 +37,6 @@ public:
                                        const VkAllocationCallbacks *Allocator, VkSwapchainKHR *Swapchain);
     static void DestroySwapchainKHR(VkDevice Device, VkSwapchainKHR Swapchain, const VkAllocationCallbacks *Allocator);
 };
-
-}    // namespace Raphael::RHI
 
 #if defined(PLATFORM_WINDOWS)
     #error "Unsupported Platform"

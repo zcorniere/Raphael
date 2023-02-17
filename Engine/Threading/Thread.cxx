@@ -2,9 +2,6 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogThread, Info)
 
-namespace Raphael
-{
-
 Thread::Thread(): m_name(), m_internalRuntime(nullptr)
 {
 }
@@ -26,7 +23,7 @@ void Thread::end(bool bShouldWait)
     if (bShouldWait && m_managedThread.joinable()) { m_managedThread.join(); }
 }
 
-void Thread::create(const std::string &name, std::unique_ptr<Interface::ThreadRuntime> threadCode)
+void Thread::create(const std::string &name, std::unique_ptr<ThreadRuntime> threadCode)
 {
     if (m_managedThread.joinable()) {
         m_managedThread.request_stop();
@@ -70,5 +67,3 @@ void Thread::thread_runtime(Thread *pThis)
     pThis->run();
     pThis->postRun();
 }
-
-}    // namespace Raphael

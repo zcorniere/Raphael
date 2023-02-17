@@ -2,9 +2,6 @@
 
 #include "VulkanUtils.hxx"
 
-namespace Raphael::RHI
-{
-
 class VulkanDevice;
 
 class VulkanQueue : public RObject
@@ -34,5 +31,3 @@ private:
     std::uint32_t QueueIndex;
     Ref<VulkanDevice> Device;
 };
-
-}    // namespace Raphael::RHI

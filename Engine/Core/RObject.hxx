@@ -4,16 +4,13 @@
 
 #include <Engine/Misc/Assertions.hxx>
 
-namespace Raphael
-{
-
 namespace RObjectUtils
 {
-    DECLARE_LOGGER_CATEGORY(Core, LogRObject, Error);
+DECLARE_LOGGER_CATEGORY(Core, LogRObject, Error);
 
-    void AddToLiveReferences(void *instance);
-    void RemoveFromLiveReferences(void *instance);
-    bool IsLive(void *instance);
+void AddToLiveReferences(void *instance);
+void RemoveFromLiveReferences(void *instance);
+bool IsLive(void *instance);
 }    // namespace RObjectUtils
 
 class RObject
@@ -270,5 +267,3 @@ public:
 private:
     T *m_Instance = nullptr;
 };
-
-}    // namespace Raphael

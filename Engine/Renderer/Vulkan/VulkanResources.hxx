@@ -1,13 +1,14 @@
+#pragma once
+
 #include "Engine/Renderer/RHI/RHIResource.hxx"
 
 #include "Engine/Renderer/Vulkan/VulkanMemoryManager.hxx"
+#include "Engine/Renderer/Vulkan/VulkanSwapChain.hxx"
 
-namespace Raphael::RHI
-{
-
+class Semaphore;
 class VulkanDevice;
 
-VkImageViewType TextureDimensionToVkImageViewType(TextureDimension Dimension)
+inline VkImageViewType TextureDimensionToVkImageViewType(TextureDimension Dimension)
 {
     (void)Dimension;
     // Only support 2D for now
@@ -18,13 +19,20 @@ class VulkanTexture : public RHITexture
 {
 public:
     VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateDesc &InDesc);
+    virtual ~VulkanTexture();
 
     void *GetNativeResource() const override
     {
         return Image;
     }
 
+    VkImageViewType GetViewType() const
+    {
+        return TextureDimensionToVkImageViewType(Description.Dimension);
+    }
+
 private:
+    RHITextureCreateDesc Description;
     Ref<VulkanDevice> Device;
     Ref<VulkanMemoryAllocation> Allocation;
     VkMemoryRequirements MemoryRequirements;
@@ -32,4 +40,36 @@ private:
     VkImage Image;
 };
 
-}    // namespace Raphael::RHI
+struct VulkanTextureView {
+    VulkanTextureView(): View(VK_NULL_HANDLE), Image(VK_NULL_HANDLE)
+    {
+    }
+
+    void Create(Ref<VulkanDevice> &Device, VkImage InImage, VkImageViewType ViewType, VkImageAspectFlags AspectFlags,
+                VkFormat Format, uint32 FirstMip, uint32 NumMips);
+    void Destroy(Ref<VulkanDevice> &Device);
+
+    VkImageView View;
+    VkImage Image;
+};
+
+class VulkanViewport : public RHIViewport
+{
+public:
+    VulkanViewport(Ref<VulkanDevice> InDevice, void *InWindowHandle, glm::uvec2 InSize);
+    ~VulkanViewport();
+
+private:
+    void CreateSwapchain();
+
+private:
+    Ref<VulkanDevice> Device;
+    Ref<VulkanSwapChain> SwapChain;
+
+    std::vector<VkImage> BackBufferImages;
+    std::vector<VulkanTextureView> TexturesViews;
+    std::vector<Ref<Semaphore>> RenderingDoneSemaphores;
+
+    void *WindowHandle;
+    glm::uvec2 Size;
+};

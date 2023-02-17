@@ -1,8 +1,5 @@
 #pragma once
 
-namespace Raphael
-{
-
 template <typename T>
 /// Check if the type is safe to use in a GLSL shader
 concept PlainOldDataAligned = std::is_standard_layout_v<T> && std::is_trivially_copyable_v<T> &&
@@ -77,5 +74,3 @@ private:
 };
 
 using Buffer = TBuffer<uint8>;
-
-}    // namespace Raphael

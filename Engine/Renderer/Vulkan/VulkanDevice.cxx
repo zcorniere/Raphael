@@ -6,10 +6,6 @@
 #include "Engine/Renderer/Vulkan/VulkanQueue.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
-#include "vulkan/vk_enum_string_helper.h"
-#define VK_TYPE_TO_STRING(Type, Value) string_##Type(Value)
-#define VK_FLAGS_TO_STRING(Type, Value) string_##Type(Value).c_str()
-
 static constexpr const char *VulkanVendorIDToString(std::uint32_t vendorID)
 {
     switch (vendorID) {
@@ -31,9 +27,6 @@ static constexpr std::string GetQueueInfoString(const VkQueueFamilyProperties &P
 
 static const std::vector<const char *> DefaultDeviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                                                                VK_EXT_VALIDATION_CACHE_EXTENSION_NAME};
-
-namespace Raphael::RHI
-{
 
 VulkanDevice::VulkanDevice(Ref<VulkanDynamicRHI> InRHI, VkPhysicalDevice InGpu)
     : Device(VK_NULL_HANDLE),
@@ -224,5 +217,3 @@ void VulkanDevice::SetObjectName(VkObjectType Type, uint64 Handle, const std::st
 
     VK_CHECK_RESULT(VulkanAPI::vkSetDebugUtilsObjectNameEXT(Device, &NameInfo));
 }
-
-}    // namespace Raphael::RHI

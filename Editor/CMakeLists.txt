@@ -20,7 +20,7 @@ target_compile_options(
             /wd4244
             /wd4324>
 )
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 set_target_properties(${PROJECT_NAME} PROPERTIES ENABLE_EXPORTS 1)
 
 if(NOT NO_PROFILING)

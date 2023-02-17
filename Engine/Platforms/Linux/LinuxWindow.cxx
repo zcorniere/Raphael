@@ -8,9 +8,6 @@ bool GSDLInitialized = false;
 
 uint32 GWindowStyleSDL = SDL_WINDOW_VULKAN;
 
-namespace Raphael::Windows
-{
-
 void LinuxWindow::EnsureSDLInit()
 {
     if (!InitializeSDL()) {
@@ -211,5 +208,3 @@ bool LinuxWindow::InitializeSDL()
     GSDLInitialized = true;
     return true;
 }
-
-}    // namespace Raphael::Windows

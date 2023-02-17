@@ -2,9 +2,6 @@
 
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 
-namespace Raphael::RHI
-{
-
 VkResult VulkanGenericPlatform::Present(VkQueue Queue, VkPresentInfoKHR &PresentInfo)
 {
     return VulkanAPI::vkQueuePresentKHR(Queue, &PresentInfo);
@@ -21,4 +18,3 @@ void VulkanGenericPlatform::DestroySwapchainKHR(VkDevice Device, VkSwapchainKHR 
 {
     VulkanAPI::vkDestroySwapchainKHR(Device, Swapchain, Allocator);
 }
-}    // namespace Raphael::RHI

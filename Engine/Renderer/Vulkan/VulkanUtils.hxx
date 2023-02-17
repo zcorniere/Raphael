@@ -4,20 +4,17 @@
 
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 
-#define VK_CHECK_RESULT(f)                                                                       \
-    {                                                                                            \
-        const VkResult ScopedResult = (f);                                                       \
-        if (ScopedResult != VK_SUCCESS) { ::Raphael::RHI::VulkanCheckResult(ScopedResult, #f); } \
+#define VK_CHECK_RESULT(f)                                                         \
+    {                                                                              \
+        const VkResult ScopedResult = (f);                                         \
+        if (ScopedResult != VK_SUCCESS) { ::VulkanCheckResult(ScopedResult, #f); } \
     }
 
-#define VK_CHECK_RESULT_EXPANDED(f)                                                             \
-    {                                                                                           \
-        const VkResult ScopedResult = (f);                                                      \
-        if (ScopedResult < VK_SUCCESS) { ::Raphael::RHI::VulkanCheckResult(ScopedResult, #f); } \
+#define VK_CHECK_RESULT_EXPANDED(f)                                               \
+    {                                                                             \
+        const VkResult ScopedResult = (f);                                        \
+        if (ScopedResult < VK_SUCCESS) { ::VulkanCheckResult(ScopedResult, #f); } \
     }
-
-namespace Raphael::RHI
-{
 
 void VulkanCheckResult(VkResult result, const char *VulkanFunction,
                        const std::source_location &location = std::source_location::current());
@@ -44,5 +41,3 @@ constexpr bool VKHasAnyFlags(VkFlags Flags, BitsType Contains)
 {
     return (Flags & Contains) != 0;
 }
-
-}    // namespace Raphael::RHI

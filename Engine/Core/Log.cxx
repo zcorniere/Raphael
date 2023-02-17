@@ -4,9 +4,6 @@
 #include <cpplogger/sinks/StdoutSink.hpp>
 #include <cstdio>
 
-namespace Raphael
-{
-
 cpplogger::Logger *s_CoreLogger = nullptr;
 
 void Log::Init()
@@ -24,5 +21,3 @@ void Log::Shutdown()
     delete s_CoreLogger;
     s_CoreLogger = nullptr;
 }
-
-}    // namespace Raphael

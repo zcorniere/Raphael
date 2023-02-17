@@ -12,36 +12,26 @@ static_assert(false, "GNU Compiler header included without compiling with GNU");
 
 #endif
 
-namespace Raphael
+///
+/// @brief Wrapper around GCC intrisics functions
+///
+class GNUCompiler : public GenericCompiler
 {
-
-namespace Compilers
-{
-
-    ///
-    /// @brief Wrapper around GCC intrisics functions
-    ///
-    class GNUCompiler : public GenericCompiler
+public:
+    /// Return the address of the current function,
+    FORCEINLINE static void *ReturnAddress()
     {
-    public:
-        /// Return the address of the current function,
-        FORCEINLINE static void *ReturnAddress()
-        {
-            return __builtin_return_address(0);
-        }
+        return __builtin_return_address(0);
+    }
 
-        /// Mark a branch as unreachable
-        [[noreturn]] FORCEINLINE static void Unreachable()
-        {
-            __builtin_unreachable();
-        }
+    /// Mark a branch as unreachable
+    [[noreturn]] FORCEINLINE static void Unreachable()
+    {
+        __builtin_unreachable();
+    }
 
-        static std::string Demangle(const std::string_view &name);
-    };
-
-}    // namespace Compilers
+    static std::string Demangle(const std::string_view &name);
+};
 
 /// Alias of the correct compiler currently used
-using Compiler = Compilers::GNUCompiler;
-
-}    // namespace Raphael
+using Compiler = GNUCompiler;

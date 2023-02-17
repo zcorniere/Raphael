@@ -1,7 +1,8 @@
 #pragma once
 
-namespace Raphael::Utils
+namespace Utils
 {
 
 std::string BytesToString(uint64 Bytes);
+
 }

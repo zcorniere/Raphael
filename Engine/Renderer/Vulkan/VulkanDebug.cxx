@@ -3,9 +3,6 @@
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
-namespace Raphael::RHI
-{
-
 constexpr static std::string_view VulkanMessageType(const VkDebugUtilsMessageTypeFlagsEXT &s)
 {
     switch (s) {
@@ -96,5 +93,3 @@ void VulkanDynamicRHI::RemoveDebugLayerCallback()
 {
     if (Messenger != VK_NULL_HANDLE) { VulkanAPI::vkDestroyDebugUtilsMessengerEXT(m_Instance, Messenger, nullptr); }
 }
-
-}    // namespace Raphael::RHI

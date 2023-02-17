@@ -42,9 +42,6 @@
     #define FORCENOINLINE
 #endif
 
-namespace Raphael::Compilers
-{
-
 ///
 /// @brief Wrapper arround generic intrinsics function
 ///
@@ -67,8 +64,6 @@ public:
         return std::string(name);
     }
 };
-
-}    // namespace Raphael::Compilers
 
 #if defined(COMPILER_CLANG)
     #include "Engine/Compilers/ClangCompiler.hxx"

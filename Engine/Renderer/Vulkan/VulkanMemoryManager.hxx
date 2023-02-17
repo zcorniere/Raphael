@@ -2,9 +2,6 @@
 
 #include <vk_mem_alloc.h>
 
-namespace Raphael::RHI
-{
-
 class VulkanDevice;
 
 class VulkanMemoryManager;
@@ -92,5 +89,3 @@ private:
 
     friend VulkanMemoryAllocation;
 };
-
-}    // namespace Raphael::RHI

@@ -1,16 +1,17 @@
 #include "Engine/Platforms/Linux/LinuxApplication.hxx"
 
-DECLARE_LOGGER_CATEGORY(Core, LogLinuxApplication, Warn)
+#include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
+#include "Engine/Renderer/Vulkan/VulkanResources.hxx"
 
-namespace Raphael
-{
+DECLARE_LOGGER_CATEGORY(Core, LogLinuxApplication, Warn)
 
 Ref<Application> GApplication = nullptr;
 
 LinuxApplication::LinuxApplication()
 {
-    RHI = Ref<RHI::VulkanDynamicRHI>::Create();
-    Windows.push_back(Ref<Windows::LinuxWindow>::Create());
+    RHI = Ref<VulkanDynamicRHI>::Create();
+
+    Windows.push_back(Ref<LinuxWindow>::Create());
 
     GApplication = this;
 }
@@ -29,13 +30,15 @@ bool LinuxApplication::Initialize()
     Windows[0]->Initialize(WindowDef, nullptr);
     Windows[0]->Show();
 
+    Viewport = Ref<VulkanViewport>::Create(RHI->GetDevice(), Windows[0]->GetHandle(), glm::uvec2{500u, 500u});
+
     RHI->Init();
     return true;
 }
 
 void LinuxApplication::Shutdown()
 {
-    for (Ref<Windows::LinuxWindow> &Win: Windows) {
+    for (Ref<LinuxWindow> &Win: Windows) {
         Win->Destroy();
     }
     Windows.clear();
@@ -45,7 +48,7 @@ void LinuxApplication::Shutdown()
 
 void LinuxApplication::ProcessEvent(SDL_Event SDLEvent)
 {
-    Ref<Windows::LinuxWindow> EventWindow = FindEventWindow(SDLEvent);
+    Ref<LinuxWindow> EventWindow = FindEventWindow(SDLEvent);
     if (!EventWindow) { return; }
 
     switch (SDLEvent.type) {
@@ -67,7 +70,7 @@ bool LinuxApplication::ShouldExit() const
     return bShouldExit;
 }
 
-Ref<Windows::LinuxWindow> LinuxApplication::FindEventWindow(SDL_Event &Event)
+Ref<LinuxWindow> LinuxApplication::FindEventWindow(SDL_Event &Event)
 {
     uint32 WindowID;
 
@@ -90,10 +93,8 @@ Ref<Windows::LinuxWindow> LinuxApplication::FindEventWindow(SDL_Event &Event)
         default: return nullptr;
     }
 
-    for (Ref<Windows::LinuxWindow> &Window: Windows) {
+    for (Ref<LinuxWindow> &Window: Windows) {
         if (SDL_GetWindowID(Window->GetHandle()) == WindowID) { return Window; }
     }
     return nullptr;
 }
-
-}    // namespace Raphael

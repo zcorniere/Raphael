@@ -6,9 +6,6 @@
 
 #include "Engine/Threading/ThreadRuntime.hxx"
 
-namespace Raphael
-{
-
 ///
 /// @brief Wrapper of the std::jthread
 ///
@@ -39,7 +36,7 @@ public:
     ///
     /// @param name the name of the new thread
     /// @param threadCode The runtime to be executed in the thread
-    void create(const std::string &name, std::unique_ptr<Interface::ThreadRuntime> threadCode);
+    void create(const std::string &name, std::unique_ptr<ThreadRuntime> threadCode);
 
 protected:
     /// Executed from the thread when started
@@ -55,7 +52,5 @@ private:
 private:
     std::string m_name;
     std::jthread m_managedThread;
-    std::unique_ptr<Interface::ThreadRuntime> m_internalRuntime;
+    std::unique_ptr<ThreadRuntime> m_internalRuntime;
 };
-
-}    // namespace Raphael

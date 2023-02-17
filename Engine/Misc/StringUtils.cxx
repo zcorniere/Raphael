@@ -1,6 +1,6 @@
 #include "Engine/Misc/StringUtils.hxx"
 
-namespace Raphael::Utils
+namespace Utils
 {
 
 std::string BytesToString(uint64 bytes)
@@ -23,4 +23,4 @@ std::string BytesToString(uint64 bytes)
     return std::string(buffer);
 }
 
-}    // namespace Raphael::Utils
+}

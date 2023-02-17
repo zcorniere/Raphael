@@ -1,8 +1,5 @@
 #pragma once
 
-namespace Raphael::RHI
-{
-
 DECLARE_LOGGER_CATEGORY(Core, LogRHI, Info);
 
 enum class RHIInterfaceType {
@@ -41,5 +38,3 @@ FORCEINLINE Ref<TRHI> GetDynamicRHI()
 {
     return GDynamicRHI.As<TRHI>();
 }
-
-}    // namespace Raphael::RHI

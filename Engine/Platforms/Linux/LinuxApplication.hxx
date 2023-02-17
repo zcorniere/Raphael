@@ -3,9 +3,7 @@
 #include "Engine/Platforms/Application.hxx"
 #include "Engine/Platforms/Window.hxx"
 #include "Engine/Renderer/Vulkan/VulkanDynamicRHI.hxx"
-
-namespace Raphael
-{
+#include "Engine/Renderer/Vulkan/VulkanResources.hxx"
 
 class LinuxApplication : public GenericApplication
 {
@@ -22,17 +20,16 @@ public:
     bool ShouldExit() const override;
 
 private:
-    Ref<Windows::LinuxWindow> FindEventWindow(SDL_Event &Event);
+    Ref<LinuxWindow> FindEventWindow(SDL_Event &Event);
 
 private:
     bool bShouldExit = false;
-    Ref<RHI::VulkanDynamicRHI> RHI;
+    Ref<VulkanDynamicRHI> RHI;
 
-    std::vector<Ref<Windows::LinuxWindow>> Windows;
+    std::vector<Ref<LinuxWindow>> Windows;
+    Ref<VulkanViewport> Viewport;
 };
 
 using Application = LinuxApplication;
 
 extern Ref<Application> GApplication;
-
-}    // namespace Raphael

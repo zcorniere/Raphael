@@ -5,9 +5,6 @@
 
 #include <glm/vec3.hpp>
 
-namespace Raphael::RHI
-{
-
 class RHIResource : public RObject
 {
 public:
@@ -63,4 +60,10 @@ private:
     const RHITextureCreateDesc Description;
 };
 
-}    // namespace Raphael::RHI
+class RHIViewport : public RHIResource
+{
+public:
+    RHIViewport(): RHIResource(RHIResourceType::Viewport)
+    {
+    }
+};

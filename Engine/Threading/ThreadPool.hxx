@@ -11,9 +11,6 @@
 #include "Engine/Threading/Thread.hxx"
 #include "Engine/Threading/ThreadRuntime.hxx"
 
-namespace Raphael
-{
-
 /// Manage a set of thread for sheduling work
 class ThreadPool
 {
@@ -27,7 +24,7 @@ private:
         std::queue<WorkUnits> qWork;
     };
 
-    class WorkerPoolRuntime : public Interface::ThreadRuntime
+    class WorkerPoolRuntime : public ThreadRuntime
     {
     public:
         WorkerPoolRuntime(std::shared_ptr<ThreadPool::State> context);
@@ -85,5 +82,3 @@ private:
     std::shared_ptr<State> state;
     std::vector<Thread> thread_p;
 };
-
-}    // namespace Raphael

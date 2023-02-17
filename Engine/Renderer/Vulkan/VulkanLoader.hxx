@@ -212,13 +212,8 @@
 
 #define DECLARE_VK_ENTRYPOINTS(Type, Func) extern Type Func;
 
-namespace Raphael
-{
-
 namespace VulkanAPI
 {
-    VK_ENTRYPOINT_ALL(DECLARE_VK_ENTRYPOINTS);
-    VK_ENTRYPOINTS_DEBUG_UTILS(DECLARE_VK_ENTRYPOINTS);
-}
-
-}    // namespace Raphael
+VK_ENTRYPOINT_ALL(DECLARE_VK_ENTRYPOINTS);
+VK_ENTRYPOINTS_DEBUG_UTILS(DECLARE_VK_ENTRYPOINTS);
+}    // namespace VulkanAPI

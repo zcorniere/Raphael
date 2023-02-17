@@ -2,9 +2,6 @@
 
 #include "Engine/Renderer/Vulkan/IVulkanDynamicRHI.hxx"
 
-namespace Raphael::RHI
-{
-
 static std::string GetErrorString(VkResult Result)
 {
     switch (Result) {
@@ -68,5 +65,3 @@ void VulkanCheckResult(VkResult Result, const char *VulkanFunction, const std::s
         location.file_name(), location.line(), ErrorString);
     verifyAlways(false);
 }
-
-}    // namespace Raphael::RHI

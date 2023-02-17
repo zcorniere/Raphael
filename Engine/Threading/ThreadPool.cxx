@@ -2,9 +2,6 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogWorkerThreadRuntime, Info);
 
-namespace Raphael
-{
-
 ThreadPool::ThreadPool(): state(std::make_shared<ThreadPool::State>())
 {
 }
@@ -81,5 +78,3 @@ void ThreadPool::WorkerPoolRuntime::exit()
     b_requestExit = true;
     LOG(LogWorkerThreadRuntime, Info, "Thread {}: exit requested", i_threadID);
 }
-
-}    // namespace Raphael
