@@ -69,8 +69,20 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
 {
     const char *Severity = GetMessageSeverity(MsgSeverity);
 
-    LOG_V(LogVulkanRHI, VulkanMessageSeverityToLogLevel(MsgSeverity), "[{}:{}({})] {}", Severity,
-          VulkanMessageType(messageType), pCallbackData->messageIdNumber, pCallbackData->pMessage);
+    std::string Objects;
+    if (pCallbackData->objectCount) {
+        Objects = cpplogger::fmt::format("\n\tObjects({}): \n", pCallbackData->objectCount);
+        for (uint32_t i = 0; i < pCallbackData->objectCount; ++i) {
+            const auto &object = pCallbackData->pObjects[i];
+            Objects.append(cpplogger::fmt::format("\t\t- Object[{0}] name: {1}, type: {2}, handle: {3:#x}\n", i,
+                                                  object.pObjectName ? object.pObjectName : "NULL",
+                                                  VK_TYPE_TO_STRING(VkObjectType, object.objectType),
+                                                  object.objectHandle));
+        }
+    }
+
+    LOG_V(LogVulkanRHI, VulkanMessageSeverityToLogLevel(MsgSeverity), "[{}:{}({})] {}{}", Severity,
+          VulkanMessageType(messageType), pCallbackData->messageIdNumber, pCallbackData->pMessage, Objects);
     verify(false);
     return VK_FALSE;
 }

@@ -32,11 +32,14 @@ bool LinuxApplication::Initialize()
     Windows[0]->Show();
 
     Viewport = Ref<VulkanViewport>::Create(RHI->GetDevice(), Windows[0]->GetHandle(), glm::uvec2{500u, 500u});
+    Viewport->SetName("Main viewport");
     return true;
 }
 
 void LinuxApplication::Shutdown()
 {
+    Viewport = nullptr;
+
     for (Ref<LinuxWindow> &Win: Windows) {
         Win->Destroy();
     }

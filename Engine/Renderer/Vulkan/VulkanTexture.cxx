@@ -63,6 +63,14 @@ VulkanTexture::~VulkanTexture()
     VulkanAPI::vkDestroyImage(Device->GetInstanceHandle(), Image, nullptr);
 }
 
+void VulkanTexture::SetName(std::string_view InName)
+{
+    RHIResource::SetName(InName);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, Image, "{:s}", InName);
+}
+
+//////////////////// VulkanTextureView ////////////////////
+
 void VulkanTextureView::Create(Ref<VulkanDevice> &Device, VkImage InImage, VkImageViewType ViewType,
                                VkImageAspectFlags AspectFlags, VkFormat Format, uint32 FirstMip, uint32 NumMips)
 {

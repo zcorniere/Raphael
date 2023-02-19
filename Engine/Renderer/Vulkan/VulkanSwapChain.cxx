@@ -57,6 +57,9 @@ VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool Loc
     bool bFoundPresentModeMailbox = false;
     bool bFoundPresentModeImmediate = false;
     bool bFoundPresentModeFIFO = false;
+
+    LOG(LogVulkanSwapchain, Info, "Found {} Surface present modes:", PresentModes.size());
+
     for (const auto &availablePresentMode: PresentModes) {
         switch (availablePresentMode) {
             case VK_PRESENT_MODE_MAILBOX_KHR:
@@ -201,6 +204,8 @@ void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo *RecreateInfo)
     }
     Surface = VK_NULL_HANDLE;
     SwapChain = VK_NULL_HANDLE;
+    ImageAcquiredSemaphore.clear();
+    ImageInUseFence.clear();
 }
 
 VulkanSwapChain::Status VulkanSwapChain::Present(Ref<VulkanQueue> &PresentQueue, Ref<Semaphore> &RenderingComplete)

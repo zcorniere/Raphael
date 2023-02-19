@@ -16,7 +16,7 @@ public:
     {
     }
 
-    void SetName(std::string_view InName)
+    virtual void SetName(std::string_view InName)
     {
         Name = InName;
     }

@@ -6,11 +6,11 @@
 
 namespace RObjectUtils
 {
-DECLARE_LOGGER_CATEGORY(Core, LogRObject, Error);
 
 void AddToLiveReferences(void *instance);
 void RemoveFromLiveReferences(void *instance);
 bool IsLive(void *instance);
+
 }    // namespace RObjectUtils
 
 class RObject
@@ -23,7 +23,7 @@ public:
     }
     void DecrementRefCount() const
     {
-        checkMsg(m_RefCount > 0, "Ref count is already at 0");
+        if (!verifyAlwaysMsg(m_RefCount > 0, "Ref count is already at 0")) { return; }
         --m_RefCount;
     }
 

@@ -61,6 +61,11 @@ public:
         return ImageFormat;
     }
 
+    VkSwapchainKHR GetHandle() const
+    {
+        return SwapChain;
+    }
+
 private:
     int32 AcquireImageIndex(Ref<Semaphore> &OutSemaphore);
 

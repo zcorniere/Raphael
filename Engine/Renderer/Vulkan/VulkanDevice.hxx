@@ -4,12 +4,13 @@
 #include <vulkan/vulkan.h>
 
 #include "Engine/Renderer/Vulkan/VulkanDynamicRHI.hxx"
+#include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
 #define VULKAN_USE_DEBUG_NAMES 1
 
 #if VULKAN_USE_DEBUG_NAMES
     #define VULKAN_SET_DEBUG_NAME(Device, Type, Handle, Format, ...) \
-        Device->SetObjectName(Type, (uint64)Handle, cpplogger::fmt::format(Format, __VA_ARGS__));
+        Device->SetObjectName(Type, Handle, cpplogger::fmt::format(Format, __VA_ARGS__));
 #else
     #define VULKAN_SET_DEBUG_NAME(Device, Type, Handle, Format, ...)
 #endif
@@ -40,7 +41,19 @@ public:
 
     void WaitUntilIdle();
 
-    void SetObjectName(VkObjectType Type, uint64 Handle, const std::string Name);
+    template <typename T>
+    requires std::is_pointer_v<T>
+    void SetObjectName(VkObjectType Type, const T Handle, const std::string Name)
+    {
+        VkDebugUtilsObjectNameInfoEXT NameInfo{
+            .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+            .objectType = Type,
+            .objectHandle = (uint64)Handle,
+            .pObjectName = Name.data(),
+        };
+
+        VK_CHECK_RESULT(VulkanAPI::vkSetDebugUtilsObjectNameEXT(Device, &NameInfo));
+    }
 
     inline VkPhysicalDevice GetPhysicalHandle() const
     {

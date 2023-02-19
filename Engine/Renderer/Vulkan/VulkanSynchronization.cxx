@@ -30,7 +30,7 @@ Fence::Fence(Ref<VulkanDevice> InDevice, bool bCreateSignaled)
 
 Fence::~Fence()
 {
-    check(Handle == VK_NULL_HANDLE);
+    VulkanAPI::vkDestroyFence(Device->GetInstanceHandle(), Handle, nullptr);
 }
 
 void Fence::Reset()

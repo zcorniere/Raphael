@@ -21,6 +21,8 @@ public:
     VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateDesc &InDesc);
     virtual ~VulkanTexture();
 
+    void SetName(std::string_view InName) override;
+
     void *GetNativeResource() const override
     {
         return Image;
@@ -58,6 +60,8 @@ class VulkanViewport : public RHIViewport
 public:
     VulkanViewport(Ref<VulkanDevice> InDevice, void *InWindowHandle, glm::uvec2 InSize);
     ~VulkanViewport();
+
+    void SetName(std::string_view InName) override;
 
 private:
     void CreateSwapchain();
