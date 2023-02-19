@@ -44,10 +44,12 @@ public:
 
     inline VkPhysicalDevice GetPhysicalHandle() const
     {
+        verify(Gpu);
         return Gpu;
     }
     inline VkDevice GetInstanceHandle() const
     {
+        verify(Device);
         return Device;
     }
     inline const VkPhysicalDeviceProperties &GetDeviceProperties() const

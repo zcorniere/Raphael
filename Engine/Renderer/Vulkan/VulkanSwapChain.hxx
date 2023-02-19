@@ -56,6 +56,11 @@ public:
 
     Status Present(Ref<VulkanQueue> &PresentQueue, Ref<Semaphore> &RenderingComplete);
 
+    VkFormat GetFormat() const
+    {
+        return ImageFormat;
+    }
+
 private:
     int32 AcquireImageIndex(Ref<Semaphore> &OutSemaphore);
 

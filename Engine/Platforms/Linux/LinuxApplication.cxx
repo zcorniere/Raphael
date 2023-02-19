@@ -23,6 +23,7 @@ LinuxApplication::~LinuxApplication()
 bool LinuxApplication::Initialize()
 {
     check(Windows.size() >= 1);
+    RHI->Init();
 
     auto WindowDef = std::make_shared<WindowDefinition>();
     WindowDef->Title = "Raphael Engine";
@@ -31,8 +32,6 @@ bool LinuxApplication::Initialize()
     Windows[0]->Show();
 
     Viewport = Ref<VulkanViewport>::Create(RHI->GetDevice(), Windows[0]->GetHandle(), glm::uvec2{500u, 500u});
-
-    RHI->Init();
     return true;
 }
 

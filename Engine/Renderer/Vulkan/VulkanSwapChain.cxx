@@ -157,6 +157,7 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice> &InDev
     VK_CHECK_RESULT_EXPANDED(
         VulkanPlatform::CreateSwapchainKHR(Device->GetInstanceHandle(), &CreateInfo, nullptr, &SwapChain));
 
+    ImageFormat = SurfaceFormat.format;
     if (RecreateInfo) {
         if (RecreateInfo->SwapChain != VK_NULL_HANDLE) {
             VulkanPlatform::DestroySwapchainKHR(Device->GetInstanceHandle(), RecreateInfo->SwapChain, nullptr);

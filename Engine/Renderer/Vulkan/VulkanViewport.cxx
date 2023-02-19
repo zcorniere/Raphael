@@ -26,4 +26,10 @@ void VulkanViewport::CreateSwapchain()
     for (Ref<Semaphore> &SemaphoreRef: RenderingDoneSemaphores) {
         SemaphoreRef = Ref<Semaphore>::Create(Device);
     }
+
+    TexturesViews.resize(BackBufferImages.size());
+    for (unsigned i = 0; i < BackBufferImages.size(); i++) {
+        TexturesViews.at(i).Create(Device, BackBufferImages.at(i), VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT,
+                                   SwapChain->GetFormat(), 0, 1);
+    }
 }
