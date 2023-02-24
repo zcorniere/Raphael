@@ -33,6 +33,7 @@ function(find_linker)
 
     if(DEFINED SELECTED_LINKER)
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=${SELECTED_LINKER}" PARENT_SCOPE)
+        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=${SELECTED_LINKER}" PARENT_SCOPE)
         message(STATUS "Linker used - ${SELECTED_LINKER}")
     endif()
 

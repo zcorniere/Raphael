@@ -16,3 +16,18 @@
 [submodule "External/Vulkan-Headers"]
 	path = External/Vulkan-Headers
 	url = https://github.com/KhronosGroup/Vulkan-Headers
+[submodule "External/shaderc"]
+	path = External/shaderc
+	url = git@github.com:google/shaderc.git
+[submodule "External/SPIRV-Cross"]
+	path = External/SPIRV-Cross
+	url = git@github.com:KhronosGroup/SPIRV-Cross.git
+[submodule "External/SPIRV-Tools"]
+	path = External/SPIRV-Tools
+	url = git@github.com:KhronosGroup/SPIRV-Tools.git
+[submodule "External/SPIRV-Headers"]
+	path = External/SPIRV-Headers
+	url = git@github.com:KhronosGroup/SPIRV-Headers.git
+[submodule "External/glslang"]
+	path = External/glslang
+	url = git@github.com:KhronosGroup/glslang.git

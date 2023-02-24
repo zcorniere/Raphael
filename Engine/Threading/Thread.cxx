@@ -49,7 +49,8 @@ std::uint32_t Thread::run()
     if (m_internalRuntime->init()) {
         preRun();
         exitCode = m_internalRuntime->run();
-        m_internalRuntime->exit();
+    } else {
+        m_internalRuntime->stop();
     }
 
     LOG(LogThread, Info, "Thread (\"{}\") exited with code {}", m_name, exitCode);

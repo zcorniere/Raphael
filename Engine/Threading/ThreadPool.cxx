@@ -1,6 +1,6 @@
 #include "Engine/Threading/ThreadPool.hxx"
 
-DECLARE_LOGGER_CATEGORY(Core, LogWorkerThreadRuntime, Info);
+DECLARE_LOGGER_CATEGORY(Core, LogWorkerThreadRuntime, Warn);
 
 ThreadPool::ThreadPool(): state(std::make_shared<ThreadPool::State>())
 {

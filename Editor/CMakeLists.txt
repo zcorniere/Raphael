@@ -1,6 +1,6 @@
 project(RaphaelEditor)
 
-option(NO_PROFILING "Disable the profiling" OFF)
+option(NO_PROFILING "Disable the profiling" ON)
 
 add_executable(${PROJECT_NAME} main.cxx)
 

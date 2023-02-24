@@ -95,11 +95,11 @@ public:
 
     const WindowDefinition &GetDefinition() const
     {
-        return *Definition;
+        return Definition;
     }
 
 protected:
-    std::shared_ptr<WindowDefinition> Definition;
+    WindowDefinition Definition;
 };
 
 #if defined(PLATFORM_WINDOWS)

@@ -47,6 +47,7 @@ target_link_libraries(
     PUBLIC logger
            glm
            SDL3
+           spirv-cross-core
            VulkanMemoryAllocator
            Vulkan::Headers
 )

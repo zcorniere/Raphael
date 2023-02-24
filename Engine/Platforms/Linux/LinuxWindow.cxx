@@ -25,18 +25,18 @@ LinuxWindow::~LinuxWindow()
 {
 }
 
-void LinuxWindow::Initialize(const std::shared_ptr<WindowDefinition> &InDefinition, const Ref<LinuxWindow> &InParent)
+void LinuxWindow::Initialize(const WindowDefinition InDefinition, const Ref<LinuxWindow> &InParent)
 {
     Definition = InDefinition;
     p_ParentWindow = InParent;
 
     EnsureSDLInit();
 
-    const float XInitialRect = Definition->XPositionOnScreen;
-    const float YInitialRect = Definition->YPositionOnScreen;
+    const float XInitialRect = Definition.XPositionOnScreen;
+    const float YInitialRect = Definition.YPositionOnScreen;
 
-    const float WidthInitial = Definition->WidthDesiredOnScreen;
-    const float HeightInitial = Definition->HeightDesiredOnScreen;
+    const float WidthInitial = Definition.WidthDesiredOnScreen;
+    const float HeightInitial = Definition.HeightDesiredOnScreen;
 
     int32 X = XInitialRect;
     int32 Y = YInitialRect;
@@ -44,13 +44,13 @@ void LinuxWindow::Initialize(const std::shared_ptr<WindowDefinition> &InDefiniti
     int32 Height = HeightInitial;
 
     uint32 WindowStyle = GWindowStyleSDL;
-    if (!Definition->HasOsWindowBorder) {
+    if (!Definition.HasOsWindowBorder) {
         WindowStyle |= SDL_WINDOW_BORDERLESS;
-        if (!Definition->AppearsInTaskbar) { WindowStyle |= SDL_WINDOW_SKIP_TASKBAR; }
+        if (!Definition.AppearsInTaskbar) { WindowStyle |= SDL_WINDOW_SKIP_TASKBAR; }
     }
-    if (Definition->IsRegularWindow && Definition->HasSizingFrame) { WindowStyle |= SDL_WINDOW_RESIZABLE; }
+    if (Definition.IsRegularWindow && Definition.HasSizingFrame) { WindowStyle |= SDL_WINDOW_RESIZABLE; }
 
-    p_HWnd = SDL_CreateWindow(Definition->Title.c_str(), X, Y, Width, Height, WindowStyle);
+    p_HWnd = SDL_CreateWindow(Definition.Title.c_str(), X, Y, Width, Height, WindowStyle);
     if (!p_HWnd) {
         LOG(LogLinuxWindow, Fatal, "Failed To create the SDL Window");
         checkNoEntry();

@@ -13,7 +13,7 @@ public:
     LinuxWindow();
     virtual ~LinuxWindow();
 
-    void Initialize(const std::shared_ptr<WindowDefinition> &InDefinition, const Ref<LinuxWindow> &InParent);
+    void Initialize(const WindowDefinition InDefinition, const Ref<LinuxWindow> &InParent);
 
     const Ref<LinuxWindow> &GetParent() const;
 

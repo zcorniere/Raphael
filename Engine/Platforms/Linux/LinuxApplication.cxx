@@ -22,12 +22,15 @@ LinuxApplication::~LinuxApplication()
 
 bool LinuxApplication::Initialize()
 {
+    GenericApplication::Initialize();
     check(Windows.size() >= 1);
+
     RHI->Init();
 
-    auto WindowDef = std::make_shared<WindowDefinition>();
-    WindowDef->Title = "Raphael Engine";
-    WindowDef->AppearsInTaskbar = true;
+    WindowDefinition WindowDef{
+        .AppearsInTaskbar = true,
+        .Title = "Raphael Engine",
+    };
     Windows[0]->Initialize(WindowDef, nullptr);
     Windows[0]->Show();
 
@@ -46,6 +49,7 @@ void LinuxApplication::Shutdown()
     Windows.clear();
 
     RHI->Shutdown();
+    GenericApplication::Shutdown();
 }
 
 void LinuxApplication::ProcessEvent(SDL_Event SDLEvent)
