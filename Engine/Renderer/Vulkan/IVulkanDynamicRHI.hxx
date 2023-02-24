@@ -7,6 +7,9 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Info);
 
+namespace VulkanRHI
+{
+
 class IVulkanDynamicRHI : public IDynamicRHI
 {
 public:
@@ -30,3 +33,5 @@ FORCEINLINE Ref<IVulkanDynamicRHI> GetIVulkanDynamicRHI()
     check(GDynamicRHI->GetInterfaceType() == RHIInterfaceType::Vulkan);
     return GetDynamicRHI<IVulkanDynamicRHI>();
 }
+
+}    // namespace VulkanRHI

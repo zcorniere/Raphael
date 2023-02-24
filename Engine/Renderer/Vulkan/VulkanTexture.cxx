@@ -3,6 +3,9 @@
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
+namespace VulkanRHI
+{
+
 VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateDesc &InDesc)
     : RHITexture(InDesc), Description(InDesc), Device(InDevice), Allocation(nullptr)
 {
@@ -98,3 +101,5 @@ void VulkanTextureView::Destroy(Ref<VulkanDevice> &Device)
 {
     if (View) { VulkanAPI::vkDestroyImageView(Device->GetInstanceHandle(), View, nullptr); }
 }
+
+}    // namespace VulkanRHI

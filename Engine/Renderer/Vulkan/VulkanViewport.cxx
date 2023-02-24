@@ -4,6 +4,9 @@
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 #include "Engine/Renderer/Vulkan/VulkanSynchronization.hxx"
 
+namespace VulkanRHI
+{
+
 VulkanViewport::VulkanViewport(Ref<VulkanDevice> InDevice, void *InWindowHandle, glm::uvec2 InSize)
     : Device(InDevice), WindowHandle(InWindowHandle), Size(InSize)
 {
@@ -64,3 +67,5 @@ void VulkanViewport::CreateSwapchain()
     // Refresh vulkan object name
     SetName(GetName());
 }
+
+}    // namespace VulkanRHI

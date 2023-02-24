@@ -48,6 +48,7 @@ target_link_libraries(
            glm
            SDL3
            spirv-cross-core
+           shaderc
            VulkanMemoryAllocator
            Vulkan::Headers
 )

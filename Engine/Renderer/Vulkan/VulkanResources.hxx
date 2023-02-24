@@ -5,6 +5,9 @@
 #include "Engine/Renderer/Vulkan/VulkanMemoryManager.hxx"
 #include "Engine/Renderer/Vulkan/VulkanSwapChain.hxx"
 
+namespace VulkanRHI
+{
+
 class Semaphore;
 class VulkanDevice;
 
@@ -55,6 +58,14 @@ struct VulkanTextureView {
     VkImage Image;
 };
 
+class VulkanShader : public RHIShader
+{
+public:
+    VulkanShader(RHIShaderType Type): RHIShader(Type)
+    {
+    }
+};
+
 class VulkanViewport : public RHIViewport
 {
 public:
@@ -77,3 +88,5 @@ private:
     void *WindowHandle;
     glm::uvec2 Size;
 };
+
+}    // namespace VulkanRHI

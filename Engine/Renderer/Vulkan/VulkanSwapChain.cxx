@@ -9,6 +9,9 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogVulkanSwapchain, Info);
 
+namespace VulkanRHI
+{
+
 VulkanSwapChain::SupportDetails VulkanSwapChain::SupportDetails::QuerySwapChainSupport(const Ref<VulkanDevice> &Device,
                                                                                        const VkSurfaceKHR &Surface)
 {
@@ -265,3 +268,5 @@ int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore> &OutSemaphore)
 
     return CurrentImageIndex;
 }
+
+}    // namespace VulkanRHI

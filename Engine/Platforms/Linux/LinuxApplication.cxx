@@ -9,7 +9,7 @@ Ref<Application> GApplication = nullptr;
 
 LinuxApplication::LinuxApplication()
 {
-    RHI = Ref<VulkanDynamicRHI>::Create();
+    RHI = Ref<VulkanRHI::VulkanDynamicRHI>::Create();
 
     Windows.push_back(Ref<LinuxWindow>::Create());
 
@@ -34,7 +34,8 @@ bool LinuxApplication::Initialize()
     Windows[0]->Initialize(WindowDef, nullptr);
     Windows[0]->Show();
 
-    Viewport = Ref<VulkanViewport>::Create(RHI->GetDevice(), Windows[0]->GetHandle(), glm::uvec2{500u, 500u});
+    Viewport =
+        Ref<VulkanRHI::VulkanViewport>::Create(RHI->GetDevice(), Windows[0]->GetHandle(), glm::uvec2{500u, 500u});
     Viewport->SetName("Main viewport");
     return true;
 }

@@ -24,6 +24,9 @@
     #define VK_FLAGS_TO_STRING(Type, Value) Value
 #endif
 
+namespace VulkanRHI
+{
+
 class VulkanMemoryManager;
 class VulkanQueue;
 
@@ -94,3 +97,5 @@ private:
     Ref<VulkanQueue> TransferQueue;
     Ref<VulkanQueue> PresentQueue;
 };
+
+}    // namespace VulkanRHI

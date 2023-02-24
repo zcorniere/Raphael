@@ -60,6 +60,22 @@ private:
     const RHITextureCreateDesc Description;
 };
 
+class RHIShader : public RHIResource
+{
+public:
+    RHIShader(RHIShaderType Type): RHIResource(RHIResourceType::Shader), ShaderType(Type)
+    {
+    }
+
+    RHIShaderType GetShaderType() const
+    {
+        return ShaderType;
+    }
+
+private:
+    const RHIShaderType ShaderType;
+};
+
 class RHIViewport : public RHIResource
 {
 public:

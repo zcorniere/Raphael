@@ -7,9 +7,16 @@ enum class RHIResourceType : uint8 {
     None,
 
     Texture,
+    Shader,
     Viewport,
 
     MAX_VALUE,
+};
+
+enum class RHIShaderType : uint8 {
+    Vertex,
+    Fragment,
+    Compute,
 };
 
 enum class TextureCreateFlags {

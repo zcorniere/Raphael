@@ -24,10 +24,10 @@ private:
 
 private:
     bool bShouldExit = false;
-    Ref<VulkanDynamicRHI> RHI;
+    Ref<VulkanRHI::VulkanDynamicRHI> RHI;
 
     std::vector<Ref<LinuxWindow>> Windows;
-    Ref<VulkanViewport> Viewport;
+    Ref<VulkanRHI::VulkanViewport> Viewport;
 };
 
 using Application = LinuxApplication;

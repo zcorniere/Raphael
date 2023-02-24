@@ -2,6 +2,9 @@
 
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 
+namespace VulkanRHI
+{
+
 class VulkanDevice;
 
 class Semaphore : public RObject
@@ -53,3 +56,5 @@ private:
     VkFence Handle;
     State State;
 };
+
+}    // namespace VulkanRHI

@@ -28,6 +28,9 @@ static constexpr std::string GetQueueInfoString(const VkQueueFamilyProperties &P
 static const std::vector<const char *> DefaultDeviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                                                                VK_EXT_VALIDATION_CACHE_EXTENSION_NAME};
 
+namespace VulkanRHI
+{
+
 VulkanDevice::VulkanDevice(Ref<VulkanDynamicRHI> InRHI, VkPhysicalDevice InGpu)
     : Device(VK_NULL_HANDLE),
       Gpu(InGpu),
@@ -205,3 +208,5 @@ void VulkanDevice::WaitUntilIdle()
 {
     VK_CHECK_RESULT(VulkanAPI::vkDeviceWaitIdle(Device));
 }
+
+}    // namespace VulkanRHI

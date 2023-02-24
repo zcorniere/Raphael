@@ -47,6 +47,9 @@ static std::string GetErrorString(VkResult Result)
     }
 }
 
+namespace VulkanRHI
+{
+
 void VulkanCheckResult(VkResult Result, const char *VulkanFunction, const std::source_location &location)
 {
     bool bDumpMemory = false;
@@ -65,3 +68,5 @@ void VulkanCheckResult(VkResult Result, const char *VulkanFunction, const std::s
         location.file_name(), location.line(), ErrorString);
     verifyAlways(false);
 }
+
+}    // namespace VulkanRHI

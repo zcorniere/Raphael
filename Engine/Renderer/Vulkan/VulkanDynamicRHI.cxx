@@ -5,6 +5,9 @@
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
+namespace VulkanRHI
+{
+
 VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr)
 {
     LOG(LogVulkanRHI, Info, "Built with Vulkan header version {}.{}.{}",
@@ -178,3 +181,5 @@ void VulkanDynamicRHI::InitInstance()
 {
     Device->InitGPU();
 }
+
+}    // namespace VulkanRHI

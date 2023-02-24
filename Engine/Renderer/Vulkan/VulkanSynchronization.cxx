@@ -3,6 +3,9 @@
 
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
+namespace VulkanRHI
+{
+
 Semaphore::Semaphore(Ref<VulkanDevice> &InDevice): Device(InDevice), SemaphoreHandle(VK_NULL_HANDLE)
 {
     VkSemaphoreCreateInfo CreateInfo{
@@ -53,3 +56,5 @@ bool Fence::Wait(uint64 TimeInNanoseconds)
     }
     return false;
 }
+
+}    // namespace VulkanRHI

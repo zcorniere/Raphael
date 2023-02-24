@@ -8,6 +8,9 @@
 // No Specific Entry point for Linux Vulkan
 #define VK_ENTRYPOINTS_PLATFORM_INSTANCE(LoadMacro)
 
+namespace VulkanRHI
+{
+
 class VulkanLinuxPlatform : public VulkanGenericPlatform
 {
 public:
@@ -32,3 +35,5 @@ protected:
 };
 
 using VulkanPlatform = VulkanLinuxPlatform;
+
+}    // namespace VulkanRHI

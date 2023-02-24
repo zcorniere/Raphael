@@ -2,6 +2,9 @@
 
 #include <vk_mem_alloc.h>
 
+namespace VulkanRHI
+{
+
 class VulkanDevice;
 
 class VulkanMemoryManager;
@@ -89,3 +92,5 @@ private:
 
     friend VulkanMemoryAllocation;
 };
+
+}    // namespace VulkanRHI

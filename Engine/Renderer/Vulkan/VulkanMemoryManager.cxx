@@ -7,6 +7,9 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogVulkanMemoryAllocator, Info);
 
+namespace VulkanRHI
+{
+
 void *VulkanMemoryAllocation::Map(VkDeviceSize InSize, VkDeviceSize Offset)
 {
     check(bCanBeMapped);
@@ -160,3 +163,5 @@ void VulkanMemoryManager::PrintMemInfo() const
     // write to file
     vmaFreeStatsString(Allocator, JsonString);
 }
+
+}    // namespace VulkanRHI

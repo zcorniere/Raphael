@@ -3,6 +3,9 @@
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
+namespace VulkanRHI
+{
+
 class VulkanDevice;
 
 class VulkanGenericPlatform : public RObject
@@ -38,6 +41,8 @@ public:
     static void DestroySwapchainKHR(VkDevice Device, VkSwapchainKHR Swapchain, const VkAllocationCallbacks *Allocator);
 };
 
+}    // namespace VulkanRHI
+
 #if defined(PLATFORM_WINDOWS)
     #error "Unsupported Platform"
 #elif defined(PLATFORM_LINUX)
@@ -45,3 +50,4 @@ public:
 #else
     #error "Unsupported Platform"
 #endif
+

@@ -11,14 +11,17 @@
 
 #include <dlfcn.h>
 
+DECLARE_LOGGER_CATEGORY(Core, LogVulkanLinux, Info)
+
+namespace VulkanRHI
+{
+
 #define DEFINE_VK_ENTRYPOINTS(Type, Func) Type VulkanAPI::Func = NULL;
 
 VK_ENTRYPOINT_ALL(DEFINE_VK_ENTRYPOINTS)
 VK_ENTRYPOINTS_DEBUG_UTILS(DEFINE_VK_ENTRYPOINTS)
 
 #undef DEFINE_VK_ENTRYPOINTS
-
-DECLARE_LOGGER_CATEGORY(Core, LogVulkanLinux, Info)
 
 void *VulkanLinuxPlatform::VulkanLib = nullptr;
 bool VulkanLinuxPlatform::bAttemptedLoad = false;
@@ -33,10 +36,10 @@ bool VulkanLinuxPlatform::LoadVulkanLibrary()
     if (VulkanLib == nullptr) { return false; }
 
     bool bFoundAllEntryPoints = true;
-#define CHECK_VK_ENTRYPOINTS(Type, Func)                                    \
-    if (VulkanAPI::Func == NULL) {                                          \
-        bFoundAllEntryPoints = false;                                       \
-        LOG(LogVulkanLinux, Warn, "Failed to find entry point for " #Func); \
+#define CHECK_VK_ENTRYPOINTS(Type, Func)                                     \
+    if (VulkanAPI::Func == NULL) {                                           \
+        bFoundAllEntryPoints = false;                                        \
+        LOG(LogVulkanLinux, Error, "Failed to find entry point for " #Func); \
     }
 #define GET_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = (Type)dlsym(VulkanLib, #Func);
     VK_ENTRYPOINTS_BASE(GET_VK_ENTRYPOINTS);
@@ -131,3 +134,5 @@ void VulkanLinuxPlatform::CreateSurface(void *WindowHandle, VkInstance Instance,
         checkNoEntry();
     }
 }
+
+}    // namespace VulkanRHI

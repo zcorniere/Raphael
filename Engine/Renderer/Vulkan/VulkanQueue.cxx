@@ -2,6 +2,9 @@
 
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 
+namespace VulkanRHI
+{
+
 VulkanQueue::VulkanQueue(Ref<VulkanDevice> InDevice, std::uint32_t InFamilyIndex)
     : Queue(VK_NULL_HANDLE), FamilyIndex(InFamilyIndex), QueueIndex(0), Device(InDevice)
 {
@@ -11,3 +14,5 @@ VulkanQueue::VulkanQueue(Ref<VulkanDevice> InDevice, std::uint32_t InFamilyIndex
 VulkanQueue::~VulkanQueue()
 {
 }
+
+}    // namespace VulkanRHI

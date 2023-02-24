@@ -87,6 +87,9 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
     return VK_FALSE;
 }
 
+namespace VulkanRHI
+{
+
 void VulkanDynamicRHI::SetupDebugLayerCallback()
 {
     VkDebugUtilsMessengerCreateInfoEXT CreateInfo;
@@ -105,3 +108,5 @@ void VulkanDynamicRHI::RemoveDebugLayerCallback()
 {
     if (Messenger != VK_NULL_HANDLE) { VulkanAPI::vkDestroyDebugUtilsMessengerEXT(m_Instance, Messenger, nullptr); }
 }
+
+}    // namespace VulkanRHI

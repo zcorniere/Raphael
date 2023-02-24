@@ -2,6 +2,9 @@
 
 #include "VulkanUtils.hxx"
 
+namespace VulkanRHI
+{
+
 class VulkanDevice;
 
 class VulkanQueue : public RObject
@@ -31,3 +34,5 @@ private:
     std::uint32_t QueueIndex;
     Ref<VulkanDevice> Device;
 };
+
+}    // namespace VulkanRHI

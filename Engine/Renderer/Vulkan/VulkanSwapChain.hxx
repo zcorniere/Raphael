@@ -2,6 +2,9 @@
 
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 
+namespace VulkanRHI
+{
+
 class VulkanTexture;
 class VulkanDevice;
 class Semaphore;
@@ -84,3 +87,5 @@ private:
     std::vector<Ref<Semaphore>> ImageAcquiredSemaphore;
     std::vector<Ref<Fence>> ImageInUseFence;
 };
+
+}    // namespace VulkanRHI

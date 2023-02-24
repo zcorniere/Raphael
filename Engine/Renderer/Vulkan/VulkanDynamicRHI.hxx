@@ -2,6 +2,9 @@
 
 #include "Engine/Renderer/Vulkan/IVulkanDynamicRHI.hxx"
 
+namespace VulkanRHI
+{
+
 class VulkanDevice;
 
 class VulkanDynamicRHI : public IVulkanDynamicRHI
@@ -44,3 +47,5 @@ protected:
 
     std::vector<Ref<VulkanDevice>> Devices;
 };
+
+}    // namespace VulkanRHI
