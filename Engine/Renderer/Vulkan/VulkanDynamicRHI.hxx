@@ -1,6 +1,9 @@
 #pragma once
 
+#define RHI_VULKAN_VERSION VK_API_VERSION_1_2
+
 #include "Engine/Renderer/Vulkan/IVulkanDynamicRHI.hxx"
+#include "Engine/Renderer/Vulkan/VulkanShaderCompiler.hxx"
 
 namespace VulkanRHI
 {
@@ -28,8 +31,6 @@ public:
 
     Ref<VulkanDevice> GetDevice();
 
-    void InitInstance();
-
 protected:
     void CreateInstance();
     void SelectDevice();
@@ -44,6 +45,8 @@ protected:
 protected:
     VkInstance m_Instance;
     Ref<VulkanDevice> Device;
+
+    VulkanShaderCompiler ShaderCompiler;
 
     std::vector<Ref<VulkanDevice>> Devices;
 };

@@ -8,7 +8,7 @@ namespace VulkanRHI
 
 class VulkanDevice;
 
-class VulkanGenericPlatform : public RObject
+class VulkanGenericPlatform
 {
 public:
     static bool LoadVulkanLibrary()

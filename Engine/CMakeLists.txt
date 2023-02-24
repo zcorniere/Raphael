@@ -31,7 +31,7 @@ add_library(
 
     Renderer/RHI/IDynamicRHI.cxx
 
-    Misc/StringUtils.cxx
+    Misc/Utils.cxx
     Misc/Assertions.cxx
 
     Threading/Thread.cxx

@@ -3,6 +3,7 @@
 #include "Engine/Core/Log.hxx"
 #include "Engine/Core/RObject.hxx"
 #include "Engine/Platforms/Platform.hxx"
+#include "Engine/Threading/ThreadPool.hxx"
 
 #include <SDL3/SDL.h>
 
@@ -36,6 +37,14 @@ public:
     {
         return false;
     }
+
+    ThreadPool &GetThreadPool()
+    {
+        return m_ThreadPool;
+    }
+
+protected:
+    ThreadPool m_ThreadPool;
 };
 
 #if defined(PLATFORM_WINDOWS)

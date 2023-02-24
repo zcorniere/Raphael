@@ -61,9 +61,16 @@ struct VulkanTextureView {
 class VulkanShader : public RHIShader
 {
 public:
-    VulkanShader(RHIShaderType Type): RHIShader(Type)
-    {
-    }
+    VulkanShader(RHIShaderType Type, std::vector<uint32> InSPRIVCode);
+
+    uint32 GetID();
+    VkShaderModule GetHandle(Ref<VulkanDevice> InDevice);
+
+private:
+    std::vector<uint32> SPIRVCode;
+    VkShaderModule ShaderModule;
+
+    friend class VulkanShaderCompiler;
 };
 
 class VulkanViewport : public RHIViewport

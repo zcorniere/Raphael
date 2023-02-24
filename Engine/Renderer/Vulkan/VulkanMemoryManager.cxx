@@ -1,6 +1,6 @@
 #include "Engine/Renderer/Vulkan/VulkanMemoryManager.hxx"
 
-#include "Engine/Misc/StringUtils.hxx"
+#include "Engine/Misc/Utils.hxx"
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"

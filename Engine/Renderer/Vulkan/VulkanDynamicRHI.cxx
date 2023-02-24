@@ -46,7 +46,7 @@ VkPhysicalDevice VulkanDynamicRHI::RHIGetVkPhysicalDevice() const
 
 void VulkanDynamicRHI::Init()
 {
-    InitInstance();
+    Device->InitGPU();
 }
 
 void VulkanDynamicRHI::PostInit()
@@ -79,7 +79,7 @@ void VulkanDynamicRHI::CreateInstance()
     VkApplicationInfo AppInfo;
     ZeroVulkanStruct(AppInfo, VK_STRUCTURE_TYPE_APPLICATION_INFO);
     AppInfo.pEngineName = "RaphaelEngine";
-    AppInfo.apiVersion = VK_API_VERSION_1_2;
+    AppInfo.apiVersion = RHI_VULKAN_VERSION;
 
     VkInstanceCreateInfo InstInfo;
     ZeroVulkanStruct(InstInfo, VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO);
@@ -175,11 +175,6 @@ void VulkanDynamicRHI::SelectDevice()
     }
 
     LOG(LogVulkanRHI, Info, "Chosen device index: {}", DeviceIndex);
-}
-
-void VulkanDynamicRHI::InitInstance()
-{
-    Device->InitGPU();
 }
 
 }    // namespace VulkanRHI
