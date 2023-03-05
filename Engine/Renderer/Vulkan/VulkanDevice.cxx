@@ -41,9 +41,6 @@ VulkanDevice::VulkanDevice(Ref<VulkanDynamicRHI> InRHI, VkPhysicalDevice InGpu)
 {
     RHI = InRHI;
 
-    std::memset(&GpuProps, 0, sizeof(GpuProps));
-    std::memset(&PhysicalFeatures, 0, sizeof(PhysicalFeatures));
-
     VulkanAPI::vkGetPhysicalDeviceProperties(Gpu, &GpuProps);
     LOG(LogVulkanRHI, Info, "- DeviceName: {}", GpuProps.deviceName);
     LOG(LogVulkanRHI, Info, "- API={}.{}.{} ({:#x}) Driver={:#x} VendorId={:#x} ({})",
@@ -88,14 +85,15 @@ void VulkanDevice::InitGPU()
 void VulkanDevice::CreateDevice(const std::vector<const char *> &DeviceLayers,
                                 const std::vector<const char *> &DeviceExtensions)
 {
-    VkDeviceCreateInfo DeviceInfo;
-    ZeroVulkanStruct(DeviceInfo, VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO);
+    VkDeviceCreateInfo DeviceInfo{
+        .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+    };
+
+    DeviceInfo.enabledLayerCount = DeviceLayers.size();
+    DeviceInfo.ppEnabledLayerNames = DeviceLayers.data();
 
     DeviceInfo.enabledExtensionCount = DeviceExtensions.size();
     DeviceInfo.ppEnabledExtensionNames = DeviceExtensions.data();
-
-    DeviceInfo.enabledLayerCount = DeviceLayers.size();
-    DeviceInfo.ppEnabledLayerNames = (DeviceInfo.enabledLayerCount > 0) ? (DeviceLayers.data()) : (nullptr);
 
     std::vector<VkDeviceQueueCreateInfo> QueueFamilyInfos;
     int32 GraphicsQueueFamilyIndex = -1;
@@ -141,9 +139,10 @@ void VulkanDevice::CreateDevice(const std::vector<const char *> &DeviceLayers,
         QueueFamilyInfos.resize(1 + QueueFamilyInfos.size());
 
         VkDeviceQueueCreateInfo &CurrQueue = QueueFamilyInfos[QueueIndex];
-        ZeroVulkanStruct(CurrQueue, VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO);
+        CurrQueue.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         CurrQueue.queueFamilyIndex = FamilyIndex;
         CurrQueue.queueCount = CurrProps.queueCount;
+
         NumPriorities += CurrProps.queueCount;
 
         LOG(LogVulkanRHI, Info, "Initializing Queue Family {:d}: {:d} queues{:s}", FamilyIndex, CurrProps.queueCount,

@@ -78,7 +78,8 @@ void VulkanShaderCompiler::SetOptimizationLevel(OptimizationLevel InLevel)
 
 Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile)
 {
-    static thread_local shaderc::Compiler ShaderCompiler;
+    (void)bForceCompile;
+    shaderc::Compiler ShaderCompiler;
 
     if (!std::filesystem::exists(Path)) {
         LOG(LogVulkanShaderCompiler, Error, "Shader file not found ! \"{}\"", Path.c_str());
@@ -90,7 +91,8 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
     shaderc_shader_kind ShaderKind = ShaderKindToShaderc(ShaderType);
     std::string FileContent = Utils::readFile(Path);
 
-    auto PreProcessResult = ShaderCompiler.PreprocessGlsl(FileContent, ShaderKind, Path.c_str(), Options);
+    shaderc::PreprocessedSourceCompilationResult PreProcessResult =
+        ShaderCompiler.PreprocessGlsl(FileContent, ShaderKind, Path.c_str(), Options);
     if (PreProcessResult.GetCompilationStatus() != shaderc_compilation_status_success) {
         LOG(LogVulkanShaderCompiler, Error, "Failed to pre-process {}: {}", Path.c_str(),
             PreProcessResult.GetErrorMessage());
@@ -99,7 +101,8 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
     std::string PreprocessCode(PreProcessResult.begin(), PreProcessResult.end());
     LOG(LogVulkanShaderCompiler, Debug, "Pre-process Result \"{}\": {}", Path.c_str(), PreprocessCode);
 
-    auto CompilationResult = ShaderCompiler.CompileGlslToSpv(PreprocessCode, ShaderKind, Path.c_str(), Options);
+    shaderc::CompilationResult CompilationResult =
+        ShaderCompiler.CompileGlslToSpv(PreprocessCode, ShaderKind, Path.c_str(), Options);
     if (CompilationResult.GetCompilationStatus() != shaderc_compilation_status_success) {
         LOG(LogVulkanShaderCompiler, Error, "Failed to compile shader \"{}\": {}", Path.c_str(),
             CompilationResult.GetErrorMessage());

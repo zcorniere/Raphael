@@ -76,14 +76,16 @@ Ref<VulkanDevice> VulkanDynamicRHI::GetDevice()
 
 void VulkanDynamicRHI::CreateInstance()
 {
-    VkApplicationInfo AppInfo;
-    ZeroVulkanStruct(AppInfo, VK_STRUCTURE_TYPE_APPLICATION_INFO);
-    AppInfo.pEngineName = "RaphaelEngine";
-    AppInfo.apiVersion = RHI_VULKAN_VERSION;
+    VkApplicationInfo AppInfo{
+        .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+        .pEngineName = "RaphaelEngine",
+        .apiVersion = RHI_VULKAN_VERSION,
+    };
 
-    VkInstanceCreateInfo InstInfo;
-    ZeroVulkanStruct(InstInfo, VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO);
-    InstInfo.pApplicationInfo = &AppInfo;
+    VkInstanceCreateInfo InstInfo{
+        .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+        .pApplicationInfo = &AppInfo,
+    };
 
     // TODO: Wrap it into its own class ?
     std::vector<const char *> VulkanExtensions{VK_KHR_SURFACE_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME};

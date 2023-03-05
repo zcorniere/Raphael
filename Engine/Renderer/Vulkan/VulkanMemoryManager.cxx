@@ -146,17 +146,18 @@ void VulkanMemoryManager::PrintMemInfo() const
     std::vector<VmaBudget> Budgets(MemoryProperties.memoryHeapCount);
     vmaGetHeapBudgets(Allocator, Budgets.data());
 
-    for (const VmaBudget &b: Budgets) {
-        LOG(LogVulkanMemoryAllocator, Info, "- VmaBudget.allocationBytes = {}",
+    for (unsigned i = 0; i < Budgets.size(); i++) {
+        const VmaBudget &b = Budgets.at(i);
+        LOG(LogVulkanMemoryAllocator, Info, "{} - VmaBudget.allocationBytes = {}", i,
             Utils::BytesToString(b.statistics.allocationBytes));
-        LOG(LogVulkanMemoryAllocator, Info, "- VmaBudget.allocationCount = {}",
+        LOG(LogVulkanMemoryAllocator, Info, "{} - VmaBudget.allocationCount = {}", i,
             Utils::BytesToString(b.statistics.allocationCount));
-        LOG(LogVulkanMemoryAllocator, Info, "- VmaBudget.blockBytes = {}",
+        LOG(LogVulkanMemoryAllocator, Info, "{} - VmaBudget.blockBytes = {}", i,
             Utils::BytesToString(b.statistics.blockBytes));
-        LOG(LogVulkanMemoryAllocator, Info, "- VmaBudget.blockCount = {}",
+        LOG(LogVulkanMemoryAllocator, Info, "{} - VmaBudget.blockCount = {}", i,
             Utils::BytesToString(b.statistics.blockCount));
-        LOG(LogVulkanMemoryAllocator, Info, "- VmaBudget.usage = {}", Utils::BytesToString(b.usage));
-        LOG(LogVulkanMemoryAllocator, Info, "- VmaBudget.budget = {}", Utils::BytesToString(b.budget));
+        LOG(LogVulkanMemoryAllocator, Info, "{} - VmaBudget.usage = {}", i, Utils::BytesToString(b.usage));
+        LOG(LogVulkanMemoryAllocator, Info, "{} - VmaBudget.budget = {}", i, Utils::BytesToString(b.budget));
     }
     char *JsonString = nullptr;
     vmaBuildStatsString(Allocator, &JsonString, VK_TRUE);

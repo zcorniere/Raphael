@@ -1,6 +1,7 @@
-#include "Engine/Renderer/Vulkan/VulkanResources.hxx"
+#include "Engine/Renderer/Vulkan/VulkanTexture.hxx"
 
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
+#include "Engine/Renderer/Vulkan/VulkanMemoryManager.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
 namespace VulkanRHI
@@ -12,28 +13,27 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
     SetName(InDesc.DebugName);
     const VkPhysicalDeviceProperties &DeviceProperties = Device->GetDeviceProperties();
 
-    VkImageCreateInfo ImageCreateInfo;
-    ZeroVulkanStruct(ImageCreateInfo, VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO);
-    ImageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
-    ImageCreateInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-    ImageCreateInfo.extent = {
-        .width = InDesc.Extent.x,
-        .height = InDesc.Extent.y,
-        .depth = InDesc.Depth,
+    VkImageCreateInfo ImageCreateInfo{
+        .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+        .imageType = TextureDimensionToVkImageType(InDesc.Dimension),
+        .format = VK_FORMAT_R8G8B8A8_SRGB,
+        .extent =
+            {
+                .width = InDesc.Extent.x,
+                .height = InDesc.Extent.y,
+                .depth = InDesc.Depth,
+            },
+        .mipLevels = 1,
+        .arrayLayers = 1,
+        .usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
     };
-    ImageCreateInfo.mipLevels = 1;
-    ImageCreateInfo.arrayLayers = 1;
-    ImageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    ImageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-    ImageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    ImageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-    ImageCreateInfo.usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
 
     const VkImageViewType ResourceType = TextureDimensionToVkImageViewType(InDesc.Dimension);
     switch (ResourceType) {
         case VK_IMAGE_VIEW_TYPE_2D:
-            ImageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+            ImageCreateInfo.imageType = TextureDimensionToVkImageType(InDesc.Dimension);
             check(InDesc.Extent.x <= DeviceProperties.limits.maxImageDimension2D);
             check(InDesc.Extent.y <= DeviceProperties.limits.maxImageDimension2D);
             break;

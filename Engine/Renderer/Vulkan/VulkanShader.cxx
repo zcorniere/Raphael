@@ -1,4 +1,4 @@
-#include "Engine/Renderer/Vulkan/VulkanResources.hxx"
+#include "Engine/Renderer/Vulkan/VulkanShader.hxx"
 
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 

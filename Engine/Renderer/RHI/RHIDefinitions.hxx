@@ -19,15 +19,45 @@ enum class RHIShaderType : uint8 {
     Compute,
 };
 
-enum class TextureCreateFlags {
+enum class EPrimitiveType {
+    TriangleList,
+    TriangleStrip,
+    LineList,
+    QuadList,
+    PointList,
+};
+
+enum class EPixelFormat {
+    Unknown,
+    R8G8B8A8_SRGB,
+};
+
+enum class ERasterizerFillMode {
+    Point,
+    Wireframe,
+    Solid,
+};
+
+enum class ERasterizerCullMode {
+    None,
+    ClockWise,
+    CounterClockWise,
+};
+
+enum class ERasterizerDepthClipMode {
+    DepthClip,
+    DepthClamp,
+};
+
+enum class ETextureCreateFlags {
     None = 0,
     RenderTargetable = BIT(0),
     ResolveTargetable = BIT(1),
     DepthStencilTargetable = BIT(2),
 };
-ENUM_CLASS_FLAGS(TextureCreateFlags)
+ENUM_CLASS_FLAGS(ETextureCreateFlags)
 
-enum class TextureDimension {
+enum class ETextureDimension {
     Texture2D,
 };
 
@@ -35,8 +65,8 @@ struct RHITextureCreateDesc {
     const std::string DebugName;
     Ref<Buffer> InitialData = nullptr;
 
-    TextureCreateFlags Flags = TextureCreateFlags::None;
-    TextureDimension Dimension = TextureDimension::Texture2D;
+    ETextureCreateFlags Flags = ETextureCreateFlags::None;
+    ETextureDimension Dimension = ETextureDimension::Texture2D;
 
     glm::uvec2 Extent = {1, 1};
     uint32 Depth = 1;
