@@ -13,7 +13,7 @@ void AddToLiveReferences(void *instance);
 void RemoveFromLiveReferences(void *instance);
 bool IsLive(void *instance);
 
-bool AreThereAnyLiveObject();
+bool AreThereAnyLiveObject(bool bPrintObjects = true);
 
 }    // namespace RObjectUtils
 
@@ -23,6 +23,16 @@ class Ref;
 class RObject
 {
 public:
+    virtual void SetName(std::string_view InName)
+    {
+        m_Name = InName;
+    }
+
+    const std::string &GetName() const
+    {
+        return m_Name;
+    }
+
     void IncrementRefCount() const
     {
         checkMsg(m_RefCount <= UINT32_MAX - 1, "Ref count have overflowed !");
@@ -50,6 +60,7 @@ public:
     }
 
 private:
+    std::string m_Name;
     std::vector<Ref<RObject>> m_Parent;
     mutable std::atomic<std::uint32_t> m_RefCount = 0;
 };
@@ -59,13 +70,21 @@ class Ref
 {
 public:
     template <typename... Args>
-    static Ref<T> Create(Args &&...args)
+    static Ref<T> CreateNamed(std::string_view Name, Args &&...args)
     {
         T *ObjectPtr = new T(std::forward<Args>(args)...);
+        ObjectPtr->SetName(Name);
 
-        LOG(RObjectUtils::LogRObject, Trace, "Creating RObject Ox{:p}<{}>", (void *)ObjectPtr, type_name<T>());
+        LOG(RObjectUtils::LogRObject, Debug, "Creating RObject \"{}\" {:p}<{}>", Name, (void *)ObjectPtr,
+            type_name<T>());
 
         return Ref<T>(ObjectPtr);
+    }
+
+    template <typename... Args>
+    static Ref<T> Create(Args &&...args)
+    {
+        return CreateNamed(type_name<T>(), args...);
     }
 
 public:
@@ -98,7 +117,7 @@ public:
     Ref(const Ref<Other> &&other)
     {
         m_ObjPtr = (T *)other.m_ObjPtr;
-        IncrementRefCount();
+        other.m_ObjPtr = nullptr;
     }
 
     ~Ref()
@@ -199,11 +218,6 @@ public:
         return m_ObjPtr == other.m_ObjPtr;
     }
 
-    bool operator!=(const Ref<T> &other) const
-    {
-        return !(*this == other);
-    }
-
     bool EqualsObject(const Ref<T> &other)
     {
         if (!m_ObjPtr || !other.m_ObjPtr) return false;
@@ -214,23 +228,30 @@ public:
 private:
     void IncrementRefCount() const
     {
-        if (m_ObjPtr) {
-            m_ObjPtr->IncrementRefCount();
-            RObjectUtils::AddToLiveReferences((void *)m_ObjPtr);
-        }
+        if (!m_ObjPtr) return;
+
+        m_ObjPtr->IncrementRefCount();
+        RObjectUtils::AddToLiveReferences((void *)m_ObjPtr);
     }
 
     void DecrementRefCount() const
     {
-        if (m_ObjPtr) {
-            m_ObjPtr->DecrementRefCount();
-            if (m_ObjPtr->GetRefCount() == 0) {
-                LOG(RObjectUtils::LogRObject, Trace, "Deleting RObject Ox{:p}<{}>", (void *)m_ObjPtr, type_name<T>());
-                RObjectUtils::RemoveFromLiveReferences((void *)m_ObjPtr);
-                delete m_ObjPtr;
-                m_ObjPtr = nullptr;
-            }
+        if (!m_ObjPtr) return;
+
+        m_ObjPtr->DecrementRefCount();
+
+        if (m_ObjPtr->GetRefCount() > 0) return;
+
+        if (m_ObjPtr->GetName().empty()) {
+            LOG(RObjectUtils::LogRObject, Debug, "Deleting RObject Ox{:p}<{}>", (void *)m_ObjPtr, type_name<T>());
+        } else {
+            LOG(RObjectUtils::LogRObject, Debug, "Deleting RObject \"{}\" 0x{:p}<{}>", m_ObjPtr->GetName(),
+                (void *)m_ObjPtr, type_name<T>());
         }
+
+        RObjectUtils::RemoveFromLiveReferences((void *)m_ObjPtr);
+        delete m_ObjPtr;
+        m_ObjPtr = nullptr;
     }
 
 private:

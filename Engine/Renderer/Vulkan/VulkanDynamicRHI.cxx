@@ -21,8 +21,6 @@ VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr
 
     CreateInstance();
     SelectDevice();
-
-    GDynamicRHI = this;
 }
 
 VulkanDynamicRHI::~VulkanDynamicRHI()
@@ -46,6 +44,8 @@ VkPhysicalDevice VulkanDynamicRHI::RHIGetVkPhysicalDevice() const
 
 void VulkanDynamicRHI::Init()
 {
+    GDynamicRHI = this;
+
     Device->InitGPU();
 }
 
@@ -57,8 +57,8 @@ void VulkanDynamicRHI::Shutdown()
 {
     Device->PrepareForDestroy();
     Device->Destroy();
-
     Device = nullptr;
+
     Devices.clear();
 
 #if VULKAN_DEBUGGING_ENABLED
@@ -67,6 +67,8 @@ void VulkanDynamicRHI::Shutdown()
 
     VulkanAPI::vkDestroyInstance(m_Instance, nullptr);
     VulkanPlatform::FreeVulkanLibrary();
+
+    GDynamicRHI = nullptr;
 }
 
 Ref<VulkanDevice> VulkanDynamicRHI::GetDevice()
@@ -149,7 +151,7 @@ void VulkanDynamicRHI::SelectDevice()
     LOG(LogVulkanRHI, Info, "Found {} device(s)", GpuCount);
     for (std::uint32_t Index = 0; Index < GpuCount; Index++) {
         LOG(LogVulkanRHI, Info, "Device {}:", Index);
-        Ref<VulkanDevice> NewDevice = Ref<VulkanDevice>::Create(this, PhysicalDevices[Index]);
+        Ref<VulkanDevice> NewDevice = Ref<VulkanDevice>::Create(PhysicalDevices[Index]);
         Devices.push_back(NewDevice);
 
         const bool bIsDiscrete = (NewDevice->GetDeviceProperties().deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);

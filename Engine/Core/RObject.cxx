@@ -1,8 +1,9 @@
+#include "Engine/Core/RObject.hxx"
 
 #include <unordered_set>
 
 static std::unordered_set<void *> s_LiveReferences;
-static std::mutex s_LiveReferenceMutex;
+static std::recursive_mutex s_LiveReferenceMutex;
 
 namespace RObjectUtils
 {
@@ -31,9 +32,17 @@ bool IsLive(void *instance)
     return s_LiveReferences.find(instance) != s_LiveReferences.end();
 }
 
-bool AreThereAnyLiveObject()
+bool AreThereAnyLiveObject(bool bPrintObjects)
 {
     std::scoped_lock lock(s_LiveReferenceMutex);
+
+    if (bPrintObjects && s_LiveReferences.size() > 0) {
+        for (void *ObjectPtr: s_LiveReferences) {
+            Ref<RObject> Object((RObject *)ObjectPtr);
+            LOG(LogRObject, Debug, "RObject<{}> ({:p}) have {} references", Object->GetName(), ObjectPtr,
+                Object->GetRefCount());
+        }
+    }
     return s_LiveReferences.size() > 0;
 }
 

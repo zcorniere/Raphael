@@ -11,5 +11,6 @@ int main(int, char **)
     }
     App->Shutdown();
 
+    delete App;
     return 0;
 }

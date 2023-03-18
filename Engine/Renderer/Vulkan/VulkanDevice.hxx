@@ -33,7 +33,7 @@ class VulkanQueue;
 class VulkanDevice : public RObject
 {
 public:
-    VulkanDevice(Ref<VulkanDynamicRHI> InRHI, VkPhysicalDevice Gpu);
+    VulkanDevice(VkPhysicalDevice Gpu);
     ~VulkanDevice();
 
     void InitGPU();
@@ -82,7 +82,6 @@ public:
     }
 
 private:
-    Ref<VulkanDynamicRHI> RHI;
     Ref<VulkanMemoryManager> MemoryAllocator;
 
     VkDevice Device;

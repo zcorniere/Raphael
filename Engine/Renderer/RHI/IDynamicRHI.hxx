@@ -23,8 +23,6 @@ public:
     // Shutdown the RHI
     virtual void Shutdown() = 0;
 
-    virtual const char *GetName() = 0;
-
     virtual RHIInterfaceType GetInterfaceType() const
     {
         return RHIInterfaceType::Null;

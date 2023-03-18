@@ -13,13 +13,14 @@ namespace VulkanRHI
 class IVulkanDynamicRHI : public IDynamicRHI
 {
 public:
+    IVulkanDynamicRHI()
+    {
+        SetName("Vulkan");
+    }
+
     RHIInterfaceType GetInterfaceType() const override
     {
         return RHIInterfaceType::Vulkan;
-    }
-    const char *GetName() final override
-    {
-        return "Vulkan";
     }
 
     virtual VkInstance RHIGetVkInstance() const = 0;

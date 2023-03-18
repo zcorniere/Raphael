@@ -8,26 +8,16 @@
 class RHIResource : public RObject
 {
 public:
-    RHIResource(RHIResourceType InResourceType, std::string InName = ""): Name(InName), ResourceType(InResourceType)
+    RHIResource(RHIResourceType InResourceType, std::string_view InName = ""): ResourceType(InResourceType)
     {
+        SetName(InName);
     }
 
     virtual ~RHIResource()
     {
     }
 
-    virtual void SetName(std::string_view InName)
-    {
-        Name = InName;
-    }
-
-    const std::string &GetName() const
-    {
-        return Name;
-    }
-
 private:
-    std::string Name;
     const RHIResourceType ResourceType;
 };
 

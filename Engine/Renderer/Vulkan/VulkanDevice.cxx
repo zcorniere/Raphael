@@ -31,7 +31,7 @@ static const std::vector<const char *> DefaultDeviceExtensions{VK_KHR_SWAPCHAIN_
 namespace VulkanRHI
 {
 
-VulkanDevice::VulkanDevice(Ref<VulkanDynamicRHI> InRHI, VkPhysicalDevice InGpu)
+VulkanDevice::VulkanDevice(VkPhysicalDevice InGpu)
     : Device(VK_NULL_HANDLE),
       Gpu(InGpu),
       GraphicsQueue(nullptr),
@@ -39,8 +39,6 @@ VulkanDevice::VulkanDevice(Ref<VulkanDynamicRHI> InRHI, VkPhysicalDevice InGpu)
       TransferQueue(nullptr),
       PresentQueue(nullptr)
 {
-    RHI = InRHI;
-
     VulkanAPI::vkGetPhysicalDeviceProperties(Gpu, &GpuProps);
     LOG(LogVulkanRHI, Info, "- DeviceName: {}", GpuProps.deviceName);
     LOG(LogVulkanRHI, Info, "- API={}.{}.{} ({:#x}) Driver={:#x} VendorId={:#x} ({})",
@@ -198,6 +196,12 @@ void VulkanDevice::PrepareForDestroy()
 void VulkanDevice::Destroy()
 {
     MemoryAllocator->Shutdown();
+    MemoryAllocator = nullptr;
+
+    GraphicsQueue = nullptr;
+    ComputeQueue = nullptr;
+    TransferQueue = nullptr;
+    PresentQueue = nullptr;
 
     VulkanAPI::vkDestroyDevice(Device, nullptr);
     Device = VK_NULL_HANDLE;

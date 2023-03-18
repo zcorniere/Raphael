@@ -11,21 +11,19 @@ LinuxApplication::LinuxApplication()
 {
     RHI = Ref<VulkanRHI::VulkanDynamicRHI>::Create();
 
-    Windows.push_back(Ref<LinuxWindow>::Create());
-
     check(GApplication == nullptr);
     GApplication = this;
 }
 
 LinuxApplication::~LinuxApplication()
 {
+    RHI = nullptr;
     GApplication = nullptr;
 }
 
 bool LinuxApplication::Initialize()
 {
     GenericApplication::Initialize();
-    check(Windows.size() >= 1);
 
     RHI->Init();
 
@@ -33,6 +31,7 @@ bool LinuxApplication::Initialize()
         .AppearsInTaskbar = true,
         .Title = "Raphael Engine",
     };
+    Windows.push_back(Ref<LinuxWindow>::Create());
     Windows[0]->Initialize(WindowDef, nullptr);
     Windows[0]->Show();
 

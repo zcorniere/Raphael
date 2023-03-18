@@ -72,7 +72,6 @@ void VulkanMemoryManager::Init(Ref<VulkanDevice> InDevice)
 {
     check(InDevice);
     Device = InDevice;
-    Device->AddParent(this);
 
     Ref<IVulkanDynamicRHI> RHI = GetIVulkanDynamicRHI();
 
