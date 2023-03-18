@@ -32,4 +32,6 @@ private:
 
 using Application = LinuxApplication;
 
-extern Ref<Application> GApplication;
+// NOTE: can use Ref<Application> because GenericApplication is handling the Startup/Shutdown sequence of the RObject
+// system. Will change when implementing a Engine class or something like that...
+extern Application *GApplication;

@@ -7,11 +7,18 @@
 namespace RObjectUtils
 {
 
+DECLARE_LOGGER_CATEGORY(Core, LogRObject, Trace)
+
 void AddToLiveReferences(void *instance);
 void RemoveFromLiveReferences(void *instance);
 bool IsLive(void *instance);
 
+bool AreThereAnyLiveObject();
+
 }    // namespace RObjectUtils
+
+template <typename T>
+class Ref;
 
 class RObject
 {
@@ -32,7 +39,18 @@ public:
         return m_RefCount.load();
     }
 
+    // Ensure the Parent won't be destroyed before the child.
+    void AddParent(RObject *InParent);
+
+    template <typename T>
+    // Ensure the Parent won't be destroyed before the child.
+    void AddParent(Ref<T> InParent)
+    {
+        m_Parent.emplace_back(InParent);
+    }
+
 private:
+    std::vector<Ref<RObject>> m_Parent;
     mutable std::atomic<std::uint32_t> m_RefCount = 0;
 };
 
@@ -43,7 +61,11 @@ public:
     template <typename... Args>
     static Ref<T> Create(Args &&...args)
     {
-        return Ref<T>(new T(std::forward<Args>(args)...));
+        T *ObjectPtr = new T(std::forward<Args>(args)...);
+
+        LOG(RObjectUtils::LogRObject, Trace, "Creating RObject Ox{:p}<{}>", (void *)ObjectPtr, type_name<T>());
+
+        return Ref<T>(ObjectPtr);
     }
 
 public:
@@ -203,6 +225,7 @@ private:
         if (m_ObjPtr) {
             m_ObjPtr->DecrementRefCount();
             if (m_ObjPtr->GetRefCount() == 0) {
+                LOG(RObjectUtils::LogRObject, Trace, "Deleting RObject Ox{:p}<{}>", (void *)m_ObjPtr, type_name<T>());
                 RObjectUtils::RemoveFromLiveReferences((void *)m_ObjPtr);
                 delete m_ObjPtr;
                 m_ObjPtr = nullptr;

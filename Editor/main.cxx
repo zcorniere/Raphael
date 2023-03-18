@@ -3,7 +3,7 @@
 
 int main(int, char **)
 {
-    Ref<Application> App = Ref<Application>::Create();
+    Application *App = new Application();
 
     check(App->Initialize());
     while (!App->ShouldExit()) {

@@ -7,7 +7,7 @@
 
 #include <SDL3/SDL.h>
 
-class GenericApplication : public RObject
+class GenericApplication
 {
 public:
     GenericApplication()
@@ -17,6 +17,8 @@ public:
     virtual ~GenericApplication()
     {
         Log::Shutdown();
+        // Make sure no RObjects are left undestroyed
+        check(RObjectUtils::AreThereAnyLiveObject() == false);
     }
 
     // Called on init, return false if there was an error

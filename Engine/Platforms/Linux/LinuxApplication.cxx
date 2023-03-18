@@ -5,7 +5,7 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogLinuxApplication, Warn)
 
-Ref<Application> GApplication = nullptr;
+Application *GApplication = nullptr;
 
 LinuxApplication::LinuxApplication()
 {
@@ -13,11 +13,13 @@ LinuxApplication::LinuxApplication()
 
     Windows.push_back(Ref<LinuxWindow>::Create());
 
+    check(GApplication == nullptr);
     GApplication = this;
 }
 
 LinuxApplication::~LinuxApplication()
 {
+    GApplication = nullptr;
 }
 
 bool LinuxApplication::Initialize()
@@ -36,6 +38,7 @@ bool LinuxApplication::Initialize()
 
     Viewport =
         Ref<VulkanRHI::VulkanViewport>::Create(RHI->GetDevice(), Windows[0]->GetHandle(), glm::uvec2{500u, 500u});
+    Viewport->AddParent(Windows[0]);
     Viewport->SetName("Main viewport");
     return true;
 }
