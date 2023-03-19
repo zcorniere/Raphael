@@ -54,8 +54,8 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
     VK_CHECK_RESULT(VulkanAPI::vkCreateImage(Device->GetInstanceHandle(), &ImageCreateInfo, nullptr, &Image));
     VulkanAPI::vkGetImageMemoryRequirements(Device->GetInstanceHandle(), Image, &MemoryRequirements);
 
-    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, Image, "{:s}:(VulkanTexture){:p}",
-                          InDesc.DebugName.empty() ? "?" : InDesc.DebugName, (void *)this);
+    SetName(cpplogger::fmt::format("{:s}:(VulkanTexture){:p}", InDesc.DebugName.empty() ? "?" : InDesc.DebugName,
+                                   (void *)this));
 
     Device->GetMemoryManager()->Alloc(MemoryRequirements.size, VMA_MEMORY_USAGE_GPU_ONLY, false);
     Allocation->BindImage(Image);

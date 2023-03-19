@@ -70,6 +70,7 @@ class Ref
 {
 public:
     template <typename... Args>
+    requires std::is_constructible_v<T, Args...>
     static Ref<T> CreateNamed(std::string_view Name, Args &&...args)
     {
         T *ObjectPtr = new T(std::forward<Args>(args)...);
@@ -82,6 +83,7 @@ public:
     }
 
     template <typename... Args>
+    requires std::is_constructible_v<T, Args...>
     static Ref<T> Create(Args &&...args)
     {
         return CreateNamed(type_name<T>(), args...);
@@ -228,6 +230,8 @@ public:
 private:
     void IncrementRefCount() const
     {
+        static_assert(std::is_base_of<RObject, T>::value, "Class is not RefCounted!");
+
         if (!m_ObjPtr) return;
 
         m_ObjPtr->IncrementRefCount();
@@ -236,6 +240,8 @@ private:
 
     void DecrementRefCount() const
     {
+        static_assert(std::is_base_of<RObject, T>::value, "Class is not RefCounted!");
+
         if (!m_ObjPtr) return;
 
         m_ObjPtr->DecrementRefCount();
@@ -243,9 +249,9 @@ private:
         if (m_ObjPtr->GetRefCount() > 0) return;
 
         if (m_ObjPtr->GetName().empty()) {
-            LOG(RObjectUtils::LogRObject, Debug, "Deleting RObject Ox{:p}<{}>", (void *)m_ObjPtr, type_name<T>());
+            LOG(RObjectUtils::LogRObject, Debug, "Deleting RObject {:p}<{}>", (void *)m_ObjPtr, type_name<T>());
         } else {
-            LOG(RObjectUtils::LogRObject, Debug, "Deleting RObject \"{}\" 0x{:p}<{}>", m_ObjPtr->GetName(),
+            LOG(RObjectUtils::LogRObject, Debug, "Deleting RObject \"{}\" {:p}<{}>", m_ObjPtr->GetName(),
                 (void *)m_ObjPtr, type_name<T>());
         }
 

@@ -76,7 +76,7 @@ void VulkanDevice::InitGPU()
     VulkanPlatform::GetDeviceExtensions(this, DeviceExtensions);
     CreateDevice({}, DeviceExtensions);
 
-    MemoryAllocator = Ref<VulkanMemoryManager>::Create();
+    MemoryAllocator = new VulkanMemoryManager();
     MemoryAllocator->Init(this);
 }
 
@@ -196,7 +196,7 @@ void VulkanDevice::PrepareForDestroy()
 void VulkanDevice::Destroy()
 {
     MemoryAllocator->Shutdown();
-    MemoryAllocator = nullptr;
+    delete MemoryAllocator;
 
     GraphicsQueue = nullptr;
     ComputeQueue = nullptr;

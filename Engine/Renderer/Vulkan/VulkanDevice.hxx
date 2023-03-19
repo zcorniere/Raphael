@@ -76,13 +76,13 @@ public:
     {
         return GpuProps.limits;
     }
-    inline Ref<VulkanMemoryManager> &GetMemoryManager()
+    inline VulkanMemoryManager *GetMemoryManager()
     {
         return MemoryAllocator;
     }
 
 private:
-    Ref<VulkanMemoryManager> MemoryAllocator;
+    VulkanMemoryManager *MemoryAllocator;
 
     VkDevice Device;
     VkPhysicalDevice Gpu;

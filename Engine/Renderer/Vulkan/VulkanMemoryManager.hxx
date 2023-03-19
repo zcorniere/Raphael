@@ -13,7 +13,7 @@ class VulkanMemoryAllocation : public RObject
 {
 public:
     VulkanMemoryAllocation() = delete;
-    VulkanMemoryAllocation(Ref<VulkanMemoryManager> InManager)
+    VulkanMemoryAllocation(VulkanMemoryManager &InManager)
         : Size(0), MappedPointer(nullptr), ManagerHandle(InManager), bCanBeMapped(false), bIsCoherent(false)
     {
     }
@@ -58,12 +58,12 @@ private:
 
     VkDeviceSize Size;
     void *MappedPointer = nullptr;
-    Ref<VulkanMemoryManager> ManagerHandle;
+    VulkanMemoryManager &ManagerHandle;
     bool bCanBeMapped;
     bool bIsCoherent;
 };
 
-class VulkanMemoryManager : public RObject
+class VulkanMemoryManager
 {
 public:
     VulkanMemoryManager();
@@ -89,6 +89,7 @@ private:
     VmaAllocator Allocator;
 
     VkPhysicalDeviceMemoryProperties MemoryProperties;
+    uint32 AllocationCount;
 
     friend VulkanMemoryAllocation;
 };

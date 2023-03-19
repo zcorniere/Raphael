@@ -17,14 +17,14 @@ void *VulkanMemoryAllocation::Map(VkDeviceSize InSize, VkDeviceSize Offset)
         check(!MappedPointer);
         checkMsg(InSize + Offset <= Size, "Failed to Map {} bytes, Offset {}, AllocSize {} bytes", InSize, Offset,
                  Size);
-        vmaMapMemory(ManagerHandle->GetAllocator(), Allocation, &MappedPointer);
+        vmaMapMemory(ManagerHandle.GetAllocator(), Allocation, &MappedPointer);
     }
     return MappedPointer;
 }
 void VulkanMemoryAllocation::Unmap()
 {
     check(MappedPointer);
-    vmaUnmapMemory(ManagerHandle->GetAllocator(), Allocation);
+    vmaUnmapMemory(ManagerHandle.GetAllocator(), Allocation);
     MappedPointer = nullptr;
 }
 
@@ -33,7 +33,7 @@ void VulkanMemoryAllocation::FlushMappedMemory(VkDeviceSize InOffset, VkDeviceSi
     if (!IsCoherent()) {
         check(IsMapped());
         check(InOffset + InSize <= Size);
-        vmaFlushAllocation(ManagerHandle->GetAllocator(), Allocation, InOffset, InSize);
+        vmaFlushAllocation(ManagerHandle.GetAllocator(), Allocation, InOffset, InSize);
     }
 }
 void VulkanMemoryAllocation::InvalidateMappedMemory(VkDeviceSize InOffset, VkDeviceSize InSize)
@@ -42,25 +42,25 @@ void VulkanMemoryAllocation::InvalidateMappedMemory(VkDeviceSize InOffset, VkDev
         check(IsMapped());
         check(InOffset + InSize <= Size);
 
-        vmaInvalidateAllocation(ManagerHandle->GetAllocator(), Allocation, InOffset, InSize);
+        vmaInvalidateAllocation(ManagerHandle.GetAllocator(), Allocation, InOffset, InSize);
     }
 }
 
 void VulkanMemoryAllocation::BindBuffer(VkBuffer Buffer)
 {
-    vmaBindBufferMemory(ManagerHandle->GetAllocator(), Allocation, Buffer);
+    vmaBindBufferMemory(ManagerHandle.GetAllocator(), Allocation, Buffer);
 }
 
 void VulkanMemoryAllocation::BindImage(VkImage Image)
 {
-    vmaBindImageMemory(ManagerHandle->GetAllocator(), Allocation, Image);
+    vmaBindImageMemory(ManagerHandle.GetAllocator(), Allocation, Image);
 }
 
 ////////////////////////////////////////////////////////////////////
 /// VulkanMemoryManager
 ////////////////////////////////////////////////////////////////////
 
-VulkanMemoryManager::VulkanMemoryManager(): Allocator(VK_NULL_HANDLE)
+VulkanMemoryManager::VulkanMemoryManager(): Allocator(VK_NULL_HANDLE), AllocationCount(0)
 {
 }
 
@@ -80,16 +80,17 @@ void VulkanMemoryManager::Init(Ref<VulkanDevice> InDevice)
     VmaVulkanFunctions Functions;
 #define GET_VMA_FUNCTION(Type, Name) \
     Functions.Name = (Type)VulkanAPI::vkGetInstanceProcAddr(RHI->RHIGetVkInstance(), #Name);
+
     VK_ENTRYPOINTS_VMA(GET_VMA_FUNCTION);
+#undef GET_VMA_FUNCTION
 
     VmaAllocatorCreateInfo CreateInfo{
         .physicalDevice = RHI->RHIGetVkPhysicalDevice(),
         .device = Device->GetInstanceHandle(),
         .pVulkanFunctions = &Functions,
         .instance = RHI->RHIGetVkInstance(),
-        .vulkanApiVersion = VK_API_VERSION_1_2,
+        .vulkanApiVersion = RHI_VULKAN_VERSION,
     };
-#undef GET_VMA_FUNCTION
     vmaCreateAllocator(&CreateInfo, &Allocator);
     PrintMemInfo();
 }
@@ -103,7 +104,7 @@ void VulkanMemoryManager::Shutdown()
 Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(VkDeviceSize AllocationSize, VmaMemoryUsage MemUsage,
                                                        bool Mappable)
 {
-    Ref<VulkanMemoryAllocation> Alloc = Ref<VulkanMemoryAllocation>::Create(this);
+    Ref<VulkanMemoryAllocation> Alloc = Ref<VulkanMemoryAllocation>::Create(*this);
     VmaAllocationCreateFlags flags = 0;
     if (Mappable) flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
 
@@ -115,6 +116,7 @@ Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(VkDeviceSize AllocationSi
         .size = AllocationSize,
     };
     vmaAllocateMemory(Allocator, &Requirement, &CreateInfo, &(Alloc->GetHandle()), nullptr);
+    AllocationCount += 1;
     return Alloc;
 }
 
@@ -124,6 +126,7 @@ void VulkanMemoryManager::Free(Ref<VulkanMemoryAllocation> Allocation)
     check(Allocation->GetRefCount() == 1);
 
     vmaFreeMemory(Allocator, Allocation->GetHandle());
+    AllocationCount -= 1;
 }
 
 uint64 VulkanMemoryManager::GetTotalMemory(bool bGPUOnly) const
