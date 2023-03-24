@@ -1,33 +1,33 @@
 [submodule "External/glm"]
 	path = External/glm
-	url = git@github.com:g-truc/glm.git
+	url = https://github.com/g-truc/glm.git
 [submodule "External/logger-cpp"]
 	path = External/logger-cpp
-	url = git@github.com:zcorniere/logger-cpp.git
+	url = https://github.com/zcorniere/logger-cpp.git
 [submodule "External/tracy"]
 	path = External/tracy
-	url = git@github.com:wolfpld/tracy.git
+	url = https://github.com/wolfpld/tracy.git
 [submodule "External/VulkanMemoryAllocator"]
 	path = External/VulkanMemoryAllocator
-	url = git@github.com:GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
 [submodule "External/SDL"]
 	path = External/SDL
-	url = git@github.com:libsdl-org/SDL.git
+	url = https://github.com/libsdl-org/SDL.git
 [submodule "External/Vulkan-Headers"]
 	path = External/Vulkan-Headers
 	url = https://github.com/KhronosGroup/Vulkan-Headers
 [submodule "External/shaderc"]
 	path = External/shaderc
-	url = git@github.com:google/shaderc.git
+	url = https://github.com/google/shaderc.git
 [submodule "External/SPIRV-Cross"]
 	path = External/SPIRV-Cross
-	url = git@github.com:KhronosGroup/SPIRV-Cross.git
+	url = https://github.com/KhronosGroup/SPIRV-Cross.git
 [submodule "External/SPIRV-Tools"]
 	path = External/SPIRV-Tools
-	url = git@github.com:KhronosGroup/SPIRV-Tools.git
+	url = https://github.com/KhronosGroup/SPIRV-Tools.git
 [submodule "External/SPIRV-Headers"]
 	path = External/SPIRV-Headers
-	url = git@github.com:KhronosGroup/SPIRV-Headers.git
+	url = https://github.com/KhronosGroup/SPIRV-Headers.git
 [submodule "External/glslang"]
 	path = External/glslang
-	url = git@github.com:KhronosGroup/glslang.git
+	url = https://github.com/KhronosGroup/glslang.git
