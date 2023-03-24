@@ -49,19 +49,8 @@ public:
         return m_RefCount.load();
     }
 
-    // Ensure the Parent won't be destroyed before the child.
-    void AddParent(RObject *InParent);
-
-    template <typename T>
-    // Ensure the Parent won't be destroyed before the child.
-    void AddParent(Ref<T> InParent)
-    {
-        m_Parent.emplace_back(InParent);
-    }
-
 private:
     std::string m_Name;
-    std::vector<Ref<RObject>> m_Parent;
     mutable std::atomic<std::uint32_t> m_RefCount = 0;
 };
 
@@ -255,8 +244,8 @@ private:
                 (void *)m_ObjPtr, type_name<T>());
         }
 
-        RObjectUtils::RemoveFromLiveReferences((void *)m_ObjPtr);
         delete m_ObjPtr;
+        RObjectUtils::RemoveFromLiveReferences((void *)m_ObjPtr);
         m_ObjPtr = nullptr;
     }
 

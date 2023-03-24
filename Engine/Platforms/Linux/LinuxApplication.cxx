@@ -1,5 +1,6 @@
 #include "Engine/Platforms/Linux/LinuxApplication.hxx"
 
+#include "Engine/Renderer/Vulkan/VulkanCommandsObjects.hxx"
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 #include "Engine/Renderer/Vulkan/VulkanResources.hxx"
 
@@ -37,7 +38,6 @@ bool LinuxApplication::Initialize()
 
     Viewport =
         Ref<VulkanRHI::VulkanViewport>::Create(RHI->GetDevice(), Windows[0]->GetHandle(), glm::uvec2{500u, 500u});
-    Viewport->AddParent(Windows[0]);
     Viewport->SetName("Main viewport");
     return true;
 }
@@ -68,9 +68,15 @@ void LinuxApplication::ProcessEvent(SDL_Event SDLEvent)
 
 void LinuxApplication::Tick(const float DeltaTime)
 {
+    (void)DeltaTime;
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+        Ref<VulkanRHI::VulkanCmdBuffer> CommandBuffer = RHI->GetDevice()->GetCommandbuffer();
+        CommandBuffer->Begin();
+
         ProcessEvent(event);
+
+        CommandBuffer->End();
     }
 }
 

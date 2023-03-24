@@ -75,7 +75,7 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
     #define checkMsg(Expression, ...) (LIKELY(!!(Expression)))
     #define checkNoEntry()                      \
         {                                       \
-            ::Raphael::Compiler::Unreachable(); \
+            ::Compiler::Unreachable(); \
         }
     #define checkNoReentry()                                                                        \
         {                                                                                           \

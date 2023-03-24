@@ -47,8 +47,3 @@ bool AreThereAnyLiveObject(bool bPrintObjects)
 }
 
 }    // namespace RObjectUtils
-
-void RObject::AddParent(RObject *InParent)
-{
-    AddParent(Ref<RObject>(InParent));
-}

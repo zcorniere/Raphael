@@ -5,6 +5,7 @@
 namespace VulkanRHI
 {
 
+class VulkanCmdBuffer;
 class VulkanDevice;
 
 class VulkanQueue : public RObject
@@ -26,6 +27,13 @@ public:
     inline VkQueue GetHandle() const
     {
         return Queue;
+    }
+
+    void Submit(Ref<VulkanCmdBuffer> &CmdBuffer, uint32 NumSignaledSemaphores = 0,
+                VkSemaphore *SignalSemaphores = nullptr);
+    void Submit(Ref<VulkanCmdBuffer> &CmdBuffer, VkSemaphore SignalSemaphores)
+    {
+        return Submit(CmdBuffer, 1, &SignalSemaphores);
     }
 
 private:

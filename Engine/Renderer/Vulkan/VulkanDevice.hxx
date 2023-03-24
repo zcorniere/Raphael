@@ -27,8 +27,10 @@
 namespace VulkanRHI
 {
 
-class VulkanMemoryManager;
 class VulkanQueue;
+class VulkanCmdBuffer;
+class VulkanMemoryManager;
+class VulkanCommandBufferManager;
 
 class VulkanDevice : public RObject
 {
@@ -81,8 +83,11 @@ public:
         return MemoryAllocator;
     }
 
+    Ref<VulkanCmdBuffer> &GetCommandbuffer();
+
 private:
     VulkanMemoryManager *MemoryAllocator;
+    VulkanCommandBufferManager *CommandManager;
 
     VkDevice Device;
     VkPhysicalDevice Gpu;

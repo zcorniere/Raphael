@@ -1,6 +1,8 @@
 #include "Engine/Renderer/Vulkan/VulkanQueue.hxx"
 
+#include "Engine/Renderer/Vulkan/VulkanCommandsObjects.hxx"
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
+#include "Engine/Renderer/Vulkan/VulkanSynchronization.hxx"
 
 namespace VulkanRHI
 {
@@ -13,6 +15,40 @@ VulkanQueue::VulkanQueue(Ref<VulkanDevice> InDevice, std::uint32_t InFamilyIndex
 
 VulkanQueue::~VulkanQueue()
 {
+}
+
+void VulkanQueue::Submit(Ref<VulkanCmdBuffer> &CmdBuffer, uint32 NumSignaledSemaphores, VkSemaphore *SignalSemaphores)
+{
+    check(CmdBuffer->HasEnded());
+
+    Ref<Fence> &Fence = CmdBuffer->m_Fence;
+    check(Fence->IsSignaled());
+
+    const VkCommandBuffer CmdBuffers[] = {
+        CmdBuffer->GetHandle(),
+    };
+
+    VkSubmitInfo SubmitInfo{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .commandBufferCount = 1,
+        .pCommandBuffers = CmdBuffers,
+        .signalSemaphoreCount = NumSignaledSemaphores,
+        .pSignalSemaphores = SignalSemaphores,
+    };
+
+    std::vector<VkSemaphore> WaitSemaphores;
+    if (!CmdBuffer->WaitSemaphore.empty()) {
+        WaitSemaphores.resize(CmdBuffer->WaitSemaphore.size());
+        for (Ref<Semaphore> &Semaphore: CmdBuffer->WaitSemaphore) {
+            WaitSemaphores.push_back(Semaphore->GetHandle());
+        }
+        SubmitInfo.waitSemaphoreCount = WaitSemaphores.size();
+        SubmitInfo.pWaitSemaphores = WaitSemaphores.data();
+    }
+    VK_CHECK_RESULT(VulkanAPI::vkQueueSubmit(Queue, 1, &SubmitInfo, Fence->GetHandle()));
+
+    CmdBuffer->State = VulkanCmdBuffer::EState::Submitted;
+    CmdBuffer->WaitSemaphore.clear();
 }
 
 }    // namespace VulkanRHI

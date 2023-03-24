@@ -1,9 +1,11 @@
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 
+#include "Engine/Renderer/Vulkan/VulkanCommandsObjects.hxx"
 #include "Engine/Renderer/Vulkan/VulkanGenericPlatform.hxx"
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 #include "Engine/Renderer/Vulkan/VulkanMemoryManager.hxx"
 #include "Engine/Renderer/Vulkan/VulkanQueue.hxx"
+#include "Engine/Renderer/Vulkan/VulkanSynchronization.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
 static constexpr const char *VulkanVendorIDToString(std::uint32_t vendorID)
@@ -78,6 +80,9 @@ void VulkanDevice::InitGPU()
 
     MemoryAllocator = new VulkanMemoryManager();
     MemoryAllocator->Init(this);
+
+    CommandManager = new VulkanCommandBufferManager(this, GraphicsQueue);
+    // CommandManager->Init();
 }
 
 void VulkanDevice::CreateDevice(const std::vector<const char *> &DeviceLayers,
@@ -195,8 +200,13 @@ void VulkanDevice::PrepareForDestroy()
 
 void VulkanDevice::Destroy()
 {
+    CommandManager->Shutdown();
+    delete CommandManager;
+    CommandManager = nullptr;
+
     MemoryAllocator->Shutdown();
     delete MemoryAllocator;
+    MemoryAllocator = nullptr;
 
     GraphicsQueue = nullptr;
     ComputeQueue = nullptr;
@@ -210,6 +220,11 @@ void VulkanDevice::Destroy()
 void VulkanDevice::WaitUntilIdle()
 {
     VK_CHECK_RESULT(VulkanAPI::vkDeviceWaitIdle(Device));
+}
+
+Ref<VulkanCmdBuffer> &VulkanDevice::GetCommandbuffer()
+{
+    return CommandManager->GetActiveCmdBuffer();
 }
 
 }    // namespace VulkanRHI

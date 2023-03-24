@@ -34,5 +34,6 @@ extern Ref<IDynamicRHI> GDynamicRHI;
 template <typename TRHI>
 FORCEINLINE Ref<TRHI> GetDynamicRHI()
 {
+    check(GDynamicRHI);
     return GDynamicRHI.As<TRHI>();
 }

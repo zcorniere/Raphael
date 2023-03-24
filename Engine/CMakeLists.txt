@@ -30,6 +30,7 @@ add_library(
     Core/Log.cxx
 
     Renderer/RHI/IDynamicRHI.cxx
+    Renderer/RHI/RHICommandQueue.cxx
 
     Misc/Utils.cxx
     Misc/Assertions.cxx

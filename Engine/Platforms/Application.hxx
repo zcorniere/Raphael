@@ -17,6 +17,7 @@ public:
     virtual ~GenericApplication()
     {
         // Make sure no RObjects are left undestroyed
+        // Not strictly necessary, but this precaution don't hurt ¯\_(ツ)_/¯
         check(RObjectUtils::AreThereAnyLiveObject() == false);
 
         Log::Shutdown();

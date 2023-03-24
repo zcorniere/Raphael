@@ -29,7 +29,6 @@ void LinuxWindow::Initialize(const WindowDefinition InDefinition, const Ref<Linu
 {
     Definition = InDefinition;
     p_ParentWindow = InParent;
-    AddParent(InParent);
 
     EnsureSDLInit();
 
