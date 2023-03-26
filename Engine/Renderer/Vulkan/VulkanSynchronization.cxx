@@ -57,4 +57,19 @@ bool Fence::Wait(uint64 TimeInNanoseconds)
     return false;
 }
 
+bool Fence::CheckFenceStatus()
+{
+    check(State == State::NotReady);
+    VkResult Result = VulkanAPI::vkGetFenceStatus(Device->GetInstanceHandle(), Handle);
+    switch (Result) {
+        case VK_SUCCESS: State = State::Signaled; return true;
+
+        case VK_NOT_READY: break;
+
+        default: VK_CHECK_RESULT(Result); break;
+    }
+
+    return false;
+}
+
 }    // namespace VulkanRHI

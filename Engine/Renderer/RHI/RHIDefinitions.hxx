@@ -73,3 +73,14 @@ struct RHITextureCreateDesc {
     uint8 NumMips = 1;
     uint8 NumSamples = 0;
 };
+
+struct RasterizerCreateInfo {
+    ERasterizerFillMode FillMode = ERasterizerFillMode::Solid;
+    ERasterizerCullMode CullMode = ERasterizerCullMode::ClockWise;
+    ERasterizerDepthClipMode ClipMode = ERasterizerDepthClipMode::DepthClip;
+    float DepthBias = 0.0f;
+
+    bool AllowMSAA = false;
+
+    bool operator==(const RasterizerCreateInfo &) const = default;
+};

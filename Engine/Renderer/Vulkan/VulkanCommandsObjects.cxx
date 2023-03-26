@@ -11,13 +11,14 @@ VulkanCmdBuffer::VulkanCmdBuffer(Ref<VulkanDevice> InDevice, WeakRef<VulkanComma
     : State(EState::NotAllocated), m_Device(InDevice), m_OwnerPool(InCommandPool)
 {
     Allocate();
+
+    m_Fence = Ref<Fence>::Create(m_Device, false);
 }
 
 VulkanCmdBuffer::~VulkanCmdBuffer()
 {
     if (State == EState::Submitted) {
-        LOG(LogVulkanRHI, Error,
-            "Attempting to destroy a buffer still in flight ! Waiting 16ms so it can be destroyed");
+        LOG(LogVulkanRHI, Warn, "Attempting to destroy a buffer still in flight ! Waiting 16ms so it can be destroyed");
         // Wait 16 ms
         m_Fence->Wait(16 * 1000 * 1000LL);
         m_Fence->Reset();
@@ -103,11 +104,12 @@ void VulkanCmdBuffer::RefreshFenceStatus()
         return;
     }
 
-    if (m_Fence->IsSignaled()) { return; }
-    WaitSemaphore.clear();
+    if (m_Fence->IsSignaled()) {
+        WaitSemaphore.clear();
 
-    m_Fence->Reset();
-    State = EState::NeedReset;
+        m_Fence->Reset();
+        State = EState::NeedReset;
+    }
 }
 
 /// ------------------- VulkanCommandBufferPool -------------------
@@ -220,8 +222,13 @@ void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Ref<Semaphore> SignedSema
 
         ActiveCmdBuffer->End();
 
-        Queue->Submit(ActiveCmdBuffer, SignedSemaphore->GetHandle());
+        if (SignedSemaphore) {
+            Queue->Submit(ActiveCmdBuffer, SignedSemaphore->GetHandle());
+        } else {
+            Queue->Submit(ActiveCmdBuffer);
+        }
     }
+    ActiveCmdBuffer = nullptr;
 }
 
 }    // namespace VulkanRHI

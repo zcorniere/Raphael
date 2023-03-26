@@ -68,16 +68,19 @@ void LinuxApplication::ProcessEvent(SDL_Event SDLEvent)
 
 void LinuxApplication::Tick(const float DeltaTime)
 {
+    RHI::BeginFrame();
+
     (void)DeltaTime;
     SDL_Event event;
+    // Process All event
     while (SDL_PollEvent(&event)) {
-        Ref<VulkanRHI::VulkanCmdBuffer> CommandBuffer = RHI->GetDevice()->GetCommandbuffer();
-        CommandBuffer->Begin();
-
         ProcessEvent(event);
-
-        CommandBuffer->End();
     }
+
+    RHI::Submit([]() { check(true); });
+    RHI::EndFrame();
+
+    RHI::NextFrame();
 }
 
 bool LinuxApplication::ShouldExit() const

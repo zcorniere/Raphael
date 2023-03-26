@@ -1,7 +1,7 @@
 #include "Engine/Renderer/Vulkan/VulkanViewport.hxx"
 
-#include "Engine/Renderer/Vulkan/IVulkanDynamicRHI.hxx"
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
+#include "Engine/Renderer/Vulkan/VulkanRHI.hxx"
 #include "Engine/Renderer/Vulkan/VulkanSynchronization.hxx"
 
 namespace VulkanRHI
@@ -48,7 +48,7 @@ void VulkanViewport::SetName(std::string_view InName)
 
 void VulkanViewport::CreateSwapchain()
 {
-    Ref<IVulkanDynamicRHI> RHI = GetIVulkanDynamicRHI();
+    Ref<VulkanDynamicRHI> RHI = GetVulkanDynamicRHI();
 
     SwapChain = Ref<VulkanSwapChain>::Create(RHI->RHIGetVkInstance(), Device, WindowHandle, Size, 0, BackBufferImages,
                                              false, nullptr);

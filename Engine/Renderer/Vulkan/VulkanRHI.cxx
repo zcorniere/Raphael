@@ -1,4 +1,4 @@
-#include "Engine/Renderer/Vulkan/VulkanDynamicRHI.hxx"
+#include "Engine/Renderer/Vulkan/VulkanRHI.hxx"
 
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 #include "Engine/Renderer/Vulkan/VulkanGenericPlatform.hxx"
@@ -10,6 +10,8 @@ namespace VulkanRHI
 
 VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr)
 {
+    SetName("VulkanRHI");
+
     LOG(LogVulkanRHI, Info, "Built with Vulkan header version {}.{}.{}",
         VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
         VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
@@ -44,7 +46,7 @@ VkPhysicalDevice VulkanDynamicRHI::RHIGetVkPhysicalDevice() const
 
 void VulkanDynamicRHI::Init()
 {
-    GDynamicRHI = this;
+    GenericRHI::Init();
 
     Device->InitGPU();
 }
@@ -68,7 +70,7 @@ void VulkanDynamicRHI::Shutdown()
     VulkanAPI::vkDestroyInstance(m_Instance, nullptr);
     VulkanPlatform::FreeVulkanLibrary();
 
-    GDynamicRHI = nullptr;
+    GenericRHI::Shutdown();
 }
 
 Ref<VulkanDevice> VulkanDynamicRHI::GetDevice()

@@ -36,16 +36,16 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
     #define verifyAlways(Expression) RAPHAEL_VERIFY_IMPL(, true, Expression, )
     #define verifyAlwaysMsg(Expression, Format, ...) RAPHAEL_VERIFY_IMPL(&, true, Expression, Format, ##__VA_ARGS__)
 
-    #define RAPHAEL_CHECK_IMPL(Expression, Format, ...)                                                        \
-        {                                                                                                      \
-            if (UNLIKELY(!(Expression))) {                                                                     \
-                CollectAndPrintStackTrace(Compiler::ReturnAddress());                                          \
-                fprintf(stderr, "Assertion failed:" STR(#Expression) __VA_OPT__(" :: " Format, ) __VA_ARGS__); \
-                fprintf(stderr, "\n");                                                                         \
-                fflush(stderr);                                                                                \
-                if (Platform::isDebuggerPresent()) { PLATFORM_BREAK(); }                                       \
-                std::abort();                                                                                  \
-            }                                                                                                  \
+    #define RAPHAEL_CHECK_IMPL(Expression, ...)                                                        \
+        {                                                                                              \
+            if (UNLIKELY(!(Expression))) {                                                             \
+                CollectAndPrintStackTrace(Compiler::ReturnAddress());                                  \
+                fprintf(stderr, "Assertion failed: " STR(#Expression) __VA_OPT__(" :: ") __VA_ARGS__); \
+                fprintf(stderr, "\n");                                                                 \
+                fflush(stderr);                                                                        \
+                if (Platform::isDebuggerPresent()) { PLATFORM_BREAK(); }                               \
+                std::abort();                                                                          \
+            }                                                                                          \
         }
 
     #define check(Expression) RAPHAEL_CHECK_IMPL(Expression, )

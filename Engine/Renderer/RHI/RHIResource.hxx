@@ -4,6 +4,7 @@
 #include "Engine/Renderer/RHI/RHIDefinitions.hxx"
 
 #include <glm/vec3.hpp>
+#include <magic_enum.hpp>
 
 class RHIResource : public RObject
 {
@@ -15,6 +16,13 @@ public:
 
     virtual ~RHIResource()
     {
+    }
+
+    virtual void SetName(std::string_view InName) override
+    {
+        // Prefix the resource name with the ResourceType
+        std::string ResourceTypeName(magic_enum::enum_name(ResourceType));
+        RObject::SetName(ResourceTypeName + "(" + std::string(InName) + ")");
     }
 
 private:

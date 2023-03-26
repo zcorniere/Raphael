@@ -22,7 +22,7 @@ void VulkanQueue::Submit(Ref<VulkanCmdBuffer> &CmdBuffer, uint32 NumSignaledSema
     check(CmdBuffer->HasEnded());
 
     Ref<Fence> &Fence = CmdBuffer->m_Fence;
-    check(Fence->IsSignaled());
+    check(!Fence->IsSignaled());
 
     const VkCommandBuffer CmdBuffers[] = {
         CmdBuffer->GetHandle(),

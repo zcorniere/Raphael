@@ -1,8 +1,8 @@
 #include "Engine/Renderer/Vulkan/VulkanShaderCompiler.hxx"
 
 #include "Engine/Misc/Utils.hxx"
-#include "Engine/Renderer/Vulkan/VulkanDynamicRHI.hxx"
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
+#include "Engine/Renderer/Vulkan/VulkanRHI.hxx"
 
 #include <shaderc/shaderc.hpp>
 

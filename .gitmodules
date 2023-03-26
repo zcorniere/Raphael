@@ -31,3 +31,6 @@
 [submodule "External/glslang"]
 	path = External/glslang
 	url = https://github.com/KhronosGroup/glslang.git
+[submodule "External/magic_enum"]
+	path = External/magic_enum
+	url = https://github.com/Neargye/magic_enum.git

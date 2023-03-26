@@ -29,7 +29,7 @@ add_library(
     Core/RObject.cxx
     Core/Log.cxx
 
-    Renderer/RHI/IDynamicRHI.cxx
+    Renderer/RHI/GenericRHI.cxx
     Renderer/RHI/RHICommandQueue.cxx
 
     Misc/Utils.cxx
@@ -46,6 +46,7 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 target_link_libraries(
     ${PROJECT_NAME}
     PUBLIC logger
+           magic_enum
            glm
            SDL3
            spirv-cross-core

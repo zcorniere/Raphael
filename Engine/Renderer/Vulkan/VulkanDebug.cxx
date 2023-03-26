@@ -1,4 +1,4 @@
-#include "Engine/Renderer/Vulkan/VulkanDynamicRHI.hxx"
+#include "Engine/Renderer/Vulkan/VulkanRHI.hxx"
 
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
@@ -83,7 +83,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
 
     LOG_V(LogVulkanRHI, VulkanMessageSeverityToLogLevel(MsgSeverity), "[{}:{}({})] {}{}", Severity,
           VulkanMessageType(messageType), pCallbackData->messageIdNumber, pCallbackData->pMessage, Objects);
-    verify(false);
+
+    if (Platform::isDebuggerPresent()) { PLATFORM_BREAK(); }
     return VK_FALSE;
 }
 

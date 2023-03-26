@@ -1,6 +1,6 @@
 #include "Engine/Renderer/Vulkan/Linux/VulkanLinuxPlatform.hxx"
 
-#include "Engine/Renderer/RHI/IDynamicRHI.hxx"
+#include "Engine/Renderer/RHI/GenericRHI.hxx"
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 

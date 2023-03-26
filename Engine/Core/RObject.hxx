@@ -23,6 +23,10 @@ class Ref;
 class RObject
 {
 public:
+    virtual ~RObject()
+    {
+    }
+
     virtual void SetName(std::string_view InName)
     {
         m_Name = InName;

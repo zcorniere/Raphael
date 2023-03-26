@@ -3,7 +3,7 @@
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
-#include "Engine/Renderer/Vulkan/VulkanDynamicRHI.hxx"
+#include "Engine/Renderer/Vulkan/VulkanRHI.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
 #define VULKAN_USE_DEBUG_NAMES 1
@@ -91,6 +91,8 @@ private:
     Ref<VulkanQueue> ComputeQueue;
     Ref<VulkanQueue> TransferQueue;
     Ref<VulkanQueue> PresentQueue;
+
+    friend class VulkanDynamicRHI;
 };
 
 }    // namespace VulkanRHI

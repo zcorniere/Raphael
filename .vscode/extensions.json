@@ -1,5 +1,8 @@
 {
     "recommendations": [
-        "editorconfig.editorconfig"
+        "editorconfig.editorconfig",
+        "cheshirekow.cmake-format",
+        "twxs.cmake",
+        "ms-vscode.cmake-tools"
     ]
 }

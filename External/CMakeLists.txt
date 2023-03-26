@@ -2,6 +2,9 @@
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/logger-cpp)
 target_compile_definitions(logger PUBLIC LOGGER_EXTERN_DECLARATION)
 
+# magic_enum
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/magic_enum)
+
 # Vulkan Header
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Vulkan-Headers)
 

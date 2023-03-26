@@ -46,10 +46,13 @@ public:
     void Reset();
     bool Wait(uint64 TimeInNanoseconds);
 
-    inline bool IsSignaled() const
+    inline bool IsSignaled()
     {
-        return State == State::Signaled;
+        return State == State::Signaled || CheckFenceStatus();
     }
+
+private:
+    bool CheckFenceStatus();
 
 private:
     Ref<VulkanDevice> Device;

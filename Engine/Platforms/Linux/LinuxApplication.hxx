@@ -2,7 +2,7 @@
 
 #include "Engine/Platforms/Application.hxx"
 #include "Engine/Platforms/Window.hxx"
-#include "Engine/Renderer/Vulkan/VulkanDynamicRHI.hxx"
+#include "Engine/Renderer/Vulkan/VulkanRHI.hxx"
 #include "Engine/Renderer/Vulkan/VulkanResources.hxx"
 
 class LinuxApplication : public GenericApplication
