@@ -11,15 +11,6 @@
     #define PLATFORM_LINUX
 #endif
 
-constexpr auto MaxStacktraceDepth = 100;
-
-struct StacktraceContent {
-    std::uint32_t Depth;
-    std::uint32_t CurrentDepth;
-    int64 StackTrace[MaxStacktraceDepth];
-    const std::uint32_t MaxDepth = MaxStacktraceDepth - 1;
-};
-
 ///
 /// @brief Unix-specific functions
 ///
@@ -40,6 +31,8 @@ public:
     ///
     static void setThreadName(std::jthread &thread, const std::string &name)
     {
+        (void)thread;
+        (void)name;
     }
 
     ///
@@ -50,14 +43,11 @@ public:
     ///
     static std::string getThreadName(std::jthread &thread)
     {
+        (void)thread;
         return "";
     }
 
-    /// @brief Return a stacktrace of the current running process
-    static StacktraceContent StackTrace(void *returnAddress)
-    {
-        return {};
-    }
+
 };
 
 #if defined(PLATFORM_WINDOWS)

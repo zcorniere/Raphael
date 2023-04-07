@@ -15,15 +15,6 @@
     #define VULKAN_SET_DEBUG_NAME(Device, Type, Handle, Format, ...)
 #endif
 
-#ifndef NDEBUG
-    #include "vulkan/vk_enum_string_helper.h"
-    #define VK_TYPE_TO_STRING(Type, Value) string_##Type(Value)
-    #define VK_FLAGS_TO_STRING(Type, Value) string_##Type(Value).c_str()
-#else
-    #define VK_TYPE_TO_STRING(Type, Value) Value
-    #define VK_FLAGS_TO_STRING(Type, Value) Value
-#endif
-
 namespace VulkanRHI
 {
 

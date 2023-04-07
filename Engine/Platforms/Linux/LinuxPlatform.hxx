@@ -43,9 +43,6 @@ public:
     /// @return std::string the name of the thread
     ///
     static std::string getThreadName(std::jthread &thread);
-
-    /// @brief Return a stacktrace of the current running process
-    static StacktraceContent StackTrace(void *returnAddress);
 };
 
 /// Alias to the current platform

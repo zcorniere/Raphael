@@ -17,7 +17,7 @@ void WindowsPlatform::setThreadName(std::jthread &thread, const std::string &nam
     if (FAILED(hr)) { LOG(LogWindowsPlateform, Error, "SetThreadDescription('{}') failed", name); }
 }
 
-static std::string getThreadName(std::jthread &thread)
+std::string WindowsPlatform::getThreadName(std::jthread &thread)
 {
     PWSTR name;
     HRESULT hr = ::GetThreadDescription(thread.native_handle(), &name);

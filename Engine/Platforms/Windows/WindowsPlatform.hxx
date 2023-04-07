@@ -11,7 +11,6 @@ static_assert(false, "Windows Platform header included on a non windows platform
 
 #include <intrin.h>
 
-#define _CRT_SECURE_NO_WARNINGS
 #define PLATFORM_BREAK() (__nop(), __debugbreak())
 
 ///
@@ -39,9 +38,6 @@ public:
     /// @return std::string the name of the thread
     ///
     static std::string getThreadName(std::jthread &thread);
-
-    /// @brief Return a stacktrace of the current running process
-    static StacktraceContent StackTrace(void *returnAddress);
 };
 
 /// Alias to the current platform

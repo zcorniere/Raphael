@@ -1,7 +1,10 @@
 #include "Engine/Compilers/MSVCCompiler.hxx"
 
-static std::string MSVCCompiler::Demangle(const std::string_view &name)
+#include <dbghelp.h>
+
+std::string MSVCCompiler::Demangle(const std::string_view &name)
 {
-    checkMsg(false, "Not implemented");
-    return std::string(name);
+    char undecorated_name[1024];
+    UnDecorateSymbolName(name.data(), undecorated_name, sizeof(undecorated_name) / sizeof(*undecorated_name), UNDNAME_COMPLETE);
+    return std::string(undecorated_name);
 }

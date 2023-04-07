@@ -15,7 +15,7 @@ void *VulkanMemoryAllocation::Map(VkDeviceSize InSize, VkDeviceSize Offset)
     check(bCanBeMapped);
     if (!MappedPointer) {
         check(!MappedPointer);
-        checkMsg(InSize + Offset <= Size, "Failed to Map {} bytes, Offset {}, AllocSize {} bytes", InSize, Offset,
+        checkMsg(InSize + Offset <= Size, "Failed to Map %llu bytes, Offset %llu, AllocSize %llu bytes", InSize, Offset,
                  Size);
         vmaMapMemory(ManagerHandle.GetAllocator(), Allocation, &MappedPointer);
     }

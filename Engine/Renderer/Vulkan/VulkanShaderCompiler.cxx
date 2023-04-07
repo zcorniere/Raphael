@@ -82,7 +82,7 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
     shaderc::Compiler ShaderCompiler;
 
     if (!std::filesystem::exists(Path)) {
-        LOG(LogVulkanShaderCompiler, Error, "Shader file not found ! \"{}\"", Path.c_str());
+        LOG(LogVulkanShaderCompiler, Error, "Shader file not found ! \"{}\"", Path.string().c_str());
         return nullptr;
     }
 
@@ -92,19 +92,19 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
     std::string FileContent = Utils::readFile(Path);
 
     shaderc::PreprocessedSourceCompilationResult PreProcessResult =
-        ShaderCompiler.PreprocessGlsl(FileContent, ShaderKind, Path.c_str(), Options);
+        ShaderCompiler.PreprocessGlsl(FileContent, ShaderKind, Path.string().c_str(), Options);
     if (PreProcessResult.GetCompilationStatus() != shaderc_compilation_status_success) {
-        LOG(LogVulkanShaderCompiler, Error, "Failed to pre-process {}: {}", Path.c_str(),
+        LOG(LogVulkanShaderCompiler, Error, "Failed to pre-process {}: {}", Path.string().c_str(),
             PreProcessResult.GetErrorMessage());
     }
 
     std::string PreprocessCode(PreProcessResult.begin(), PreProcessResult.end());
-    LOG(LogVulkanShaderCompiler, Debug, "Pre-process Result \"{}\": {}", Path.c_str(), PreprocessCode);
+    LOG(LogVulkanShaderCompiler, Debug, "Pre-process Result \"{}\": {}", Path.string().c_str(), PreprocessCode);
 
     shaderc::CompilationResult CompilationResult =
-        ShaderCompiler.CompileGlslToSpv(PreprocessCode, ShaderKind, Path.c_str(), Options);
+        ShaderCompiler.CompileGlslToSpv(PreprocessCode, ShaderKind, Path.string().c_str(), Options);
     if (CompilationResult.GetCompilationStatus() != shaderc_compilation_status_success) {
-        LOG(LogVulkanShaderCompiler, Error, "Failed to compile shader \"{}\": {}", Path.c_str(),
+        LOG(LogVulkanShaderCompiler, Error, "Failed to compile shader \"{}\": {}", Path.string().c_str(),
             CompilationResult.GetErrorMessage());
     }
 

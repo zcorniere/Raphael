@@ -82,7 +82,7 @@ public:
     Ref(): m_ObjPtr(nullptr)
     {
     }
-    Ref(std::nullptr_t n): m_ObjPtr(nullptr)
+    Ref(std::nullptr_t): m_ObjPtr(nullptr)
     {
     }
     Ref(T *Object): m_ObjPtr(Object)

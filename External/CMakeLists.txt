@@ -80,8 +80,19 @@ set(VMA_DYNAMIC_VULKAN_FUNCTIONS
     ON
     CACHE BOOL ""
 )
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/VulkanMemoryAllocator)
-target_compile_features(VulkanMemoryAllocator PUBLIC cxx_std_23)
+set(VMA_PATH ${CMAKE_CURRENT_SOURCE_DIR}/VulkanMemoryAllocator)
+add_library(VulkanMemoryAllocator STATIC ${VMA_PATH}/include/vk_mem_alloc.h)
+set_source_files_properties(
+    ${VMA_PATH}/include/vk_mem_alloc.h PROPERTIES
+    LANGUAGE CXX
+)
+target_compile_definitions(VulkanMemoryAllocator PRIVATE VMA_IMPLEMENTATION
+                                                 PRIVATE VMA_STATIC_VULKAN_FUNCTIONS=0
+                                                 PRIVATE VMA_DYNAMIC_VULKAN_FUNCTIONS=1
+)
+target_include_directories(VulkanMemoryAllocator PUBLIC ${VMA_PATH}/include)
+set_target_properties(VulkanMemoryAllocator PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(VulkanMemoryAllocator PUBLIC Vulkan::Headers)
 
 # glslang
 set(ENABLE_CTEST

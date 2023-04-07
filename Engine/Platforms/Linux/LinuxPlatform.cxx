@@ -80,19 +80,3 @@ std::string LinuxPlateform::getThreadName(std::jthread &thread)
     }
     return std::string(name);
 }
-
-StacktraceContent LinuxPlateform::StackTrace(void *return_address)
-{
-    StacktraceContent trace;
-    trace.Depth = backtrace(reinterpret_cast<void **>(trace.StackTrace), trace.MaxDepth);
-
-    if (return_address != nullptr) {
-        for (std::uint32_t i = 0; i < trace.Depth; ++i) {
-            if (trace.StackTrace[i] != int64(return_address)) { continue; }
-            trace.CurrentDepth = i;
-            break;
-        }
-    }
-
-    return trace;
-}
