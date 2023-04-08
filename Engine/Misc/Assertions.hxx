@@ -22,9 +22,9 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
                                              bExecuted = true;                                             \
                                              /* TODO: Check if another assertion is in progress */         \
                                              CollectAndPrintStackTrace(Compiler::ReturnAddress());         \
-                                             fprintf(stderr, "Assertion failed:" STR(#Expression)          \
+                                             cpplogger::fmt::print(stderr, "Assertion failed:" STR(#Expression)          \
                                                                  __VA_OPT__(" :: " Format, ) __VA_ARGS__); \
-                                             fprintf(stderr, "\n");                                        \
+                                             cpplogger::fmt::print(stderr, "\n");                                        \
                                              return Platform::isDebuggerPresent();                         \
                                          }                                                                 \
                                          return false;                                                     \
@@ -40,8 +40,8 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
         {                                                                                              \
             if (UNLIKELY(!(Expression))) {                                                             \
                 CollectAndPrintStackTrace(Compiler::ReturnAddress());                                  \
-                fprintf(stderr, "Assertion failed: " STR(#Expression) __VA_OPT__(" :: ") __VA_ARGS__); \
-                fprintf(stderr, "\n");                                                                 \
+                cpplogger::fmt::print(stderr, "Assertion failed: " STR(#Expression) __VA_OPT__(" :: ") __VA_ARGS__); \
+                cpplogger::fmt::print(stderr, "\n");                                                                 \
                 fflush(stderr);                                                                        \
                 if (Platform::isDebuggerPresent()) { PLATFORM_BREAK(); }                               \
                 std::abort();                                                                          \

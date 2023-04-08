@@ -22,7 +22,7 @@ else()
     message(FATAL_ERROR "Compiler not supported !")
 endif()
 
-file(GLOB VULKAN_RENDERER_FILES Renderer/Vulkan/*.cxx)
+file(GLOB VULKAN_RENDERER_FILES Renderer/Vulkan/*.cxx Renderer/Vulkan/Resources/*.cxx)
 
 add_library(
     ${PROJECT_NAME} STATIC
@@ -37,6 +37,7 @@ add_library(
 
     Threading/Thread.cxx
     Threading/ThreadPool.cxx
+    
     ${PLATFORM_SOURCE_FILES}
     ${COMPILER_SOURCE_FILE}
     ${VULKAN_RENDERER_FILES}
@@ -53,6 +54,7 @@ target_link_libraries(
            shaderc
            VulkanMemoryAllocator
            Vulkan::Headers
+           VulkanHelpers
 )
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
 target_precompile_headers(${PROJECT_NAME} PRIVATE Raphael.hxx)

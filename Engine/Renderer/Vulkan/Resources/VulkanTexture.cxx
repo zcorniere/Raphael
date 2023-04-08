@@ -1,4 +1,4 @@
-#include "Engine/Renderer/Vulkan/VulkanTexture.hxx"
+#include "Engine/Renderer/Vulkan/Resources/VulkanTexture.hxx"
 
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 #include "Engine/Renderer/Vulkan/VulkanMemoryManager.hxx"
@@ -16,7 +16,7 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
     VkImageCreateInfo ImageCreateInfo{
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .imageType = TextureDimensionToVkImageType(InDesc.Dimension),
-        .format = VK_FORMAT_R8G8B8A8_SRGB,
+        .format = TextureFormatToVkFormat(InDesc.Format),
         .extent =
             {
                 .width = InDesc.Extent.x,
@@ -30,8 +30,8 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
     };
 
-    const VkImageViewType ResourceViewType = TextureDimensionToVkImageViewType(InDesc.Dimension);
-    switch (ResourceViewType) {
+    const VkImageViewType ResourceType = TextureDimensionToVkImageViewType(InDesc.Dimension);
+    switch (ResourceType) {
         case VK_IMAGE_VIEW_TYPE_2D:
             ImageCreateInfo.imageType = TextureDimensionToVkImageType(InDesc.Dimension);
             check(InDesc.Extent.x <= DeviceProperties.limits.maxImageDimension2D);
@@ -61,10 +61,7 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
     Allocation->BindImage(Image);
 }
 
-VulkanTexture::~VulkanTexture()
-{
-    VulkanAPI::vkDestroyImage(Device->GetInstanceHandle(), Image, nullptr);
-}
+VulkanTexture::~VulkanTexture() { VulkanAPI::vkDestroyImage(Device->GetInstanceHandle(), Image, nullptr); }
 
 void VulkanTexture::SetName(std::string_view InName)
 {

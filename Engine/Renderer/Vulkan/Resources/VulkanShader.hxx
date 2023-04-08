@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Renderer/RHI/RHIResource.hxx"
+#include "Engine/Renderer/RHI/Resources/RHIShader.hxx"
 
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 

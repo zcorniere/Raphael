@@ -1,10 +1,22 @@
 #pragma once
 
 #include "Engine/Core/Buffer.hxx"
-#include "Engine/Renderer/RHI/RHIDefinitions.hxx"
 
 #include <glm/vec3.hpp>
 #include <magic_enum.hpp>
+
+enum class RHIResourceType : uint8 {
+    None,
+
+    Texture,
+    Shader,
+    Viewport,
+
+    Framebuffer,
+    RenderPass,
+
+    MAX_VALUE,
+};
 
 class RHIResource : public RObject
 {
@@ -29,55 +41,8 @@ private:
     const RHIResourceType ResourceType;
 };
 
-class RHITexture : public RHIResource
-{
-public:
-    RHITexture(const RHITextureCreateDesc &InDesc): RHIResource(RHIResourceType::Texture), Description(InDesc)
-    {
-    }
-
-    virtual const RHITextureCreateDesc &GetDescription() const
-    {
-        return Description;
-    }
-
-    // RHI specific function
-    virtual void *GetNativeResource() const
-    {
-        return nullptr;
-    }
-
-    glm::ivec3 GetMipDimensions(uint8 MipIndex) const
-    {
-        const RHITextureCreateDesc &Desc = GetDescription();
-        return glm::ivec3(std::max(Desc.Extent.x >> MipIndex, 1u), std::max(Desc.Extent.y >> MipIndex, 1u),
-                          std::max(Desc.Depth >> MipIndex, 1u));
-    }
-
-private:
-    const RHITextureCreateDesc Description;
-};
-
-class RHIShader : public RHIResource
-{
-public:
-    RHIShader(RHIShaderType Type): RHIResource(RHIResourceType::Shader), ShaderType(Type)
-    {
-    }
-
-    RHIShaderType GetShaderType() const
-    {
-        return ShaderType;
-    }
-
-private:
-    const RHIShaderType ShaderType;
-};
-
-class RHIViewport : public RHIResource
-{
-public:
-    RHIViewport(): RHIResource(RHIResourceType::Viewport)
-    {
-    }
-};
+#include "Engine/Renderer/RHI/Resources/RHIFramebuffer.hxx"
+#include "Engine/Renderer/RHI/Resources/RHIRenderPass.hxx"
+#include "Engine/Renderer/RHI/Resources/RHIShader.hxx"
+#include "Engine/Renderer/RHI/Resources/RHITexture.hxx"
+#include "Engine/Renderer/RHI/Resources/RHIViewport.hxx"

@@ -260,7 +260,7 @@ int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore> &OutSemaphore)
     }
     OutSemaphore = ImageAcquiredSemaphore[SemaphoreIndex];
 
-    checkMsg(Result == VK_SUCCESS || Result == VK_SUBOPTIMAL_KHR, "vkAcquireNextImageKHR failed Result = %i",
+    checkMsg(Result == VK_SUCCESS || Result == VK_SUBOPTIMAL_KHR, "vkAcquireNextImageKHR failed Result = {}",
              int32(Result));
     CurrentImageIndex = (int32)ImageIndex;
 

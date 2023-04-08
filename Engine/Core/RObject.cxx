@@ -2,13 +2,13 @@
 
 #include <unordered_set>
 
-static std::unordered_set<void *> s_LiveReferences;
+static std::unordered_set<RObject *> s_LiveReferences;
 static std::recursive_mutex s_LiveReferenceMutex;
 
 namespace RObjectUtils
 {
 
-void AddToLiveReferences(void *instance)
+void AddToLiveReferences(RObject *instance)
 {
     check(instance);
 
@@ -16,7 +16,7 @@ void AddToLiveReferences(void *instance)
     s_LiveReferences.insert(instance);
 }
 
-void RemoveFromLiveReferences(void *instance)
+void RemoveFromLiveReferences(RObject *instance)
 {
     check(instance);
 
@@ -25,7 +25,7 @@ void RemoveFromLiveReferences(void *instance)
     s_LiveReferences.erase(instance);
 }
 
-bool IsLive(void *instance)
+bool IsLive(RObject *instance)
 {
     check(instance);
     std::scoped_lock lock(s_LiveReferenceMutex);
@@ -36,11 +36,10 @@ bool AreThereAnyLiveObject(bool bPrintObjects)
 {
     std::scoped_lock lock(s_LiveReferenceMutex);
 
-    if (bPrintObjects && s_LiveReferences.size() > 0) {
-        for (void *ObjectPtr: s_LiveReferences) {
-            Ref<RObject> Object((RObject *)ObjectPtr);
-            LOG(LogRObject, Debug, "RObject<{}> ({:p}) have {} references", Object->GetName(), ObjectPtr,
-                Object->GetRefCount());
+    if (bPrintObjects) {
+        for (RObject *ObjectPtr: s_LiveReferences) {
+            LOG(LogRObject, Debug, "RObject<{}> ({:p}) have {} references", ObjectPtr->GetName(), (void *)ObjectPtr,
+                ObjectPtr->GetRefCount());
         }
     }
     return s_LiveReferences.size() > 0;

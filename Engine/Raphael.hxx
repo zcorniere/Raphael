@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cpplogger/Logger.hpp>
-#include <cstdint>
 #include <glm/glm.hpp>
 #include <mutex>
 #include <optional>

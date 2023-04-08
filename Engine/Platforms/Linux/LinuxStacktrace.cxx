@@ -4,14 +4,14 @@
 #include <execinfo.h>
 #include <fcntl.h>
 
-static StacktraceContent GetStackTraceFromReturnAddress(void *returnAddress)
+StacktraceContent LinuxStacktrace::GetStackTraceFromReturnAddress(void *returnAddress)
 {
     StacktraceContent trace;
     trace.Depth = backtrace(reinterpret_cast<void **>(trace.StackTrace), trace.MaxDepth);
 
-    if (return_address != nullptr) {
+    if (returnAddress != nullptr) {
         for (std::uint32_t i = 0; i < trace.Depth; ++i) {
-            if (trace.StackTrace[i] != int64(return_address)) { continue; }
+            if (trace.StackTrace[i] != int64(returnAddress)) { continue; }
             trace.CurrentDepth = i;
             break;
         }
@@ -20,7 +20,7 @@ static StacktraceContent GetStackTraceFromReturnAddress(void *returnAddress)
     return trace;
 }
 
-bool StacktraceContent::TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedSymbolInfo &detailed_info)
+bool LinuxStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedSymbolInfo &detailed_info)
 {
     Dl_info info;
     bool ret = dladdr(reinterpret_cast<void *>(ProgramCounter), &info);

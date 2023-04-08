@@ -32,7 +32,7 @@ void VulkanCmdBuffer::Begin()
     if (State == EState::NeedReset) {
         VulkanAPI::vkResetCommandBuffer(m_CommandBufferHandle, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
     } else {
-        checkMsg(State == EState::ReadyForBegin, "Can't Begin as we're NOT ready! CmdBuffer %p State=%d",
+        checkMsg(State == EState::ReadyForBegin, "Can't Begin as we're NOT ready! CmdBuffer {:p} State={:d}",
                  (void *)m_CommandBufferHandle, (int32)State);
     }
     State = EState::IsInsideBegin;
@@ -46,7 +46,7 @@ void VulkanCmdBuffer::Begin()
 
 void VulkanCmdBuffer::End()
 {
-    checkMsg(IsOutsideRenderPass(), "Can't End as we're inside a render pass! CmdBuffer %p State=%d",
+    checkMsg(IsOutsideRenderPass(), "Can't End as we're inside a render pass! CmdBuffer {:p} State={:d}",
              (void *)m_CommandBufferHandle, (int32)State);
 
     VK_CHECK_RESULT(VulkanAPI::vkEndCommandBuffer(m_CommandBufferHandle));
@@ -59,8 +59,8 @@ void VulkanCmdBuffer::BeginRenderPass(/* Argument */)
 }
 void VulkanCmdBuffer::EndRenderPass()
 {
-    checkMsg(IsInsideRenderPass(), "Can't EndRenderPass as we're NOT inside one! CmdBuffer %p State=%d",
-             m_CommandBufferHandle, (int32)State);
+    checkMsg(IsInsideRenderPass(), "Can't EndRenderPass as we're NOT inside one! CmdBuffer {:p} State={:d}",
+             (void *)m_CommandBufferHandle, (int32)State);
     VulkanAPI::vkCmdEndRenderPass(m_CommandBufferHandle);
     State = EState::IsInsideBegin;
 }

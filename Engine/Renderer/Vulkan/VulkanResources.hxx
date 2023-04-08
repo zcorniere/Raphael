@@ -6,14 +6,7 @@
 #include "Engine/Renderer/Vulkan/VulkanSwapChain.hxx"
 
 // Include other VulkanResources
-#include "Engine/Renderer/Vulkan/VulkanShader.hxx"
-#include "Engine/Renderer/Vulkan/VulkanTexture.hxx"
-#include "Engine/Renderer/Vulkan/VulkanViewport.hxx"
-
-namespace VulkanRHI
-{
-
-class Semaphore;
-class VulkanDevice;
-
-}    // namespace VulkanRHI
+#include "Engine/Renderer/Vulkan/Resources/VulkanFramebuffer.hxx"
+#include "Engine/Renderer/Vulkan/Resources/VulkanShader.hxx"
+#include "Engine/Renderer/Vulkan/Resources/VulkanTexture.hxx"
+#include "Engine/Renderer/Vulkan/Resources/VulkanViewport.hxx"

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Engine/Renderer/RHI/RHIResource.hxx"
+#include "Engine/Renderer/RHI/Resources/RHIViewport.hxx"
 
-#include "Engine/Renderer/Vulkan/VulkanTexture.hxx"
+#include "Engine/Renderer/Vulkan/Resources/VulkanTexture.hxx"
 
 namespace VulkanRHI
 {

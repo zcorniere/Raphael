@@ -1,4 +1,4 @@
-#include "Engine/Renderer/Vulkan/VulkanShader.hxx"
+#include "Engine/Renderer/Vulkan/Resources/VulkanShader.hxx"
 
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 
@@ -10,10 +10,7 @@ VulkanShader::VulkanShader(RHIShaderType Type, std::vector<uint32> InSPIRVCode)
 {
 }
 
-uint32 VulkanShader::GetID()
-{
-    return 0;
-}
+uint32 VulkanShader::GetID() { return 0; }
 
 VkShaderModule VulkanShader::GetHandle(Ref<VulkanDevice> InDevice)
 {

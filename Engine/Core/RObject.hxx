@@ -4,21 +4,22 @@
 
 #include <Engine/Misc/Assertions.hxx>
 
+template <typename T>
+class Ref;
+class RObject;
+
 namespace RObjectUtils
 {
 
 DECLARE_LOGGER_CATEGORY(Core, LogRObject, Trace)
 
-void AddToLiveReferences(void *instance);
-void RemoveFromLiveReferences(void *instance);
-bool IsLive(void *instance);
+void AddToLiveReferences(RObject *instance);
+void RemoveFromLiveReferences(RObject *instance);
+bool IsLive(RObject *instance);
 
 bool AreThereAnyLiveObject(bool bPrintObjects = true);
 
 }    // namespace RObjectUtils
-
-template <typename T>
-class Ref;
 
 class RObject
 {
@@ -228,7 +229,7 @@ private:
         if (!m_ObjPtr) return;
 
         m_ObjPtr->IncrementRefCount();
-        RObjectUtils::AddToLiveReferences((void *)m_ObjPtr);
+        RObjectUtils::AddToLiveReferences(m_ObjPtr);
     }
 
     void DecrementRefCount() const
@@ -249,7 +250,7 @@ private:
         }
 
         delete m_ObjPtr;
-        RObjectUtils::RemoveFromLiveReferences((void *)m_ObjPtr);
+        RObjectUtils::RemoveFromLiveReferences(m_ObjPtr);
         m_ObjPtr = nullptr;
     }
 

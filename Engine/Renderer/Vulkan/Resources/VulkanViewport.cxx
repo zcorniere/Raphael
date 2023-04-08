@@ -1,4 +1,4 @@
-#include "Engine/Renderer/Vulkan/VulkanViewport.hxx"
+#include "Engine/Renderer/Vulkan/Resources/VulkanViewport.hxx"
 
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 #include "Engine/Renderer/Vulkan/VulkanRHI.hxx"
@@ -15,9 +15,7 @@ VulkanViewport::VulkanViewport(Ref<VulkanDevice> InDevice, void *InWindowHandle,
 
 VulkanViewport::~VulkanViewport()
 {
-    for (VulkanTextureView &View: TexturesViews) {
-        View.Destroy(Device);
-    }
+    for (VulkanTextureView &View: TexturesViews) { View.Destroy(Device); }
     TexturesViews.clear();
     RenderingDoneSemaphores.clear();
 

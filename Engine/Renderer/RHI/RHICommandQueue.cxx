@@ -21,17 +21,17 @@ void *RHICommandQueue::Allocate(RenderCommandFn Func, uint32_t Size)
     *(RenderCommandFn *)m_CommandBufferCursor = Func;
     m_CommandBufferCursor += sizeof(RenderCommandFn);
     checkMsg(m_CommandBufferCursor < m_CommandBufferUpperLimit,
-             "RHICommandQueue has overflowed with %u registered command !", m_CommandCount);
+             "RHICommandQueue has overflowed with {} registered command !", m_CommandCount);
 
     *(uint32 *)m_CommandBufferCursor = Size;
     m_CommandBufferCursor += sizeof(uint32);
     checkMsg(m_CommandBufferCursor < m_CommandBufferUpperLimit,
-             "RHICommandQueue has overflowed with %u registered command !", m_CommandCount);
+             "RHICommandQueue has overflowed with {} registered command !", m_CommandCount);
 
     void *Memory = m_CommandBufferCursor;
     m_CommandBufferCursor += Size;
     checkMsg(m_CommandBufferCursor < m_CommandBufferUpperLimit,
-             "RHICommandQueue has overflowed with %u registered command !", m_CommandCount);
+             "RHICommandQueue has overflowed with {} registered command !", m_CommandCount);
 
     m_CommandCount += 1;
     return Memory;

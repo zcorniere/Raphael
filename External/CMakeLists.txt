@@ -8,6 +8,10 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/magic_enum)
 # Vulkan Header
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Vulkan-Headers)
 
+# Vulkan Helpers
+add_library(VulkanHelpers INTERFACE)
+target_include_directories(VulkanHelpers INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/VulkanHelpers)
+
 # glm
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glm)
 target_compile_definitions(glm INTERFACE GLM_FORCE_DEPTH_ZERO_TO_ONE)
@@ -58,6 +62,26 @@ set(SDL_PULSEAUDIO
     CACHE BOOL ""
 )
 set(SDL_PULSEAUDIO_SHARED
+    OFF
+    CACHE BOOL ""
+)
+set(SDL_TIMERS
+    OFF
+    CACHE BOOL ""
+)
+set(SDL_FILE
+    OFF
+    CACHE BOOL ""
+)
+set(SDL_FILESYSTEM
+    OFF
+    CACHE BOOL ""
+)
+set(SDL_ATOMIC
+    OFF
+    CACHE BOOL ""
+)
+set(SDL_RENDER
     OFF
     CACHE BOOL ""
 )

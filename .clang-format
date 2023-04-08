@@ -5,28 +5,28 @@ AccessModifierOffset: -4
 AlignEscapedNewlinesLeft: true
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortFunctionsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: true
-AllowShortLoopsOnASingleLine: false
+AllowShortLoopsOnASingleLine: true
 AllowShortBlocksOnASingleLine: Always
-AllowShortEnumsOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: true
 AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: true
+#BitFieldColonSpacingStyle: After
 BreakBeforeBraces: Linux
 BraceWrapping:
-  AfterEnum: true
-  AfterClass: true
+  AfterEnum: false
+  AfterClass: false
   AfterUnion: true
   BeforeElse: false
-  BeforeWhile: false
+  #  BeforeWhile: false
   BeforeCatch: false
-  AfterStruct: true
-  AfterFunction: true
-  AfterNamespace: true
+  AfterStruct: false
+  AfterFunction: false
+  AfterNamespace: false
   AfterCaseLabel: false
   AfterExternBlock: false
-  BeforeLambdaBody: false
+  #  BeforeLambdaBody: false
   SplitEmptyFunction: false
 #  BraceWrappingAfterControlStatementStyle: Never
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
@@ -53,5 +53,6 @@ SpacesInContainerLiterals: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 UseTab: Never
-IndentRequiresClause: false
-RequiresClausePosition: OwnLine
+# TODO: Reenable when everyone has llvm 15
+# IndentRequiresClause: false
+# RequiresClausePosition: OwnLine

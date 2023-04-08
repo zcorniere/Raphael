@@ -29,13 +29,13 @@ std::string BytesToString(uint64 bytes)
     char buffer[32];
 
     if (bytes > GB)
-        sprintf_s(buffer, "%.2f GB", (float)bytes / (float)GB);
+        sprintf(buffer, "%.2f GB", (float)bytes / (float)GB);
     else if (bytes > MB)
-        sprintf_s(buffer, "%.2f MB", (float)bytes / (float)MB);
+        sprintf(buffer, "%.2f MB", (float)bytes / (float)MB);
     else if (bytes > KB)
-        sprintf_s(buffer, "%.2f KB", (float)bytes / (float)KB);
+        sprintf(buffer, "%.2f KB", (float)bytes / (float)KB);
     else
-        sprintf_s(buffer, "%.2f bytes", (float)bytes);
+        sprintf(buffer, "%.2f bytes", (float)bytes);
 
     return std::string(buffer);
 }
