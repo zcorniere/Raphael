@@ -29,8 +29,8 @@ public:
     VulkanDevice(VkPhysicalDevice Gpu);
     ~VulkanDevice();
 
-    void InitGPU();
-    void CreateDevice(const std::vector<const char *> &DeviceLayers, const std::vector<const char *> &DeviceExtensions);
+    void InitPhysicalDevice();
+    void CreateDeviceAndQueue(const std::vector<const char *> &DeviceLayers, const std::vector<const char *> &DeviceExtensions);
 
     void PrepareForDestroy();
     void Destroy();

@@ -1,7 +1,7 @@
 #include "Engine/Renderer/Vulkan/Linux/VulkanLinuxPlatform.hxx"
 
-#include "Engine/Renderer/RHI/GenericRHI.hxx"
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
+#include "Engine/Renderer/Vulkan/VulkanRHI.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
 #include "Engine/Platforms/Window.hxx"
@@ -10,8 +10,6 @@
 #include <SDL_vulkan.h>
 
 #include <dlfcn.h>
-
-DECLARE_LOGGER_CATEGORY(Core, LogVulkanLinux, Info)
 
 namespace VulkanRHI
 {
@@ -36,10 +34,10 @@ bool VulkanLinuxPlatform::LoadVulkanLibrary()
     if (VulkanLib == nullptr) { return false; }
 
     bool bFoundAllEntryPoints = true;
-#define CHECK_VK_ENTRYPOINTS(Type, Func)                                     \
-    if (VulkanAPI::Func == NULL) {                                           \
-        bFoundAllEntryPoints = false;                                        \
-        LOG(LogVulkanLinux, Error, "Failed to find entry point for " #Func); \
+#define CHECK_VK_ENTRYPOINTS(Type, Func)                                   \
+    if (VulkanAPI::Func == NULL) {                                         \
+        bFoundAllEntryPoints = false;                                      \
+        LOG(LogVulkanRHI, Error, "Failed to find entry point for " #Func); \
     }
 #define GET_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = (Type)dlsym(VulkanLib, #Func);
     VK_ENTRYPOINTS_BASE(GET_VK_ENTRYPOINTS);
@@ -65,10 +63,10 @@ bool VulkanLinuxPlatform::LoadVulkanLibrary()
 bool VulkanLinuxPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
 {
     bool bFoundAllEntryPoints = true;
-#define CHECK_VK_ENTRYPOINTS(Type, Func)                                       \
-    if (VulkanAPI::Func == NULL) {                                             \
-        bFoundAllEntryPoints = false;                                          \
-        LOG(LogVulkanLinux, Warn, "Failed to find entry point for {}", #Func); \
+#define CHECK_VK_ENTRYPOINTS(Type, Func)                                     \
+    if (VulkanAPI::Func == NULL) {                                           \
+        bFoundAllEntryPoints = false;                                        \
+        LOG(LogVulkanRHI, Warn, "Failed to find entry point for {}", #Func); \
     }
 
 #define GETINSTANCE_VK_ENTRYPOINTS(Type, Func) \
@@ -130,7 +128,7 @@ void VulkanLinuxPlatform::CreateSurface(void *WindowHandle, VkInstance Instance,
     Window::EnsureSDLInit();
 
     if (SDL_Vulkan_CreateSurface((SDL_Window *)WindowHandle, Instance, OutSurface) == SDL_FALSE) {
-        LOG(LogVulkanLinux, Fatal, "Error initializing SDL Vulkan Surface: {}", SDL_GetError());
+        LOG(LogVulkanRHI, Fatal, "Error initializing SDL Vulkan Surface: {}", SDL_GetError());
         checkNoEntry();
     }
 }

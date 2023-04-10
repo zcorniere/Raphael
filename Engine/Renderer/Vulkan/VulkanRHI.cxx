@@ -1,9 +1,12 @@
 #include "Engine/Renderer/Vulkan/VulkanRHI.hxx"
 
+#include "Engine/Platforms/PlatformMisc.hxx"
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 #include "Engine/Renderer/Vulkan/VulkanGenericPlatform.hxx"
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
+
+static std::string GetMissingExtensions(std::vector<const char *> VulkanExtensions);
 
 namespace VulkanRHI
 {
@@ -17,8 +20,14 @@ VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr
         VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 
     if (!VulkanPlatform::LoadVulkanLibrary()) {
+        PlatformMisc::MessageBox(
+            EBoxMessageType::Ok,
+            "Unable to load Vulkan library and/or acquire the necessary function pointers. Make sure an "
+            "up-to-date libvulkan.so.1 is installed.",
+            "Unable to initialize Vulkan.");
         LOG(LogVulkanRHI, Fatal,
             "Failed to find all of the required Vulkan entry points; make sure your driver supports Vulkan!");
+        _exit(1);
     }
 
     CreateInstance();
@@ -48,7 +57,7 @@ void VulkanDynamicRHI::Init()
 {
     GenericRHI::Init();
 
-    Device->InitGPU();
+    Device->InitPhysicalDevice();
 }
 
 void VulkanDynamicRHI::PostInit()
@@ -92,7 +101,10 @@ void VulkanDynamicRHI::CreateInstance()
     };
 
     // TODO: Wrap it into its own class ?
-    std::vector<const char *> VulkanExtensions{VK_KHR_SURFACE_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME};
+    std::vector<const char *> VulkanExtensions{
+        VK_KHR_SURFACE_EXTENSION_NAME,
+        VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+    };
     VulkanPlatform::GetInstanceExtensions(VulkanExtensions);
 
     std::vector<const char *> ValidationLayers{"VK_LAYER_KHRONOS_validation"};
@@ -106,14 +118,32 @@ void VulkanDynamicRHI::CreateInstance()
     VkResult Result = VulkanAPI::vkCreateInstance(&InstInfo, nullptr, &m_Instance);
 
     if (Result == VK_ERROR_INCOMPATIBLE_DRIVER) {
+        PlatformMisc::MessageBox(
+            EBoxMessageType::Ok,
+            "Unable to load Vulkan library and/or acquire the necessary function pointers. Make sure an "
+            "up-to-date libvulkan.so.1 is installed.",
+            "Unable to initialize Vulkan.");
         LOG(LogVulkanRHI, Fatal, "Cannot find a compatible Vulkan driver.");
         _exit(1);
     } else if (Result == VK_ERROR_EXTENSION_NOT_PRESENT) {
-        // TODO: print missing extension
+        std::string MissingExtensions = GetMissingExtensions(VulkanExtensions);
+
+        PlatformMisc::MessageBox(
+            EBoxMessageType::Ok,
+            cpplogger::fmt::format("Vulkan driver doesn't contain specified extensions:\n{:s}\nMake sure your layers "
+                                   "path is set appropriately.",
+                                   MissingExtensions),
+            "Incompatible Vulkan driver found!");
         LOG(LogVulkanRHI, Fatal, "Extension not found !");
         _exit(1);
     } else if (Result != VK_SUCCESS) {
         LOG(LogVulkanRHI, Fatal, "Vulkan failed to create instance!");
+        PlatformMisc::MessageBox(
+            EBoxMessageType::Ok,
+            "Vulkan failed to create instance (apiVersion=0x%x)\n\nDo you have a compatible Vulkan "
+            "driver (ICD) installed?\nPlease look at "
+            "the Getting Started guide for additional information.",
+            "No Vulkan driver found!");
         _exit(1);
     }
 
@@ -121,6 +151,10 @@ void VulkanDynamicRHI::CreateInstance()
 
     if (!VulkanPlatform::LoadVulkanInstanceFunctions(m_Instance)) {
         LOG(LogVulkanRHI, Fatal, "Couldn't find some of Vulkan's entry points !");
+        PlatformMisc::MessageBox(EBoxMessageType::Ok,
+                                 "Failed to find all required Vulkan entry points! Try updating your driver.",
+                                 "No Vulkan entry points found!");
+        _exit(1);
     }
 
 #if VULKAN_DEBUGGING_ENABLED
@@ -134,7 +168,7 @@ void VulkanDynamicRHI::SelectDevice()
     VkResult Result = VulkanAPI::vkEnumeratePhysicalDevices(m_Instance, &GpuCount, nullptr);
     if (Result == VK_ERROR_INITIALIZATION_FAILED) {
         LOG(LogVulkanRHI, Fatal, "Vulkan failed to find enumerate device!");
-        _exit(1);
+        return;
     }
     VK_CHECK_RESULT_EXPANDED(Result);
     checkMsg(GpuCount >= 1, "No GPU(s)/Driver(s) that support Vulkan were found!");
@@ -177,10 +211,41 @@ void VulkanDynamicRHI::SelectDevice()
         DeviceIndex = DiscreteDevice[0].DeviceIndex;
     } else {
         LOG(LogVulkanRHI, Info, "Cannot find compatible Vulkan device");
-        _exit(1);
+        return;
     }
 
     LOG(LogVulkanRHI, Info, "Chosen device index: {}", DeviceIndex);
 }
 
 }    // namespace VulkanRHI
+
+static std::string GetMissingExtensions(std::vector<const char *> VulkanExtensions)
+{
+    std::string MissingExtensions;
+    uint32_t PropertyCount;
+    VulkanRHI::VulkanAPI::vkEnumerateInstanceExtensionProperties(nullptr, &PropertyCount, nullptr);
+
+    std::vector<VkExtensionProperties> Properties;
+    Properties.resize(PropertyCount);
+    VulkanRHI::VulkanAPI::vkEnumerateInstanceExtensionProperties(nullptr, &PropertyCount, Properties.data());
+
+    for (const char *Extension: VulkanExtensions) {
+        bool bExtensionFound = false;
+
+        for (uint32_t PropertyIndex = 0; PropertyIndex < PropertyCount; PropertyIndex++) {
+            const char *PropertyExtensionName = Properties[PropertyIndex].extensionName;
+
+            if (!std::strcmp(PropertyExtensionName, Extension)) {
+                bExtensionFound = true;
+                break;
+            }
+        }
+
+        if (!bExtensionFound) {
+            LOG(LogVulkanRHI, Error, "Missing required Vulkan extension: {:s}", Extension);
+            MissingExtensions += Extension;
+            MissingExtensions += "\n";
+        }
+    }
+    return MissingExtensions;
+}

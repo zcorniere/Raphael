@@ -61,7 +61,7 @@ VulkanDevice::~VulkanDevice()
     }
 }
 
-void VulkanDevice::InitGPU()
+void VulkanDevice::InitPhysicalDevice()
 {
     std::uint32_t QueueCount = 0;
     VulkanAPI::vkGetPhysicalDeviceQueueFamilyProperties(Gpu, &QueueCount, nullptr);
@@ -76,16 +76,15 @@ void VulkanDevice::InitGPU()
     // Setup layers and extensions
     std::vector<const char *> DeviceExtensions = DefaultDeviceExtensions;
     VulkanPlatform::GetDeviceExtensions(this, DeviceExtensions);
-    CreateDevice({}, DeviceExtensions);
+    CreateDeviceAndQueue({}, DeviceExtensions);
 
     MemoryAllocator = new VulkanMemoryManager();
     MemoryAllocator->Init(this);
 
     CommandManager = new VulkanCommandBufferManager(this, GraphicsQueue);
-    // CommandManager->Init();
 }
 
-void VulkanDevice::CreateDevice(const std::vector<const char *> &DeviceLayers,
+void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char *> &DeviceLayers,
                                 const std::vector<const char *> &DeviceExtensions)
 {
     VkDeviceCreateInfo DeviceInfo{

@@ -7,7 +7,7 @@
 class LinuxWindow : public GenericWindow
 {
 public:
-    static void EnsureSDLInit();
+    static bool EnsureSDLInit();
 
 public:
     LinuxWindow();

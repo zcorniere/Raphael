@@ -8,13 +8,14 @@ bool GSDLInitialized = false;
 
 uint32 GWindowStyleSDL = SDL_WINDOW_VULKAN;
 
-void LinuxWindow::EnsureSDLInit()
+bool LinuxWindow::EnsureSDLInit()
 {
     if (!InitializeSDL()) {
         LOG(LogLinuxWindow, Fatal, "LinuxWindow::Initialize() : Failed to initialize window");
         checkNoEntry();
-        return;
+        return false;
     }
+    return true;
 }
 
 LinuxWindow::LinuxWindow(): p_HWnd(nullptr), bIsVisible(false), p_ParentWindow(nullptr)
