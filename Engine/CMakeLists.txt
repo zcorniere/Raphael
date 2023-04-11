@@ -51,7 +51,7 @@ target_link_libraries(
     PUBLIC logger
            magic_enum
            glm
-           SDL3
+           SDL3-static
            spirv-cross-core
            shaderc
            VulkanMemoryAllocator
