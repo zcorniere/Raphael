@@ -2,7 +2,7 @@
 
 #include "Engine/Platforms/PlatformMisc.hxx"
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
-#include "Engine/Renderer/Vulkan/VulkanGenericPlatform.hxx"
+#include "Engine/Renderer/Vulkan/VulkanPlatform.hxx"
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
@@ -203,7 +203,7 @@ void VulkanDynamicRHI::SelectDevice()
         }
     }
 
-    std::uint32_t DeviceIndex = -1;
+    uint32 DeviceIndex = (uint32)-1;
     DiscreteDevice.insert(DiscreteDevice.end(), IntegratedDevice.begin(), IntegratedDevice.end());
 
     if (DiscreteDevice.size() > 0) {

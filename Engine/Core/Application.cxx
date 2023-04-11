@@ -32,7 +32,6 @@ Application::~Application()
 
 bool Application::Initialize()
 {
-    m_ThreadPool.Start();
     RHI->Init();
 
     WindowDefinition WindowDef{
@@ -51,7 +50,6 @@ bool Application::Initialize()
 
 void Application::Shutdown()
 {
-    m_ThreadPool.Stop();
     Viewport = nullptr;
 
     for (Ref<Window> &Win: Windows) { Win->Destroy(); }

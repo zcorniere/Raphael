@@ -1,7 +1,7 @@
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 
 #include "Engine/Renderer/Vulkan/VulkanCommandsObjects.hxx"
-#include "Engine/Renderer/Vulkan/VulkanGenericPlatform.hxx"
+#include "Engine/Renderer/Vulkan/VulkanPlatform.hxx"
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 #include "Engine/Renderer/Vulkan/VulkanMemoryManager.hxx"
 #include "Engine/Renderer/Vulkan/VulkanQueue.hxx"
