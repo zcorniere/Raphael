@@ -63,8 +63,6 @@ protected:
     Ref<VulkanDevice> Device;
 
     VulkanShaderCompiler ShaderCompiler;
-
-    std::vector<Ref<VulkanDevice>> Devices;
 };
 
 }    // namespace VulkanRHI

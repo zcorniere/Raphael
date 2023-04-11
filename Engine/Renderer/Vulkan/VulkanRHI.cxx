@@ -70,8 +70,6 @@ void VulkanDynamicRHI::Shutdown()
     Device->Destroy();
     Device = nullptr;
 
-    Devices.clear();
-
 #if VULKAN_DEBUGGING_ENABLED
     RemoveDebugLayerCallback();
 #endif
@@ -181,6 +179,7 @@ void VulkanDynamicRHI::SelectDevice()
         Ref<VulkanDevice> Device;
         std::uint32_t DeviceIndex;
     };
+    std::vector<Ref<VulkanDevice>> Devices;
     std::vector<DeviceInfo> DiscreteDevice;
     std::vector<DeviceInfo> IntegratedDevice;
 

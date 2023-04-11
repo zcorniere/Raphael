@@ -10,7 +10,6 @@ namespace VulkanRHI
 VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateDesc &InDesc)
     : RHITexture(InDesc), Description(InDesc), Device(InDevice), Allocation(nullptr)
 {
-    SetName(InDesc.DebugName);
     const VkPhysicalDeviceProperties &DeviceProperties = Device->GetDeviceProperties();
 
     VkImageCreateInfo ImageCreateInfo{
@@ -37,7 +36,7 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
             check(InDesc.Extent.x <= DeviceProperties.limits.maxImageDimension2D);
             check(InDesc.Extent.y <= DeviceProperties.limits.maxImageDimension2D);
             break;
-        default: checkNoEntry();
+        default: checkNoEntry() break;
     }
 
     switch (InDesc.NumSamples) {
@@ -54,8 +53,8 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
     VK_CHECK_RESULT(VulkanAPI::vkCreateImage(Device->GetInstanceHandle(), &ImageCreateInfo, nullptr, &Image));
     VulkanAPI::vkGetImageMemoryRequirements(Device->GetInstanceHandle(), Image, &MemoryRequirements);
 
-    SetName(cpplogger::fmt::format("{:s}:(VulkanTexture){:p}", InDesc.DebugName.empty() ? "?" : InDesc.DebugName,
-                                   (void *)this));
+    VulkanTexture::SetName(cpplogger::fmt::format("{:s}:(VulkanTexture){:p}",
+                                                  InDesc.DebugName.empty() ? "?" : InDesc.DebugName, (void *)this));
 
     Device->GetMemoryManager()->Alloc(MemoryRequirements.size, VMA_MEMORY_USAGE_GPU_ONLY, false);
     Allocation->BindImage(Image);

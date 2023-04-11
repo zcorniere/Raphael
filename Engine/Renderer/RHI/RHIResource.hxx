@@ -34,7 +34,7 @@ public:
     {
         // Prefix the resource name with the ResourceType
         std::string ResourceTypeName(magic_enum::enum_name(ResourceType));
-        RObject::SetName(ResourceTypeName + "(" + std::string(InName) + ")");
+        RObject::SetName(cpplogger::fmt::format("{}({})", ResourceTypeName, InName));
     }
 
 private:

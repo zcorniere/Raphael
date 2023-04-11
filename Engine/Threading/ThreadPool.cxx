@@ -2,14 +2,9 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogWorkerThreadRuntime, Warn);
 
-ThreadPool::ThreadPool(): state(std::make_shared<ThreadPool::State>())
-{
-}
+ThreadPool::ThreadPool(): state(std::make_shared<ThreadPool::State>()) {}
 
-void ThreadPool::Start(unsigned i)
-{
-    Resize(i);
-}
+void ThreadPool::Start(unsigned i) { Resize(i); }
 
 void ThreadPool::Stop()
 {
@@ -22,7 +17,7 @@ void ThreadPool::Resize(unsigned size)
     unsigned old_size = thread_p.size();
     thread_p.resize(size);
     for (; old_size < thread_p.size(); old_size++) {
-        thread_p.at(old_size).Create("Worker Thread nb " + std::to_string(old_size),
+        thread_p.at(old_size).Create(cpplogger::fmt::format("Worker Thread nb {}", old_size),
                                      std::make_unique<WorkerPoolRuntime>(state));
     }
 }
@@ -61,7 +56,8 @@ std::uint32_t ThreadPool::WorkerPoolRuntime::Run()
         } catch (const std::exception &e) {
             LOG(LogWorkerThreadRuntime, Fatal, "{} : {}", i_threadID, e.what());
         } catch (...) {
-            LOG(LogWorkerThreadRuntime, Fatal, "Unkown error on thread {}", i_threadID);
+            LOG(LogWorkerThreadRuntime, Fatal, "Unknown error on thread {}", i_threadID);
+            return 1;
         }
     }
     return 0;

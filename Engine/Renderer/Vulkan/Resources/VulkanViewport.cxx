@@ -63,7 +63,7 @@ void VulkanViewport::CreateSwapchain()
     }
 
     // Refresh vulkan object name
-    SetName(GetName());
+    VulkanViewport::SetName(GetName());
 }
 
 }    // namespace VulkanRHI

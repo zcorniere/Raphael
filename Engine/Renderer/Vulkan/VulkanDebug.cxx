@@ -3,7 +3,7 @@
 #include "Engine/Renderer/Vulkan/VulkanLoader.hxx"
 #include "Engine/Renderer/Vulkan/VulkanUtils.hxx"
 
-constexpr static std::string_view VulkanMessageType(const VkDebugUtilsMessageTypeFlagsEXT &s)
+static std::string_view VulkanMessageType(const VkDebugUtilsMessageTypeFlagsEXT &s)
 {
     switch (s) {
         case 7: return "General | Validation | Performance";
@@ -17,7 +17,7 @@ constexpr static std::string_view VulkanMessageType(const VkDebugUtilsMessageTyp
     }
 }
 
-constexpr cpplogger::Level VulkanMessageSeverityToLogLevel(const VkDebugUtilsMessageSeverityFlagBitsEXT severity)
+static cpplogger::Level VulkanMessageSeverityToLogLevel(const VkDebugUtilsMessageSeverityFlagBitsEXT severity)
 {
     switch (severity) {
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: return cpplogger::Level::Error;
@@ -28,21 +28,7 @@ constexpr cpplogger::Level VulkanMessageSeverityToLogLevel(const VkDebugUtilsMes
     }
 }
 
-std::string VulkanMessageSeverity(const VkDebugUtilsMessageSeverityFlagBitsEXT severity)
-{
-    switch (severity) {
-#define VKSWITCHCASE(X) \
-    case X: return &#X[3];
-        VKSWITCHCASE(VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
-        VKSWITCHCASE(VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
-        VKSWITCHCASE(VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
-        VKSWITCHCASE(VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
-#undef VKSWITCHCASE
-        default: return "";
-    }
-}
-
-static const char *GetMessageSeverity(const VkDebugUtilsMessageSeverityFlagBitsEXT MsgSeverity)
+static std::string_view GetMessageSeverity(const VkDebugUtilsMessageSeverityFlagBitsEXT MsgSeverity)
 {
     const bool bError = (MsgSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) != 0;
     const bool bWarning = (MsgSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) != 0;
@@ -67,7 +53,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
     const VkDebugUtilsMessageSeverityFlagBitsEXT MsgSeverity, const VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *)
 {
-    const char *Severity = GetMessageSeverity(MsgSeverity);
+    const std::string_view Severity = GetMessageSeverity(MsgSeverity);
 
     std::string Objects;
     if (pCallbackData->objectCount) {
