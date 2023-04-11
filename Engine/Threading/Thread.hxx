@@ -24,27 +24,27 @@ public:
 
     virtual ~Thread();
     /// Initialize the thread
-    void start();
+    void Start();
     ///
     /// @brief the internal thread should exit
     ///
     /// @param bShouldWait Does the thread should exit now or shutdown gracefully ?
-    void end(bool bShouldWait = true);
+    void End(bool bShouldWait = true);
 
     ///
     /// @brief Create the actual thread object
     ///
     /// @param name the name of the new thread
     /// @param threadCode The runtime to be executed in the thread
-    void create(const std::string &name, std::unique_ptr<ThreadRuntime> threadCode);
+    void Create(const std::string &name, std::unique_ptr<ThreadRuntime> threadCode);
 
 protected:
     /// Executed from the thread when started
-    virtual void preRun();
+    virtual void PreRun();
     /// Run the Interface::ThreadRuntime
-    virtual std::uint32_t run();
+    virtual std::uint32_t Run();
     /// Executed from the thread when quitting
-    virtual void postRun();
+    virtual void PostRun();
 
 private:
     static void thread_runtime(Thread *pThis);

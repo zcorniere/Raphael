@@ -25,7 +25,7 @@ DECLARE_LOGGER_CATEGORY(Core, LogPlatformMisc, Debug);
 class GenericMisc
 {
 public:
-    static EBoxReturnType MessageBox(EBoxMessageType, const std::string_view Text, const std::string_view Caption)
+    static EBoxReturnType DisplayMessageBox(EBoxMessageType, const std::string_view Text, const std::string_view Caption)
     {
         LOG(LogPlatformMisc, Info, "Message Box: {:s} {:s}", Text, Caption);
         return EBoxReturnType::Ok;

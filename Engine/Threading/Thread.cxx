@@ -8,22 +8,22 @@ Thread::Thread(): m_name(), m_internalRuntime(nullptr)
 
 Thread::~Thread()
 {
-    end();
+    End();
 }
 
-void Thread::start()
+void Thread::Start()
 {
 }
 
-void Thread::end(bool bShouldWait)
+void Thread::End(bool bShouldWait)
 {
-    if (m_internalRuntime) { m_internalRuntime->stop(); }
+    if (m_internalRuntime) { m_internalRuntime->Stop(); }
     m_managedThread.request_stop();
 
     if (bShouldWait && m_managedThread.joinable()) { m_managedThread.join(); }
 }
 
-void Thread::create(const std::string &name, std::unique_ptr<ThreadRuntime> threadCode)
+void Thread::Create(const std::string &name, std::unique_ptr<ThreadRuntime> threadCode)
 {
     if (m_managedThread.joinable()) {
         m_managedThread.request_stop();
@@ -37,34 +37,34 @@ void Thread::create(const std::string &name, std::unique_ptr<ThreadRuntime> thre
     Platform::setThreadName(m_managedThread, m_name);
 }
 
-void Thread::preRun()
+void Thread::PreRun()
 {
 }
 
-std::uint32_t Thread::run()
+std::uint32_t Thread::Run()
 {
     std::uint32_t exitCode = 1;
     check(m_internalRuntime);
 
-    if (m_internalRuntime->init()) {
-        preRun();
-        exitCode = m_internalRuntime->run();
+    if (m_internalRuntime->Init()) {
+        PreRun();
+        exitCode = m_internalRuntime->Run();
     } else {
-        m_internalRuntime->stop();
+        m_internalRuntime->Stop();
     }
 
     LOG(LogThread, Info, "Thread (\"{}\") exited with code {}", m_name, exitCode);
     return exitCode;
 }
 
-void Thread::postRun()
+void Thread::PostRun()
 {
 }
 
 void Thread::thread_runtime(Thread *pThis)
 {
     check(pThis);
-    pThis->start();
-    pThis->run();
-    pThis->postRun();
+    pThis->Start();
+    pThis->Run();
+    pThis->PostRun();
 }

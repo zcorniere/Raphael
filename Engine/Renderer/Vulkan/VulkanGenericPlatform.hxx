@@ -44,7 +44,7 @@ public:
 }    // namespace VulkanRHI
 
 #if defined(PLATFORM_WINDOWS)
-    #error "Unsupported Platform"
+    #include "Engine/Renderer/Vulkan/Windows/VulkanWindowsPlatform.hxx"
 #elif defined(PLATFORM_LINUX)
     #include "Engine/Renderer/Vulkan/Linux/VulkanLinuxPlatform.hxx"
 #else

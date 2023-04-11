@@ -1,11 +1,11 @@
 #include "Engine/Platforms/Linux/LinuxMisc.hxx"
 
-#include "Engine/Platforms/Linux/LinuxWindow.hxx"
+#include "Engine/Platforms/Linux/Window.hxx"
 
-EBoxReturnType LinuxMisc::MessageBox(EBoxMessageType MsgType, const std::string_view Text,
+EBoxReturnType LinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
                                      const std::string_view Caption)
 {
-    if (!LinuxWindow::EnsureSDLInit()) { return GenericMisc::MessageBox(MsgType, Text, Caption); }
+    if (!Window::EnsureSDLInit()) { return GenericMisc::DisplayMessageBox(MsgType, Text, Caption); }
 
     std::vector<SDL_MessageBoxButtonData> Buttons;
 
@@ -49,7 +49,7 @@ EBoxReturnType LinuxMisc::MessageBox(EBoxMessageType MsgType, const std::string_
     EBoxReturnType Answer = EBoxReturnType::Cancel;
 
     if (SDL_ShowMessageBox(&MessageBoxData, &ButtonPressed) == -1) {
-        return GenericMisc::MessageBox(MsgType, Text, Caption);
+        return GenericMisc::DisplayMessageBox(MsgType, Text, Caption);
     } else {
         Answer = ButtonPressed == -1 ? EBoxReturnType::Cancel : static_cast<EBoxReturnType>(ButtonPressed);
     }

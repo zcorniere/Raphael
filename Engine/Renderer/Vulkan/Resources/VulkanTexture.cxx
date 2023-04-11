@@ -30,8 +30,8 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
     };
 
-    const VkImageViewType ResourceType = TextureDimensionToVkImageViewType(InDesc.Dimension);
-    switch (ResourceType) {
+    const VkImageViewType ResourceImageView = TextureDimensionToVkImageViewType(InDesc.Dimension);
+    switch (ResourceImageView) {
         case VK_IMAGE_VIEW_TYPE_2D:
             ImageCreateInfo.imageType = TextureDimensionToVkImageType(InDesc.Dimension);
             check(InDesc.Extent.x <= DeviceProperties.limits.maxImageDimension2D);

@@ -20,7 +20,7 @@ VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr
         VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 
     if (!VulkanPlatform::LoadVulkanLibrary()) {
-        PlatformMisc::MessageBox(
+        PlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok,
             "Unable to load Vulkan library and/or acquire the necessary function pointers. Make sure an "
             "up-to-date libvulkan.so.1 is installed.",
@@ -118,7 +118,7 @@ void VulkanDynamicRHI::CreateInstance()
     VkResult Result = VulkanAPI::vkCreateInstance(&InstInfo, nullptr, &m_Instance);
 
     if (Result == VK_ERROR_INCOMPATIBLE_DRIVER) {
-        PlatformMisc::MessageBox(
+        PlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok,
             "Unable to load Vulkan library and/or acquire the necessary function pointers. Make sure an "
             "up-to-date libvulkan.so.1 is installed.",
@@ -128,7 +128,7 @@ void VulkanDynamicRHI::CreateInstance()
     } else if (Result == VK_ERROR_EXTENSION_NOT_PRESENT) {
         std::string MissingExtensions = GetMissingExtensions(VulkanExtensions);
 
-        PlatformMisc::MessageBox(
+        PlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok,
             cpplogger::fmt::format("Vulkan driver doesn't contain specified extensions:\n{:s}\nMake sure your layers "
                                    "path is set appropriately.",
@@ -138,7 +138,7 @@ void VulkanDynamicRHI::CreateInstance()
         _exit(1);
     } else if (Result != VK_SUCCESS) {
         LOG(LogVulkanRHI, Fatal, "Vulkan failed to create instance!");
-        PlatformMisc::MessageBox(
+        PlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok,
             "Vulkan failed to create instance (apiVersion=0x%x)\n\nDo you have a compatible Vulkan "
             "driver (ICD) installed?\nPlease look at "
@@ -151,7 +151,7 @@ void VulkanDynamicRHI::CreateInstance()
 
     if (!VulkanPlatform::LoadVulkanInstanceFunctions(m_Instance)) {
         LOG(LogVulkanRHI, Fatal, "Couldn't find some of Vulkan's entry points !");
-        PlatformMisc::MessageBox(EBoxMessageType::Ok,
+        PlatformMisc::DisplayMessageBox(EBoxMessageType::Ok,
                                  "Failed to find all required Vulkan entry points! Try updating your driver.",
                                  "No Vulkan entry points found!");
         _exit(1);

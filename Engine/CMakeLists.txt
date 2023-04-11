@@ -28,7 +28,9 @@ add_library(
     ${PROJECT_NAME} STATIC
     Core/RObject.cxx
     Core/Log.cxx
+    Core/Application.cxx
 
+    Renderer/Window.cxx
     Renderer/RHI/GenericRHI.cxx
     Renderer/RHI/RHICommandQueue.cxx
 
@@ -56,6 +58,7 @@ target_link_libraries(
            Vulkan::Headers
            VulkanHelpers
 )
+
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
 target_precompile_headers(${PROJECT_NAME} PRIVATE Raphael.hxx)
 

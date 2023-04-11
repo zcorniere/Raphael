@@ -20,6 +20,12 @@ std::string readFile(const std::filesystem::path &filename)
     return fileContent;
 }
 
+#if defined(PLATFORM_WINDOWS)
+    #define SPRINTF sprintf_s
+#else
+    #define SPRINTF sprintf
+#endif
+
 std::string BytesToString(uint64 bytes)
 {
     constexpr uint64_t GB = 1024 * 1024 * 1024;
@@ -29,15 +35,17 @@ std::string BytesToString(uint64 bytes)
     char buffer[32];
 
     if (bytes > GB)
-        sprintf(buffer, "%.2f GB", (float)bytes / (float)GB);
+        SPRINTF(buffer, "%.2f GB", (float)bytes / (float)GB);
     else if (bytes > MB)
-        sprintf(buffer, "%.2f MB", (float)bytes / (float)MB);
+        SPRINTF(buffer, "%.2f MB", (float)bytes / (float)MB);
     else if (bytes > KB)
-        sprintf(buffer, "%.2f KB", (float)bytes / (float)KB);
+        SPRINTF(buffer, "%.2f KB", (float)bytes / (float)KB);
     else
-        sprintf(buffer, "%.2f bytes", (float)bytes);
+        SPRINTF(buffer, "%.2f bytes", (float)bytes);
 
     return std::string(buffer);
 }
+
+#undef SPRINTF
 
 }    // namespace Utils

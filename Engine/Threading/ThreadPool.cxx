@@ -6,23 +6,23 @@ ThreadPool::ThreadPool(): state(std::make_shared<ThreadPool::State>())
 {
 }
 
-void ThreadPool::start(unsigned i)
+void ThreadPool::Start(unsigned i)
 {
-    resize(i);
+    Resize(i);
 }
 
-void ThreadPool::stop()
+void ThreadPool::Stop()
 {
     state->q_var.notify_all();
     thread_p.clear();
 }
 
-void ThreadPool::resize(unsigned size)
+void ThreadPool::Resize(unsigned size)
 {
     unsigned old_size = thread_p.size();
     thread_p.resize(size);
     for (; old_size < thread_p.size(); old_size++) {
-        thread_p.at(old_size).create("Worker Thread nb " + std::to_string(old_size),
+        thread_p.at(old_size).Create("Worker Thread nb " + std::to_string(old_size),
                                      std::make_unique<WorkerPoolRuntime>(state));
     }
 }
@@ -34,13 +34,13 @@ ThreadPool::WorkerPoolRuntime::WorkerPoolRuntime(std::shared_ptr<ThreadPool::Sta
 {
 }
 
-bool ThreadPool::WorkerPoolRuntime::init()
+bool ThreadPool::WorkerPoolRuntime::Init()
 {
     i_threadID = s_threadIDCounter++;
     return true;
 }
 
-std::uint32_t ThreadPool::WorkerPoolRuntime::run()
+std::uint32_t ThreadPool::WorkerPoolRuntime::Run()
 {
     using namespace std::chrono_literals;
     ThreadPool::WorkUnits work;
@@ -67,13 +67,13 @@ std::uint32_t ThreadPool::WorkerPoolRuntime::run()
     return 0;
 }
 
-void ThreadPool::WorkerPoolRuntime::stop()
+void ThreadPool::WorkerPoolRuntime::Stop()
 {
     b_requestExit = true;
     LOG(LogWorkerThreadRuntime, Info, "Thread {}: exit requested", i_threadID);
 }
 
-void ThreadPool::WorkerPoolRuntime::exit()
+void ThreadPool::WorkerPoolRuntime::Exit()
 {
     b_requestExit = true;
     LOG(LogWorkerThreadRuntime, Info, "Thread {}: exit requested", i_threadID);

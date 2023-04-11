@@ -16,11 +16,11 @@ public:
     }
 
     /// Initialize the runtime
-    virtual bool init() = 0;
+    virtual bool Init() = 0;
     /// Start the main loop of the thread
-    virtual std::uint32_t run() = 0;
+    virtual std::uint32_t Run() = 0;
     /// Tell the thread that it should gracefully stop
-    virtual void stop() = 0;
+    virtual void Stop() = 0;
     /// Tell the thread to exit as soon as possible
-    virtual void exit() = 0;
+    virtual void Exit() = 0;
 };

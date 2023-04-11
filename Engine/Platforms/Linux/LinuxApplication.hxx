@@ -20,13 +20,13 @@ public:
     bool ShouldExit() const override;
 
 private:
-    Ref<LinuxWindow> FindEventWindow(SDL_Event &Event);
+    Ref<Window> FindEventWindow(SDL_Event &Event);
 
 private:
     bool bShouldExit = false;
     Ref<VulkanRHI::VulkanDynamicRHI> RHI;
 
-    std::vector<Ref<LinuxWindow>> Windows;
+    std::vector<Ref<Window>> Windows;
     Ref<VulkanRHI::VulkanViewport> Viewport;
 };
 

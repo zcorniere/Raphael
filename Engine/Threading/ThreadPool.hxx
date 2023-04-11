@@ -29,10 +29,10 @@ private:
     public:
         WorkerPoolRuntime(std::shared_ptr<ThreadPool::State> context);
 
-        bool init() override;
-        std::uint32_t run() override;
-        void stop() override;
-        void exit() override;
+        bool Init() override;
+        std::uint32_t Run() override;
+        void Stop() override;
+        void Exit() override;
 
     private:
         static std::atomic_int s_threadIDCounter;
@@ -47,24 +47,24 @@ public:
     ThreadPool();
     ~ThreadPool() = default;
 
-    /// Create the pool with a given number of thread
-    void start(unsigned size = std::max(((std::thread::hardware_concurrency() * 2) / 3), 1u));
+    /// Create the pool with a given number of thread (default 2 / 3 of the max number of thread)
+    void Start(unsigned size = std::max(((std::thread::hardware_concurrency() * 2) / 3), 1u));
     /// Stop and join all of the thread
-    void stop();
+    void Stop();
     /// Return the amount of thread in the pool
-    size_t size()
+    unsigned Size()
     {
         return thread_p.size();
     }
     /// Resize the thread pool
-    void resize(unsigned size);
+    void Resize(unsigned size);
 
     template <class F, typename... Args>
     /// Push a new job in the pool and return a future
     requires std::is_invocable_v<F, unsigned, Args...>
-    [[nodiscard]] auto push(F &&f, Args &&...args) -> std::future<decltype(f(0, args...))>
+    [[nodiscard]] auto Push(F &&f, Args &&...args) -> std::future<decltype(f(0, args...))>
     {
-        if (!verifyAlwaysMsg(!thread_p.empty(), "Pushing task when no thread are started !")) { start(1); }
+        if (!verifyAlwaysMsg(!thread_p.empty(), "Pushing task when no thread are started !")) { Start(1); }
         auto packagedFunction = std::make_shared<std::packaged_task<decltype(f(0, args...))(unsigned)>>(
             std::bind(std::forward<F>(f), std::placeholders::_1, std::forward<Args>(args)...));
 
