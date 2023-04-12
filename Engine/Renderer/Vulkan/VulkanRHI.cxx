@@ -19,7 +19,7 @@ VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr
         VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
         VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 
-    if (!VulkanPlatform::LoadVulkanLibrary()) {
+    if (!verify(VulkanPlatform::LoadVulkanLibrary())) {
         PlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok,
             "Unable to load Vulkan library and/or acquire the necessary function pointers. Make sure an "

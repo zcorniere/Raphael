@@ -1,6 +1,6 @@
 #include "Engine/Platforms/Linux/LinuxMisc.hxx"
 
-#include "Engine/Platforms/Linux/Window.hxx"
+#include "Engine/Renderer/Window.hxx"
 
 EBoxReturnType LinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
                                      const std::string_view Caption)
