@@ -22,6 +22,9 @@ concept Hashable = requires(T a) {
                            } -> std::convertible_to<std::size_t>;
                    };
 
+template <typename T>
+concept IsFunctionPointer = requires { std::is_pointer_v<T> &&std::is_function_v<typename std::remove_pointer<T>>; };
+
 typedef std::uint8_t uint8;
 typedef std::uint16_t uint16;
 typedef std::uint32_t uint32;

@@ -20,6 +20,23 @@ enum class EBoxReturnType {
     Cancel,
 };
 
+class IExternalModule : public RObject
+{
+public:
+    IExternalModule() = delete;
+    IExternalModule(std::string_view) {}
+    virtual ~IExternalModule() {}
+
+    template <IsFunctionPointer T>
+    T GetSymbol(std::string_view SymbolName) const
+    {
+        return (T)GetSymbol_Internal(SymbolName);
+    }
+
+private:
+    virtual void *GetSymbol_Internal(std::string_view SymbolName) const = 0;
+};
+
 DECLARE_LOGGER_CATEGORY(Core, LogPlatformMisc, Debug);
 
 class GenericMisc
@@ -29,6 +46,12 @@ public:
     {
         LOG(LogPlatformMisc, Info, "Message Box: {:s} {:s}", Text, Caption);
         return EBoxReturnType::Ok;
+    }
+
+    static Ref<IExternalModule> LoadExternalModule(std::string_view ModuleName)
+    {
+        (void)ModuleName;
+        return nullptr;
     }
 };
 

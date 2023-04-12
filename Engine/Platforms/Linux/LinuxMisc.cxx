@@ -2,6 +2,8 @@
 
 #include "Engine/Renderer/Window.hxx"
 
+#include <dlfcn.h>
+
 EBoxReturnType LinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
                                      const std::string_view Caption)
 {
@@ -54,4 +56,32 @@ EBoxReturnType LinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::
         Answer = ButtonPressed == -1 ? EBoxReturnType::Cancel : static_cast<EBoxReturnType>(ButtonPressed);
     }
     return Answer;
+}
+
+// ------------------ Linux External Module --------------------------
+
+static std::unordered_map<std::string, WeakRef<LinuxExternalModule>> s_ModuleStorage;
+
+LinuxExternalModule::LinuxExternalModule(std::string_view ModulePath): IExternalModule(ModulePath)
+{
+    ModuleHandle = dlopen(ModulePath.data(), RTLD_NOW | RTLD_LOCAL);
+}
+
+LinuxExternalModule::~LinuxExternalModule() { dlclose(ModuleHandle); }
+
+void *LinuxExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
+{
+    return dlsym(ModuleHandle, SymbolName.data());
+}
+
+Ref<IExternalModule> LinuxMisc::LoadExternalModule(const std::string &ModuleName)
+{
+    auto Iter = s_ModuleStorage.find(ModuleName);
+
+    if (Iter == s_ModuleStorage.end() || !Iter->second.IsValid()) {
+        Ref<LinuxExternalModule> Module = Ref<LinuxExternalModule>::Create(ModuleName);
+        s_ModuleStorage[ModuleName] = Module;
+        return Module;
+    }
+    return Ref(Iter->second);
 }

@@ -6,17 +6,10 @@
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 
 #include "Engine/Platforms/Platform.hxx"
+#include "Engine/Platforms/PlatformMisc.hxx"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
-
-#if defined(PLATFORM_WINDOWS)
-    #include <libloaderapi.h>
-#elif defined(PLATFORM_LINUX)
-    #include <dlfcn.h>
-#else
-    #error "Unsupported Platform"
-#endif
 
 namespace VulkanRHI
 {
@@ -28,20 +21,21 @@ VK_ENTRYPOINTS_DEBUG_UTILS(DEFINE_VK_ENTRYPOINTS)
 
 #undef DEFINE_VK_ENTRYPOINTS
 
-static void *VulkanModuleHandle = nullptr;
+static Ref<IExternalModule> VulkanModuleHandle = nullptr;
+
+#if defined(PLATFORM_WINDOWS)
+static constexpr auto VulkanLibraryName = "vulkan-1.dll";
+#elif defined(PLATFORM_LINUX)
+static constexpr auto VulkanLibraryName = "libvulkan.so.1";
+#else
+    #error "Unsupported Platform"
+#endif
 
 bool VulkanPlatform::LoadVulkanLibrary()
 {
     if (VulkanModuleHandle) { return true; }
 
-    // open libvulkan.so
-#if defined(PLATFORM_WINDOWS)
-    VulkanModuleHandle = ::LoadLibraryW(L"vulkan-1.dll");
-#elif defined(PLATFORM_LINUX)
-    VulkanModuleHandle = dlopen("libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
-#else
-    #error "Unsupported Platform"
-#endif
+    VulkanModuleHandle = PlatformMisc::LoadExternalModule(VulkanLibraryName);
 
     if (VulkanModuleHandle == nullptr) { return false; }
 
@@ -52,13 +46,7 @@ bool VulkanPlatform::LoadVulkanLibrary()
         LOG(LogVulkanRHI, Error, "Failed to find entry point for " #Func); \
     }
 
-#if defined(PLATFORM_WINDOWS)
-    #define GET_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = (Type)::GetProcAddress((HMODULE)VulkanModuleHandle, #Func);
-#elif defined(PLATFORM_LINUX)
-    #define GET_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = (Type)dlsym(VulkanModuleHandle, #Func);
-#else
-    #error "Unsupported Platform"
-#endif
+#define GET_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = VulkanModuleHandle->GetSymbol<Type>(#Func);
 
     VK_ENTRYPOINTS_BASE(GET_VK_ENTRYPOINTS);
     VK_ENTRYPOINTS_BASE(CHECK_VK_ENTRYPOINTS);
@@ -79,10 +67,10 @@ bool VulkanPlatform::LoadVulkanLibrary()
 bool VulkanPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
 {
     bool bFoundAllEntryPoints = true;
-#define CHECK_VK_ENTRYPOINTS(Type, Func)                                     \
-    if (VulkanAPI::Func == NULL) {                                           \
-        bFoundAllEntryPoints = false;                                        \
-        LOG(LogVulkanRHI, Warn, "Failed to find entry point for {}", #Func); \
+#define CHECK_VK_ENTRYPOINTS(Type, Func)                                  \
+    if (VulkanAPI::Func == NULL) {                                        \
+        bFoundAllEntryPoints = false;                                     \
+        LOG(LogVulkanRHI, Warn, "Failed to find entry point for " #Func); \
     }
 
 #define GETINSTANCE_VK_ENTRYPOINTS(Type, Func) \
@@ -109,13 +97,6 @@ void VulkanPlatform::FreeVulkanLibrary()
         VK_ENTRYPOINT_ALL(CLEAR_VK_ENTRYPOINTS);
 #undef CLEAR_VK_ENTRYPOINTS
 
-#if defined(PLATFORM_WINDOWS)
-        ::FreeLibrary((HMODULE)VulkanModuleHandle);
-#elif defined(PLATFORM_LINUX)
-        dlclose(VulkanModuleHandle);
-#else
-    #error "Unsupported Platform"
-#endif
         VulkanModuleHandle = nullptr;
     }
 }

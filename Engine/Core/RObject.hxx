@@ -6,6 +6,8 @@
 
 template <typename T>
 class Ref;
+template <typename T>
+class WeakRef;
 class RObject;
 
 namespace RObjectUtils
@@ -87,9 +89,11 @@ public:
     Ref(): m_ObjPtr(nullptr)
     {
     }
+
     Ref(std::nullptr_t): m_ObjPtr(nullptr)
     {
     }
+
     Ref(T *Object): m_ObjPtr(Object)
     {
         static_assert(std::is_base_of<RObject, T>::value, "Class is not RefCounted!");
@@ -97,16 +101,13 @@ public:
         IncrementRefCount();
     }
 
-    Ref(const Ref<T> &other): m_ObjPtr(other.m_ObjPtr)
-    {
-        IncrementRefCount();
-    }
+    explicit Ref(WeakRef<T> &other): Ref(other.m_Instance) {}
+
+    Ref(const Ref<T> &other): Ref(other.m_ObjPtr) {}
 
     template <typename Other>
-    Ref(const Ref<Other> &other)
+    Ref(const Ref<Other> &other): Ref((T *)other.m_ObjPtr)
     {
-        m_ObjPtr = (T *)other.m_ObjPtr;
-        IncrementRefCount();
     }
 
     template <typename Other>
@@ -259,6 +260,9 @@ private:
 
     template <class Other>
     friend class Ref;
+
+    template <class Other>
+    friend class WeakRef;
 };
 
 template <typename T>
@@ -310,4 +314,7 @@ public:
 
 private:
     T *m_Instance = nullptr;
+
+    template <typename Other>
+    friend class Ref;
 };
