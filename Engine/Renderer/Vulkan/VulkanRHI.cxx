@@ -214,6 +214,7 @@ void VulkanDynamicRHI::SelectDevice()
     }
 
     LOG(LogVulkanRHI, Info, "Chosen device index: {}", DeviceIndex);
+    Device->SetName("Main Vulkan Device");
 }
 
 }    // namespace VulkanRHI

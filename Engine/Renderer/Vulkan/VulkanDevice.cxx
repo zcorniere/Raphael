@@ -174,12 +174,15 @@ void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char *> &DeviceL
     VK_CHECK_RESULT_EXPANDED(Result);
 
     GraphicsQueue = Ref<VulkanQueue>::Create(this, GraphicsQueueFamilyIndex);
+    GraphicsQueue->SetName("Graphics Queue");
 
     if (ComputeQueueFamilyIndex == -1) { ComputeQueueFamilyIndex = GraphicsQueueFamilyIndex; }
     ComputeQueue = Ref<VulkanQueue>::Create(this, ComputeQueueFamilyIndex);
+    ComputeQueue->SetName("Compute Queue");
 
     if (TransferQueueFamilyIndex == -1) { TransferQueueFamilyIndex = ComputeQueueFamilyIndex; }
     TransferQueue = Ref<VulkanQueue>::Create(this, TransferQueueFamilyIndex);
+    TransferQueue->SetName("Transfer Queue");
 
     LOG(LogVulkanRHI, Info, "Using {} device layers{}", DeviceLayers.size(), DeviceLayers.size() ? ":" : ".");
     for (const char *Layer: DeviceLayers) {

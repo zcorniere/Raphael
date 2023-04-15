@@ -35,9 +35,28 @@ public:
         m_Name = InName;
     }
 
+    void SetTypeName(std::string_view InTypeName)
+    {
+        // Should not be called multiple time
+        check(m_TypeName.empty());
+        m_TypeName = InTypeName;
+    }
+
+    const std::string &GetTypeName() const { return m_TypeName; }
+
     const std::string &GetName() const
     {
         return m_Name;
+    }
+
+    std::string ToString() const
+    {
+        if (GetName().empty()) {
+            return cpplogger::fmt::format("(<{:s}> {:p})", GetTypeName(), (void *)this);
+
+        } else {
+            return cpplogger::fmt::format("(\"{:s}\" <{:s}> {:p})", GetName(), GetTypeName(), (void *)this);
+        }
     }
 
     void IncrementRefCount() const
@@ -58,6 +77,7 @@ public:
 
 private:
     std::string m_Name;
+    std::string m_TypeName;
     mutable std::atomic<std::uint32_t> m_RefCount = 0;
 };
 
@@ -69,26 +89,32 @@ public:
     requires std::is_constructible_v<T, Args...>
     static Ref<T> CreateNamed(std::string_view Name, Args &&...args)
     {
-        T *ObjectPtr = new T(std::forward<Args>(args)...);
-        ObjectPtr->SetName(Name);
-
-        LOG(RObjectUtils::LogRObject, Debug, "Creating RObject \"{}\" {:p}<{}>", Name, (void *)ObjectPtr,
-            type_name<T>());
-
-        return Ref<T>(ObjectPtr);
+        return CreateInternal(Name, args...);
     }
 
     template <typename... Args>
     requires std::is_constructible_v<T, Args...>
     static Ref<T> Create(Args &&...args)
     {
-        return CreateNamed(type_name<T>(), args...);
+        return CreateInternal("", args...);
+    }
+
+private:
+    template <typename... Args>
+        requires std::is_constructible_v<T, Args...>
+    static Ref<T> CreateInternal(std::string_view Name, Args &&...args)
+    {
+        T *ObjectPtr = new T(std::forward<Args>(args)...);
+        ObjectPtr->SetTypeName(type_name<T>());
+        ObjectPtr->SetName(Name);
+
+        LOG(RObjectUtils::LogRObject, Debug, "Creating RObject {:s}", ObjectPtr->ToString());
+
+        return Ref<T>(ObjectPtr);
     }
 
 public:
-    Ref(): m_ObjPtr(nullptr)
-    {
-    }
+    Ref(): m_ObjPtr(nullptr) {}
 
     Ref(std::nullptr_t): m_ObjPtr(nullptr)
     {
@@ -243,12 +269,7 @@ private:
 
         if (m_ObjPtr->GetRefCount() > 0) return;
 
-        if (m_ObjPtr->GetName().empty()) {
-            LOG(RObjectUtils::LogRObject, Debug, "Deleting RObject {:p}<{}>", (void *)m_ObjPtr, type_name<T>());
-        } else {
-            LOG(RObjectUtils::LogRObject, Debug, "Deleting RObject \"{}\" {:p}<{}>", m_ObjPtr->GetName(),
-                (void *)m_ObjPtr, type_name<T>());
-        }
+        LOG(RObjectUtils::LogRObject, Debug, "Deleting RObject {:s}", m_ObjPtr->ToString());
 
         delete m_ObjPtr;
         RObjectUtils::RemoveFromLiveReferences(m_ObjPtr);

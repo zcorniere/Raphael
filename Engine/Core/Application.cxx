@@ -39,6 +39,7 @@ bool Application::Initialize()
         .Title = "Raphael Engine",
     };
     Windows.push_back(Ref<Window>::Create());
+    Windows[0]->SetName("Main Window");
     Windows[0]->Initialize(WindowDef, nullptr);
     Windows[0]->Show();
 
