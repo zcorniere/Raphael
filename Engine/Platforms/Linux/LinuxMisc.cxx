@@ -1,6 +1,6 @@
 #include "Engine/Platforms/Linux/LinuxMisc.hxx"
 
-#include "Engine/Renderer/Window.hxx"
+#include "Engine/Core/Window.hxx"
 
 #include <dlfcn.h>
 

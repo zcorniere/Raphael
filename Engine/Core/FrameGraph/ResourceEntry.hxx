@@ -2,8 +2,8 @@
 
 #include "Engine/Core/UUID.hxx"
 
-#include "Engine/Renderer/RHI/GenericRHI.hxx"
-#include "Engine/Renderer/RHI/RHIResource.hxx"
+#include "Engine/Core/RHI/GenericRHI.hxx"
+#include "Engine/Core/RHI/RHIResource.hxx"
 
 #include <functional>
 

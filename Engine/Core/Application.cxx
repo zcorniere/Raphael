@@ -1,8 +1,8 @@
 #include "Engine/Core/Application.hxx"
 
-#include "Engine/Renderer/Vulkan/VulkanCommandsObjects.hxx"
-#include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
-#include "Engine/Renderer/Vulkan/VulkanResources.hxx"
+#include "RHI/Vulkan/VulkanCommandsObjects.hxx"
+#include "RHI/Vulkan/VulkanDevice.hxx"
+#include "RHI/Vulkan/VulkanResources.hxx"
 
 #include "Engine/Core/FrameGraph/FrameGraph.hxx"
 

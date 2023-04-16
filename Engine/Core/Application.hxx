@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Engine/Core/Log.hxx"
+#include "Engine/Core/RHI/GenericRHI.hxx"
+#include "Engine/Core/RHI/RHIResource.hxx"
 #include "Engine/Core/RObject.hxx"
+#include "Engine/Core/Window.hxx"
 #include "Engine/Platforms/Platform.hxx"
-#include "Engine/Renderer/Window.hxx"
 #include "Engine/Threading/ThreadPool.hxx"
-#include "Engine/Renderer/RHI/GenericRHI.hxx"
-#include "Engine/Renderer/RHI/RHIResource.hxx"
 
 #include <SDL3/SDL.h>
 

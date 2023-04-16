@@ -3,7 +3,7 @@
 #include "Engine/Core/FrameGraph/FrameGraphPass.hxx"
 #include "Engine/Core/FrameGraph/FrameGraphResource.hxx"
 
-#include "Engine/Renderer/RHI/RHIResource.hxx"
+#include "Engine/Core/RHI/RHIResource.hxx"
 
 class PassNode;
 class ResourceNode;

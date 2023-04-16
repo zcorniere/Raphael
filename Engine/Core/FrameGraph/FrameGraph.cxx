@@ -1,6 +1,6 @@
 #include "Engine/Core/FrameGraph/FrameGraph.hxx"
 
-#include "Engine/Renderer/RHI/RHIResource.hxx"
+#include "Engine/Core/RHI/RHIResource.hxx"
 
 #include "Engine/Core/FrameGraph/PassNode.hxx"
 #include "Engine/Core/FrameGraph/ResourceEntry.hxx"

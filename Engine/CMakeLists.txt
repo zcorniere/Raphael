@@ -1,13 +1,11 @@
 project(RaphaelEngine)
 
-option(ENABLE_VULKAN_DEBUGGING "" ON)
+set(SELECTED_RHI "Vulkan" CACHE STRING "Select the RHI to use")
 
 if(WIN32)
     file(GLOB PLATFORM_SOURCE_FILES Platforms/Windows/*.cxx)
-    file(GLOB RENDERER_PLATFORM_SOURCE_FILES Renderer/Vulkan/Windows/*.cxx)
 elseif(UNIX)
     file(GLOB PLATFORM_SOURCE_FILES Platforms/Linux/*.cxx)
-    file(GLOB RENDERER_PLATFORM_SOURCE_FILES Renderer/Vulkan/Linux/*.cxx)
 else()
     message(FATAL_ERROR "Platform Not supported !")
 endif()
@@ -22,7 +20,6 @@ else()
     message(FATAL_ERROR "Compiler not supported !")
 endif()
 
-file(GLOB VULKAN_RENDERER_FILES Renderer/Vulkan/*.cxx Renderer/Vulkan/Resources/*.cxx)
 
 add_library(
     ${PROJECT_NAME} STATIC
@@ -36,10 +33,9 @@ add_library(
     Core/FrameGraph/FrameGraphBuilder.cxx
     Core/FrameGraph/ResourceEntry.cxx
     Core/FrameGraph/ResourceNode.cxx
-
-    Renderer/Window.cxx
-    Renderer/RHI/GenericRHI.cxx
-    Renderer/RHI/RHICommandQueue.cxx
+    Core/Window.cxx
+    Core/RHI/GenericRHI.cxx
+    Core/RHI/RHICommandQueue.cxx
 
     Misc/Utils.cxx
     Misc/Assertions.cxx
@@ -49,8 +45,6 @@ add_library(
     
     ${PLATFORM_SOURCE_FILES}
     ${COMPILER_SOURCE_FILE}
-    ${VULKAN_RENDERER_FILES}
-    ${RENDERER_PLATFORM_SOURCE_FILES}
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 target_link_libraries(
@@ -59,32 +53,14 @@ target_link_libraries(
            magic_enum
            glm
            SDL3-static
-           spirv-cross-core
-           shaderc
-           VulkanMemoryAllocator
-           Vulkan::Headers
-           VulkanHelpers
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
 target_precompile_headers(${PROJECT_NAME} PRIVATE Raphael.hxx)
 
-target_compile_options(
-    ${PROJECT_NAME}
-    PRIVATE $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-            -Wall
-            -Wextra
-            -Wno-missing-field-initializers>
-            $<$<CXX_COMPILER_ID:MSVC>:
-            /Zc:preprocessor
-            /W4
-            /wd4267
-            /wd4201
-            /wd4244
-            /wd4324
-            /wd4702>
-)
-
-if(ENABLE_VULKAN_DEBUGGING)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC VULKAN_DEBUGGING_ENABLED=1)
+if (SELECTED_RHI STREQUAL "Vulkan")
+    add_subdirectory(${CMAKE_SOURCE_DIR}/RHI/Vulkan/ RHIVUlkan/)
+    target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelRHIVulkan)
+else()
+    message(Fatal "${SELECTED_RHI} is not supported !")
 endif()
