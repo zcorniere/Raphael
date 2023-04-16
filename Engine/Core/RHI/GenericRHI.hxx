@@ -14,29 +14,14 @@ class GenericRHI;
 
 extern Ref<GenericRHI> GDynamicRHI;
 
-template <typename TRHI>
-FORCEINLINE Ref<TRHI> GetRHI()
-{
-    check(GDynamicRHI);
-    return GDynamicRHI.As<TRHI>();
-}
-
 class GenericRHI : public RObject
 {
 public:
+    template <typename TRHI>
+    static Ref<TRHI> Get();
+
     template <typename TFunction>
-    static void Submit(TFunction &&func)
-    {
-        RHICommandQueue::RenderCommandFn RenderCmd = [](void *ptr) {
-            TFunction *pFunction = (TFunction *)ptr;
-            (*pFunction)();
-
-            pFunction->~TFunction();
-        };
-
-        void *pStorageBuffer = GetRHI<GenericRHI>()->GetRHICommandQueue()->Allocate(RenderCmd, sizeof(func));
-        new (pStorageBuffer) TFunction(std::forward<TFunction>(func));
-    }
+    static void Submit(TFunction &&func);
 
     // ---------------------- RHI Operations --------------------- //
     static void BeginFrame();
@@ -66,3 +51,21 @@ protected:
 private:
     Ref<RHICommandQueue> m_CommandQueue;
 };
+
+#if RAPHAEL_SELECTED_RHI_VULKAN
+
+// Forward declare to avoir circular dep
+namespace VulkanRHI
+{
+class VulkanDynamicRHI;
+}
+
+using RHI = VulkanRHI::VulkanDynamicRHI;
+
+    #include "RHI/Vulkan/VulkanRHI.hxx"
+
+#else
+    #error "Invalid RHI"
+#endif
+
+#include "GenericRHI.inl"

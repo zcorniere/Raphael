@@ -38,7 +38,7 @@ public:
     void ConstructResource() override
     {
         verify(m_Resource);
-        m_Resource = std::apply(GenericRHI::Create<Type, Args...>, Arguments);
+        m_Resource = std::apply(RHI::Create<Type, Args...>, Arguments);
     }
     void DestroyResource() override { m_Resource = nullptr; }
 

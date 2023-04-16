@@ -32,7 +32,7 @@ public:
 private:
     ThreadPool m_ThreadPool;
     bool bShouldExit = false;
-    Ref<GenericRHI> RHI;
+    Ref<RHI> m_RHI;
 
     std::vector<Ref<Window>> Windows;
     Ref<RHIViewport> Viewport;

@@ -1,8 +1,6 @@
 #include "Engine/Core/Application.hxx"
 
-#include "RHI/Vulkan/VulkanCommandsObjects.hxx"
-#include "RHI/Vulkan/VulkanDevice.hxx"
-#include "RHI/Vulkan/VulkanResources.hxx"
+#include "Engine/Core/RHI/GenericRHI.hxx"
 
 #include "Engine/Core/FrameGraph/FrameGraph.hxx"
 
@@ -14,7 +12,7 @@ Application::Application()
 {
     Log::Init();
 
-    RHI = Ref<VulkanRHI::VulkanDynamicRHI>::Create();
+    m_RHI = Ref<RHI>::Create();
 
     check(GApplication == nullptr);
     GApplication = this;
@@ -22,7 +20,7 @@ Application::Application()
 
 Application::~Application()
 {
-    RHI = nullptr;
+    m_RHI = nullptr;
     GApplication = nullptr;
 
     // Make sure no RObjects are left undestroyed
@@ -34,7 +32,7 @@ Application::~Application()
 
 bool Application::Initialize()
 {
-    RHI->Init();
+    m_RHI->Init();
 
     WindowDefinition WindowDef{
         .AppearsInTaskbar = true,
@@ -74,7 +72,7 @@ void Application::Shutdown()
     for (Ref<Window> &Win: Windows) { Win->Destroy(); }
     Windows.clear();
 
-    RHI->Shutdown();
+    m_RHI->Shutdown();
 }
 
 void Application::ProcessEvent(SDL_Event SDLEvent)
@@ -98,7 +96,7 @@ void Application::Tick(const float DeltaTime)
     // Process All event
     while (SDL_PollEvent(&event)) { ProcessEvent(event); }
 
-    RHI::Submit([]() { check(true); });
+    RHI::Submit([] { check(true); });
     RHI::EndFrame();
 
     RHI::NextFrame();

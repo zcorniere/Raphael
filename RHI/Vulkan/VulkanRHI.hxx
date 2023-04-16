@@ -3,14 +3,14 @@
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
-#include "Engine/Core/RHI/GenericRHI.hxx"
-
 DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Info);
 
 #define RHI_VULKAN_VERSION VK_API_VERSION_1_2
 
 #include "RHI/Vulkan/VulkanResources.hxx"
 #include "RHI/Vulkan/VulkanShaderCompiler.hxx"
+
+#include "Engine/Core/RHI/GenericRHI.hxx"
 
 namespace VulkanRHI
 {
@@ -70,7 +70,8 @@ FORCEINLINE Ref<VulkanRHI::VulkanDynamicRHI> GetVulkanDynamicRHI()
 {
     checkMsg(GDynamicRHI, "Tried to fetch RHI too early");
     check(GDynamicRHI->GetInterfaceType() == RHIInterfaceType::Vulkan);
-    return GetRHI<VulkanRHI::VulkanDynamicRHI>();
+    static_assert(std::is_same_v<RHI, VulkanRHI::VulkanDynamicRHI>);
+    return RHI::Get<VulkanRHI::VulkanDynamicRHI>();
 }
 
 using RHI = VulkanRHI::VulkanDynamicRHI;
