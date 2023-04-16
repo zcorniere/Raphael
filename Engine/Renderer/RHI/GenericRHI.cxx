@@ -9,6 +9,8 @@ void GenericRHI::Init()
     GDynamicRHI = this;
 }
 
+void GenericRHI::PostInit() {}
+
 void GenericRHI::Shutdown()
 {
     GDynamicRHI = nullptr;

@@ -29,6 +29,13 @@ add_library(
     Core/RObject.cxx
     Core/Log.cxx
     Core/Application.cxx
+    Core/UUID.cxx
+
+    Core/FrameGraph/FrameGraph.cxx
+    Core/FrameGraph/PassNode.cxx
+    Core/FrameGraph/FrameGraphBuilder.cxx
+    Core/FrameGraph/ResourceEntry.cxx
+    Core/FrameGraph/ResourceNode.cxx
 
     Renderer/Window.cxx
     Renderer/RHI/GenericRHI.cxx

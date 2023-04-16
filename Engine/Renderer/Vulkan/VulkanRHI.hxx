@@ -8,6 +8,7 @@ DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Info);
 #define RHI_VULKAN_VERSION VK_API_VERSION_1_2
 
 #include "Engine/Renderer/RHI/GenericRHI.hxx"
+#include "Engine/Renderer/Vulkan/VulkanResources.hxx"
 #include "Engine/Renderer/Vulkan/VulkanShaderCompiler.hxx"
 
 namespace VulkanRHI
@@ -22,6 +23,9 @@ public:
     static void BeginFrame();
     static void EndFrame();
     static void NextFrame();
+
+    template <RHIResourceType Type, typename... Args>
+    static Ref<RHIResource> Create(Args... args);
 
 public:
     VulkanDynamicRHI();
@@ -71,7 +75,7 @@ FORCEINLINE Ref<VulkanRHI::VulkanDynamicRHI> GetVulkanDynamicRHI()
 {
     checkMsg(GDynamicRHI, "Tried to fetch RHI too early");
     check(GDynamicRHI->GetInterfaceType() == RHIInterfaceType::Vulkan);
-    return GetDynamicRHI<VulkanRHI::VulkanDynamicRHI>();
+    return GetRHI<VulkanRHI::VulkanDynamicRHI>();
 }
 
 using RHI = VulkanRHI::VulkanDynamicRHI;

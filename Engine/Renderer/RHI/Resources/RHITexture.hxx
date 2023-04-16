@@ -13,7 +13,6 @@ enum class ETextureCreateFlags {
 ENUM_CLASS_FLAGS(ETextureCreateFlags)
 
 struct RHITextureCreateDesc {
-    const std::string DebugName;
     Ref<Buffer> InitialData = nullptr;
 
     ETextureCreateFlags Flags = ETextureCreateFlags::None;

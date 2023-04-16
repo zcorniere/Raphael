@@ -57,6 +57,12 @@ void VulkanDynamicRHI::Init()
 {
     GenericRHI::Init();
 
+#if VULKAN_DEBUGGING_ENABLED
+    ShaderCompiler.SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::None);
+#else
+    ShaderCompiler.SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::Performance);
+#endif
+
     Device->InitPhysicalDevice();
 }
 
@@ -101,11 +107,15 @@ void VulkanDynamicRHI::CreateInstance()
     // TODO: Wrap it into its own class ?
     std::vector<const char *> VulkanExtensions{
         VK_KHR_SURFACE_EXTENSION_NAME,
-        VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+#if VULKAN_DEBUGGING_ENABLED
+            VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+#endif
     };
     VulkanPlatform::GetInstanceExtensions(VulkanExtensions);
 
+#if VULKAN_DEBUGGING_ENABLED
     std::vector<const char *> ValidationLayers{"VK_LAYER_KHRONOS_validation"};
+#endif
 
     InstInfo.enabledExtensionCount = VulkanExtensions.size();
     InstInfo.ppEnabledExtensionNames = VulkanExtensions.data();

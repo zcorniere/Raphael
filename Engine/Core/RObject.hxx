@@ -89,14 +89,14 @@ public:
     requires std::is_constructible_v<T, Args...>
     static Ref<T> CreateNamed(std::string_view Name, Args &&...args)
     {
-        return CreateInternal(Name, args...);
+        return CreateInternal(Name, std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     requires std::is_constructible_v<T, Args...>
     static Ref<T> Create(Args &&...args)
     {
-        return CreateInternal("", args...);
+        return CreateInternal("", std::forward<Args>(args)...);
     }
 
 private:
@@ -170,7 +170,7 @@ public:
         other.IncrementRefCount();
         DecrementRefCount();
 
-        m_ObjPtr = other.m_ObjPtr;
+        m_ObjPtr = (const T *)other.m_ObjPtr;
         return *this;
     }
 
@@ -179,7 +179,7 @@ public:
     {
         DecrementRefCount();
 
-        m_ObjPtr = other.m_ObjPtr;
+        m_ObjPtr = (T *)other.m_ObjPtr;
         other.m_ObjPtr = nullptr;
         return *this;
     }

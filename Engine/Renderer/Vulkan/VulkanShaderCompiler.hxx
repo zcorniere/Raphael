@@ -31,7 +31,7 @@ public:
 private:
     OptimizationLevel Level;
 
-    std::unordered_map<uint32, Ref<VulkanShader>> s_ShaderCache;
+    std::unordered_map<std::string, Ref<VulkanShader>> m_ShaderCache;
 };
 
 }    // namespace VulkanRHI

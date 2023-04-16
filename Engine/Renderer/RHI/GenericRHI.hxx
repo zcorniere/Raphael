@@ -1,6 +1,7 @@
 #pragma once
 
-#include "RHICommandQueue.hxx"
+#include "Engine/Renderer/RHI/RHICommandQueue.hxx"
+#include "Engine/Renderer/RHI/RHIResource.hxx"
 
 DECLARE_LOGGER_CATEGORY(Core, LogRHI, Info);
 
@@ -14,7 +15,7 @@ class GenericRHI;
 extern Ref<GenericRHI> GDynamicRHI;
 
 template <typename TRHI>
-FORCEINLINE Ref<TRHI> GetDynamicRHI()
+FORCEINLINE Ref<TRHI> GetRHI()
 {
     check(GDynamicRHI);
     return GDynamicRHI.As<TRHI>();
@@ -33,9 +34,17 @@ public:
             pFunction->~TFunction();
         };
 
-        void *pStorageBuffer = GetDynamicRHI<GenericRHI>()->GetRHICommandQueue()->Allocate(RenderCmd, sizeof(func));
+        void *pStorageBuffer = GetRHI<GenericRHI>()->GetRHICommandQueue()->Allocate(RenderCmd, sizeof(func));
         new (pStorageBuffer) TFunction(std::forward<TFunction>(func));
     }
+
+    // ---------------------- RHI Operations --------------------- //
+    static void BeginFrame();
+    static void EndFrame();
+    static void NextFrame();
+
+    template <RHIResourceType Type, typename... Args>
+    static Ref<RHIResource> Create(Args... args);
 
 public:
     virtual ~GenericRHI()
@@ -46,7 +55,7 @@ public:
     virtual void Init();
 
     // Called after the RHI init
-    virtual void PostInit() = 0;
+    virtual void PostInit();
 
     // Shutdown the RHI
     virtual void Shutdown();
@@ -55,11 +64,6 @@ public:
     {
         return RHIInterfaceType::Null;
     }
-
-    // ---------------------- RHI Operations --------------------- //
-    static void BeginFrame();
-    static void EndFrame();
-    static void NextFrame();
 
 protected:
     Ref<RHICommandQueue> &GetRHICommandQueue()

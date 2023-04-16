@@ -6,7 +6,7 @@
 #include <magic_enum.hpp>
 
 enum class RHIResourceType : uint8 {
-    None,
+    None = 0,
 
     Texture,
     Shader,
@@ -30,14 +30,7 @@ public:
     {
     }
 
-    virtual void SetName(std::string_view InName) override
-    {
-        // Prefix the resource name with the ResourceType
-        std::string ResourceTypeName(magic_enum::enum_name(ResourceType));
-        RObject::SetName(cpplogger::fmt::format("{}({})", ResourceTypeName, InName));
-    }
-
-private:
+protected:
     const RHIResourceType ResourceType;
 };
 

@@ -4,6 +4,8 @@
 #include "Engine/Renderer/Vulkan/VulkanDevice.hxx"
 #include "Engine/Renderer/Vulkan/VulkanResources.hxx"
 
+#include "Engine/Core/FrameGraph/FrameGraph.hxx"
+
 DECLARE_LOGGER_CATEGORY(Core, LogApplication, Warn)
 
 Application *GApplication = nullptr;
@@ -38,14 +40,30 @@ bool Application::Initialize()
         .AppearsInTaskbar = true,
         .Title = "Raphael Engine",
     };
-    Windows.push_back(Ref<Window>::Create());
-    Windows[0]->SetName("Main Window");
+    Windows.push_back(Ref<Window>::CreateNamed("Main Window"));
     Windows[0]->Initialize(WindowDef, nullptr);
     Windows[0]->Show();
 
-    Viewport =
-        Ref<VulkanRHI::VulkanViewport>::Create(RHI.As<VulkanRHI::VulkanDynamicRHI>()->GetDevice(), Windows[0]->GetHandle(), glm::uvec2{500u, 500u});
+    Viewport = RHI::Create<RHIResourceType::Viewport>((void *)Windows[0]->GetHandle(), glm::uvec2{500u, 500u});
     Viewport->SetName("Main viewport");
+
+#if 1
+    struct FrameData {
+        FrameGraphResource Texture;
+    };
+    FrameGraph Graph;
+    Graph.AddCallbackPass<FrameData>(
+        "Test pass",
+        [](FrameGraphBuilder &Builder, FrameData &Data) {
+            RHITextureCreateDesc Description{};
+            Data.Texture = Builder.Create<RHIResourceType::Texture>("Test Texture", Description);
+            LOG(LogApplication, Info, "Setup");
+        },
+        [](const FrameData &, FrameGraphPassResources &) { LOG(LogApplication, Info, "Execution"); });
+    Graph.Compile();
+    Graph.Execute();
+#endif
+
     return true;
 }
 
@@ -72,6 +90,7 @@ void Application::ProcessEvent(SDL_Event SDLEvent)
 
 void Application::Tick(const float DeltaTime)
 {
+
     RHI::BeginFrame();
 
     (void)DeltaTime;

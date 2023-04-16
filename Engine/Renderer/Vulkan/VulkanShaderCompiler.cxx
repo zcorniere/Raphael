@@ -66,10 +66,7 @@ VulkanShaderCompiler::VulkanShaderCompiler()
 {
 }
 
-VulkanShaderCompiler::~VulkanShaderCompiler()
-{
-    s_ShaderCache.clear();
-}
+VulkanShaderCompiler::~VulkanShaderCompiler() { m_ShaderCache.clear(); }
 
 void VulkanShaderCompiler::SetOptimizationLevel(OptimizationLevel InLevel)
 {
@@ -78,7 +75,11 @@ void VulkanShaderCompiler::SetOptimizationLevel(OptimizationLevel InLevel)
 
 Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile)
 {
-    (void)bForceCompile;
+    {
+        auto Iter = m_ShaderCache.find(Path.filename());
+        if (Iter != m_ShaderCache.end() && !bForceCompile) { return Iter->second; }
+    }
+
     shaderc::Compiler ShaderCompiler;
 
     if (!std::filesystem::exists(Path)) {
@@ -96,6 +97,7 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
     if (PreProcessResult.GetCompilationStatus() != shaderc_compilation_status_success) {
         LOG(LogVulkanShaderCompiler, Error, "Failed to pre-process {}: {}", Path.string().c_str(),
             PreProcessResult.GetErrorMessage());
+        return nullptr;
     }
 
     std::string PreprocessCode(PreProcessResult.begin(), PreProcessResult.end());
@@ -106,10 +108,12 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
     if (CompilationResult.GetCompilationStatus() != shaderc_compilation_status_success) {
         LOG(LogVulkanShaderCompiler, Error, "Failed to compile shader \"{}\": {}", Path.string().c_str(),
             CompilationResult.GetErrorMessage());
+        return nullptr;
     }
 
     std::vector<uint32> ShaderCode(CompilationResult.begin(), CompilationResult.end());
-    return Ref<VulkanShader>::Create(ShaderType, ShaderCode);
+    m_ShaderCache[Path.filename()] = Ref<VulkanShader>::CreateNamed(Path.filename().string(), ShaderType, ShaderCode);
+    return m_ShaderCache.at(Path.filename());
 }
 
 }    // namespace VulkanRHI
