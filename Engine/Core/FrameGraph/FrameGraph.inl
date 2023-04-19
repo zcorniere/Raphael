@@ -10,13 +10,13 @@
 #include <functional>
 #include <utility>
 
-template <typename Data, typename Setup, typename Execute>
-    requires ValidFrameGraphSetupLambda<Setup, Data> && ValidFrameGraphExecutionLambda<Execute, Data>
-const Data &FrameGraph::AddCallbackPass(const std::string_view Name, Setup &&setup, Execute &&Exec)
+template <typename Data, typename SetupCallback, typename ExecuteCallback>
+    requires ValidFrameGraphSetupLambda<SetupCallback, Data> && ValidFrameGraphExecutionLambda<ExecuteCallback, Data>
+const Data &FrameGraph::AddCallbackPass(const std::string_view Name, SetupCallback &&setup, ExecuteCallback &&Exec)
 
 {
-    Ref<TFrameGraphPass<Data, Execute>> GraphPass =
-        Ref<TFrameGraphPass<Data, Execute>>::Create(std::forward<Execute>(Exec));
+    Ref<TFrameGraphPass<Data, ExecuteCallback>> GraphPass =
+        Ref<TFrameGraphPass<Data, ExecuteCallback>>::Create(std::forward<ExecuteCallback>(Exec));
     Ref<PassNode> GraphPassNode = Ref<PassNode>::Create(Name, GraphPass);
     m_PassNodes.push_back(GraphPassNode);
 

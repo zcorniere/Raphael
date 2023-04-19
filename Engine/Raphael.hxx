@@ -11,6 +11,8 @@
 
 #include <cpplogger/Logger.hpp>
 
+#include <Engine/Core/Memory.hxx>
+
 #include <Engine/Compilers/Compiler.hxx>
 #include <Engine/Core/RObject.hxx>
 #include <Engine/Misc/Assertions.hxx>

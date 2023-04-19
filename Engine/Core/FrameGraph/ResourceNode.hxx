@@ -4,7 +4,7 @@
 
 class PassNode;
 
-class ResourceNode : public RObject, public UUID
+class ResourceNode : public RObject, public Raphael::UUID
 {
 public:
     ResourceNode(uint32 resourceId, uint32 Version);

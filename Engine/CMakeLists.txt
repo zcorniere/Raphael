@@ -23,10 +23,11 @@ endif()
 
 add_library(
     ${PROJECT_NAME} STATIC
-    Core/RObject.cxx
     Core/Log.cxx
-    Core/Application.cxx
     Core/UUID.cxx
+    Core/Memory.cxx
+    Core/RObject.cxx
+    Core/Application.cxx
 
     Core/FrameGraph/FrameGraph.cxx
     Core/FrameGraph/PassNode.cxx

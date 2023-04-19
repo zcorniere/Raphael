@@ -9,7 +9,7 @@
 
 class PassNode;
 
-class ResourceEntry : public UUID, public RObject
+class ResourceEntry : public Raphael::UUID, public RObject
 {
 public:
     ResourceEntry(Ref<RHIResource> InResource = nullptr, uint32 InVersion = 1);
@@ -29,19 +29,44 @@ protected:
     friend class FrameGraph;
 };
 
-template <RHIResourceType Type, typename... Args>
+template <RHIResourceType Type, typename... ArgTypes>
 class TResourceEntry : public ResourceEntry
 {
+private:
+    // Helper templates that are used to call a function using
+    template <int...>
+    struct Sequence {
+    };
+
+    template <int N, int... S>
+    struct Gens : Gens<N - 1, N - 1, S...> {
+    };
+
+    template <int... S>
+    struct Gens<0, S...> {
+        typedef Sequence<S...> type;
+    };
+
 public:
-    TResourceEntry(uint32 InVersion, const Args &...args): ResourceEntry(nullptr, InVersion), Arguments(args...) {}
+    TResourceEntry(uint32 InVersion, ArgTypes &&...args)
+        : ResourceEntry(nullptr, InVersion), Arguments(std::forward<ArgTypes>(args)...)
+    {
+    }
 
     void ConstructResource() override
     {
         verify(m_Resource);
-        m_Resource = std::apply(RHI::Create<Type, Args...>, Arguments);
+        m_Resource = CallRHIFunctionAndUnpackTuple(typename Gens<sizeof...(ArgTypes)>::type());
     }
     void DestroyResource() override { m_Resource = nullptr; }
 
 private:
-    const std::tuple<Args...> Arguments;
+    template <int... S>
+    Ref<RHIResource> CallRHIFunctionAndUnpackTuple(Sequence<S...>)
+    {
+        return RHI::Create<Type>(std::get<S>(Arguments)...);
+    }
+
+private:
+    const std::tuple<ArgTypes...> Arguments;
 };

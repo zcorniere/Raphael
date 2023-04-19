@@ -27,14 +27,13 @@ Ref<RHIResource> VulkanDynamicRHI::Create<RHIResourceType::Viewport>(void *InWin
 }
 
 template <>
-Ref<RHIResource> VulkanDynamicRHI::Create<RHIResourceType::Texture>(const RHITextureCreateDesc &InDesc)
+Ref<RHIResource> VulkanDynamicRHI::Create<RHIResourceType::Texture>(const RHITextureCreateDesc InDesc)
 {
     return Ref<VulkanTexture>::Create(GetVulkanDynamicRHI()->GetDevice(), InDesc);
 }
 
 template <>
-Ref<RHIResource> VulkanDynamicRHI::Create<RHIResourceType::Shader>(const std::filesystem::path &Path,
-                                                                   bool bForceCompile)
+Ref<RHIResource> VulkanDynamicRHI::Create<RHIResourceType::Shader>(const std::filesystem::path Path, bool bForceCompile)
 {
     return GetVulkanDynamicRHI()->ShaderCompiler.Get(Path, bForceCompile);
 }

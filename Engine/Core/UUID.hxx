@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstdint>
-#include <unordered_map>
+namespace Raphael
+{
 
 // "UUID" (universally unique identifier) or GUID is (usually) a 128-bit integer
 // used to "uniquely" identify information. We use the term
@@ -12,28 +12,30 @@ class UUID
 {
 public:
     UUID();
-    UUID(uint64_t uuid);
+    UUID(uint64 uuid);
     UUID(const UUID &other);
     virtual ~UUID() {}
 
-    uint64_t ID() const { return m_UUID; }
+    uint64 ID() const { return m_UUID; }
 
-    operator uint64_t() { return m_UUID; }
-    operator uint64_t() const { return m_UUID; }
+    operator uint64() { return m_UUID; }
+    operator uint64() const { return m_UUID; }
 
 private:
-    uint64_t m_UUID;
+    uint64 m_UUID;
 };
+
+}    // namespace Raphael
 
 namespace std
 {
 
 template <>
-struct hash<UUID> {
-    std::size_t operator()(const UUID &uuid) const
+struct hash<Raphael::UUID> {
+    std::size_t operator()(const Raphael::UUID &uuid) const
     {
         // uuid is already a randomly generated number, and is suitable as a hash key as-is.
-        // this may change in future, in which case return hash<uint64_t>{}(uuid); might be more appropriate
+        // this may change in future, in which case return hash<uint64>{}(uuid); might be more appropriate
         return uuid;
     }
 };
