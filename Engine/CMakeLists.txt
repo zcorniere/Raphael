@@ -56,6 +56,21 @@ target_link_libraries(
            SDL3-static
 )
 
+target_compile_options(
+    ${PROJECT_NAME}
+    PRIVATE $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+            -Wall
+            -Wextra
+            -Wno-missing-field-initializers>
+            $<$<CXX_COMPILER_ID:MSVC>:
+            /Zc:preprocessor
+            /W4
+            /wd4267
+            /wd4201
+            /wd4244
+            /wd4324
+            /wd4702>
+)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
 target_precompile_headers(${PROJECT_NAME} PRIVATE Raphael.hxx)
 

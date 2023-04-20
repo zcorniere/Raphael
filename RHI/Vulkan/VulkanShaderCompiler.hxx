@@ -31,6 +31,7 @@ public:
 private:
     OptimizationLevel Level;
 
+    std::mutex m_ShaderCacheMutex;
     std::unordered_map<std::string, Ref<VulkanShader>> m_ShaderCache;
 };
 

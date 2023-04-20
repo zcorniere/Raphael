@@ -71,7 +71,8 @@ void VulkanShaderCompiler::SetOptimizationLevel(OptimizationLevel InLevel) { Lev
 Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile)
 {
     {
-        auto Iter = m_ShaderCache.find(Path.filename());
+        std::unique_lock Lock(m_ShaderCacheMutex);
+        auto Iter = m_ShaderCache.find(Path.filename().string());
         if (Iter != m_ShaderCache.end() && !bForceCompile) { return Iter->second; }
     }
 
@@ -107,8 +108,10 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
     }
 
     std::vector<uint32> ShaderCode(CompilationResult.begin(), CompilationResult.end());
-    m_ShaderCache[Path.filename()] = Ref<VulkanShader>::CreateNamed(Path.filename().string(), ShaderType, ShaderCode);
-    return m_ShaderCache.at(Path.filename());
+
+    std::unique_lock Lock(m_ShaderCacheMutex);
+    m_ShaderCache[Path.filename().string()] = Ref<VulkanShader>::CreateNamed(Path.filename().string(), ShaderType, ShaderCode);
+    return m_ShaderCache.at(Path.filename().string());
 }
 
 }    // namespace VulkanRHI

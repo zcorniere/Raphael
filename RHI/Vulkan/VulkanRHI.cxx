@@ -100,13 +100,13 @@ void VulkanDynamicRHI::CreateInstance()
 
 #if VULKAN_DEBUGGING_ENABLED
     std::vector<const char *> ValidationLayers{"VK_LAYER_KHRONOS_validation"};
+
+    InstInfo.enabledLayerCount = ValidationLayers.size();
+    InstInfo.ppEnabledLayerNames = ValidationLayers.data();
 #endif
 
     InstInfo.enabledExtensionCount = VulkanExtensions.size();
     InstInfo.ppEnabledExtensionNames = VulkanExtensions.data();
-
-    InstInfo.enabledLayerCount = ValidationLayers.size();
-    InstInfo.ppEnabledLayerNames = ValidationLayers.data();
 
     VkResult Result = VulkanAPI::vkCreateInstance(&InstInfo, nullptr, &m_Instance);
 
@@ -130,10 +130,10 @@ void VulkanDynamicRHI::CreateInstance()
         LOG(LogVulkanRHI, Fatal, "Extension not found !");
         _exit(1);
     } else if (Result != VK_SUCCESS) {
-        LOG(LogVulkanRHI, Fatal, "Vulkan failed to create instance!");
+        LOG(LogVulkanRHI, Fatal, "Vulkan failed to create instance! {:s}", magic_enum::enum_name(Result));
         PlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok,
-            "Vulkan failed to create instance (apiVersion=0x%x)\n\nDo you have a compatible Vulkan "
+            "Vulkan failed to create instance !\n\nDo you have a compatible Vulkan "
             "driver (ICD) installed?\nPlease look at "
             "the Getting Started guide for additional information.",
             "No Vulkan driver found!");

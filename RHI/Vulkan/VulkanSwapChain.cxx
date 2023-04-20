@@ -67,21 +67,21 @@ VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool Loc
         switch (availablePresentMode) {
             case VK_PRESENT_MODE_MAILBOX_KHR:
                 bFoundPresentModeMailbox = true;
-                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_MAILBOX_KHR ({})", VK_PRESENT_MODE_MAILBOX_KHR);
+                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_MAILBOX_KHR ({})", static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_MAILBOX_KHR));
                 break;
             case VK_PRESENT_MODE_IMMEDIATE_KHR:
                 bFoundPresentModeImmediate = true;
-                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_IMMEDIATE_KHR ({})", VK_PRESENT_MODE_IMMEDIATE_KHR);
+                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_IMMEDIATE_KHR ({})", static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_IMMEDIATE_KHR));
                 break;
             case VK_PRESENT_MODE_FIFO_KHR:
                 bFoundPresentModeFIFO = true;
-                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_FIFO_KHR ({})", VK_PRESENT_MODE_FIFO_KHR);
+                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_FIFO_KHR ({})", static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_FIFO_KHR));
                 break;
             case VK_PRESENT_MODE_FIFO_RELAXED_KHR:
                 LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_FIFO_RELAXED_KHR ({})",
-                    VK_PRESENT_MODE_FIFO_RELAXED_KHR);
+                    static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_FIFO_RELAXED_KHR));
                 break;
-            default: LOG(LogVulkanSwapchain, Info, "- VkPresentModeKHR {}", availablePresentMode); break;
+            default: LOG(LogVulkanSwapchain, Info, "- VkPresentModeKHR {}", static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_FIFO_RELAXED_KHR)); break;
         }
     }
 
@@ -152,7 +152,7 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice> &InDev
         .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
         .presentMode = PresentMode,
         .clipped = VK_TRUE,
-        .oldSwapchain = (RecreateInfo) ? (RecreateInfo->SwapChain) : (nullptr),
+        .oldSwapchain = (RecreateInfo) ? (RecreateInfo->SwapChain) : (VK_NULL_HANDLE),
     };
 
     LOG(LogVulkanSwapchain, Info, "Creating new VK swapchain with {}, {}, {}, num images {}",

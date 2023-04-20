@@ -31,7 +31,7 @@ static std::unordered_map<std::string, WeakRef<WindowsExternalModule>> s_ModuleS
 
 WindowsExternalModule::WindowsExternalModule(std::string_view ModulePath): IExternalModule(ModulePath)
 {
-    ModuleHandle = ::LoadLibraryW(ModulePath.data());
+    ModuleHandle = ::LoadLibrary(ModulePath.data());
 }
 
 WindowsExternalModule::~WindowsExternalModule() { ::FreeLibrary(ModuleHandle); }

@@ -44,7 +44,7 @@ public:
 
     void SetName(std::string_view InName) override;
 
-    void *GetNativeResource() const override { return Image; }
+    void *GetNativeResource() const override { return (void *)Image; }
 
     VkImageViewType GetViewType() const { return TextureDimensionToVkImageViewType(Description.Dimension); }
 

@@ -39,7 +39,6 @@ public:
     void WaitUntilIdle();
 
     template <typename T>
-        requires std::is_pointer_v<T>
     void SetObjectName(VkObjectType Type, const T Handle, const std::string Name)
     {
         VkDebugUtilsObjectNameInfoEXT NameInfo{

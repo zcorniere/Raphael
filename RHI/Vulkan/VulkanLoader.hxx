@@ -156,14 +156,6 @@
     LoadMacro(PFN_vkEnumerateInstanceExtensionProperties, vkEnumerateInstanceExtensionProperties); \
     LoadMacro(PFN_vkEnumerateInstanceLayerProperties, vkEnumerateInstanceLayerProperties);
 
-#define VK_ENTRYPOINTS_OPTIONAL_BASE(LoadMacro)                                                                \
-    LoadMacro(PFN_vkGetPhysicalDeviceDisplayPropertiesKHR, vkGetPhysicalDeviceDisplayPropertiesKHR);           \
-    LoadMacro(PFN_vkGetPhysicalDeviceDisplayPlanePropertiesKHR, vkGetPhysicalDeviceDisplayPlanePropertiesKHR); \
-    LoadMacro(PFN_vkGetDisplayPlaneSupportedDisplaysKHR, vkGetDisplayPlaneSupportedDisplaysKHR);               \
-    LoadMacro(PFN_vkGetDisplayModePropertiesKHR, vkGetDisplayModePropertiesKHR);                               \
-    LoadMacro(PFN_vkCreateDisplayModeKHR, vkCreateDisplayModeKHR);                                             \
-    LoadMacro(PFN_vkGetDisplayPlaneCapabilitiesKHR, vkGetDisplayPlaneCapabilitiesKHR);
-
 #define VK_ENTRYPOINTS_DEBUG_UTILS(LoadMacro)                                        \
     LoadMacro(PFN_vkCmdBeginDebugUtilsLabelEXT, vkCmdBeginDebugUtilsLabelEXT);       \
     LoadMacro(PFN_vkCmdEndDebugUtilsLabelEXT, vkCmdEndDebugUtilsLabelEXT);           \
@@ -180,8 +172,7 @@
 #define VK_ENTRYPOINT_ALL(LoadMacro)            \
     VK_ENTRYPOINTS_INSTANCE(LoadMacro);         \
     VK_ENTRYPOINTS_SURFACE_INSTANCE(LoadMacro); \
-    VK_ENTRYPOINTS_BASE(LoadMacro);             \
-    VK_ENTRYPOINTS_OPTIONAL_BASE(LoadMacro);
+    VK_ENTRYPOINTS_BASE(LoadMacro);
 
 // Get Vulkan function to vma
 #define VK_ENTRYPOINTS_VMA(LoadMacro)                                                        \

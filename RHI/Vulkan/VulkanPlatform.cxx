@@ -14,7 +14,7 @@
 namespace VulkanRHI
 {
 
-#define DEFINE_VK_ENTRYPOINTS(Type, Func) Type VulkanAPI::Func = NULL;
+#define DEFINE_VK_ENTRYPOINTS(Type, Func) Type VulkanAPI::Func = nullptr;
 
 VK_ENTRYPOINT_ALL(DEFINE_VK_ENTRYPOINTS)
 VK_ENTRYPOINTS_DEBUG_UTILS(DEFINE_VK_ENTRYPOINTS)
@@ -41,7 +41,7 @@ bool VulkanPlatform::LoadVulkanLibrary()
 
     bool bFoundAllEntryPoints = true;
 #define CHECK_VK_ENTRYPOINTS(Type, Func)                                   \
-    if (VulkanAPI::Func == NULL) {                                         \
+    if (VulkanAPI::Func == nullptr) {                                      \
         bFoundAllEntryPoints = false;                                      \
         LOG(LogVulkanRHI, Error, "Failed to find entry point for " #Func); \
     }
@@ -56,9 +56,6 @@ bool VulkanPlatform::LoadVulkanLibrary()
         return false;
     }
 
-    VK_ENTRYPOINTS_OPTIONAL_BASE(GET_VK_ENTRYPOINTS);
-    VK_ENTRYPOINTS_OPTIONAL_BASE(CHECK_VK_ENTRYPOINTS);
-
 #undef CHECK_VK_ENTRYPOINTS
 #undef GET_VK_ENTRYPOINTS
     return true;
@@ -68,7 +65,7 @@ bool VulkanPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
 {
     bool bFoundAllEntryPoints = true;
 #define CHECK_VK_ENTRYPOINTS(Type, Func)                                  \
-    if (VulkanAPI::Func == NULL) {                                        \
+    if (VulkanAPI::Func == nullptr) {                                     \
         bFoundAllEntryPoints = false;                                     \
         LOG(LogVulkanRHI, Warn, "Failed to find entry point for " #Func); \
     }
