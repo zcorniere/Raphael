@@ -53,11 +53,16 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
     VK_CHECK_RESULT(VulkanAPI::vkCreateImage(Device->GetInstanceHandle(), &ImageCreateInfo, nullptr, &Image));
     VulkanAPI::vkGetImageMemoryRequirements(Device->GetInstanceHandle(), Image, &MemoryRequirements);
 
-    Device->GetMemoryManager()->Alloc(MemoryRequirements.size, VMA_MEMORY_USAGE_GPU_ONLY, false);
+    Allocation = Device->GetMemoryManager()->Alloc(MemoryRequirements, VMA_MEMORY_USAGE_GPU_ONLY, false);
     Allocation->BindImage(Image);
 }
 
-VulkanTexture::~VulkanTexture() { VulkanAPI::vkDestroyImage(Device->GetInstanceHandle(), Image, nullptr); }
+VulkanTexture::~VulkanTexture()
+{
+    Device->GetMemoryManager()->Free(Allocation);
+    Allocation = nullptr;
+    VulkanAPI::vkDestroyImage(Device->GetInstanceHandle(), Image, nullptr);
+}
 
 void VulkanTexture::SetName(std::string_view InName)
 {

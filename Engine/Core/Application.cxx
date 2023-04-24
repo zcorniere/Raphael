@@ -48,6 +48,7 @@ bool Application::Initialize()
 #if 1
     struct FrameData {
         FrameGraphResource Texture;
+        FrameGraphResource Shader;
     };
     FrameGraph Graph;
     Graph.AddCallbackPass<FrameData>(
@@ -55,6 +56,9 @@ bool Application::Initialize()
         [](FrameGraphBuilder &Builder, FrameData &Data) {
             RHITextureCreateDesc Description{};
             Data.Texture = Builder.Create<RHIResourceType::Texture>("Test Texture", Description);
+            Data.Shader = Builder.Create<RHIResourceType::Shader>("Triangle shader",
+                                                                  std::filesystem::path("DefaultTriangle.vert"), false);
+
             LOG(LogApplication, Info, "Setup");
         },
         [](const FrameData &, FrameGraphPassResources &) { LOG(LogApplication, Info, "Execution"); });

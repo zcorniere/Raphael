@@ -89,14 +89,17 @@ void VulkanDynamicRHI::CreateInstance()
     };
 
     // TODO: Wrap it into its own class ?
-    std::vector<const char *> VulkanExtensions
+    std::vector<const char *> InstanceExtensions
     {
         VK_KHR_SURFACE_EXTENSION_NAME,
 #if VULKAN_DEBUGGING_ENABLED
             VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 #endif
     };
-    VulkanPlatform::GetInstanceExtensions(VulkanExtensions);
+    VulkanPlatform::GetInstanceExtensions(InstanceExtensions);
+
+    InstInfo.enabledExtensionCount = InstanceExtensions.size();
+    InstInfo.ppEnabledExtensionNames = InstanceExtensions.data();
 
 #if VULKAN_DEBUGGING_ENABLED
     std::vector<const char *> ValidationLayers{"VK_LAYER_KHRONOS_validation"};
@@ -104,9 +107,6 @@ void VulkanDynamicRHI::CreateInstance()
     InstInfo.enabledLayerCount = ValidationLayers.size();
     InstInfo.ppEnabledLayerNames = ValidationLayers.data();
 #endif
-
-    InstInfo.enabledExtensionCount = VulkanExtensions.size();
-    InstInfo.ppEnabledExtensionNames = VulkanExtensions.data();
 
     VkResult Result = VulkanAPI::vkCreateInstance(&InstInfo, nullptr, &m_Instance);
 
@@ -119,7 +119,7 @@ void VulkanDynamicRHI::CreateInstance()
         LOG(LogVulkanRHI, Fatal, "Cannot find a compatible Vulkan driver.");
         _exit(1);
     } else if (Result == VK_ERROR_EXTENSION_NOT_PRESENT) {
-        std::string MissingExtensions = GetMissingExtensions(VulkanExtensions);
+        std::string MissingExtensions = GetMissingExtensions(InstanceExtensions);
 
         PlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok,
@@ -127,7 +127,7 @@ void VulkanDynamicRHI::CreateInstance()
                                    "path is set appropriately.",
                                    MissingExtensions),
             "Incompatible Vulkan driver found!");
-        LOG(LogVulkanRHI, Fatal, "Extension not found !");
+        LOG(LogVulkanRHI, Fatal, "Extension not found : {} !", MissingExtensions);
         _exit(1);
     } else if (Result != VK_SUCCESS) {
         LOG(LogVulkanRHI, Fatal, "Vulkan failed to create instance! {:s}", magic_enum::enum_name(Result));
@@ -150,7 +150,12 @@ void VulkanDynamicRHI::CreateInstance()
         _exit(1);
     }
 
+    LOG(LogVulkanRHI, Info, "Using {} Instance extensions {}", InstanceExtensions.size(),
+        InstanceExtensions.size() ? ":" : ".");
+    for (const char *Layer: InstanceExtensions) { LOG(LogVulkanRHI, Info, "* {}", Layer); }
+
 #if VULKAN_DEBUGGING_ENABLED
+    LOG(LogVulkanRHI, Warn, "Vulkan Debugging is enabled !");
     SetupDebugLayerCallback();
 #endif
 }

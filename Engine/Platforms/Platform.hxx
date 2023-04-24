@@ -23,6 +23,8 @@ public:
         return false;
     }
 
+    static std::filesystem::path GetExecutablePath() { return std::filesystem::current_path(); }
+
     ///
     /// @brief Set the Thread Name
     ///

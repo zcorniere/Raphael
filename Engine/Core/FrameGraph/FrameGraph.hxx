@@ -30,7 +30,7 @@ public:
 
 private:
     template <RHIResourceType Type, typename... Args>
-    FrameGraphResource CreateResource(const std::string_view, Args &&...args);
+    FrameGraphResource CreateResource(const std::string_view, Args... args);
 
     const Ref<ResourceNode> &GetResourceNode(FrameGraphResource Id) const;
     Ref<ResourceEntry> &GetResourceEntry(FrameGraphResource Id);

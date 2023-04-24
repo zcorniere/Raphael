@@ -72,8 +72,9 @@ public:
     void Init(Ref<VulkanDevice> InDevice);
     void Shutdown();
 
-    Ref<VulkanMemoryAllocation> Alloc(VkDeviceSize AllocationSize, VmaMemoryUsage MemUsage, bool Mappable);
-    void Free(Ref<VulkanMemoryAllocation> Allocation);
+    Ref<VulkanMemoryAllocation> Alloc(const VkMemoryRequirements &MemoryRequirement, VmaMemoryUsage MemUsage,
+                                      bool Mappable);
+    void Free(Ref<VulkanMemoryAllocation> &Allocation);
 
     uint64 GetTotalMemory(bool bGPUOnly) const;
     void PrintMemInfo() const;
@@ -83,6 +84,8 @@ private:
     {
         return Allocator;
     }
+
+    VmaAllocationCreateInfo GetCreateInfo(VmaMemoryUsage MemUsage, bool Mappable);
 
 private:
     Ref<VulkanDevice> Device;

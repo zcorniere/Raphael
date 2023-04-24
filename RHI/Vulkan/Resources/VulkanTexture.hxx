@@ -32,6 +32,7 @@ inline VkImageType TextureDimensionToVkImageType(EImageDimension Dimension)
 {
     switch (Dimension) {
         case EImageDimension::Texture2D: return VK_IMAGE_TYPE_2D;
+        default: checkNoEntry();
     }
     checkNoEntry();
 }

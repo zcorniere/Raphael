@@ -26,10 +26,9 @@ const Data &FrameGraph::AddCallbackPass(const std::string_view Name, SetupCallba
 }
 
 template <RHIResourceType Type, typename... Args>
-FrameGraphResource FrameGraph::CreateResource(const std::string_view Name, Args &&...args)
+FrameGraphResource FrameGraph::CreateResource(const std::string_view Name, Args... args)
 {
-    Ref<TResourceEntry<Type>> Entry =
-        Ref<TResourceEntry<Type, Args &&...>>::CreateNamed(Name, 1u, std::forward<Args>(args)...);
+    Ref<TResourceEntry<Type>> Entry = Ref<TResourceEntry<Type, Args...>>::CreateNamed(Name, 1u, args...);
     m_ResourceRegistry.push_back(Entry);
 
     Ref<ResourceNode> Node = Ref<ResourceNode>::CreateNamed(Name, m_ResourceRegistry.size(), 1);

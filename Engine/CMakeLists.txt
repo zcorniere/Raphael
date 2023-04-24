@@ -38,6 +38,7 @@ add_library(
     Core/RHI/GenericRHI.cxx
     Core/RHI/RHICommandQueue.cxx
 
+    Misc/DataLocation.cxx
     Misc/Utils.cxx
     Misc/Assertions.cxx
 

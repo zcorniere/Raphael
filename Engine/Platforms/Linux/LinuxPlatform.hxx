@@ -28,6 +28,8 @@ public:
     /// Is a debugger attached to the current process
     static bool isDebuggerPresent();
 
+    static std::filesystem::path GetExecutablePath();
+
     ///
     /// @brief Set the Thread Name
     ///

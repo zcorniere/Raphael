@@ -3,6 +3,8 @@
 #include "RHI/Vulkan/VulkanCommandsObjects.hxx"
 #include "RHI/Vulkan/VulkanDevice.hxx"
 
+#include "Engine/Misc/DataLocation.hxx"
+
 namespace VulkanRHI
 {
 
@@ -35,7 +37,10 @@ Ref<RHIResource> VulkanDynamicRHI::Create<RHIResourceType::Texture>(const RHITex
 template <>
 Ref<RHIResource> VulkanDynamicRHI::Create<RHIResourceType::Shader>(const std::filesystem::path Path, bool bForceCompile)
 {
-    return GetVulkanDynamicRHI()->ShaderCompiler.Get(Path, bForceCompile);
+    std::filesystem::path RefPath = DataLocationFinder::GetShaderPath();
+    Ref<VulkanShader> Shader = GetVulkanDynamicRHI()->ShaderCompiler.Get(RefPath / Path, bForceCompile);
+    check(Shader);
+    return Shader;
 }
 
 }    // namespace VulkanRHI

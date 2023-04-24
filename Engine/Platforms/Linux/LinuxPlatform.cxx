@@ -46,6 +46,8 @@ bool LinuxPlateform::isDebuggerPresent()
     }
 }
 
+std::filesystem::path LinuxPlateform::GetExecutablePath() { return std::filesystem::canonical("/proc/self/exe"); }
+
 void LinuxPlateform::setThreadName(std::jthread &thread, const std::string &name)
 {
     std::string sizeLimitedThreadName = name;

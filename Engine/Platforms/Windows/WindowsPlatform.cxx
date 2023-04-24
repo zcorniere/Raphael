@@ -10,6 +10,12 @@ bool WindowsPlatform::isDebuggerPresent()
     return !!::IsDebuggerPresent();
 }
 
+std::filesystem::path WindowsPlatform::GetExecutablePath()
+{
+    // GetModuleFilename(nullptr);
+    return "";
+}
+
 void WindowsPlatform::setThreadName(std::jthread &thread, const std::string &name)
 {
     std::wstring nameStupidType(name.begin(), name.end());

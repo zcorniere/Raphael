@@ -48,14 +48,11 @@ private:
     };
 
 public:
-    TResourceEntry(uint32 InVersion, ArgTypes &&...args)
-        : ResourceEntry(nullptr, InVersion), Arguments(std::forward<ArgTypes>(args)...)
-    {
-    }
+    TResourceEntry(uint32 InVersion, ArgTypes... args): ResourceEntry(nullptr, InVersion), Arguments(args...) {}
 
     void ConstructResource() override
     {
-        verify(m_Resource);
+        verify(!m_Resource);
         m_Resource = CallRHIFunctionAndUnpackTuple(typename Gens<sizeof...(ArgTypes)>::type());
     }
     void DestroyResource() override { m_Resource = nullptr; }

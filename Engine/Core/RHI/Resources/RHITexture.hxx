@@ -22,13 +22,14 @@ struct RHITextureCreateDesc {
     glm::uvec2 Extent = {1, 1};
     uint32 Depth = 1;
     uint8 NumMips = 1;
-    uint8 NumSamples = 0;
+    uint8 NumSamples = 1;
 };
 
 class RHITexture : public RHIResource
 {
 public:
     RHITexture(const RHITextureCreateDesc &InDesc): RHIResource(RHIResourceType::Texture), Description(InDesc) {}
+    virtual ~RHITexture() {}
 
     const RHITextureCreateDesc &GetDescription() const { return Description; }
 
