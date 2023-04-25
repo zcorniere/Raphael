@@ -55,7 +55,7 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice InGpu)
 
 VulkanDevice::~VulkanDevice()
 {
-    if (Device != VK_NULL_HANDLE) {
+    if (Device != VK_NULL_HANDLE) { 
         Destroy();
         Device = VK_NULL_HANDLE;
     }
@@ -188,10 +188,10 @@ void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char *> &DeviceL
     for (const char *Extension: DeviceExtensions) { LOG(LogVulkanRHI, Info, "* {}", Extension); }
 }
 
-void VulkanDevice::PrepareForDestroy() { WaitUntilIdle(); }
-
 void VulkanDevice::Destroy()
 {
+    WaitUntilIdle();
+
     CommandManager->Shutdown();
     delete CommandManager;
     CommandManager = nullptr;

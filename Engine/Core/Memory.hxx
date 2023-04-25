@@ -20,7 +20,7 @@ public:
         throw std::bad_alloc();
     }
 
-    void Free(T *pPointer, std::size_t Size) noexcept { return std::free(pPointer); }
+    void Free(T *pPointer) noexcept { return std::free(pPointer); }
 };
 
 }    // namespace Raphael

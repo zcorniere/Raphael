@@ -147,6 +147,7 @@ bool Window::InitializeSDL()
 
     SDL_SetHint("SDL_VIDEO_X11_REQUIRE_XRANDR", "1");
 
+    // Turn off the audio of SDL
     if (SDL_Init((SDL_INIT_EVERYTHING ^ SDL_INIT_AUDIO)) != 0) {
         const char *ErrorMessage = SDL_GetError();
         if (strcmp("No message system available", ErrorMessage) != 0) {

@@ -3,6 +3,7 @@
 #include "RHI/Vulkan/VulkanDevice.hxx"
 #include "RHI/Vulkan/VulkanRHI.hxx"
 #include "RHI/Vulkan/VulkanSynchronization.hxx"
+#include "RHI/Vulkan/VulkanSwapChain.hxx"
 
 namespace VulkanRHI
 {

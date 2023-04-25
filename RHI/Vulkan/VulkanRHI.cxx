@@ -1,10 +1,12 @@
 #include "RHI/Vulkan/VulkanRHI.hxx"
 
 #include "Engine/Platforms/PlatformMisc.hxx"
-#include "RHI/Vulkan/VulkanDevice.hxx"
+
 #include "RHI/Vulkan/VulkanLoader.hxx"
+#include "RHI/Vulkan/VulkanDevice.hxx"
 #include "RHI/Vulkan/VulkanPlatform.hxx"
 #include "RHI/Vulkan/VulkanUtils.hxx"
+#include "RHI/Vulkan/VulkanShaderCompiler.hxx"
 
 static std::string GetMissingExtensions(std::vector<const char *> VulkanExtensions);
 
@@ -59,7 +61,6 @@ void VulkanDynamicRHI::PostInit() {}
 
 void VulkanDynamicRHI::Shutdown()
 {
-    Device->PrepareForDestroy();
     Device->Destroy();
     Device = nullptr;
 
@@ -134,8 +135,7 @@ void VulkanDynamicRHI::CreateInstance()
         PlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok,
             "Vulkan failed to create instance !\n\nDo you have a compatible Vulkan "
-            "driver (ICD) installed?\nPlease look at "
-            "the Getting Started guide for additional information.",
+            "driver (ICD) installed?",
             "No Vulkan driver found!");
         _exit(1);
     }

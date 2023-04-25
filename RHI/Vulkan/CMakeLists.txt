@@ -13,12 +13,14 @@ target_precompile_headers(${PROJECT_NAME} REUSE_FROM RaphaelEngine)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 target_link_libraries(
     ${PROJECT_NAME}
-    PUBLIC RaphaelEngine
+    PRIVATE RaphaelEngine
            spirv-cross-core
            shaderc
            VulkanMemoryAllocator
-           Vulkan::Headers
            VulkanHelpers
+)
+target_link_libraries(
+    ${PROJECT_NAME} PUBLIC            Vulkan::Headers
 )
 
 target_compile_options(

@@ -65,10 +65,6 @@ set(SDL_PULSEAUDIO_SHARED
     OFF
     CACHE BOOL ""
 )
-set(SDL_TIMERS
-    OFF
-    CACHE BOOL ""
-)
 set(SDL_FILE
     OFF
     CACHE BOOL ""

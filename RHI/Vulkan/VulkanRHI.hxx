@@ -1,16 +1,16 @@
 #pragma once
 
+DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Info);
+
+#include "Engine/Core/RHI/GenericRHI.hxx"
+#include "RHI/Vulkan/VulkanShaderCompiler.hxx"
+
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
-DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Info);
+// Raphael classes
+class RHIResource;
 
-#define RHI_VULKAN_VERSION VK_API_VERSION_1_2
-
-#include "RHI/Vulkan/VulkanResources.hxx"
-#include "RHI/Vulkan/VulkanShaderCompiler.hxx"
-
-#include "Engine/Core/RHI/GenericRHI.hxx"
 
 namespace VulkanRHI
 {

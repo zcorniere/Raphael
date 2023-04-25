@@ -33,7 +33,6 @@ public:
     void CreateDeviceAndQueue(const std::vector<const char *> &DeviceLayers,
                               const std::vector<const char *> &DeviceExtensions);
 
-    void PrepareForDestroy();
     void Destroy();
 
     void WaitUntilIdle();

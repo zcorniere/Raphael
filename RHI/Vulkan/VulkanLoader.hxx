@@ -205,6 +205,8 @@
 
 #define DECLARE_VK_ENTRYPOINTS(Type, Func) extern Type Func;
 
+#define RHI_VULKAN_VERSION VK_API_VERSION_1_2
+
 namespace VulkanRHI
 {
 

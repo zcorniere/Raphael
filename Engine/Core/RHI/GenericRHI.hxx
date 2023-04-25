@@ -54,7 +54,7 @@ private:
 
 #if RAPHAEL_SELECTED_RHI_VULKAN
 
-// Forward declare to avoir circular dep
+// Forward declare to avoid circular dep
 namespace VulkanRHI
 {
 class VulkanDynamicRHI;
@@ -62,7 +62,7 @@ class VulkanDynamicRHI;
 
 using RHI = VulkanRHI::VulkanDynamicRHI;
 
-    #include "RHI/Vulkan/VulkanRHI.hxx"
+#include "RHI/Vulkan/VulkanRHI.hxx"
 
 #else
     #error "Invalid RHI"
