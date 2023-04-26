@@ -11,7 +11,10 @@ FrameGraph::~FrameGraph() {}
 
 bool FrameGraph::Compile() { return false; }
 
-void FrameGraph::Execute() {}
+void FrameGraph::Execute()
+{
+    for (auto &resource: m_ResourceRegistry) { resource->ConstructResource(); }
+}
 
 bool FrameGraph::IsValid(FrameGraphResource Id) const
 {

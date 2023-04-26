@@ -8,7 +8,7 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogVulkanShaderCompiler, Info)
 
-uint32 VulkanVersionToShaderc(uint32 Version)
+static uint32 VulkanVersionToShaderc(uint32 Version)
 {
     switch (Version) {
         case VK_API_VERSION_1_0: return shaderc_env_version_vulkan_1_0;
@@ -23,7 +23,7 @@ uint32 VulkanVersionToShaderc(uint32 Version)
 namespace VulkanRHI
 {
 
-shaderc::CompileOptions GetCompileOption(VulkanShaderCompiler::OptimizationLevel Level)
+static shaderc::CompileOptions GetCompileOption(VulkanShaderCompiler::OptimizationLevel Level)
 {
     shaderc::CompileOptions Options;
     Options.SetTargetEnvironment(shaderc_target_env_vulkan, VulkanVersionToShaderc(RHI_VULKAN_VERSION));
@@ -43,7 +43,7 @@ shaderc::CompileOptions GetCompileOption(VulkanShaderCompiler::OptimizationLevel
     return Options;
 }
 
-RHIShaderType GetShaderKind(const std::filesystem::path &File)
+static RHIShaderType GetShaderKind(const std::filesystem::path &File)
 {
     const auto stage = File.extension();
     if (stage == ".vert") return RHIShaderType::Vertex;
@@ -52,7 +52,7 @@ RHIShaderType GetShaderKind(const std::filesystem::path &File)
     checkNoEntry();
 }
 
-shaderc_shader_kind ShaderKindToShaderc(RHIShaderType Kind)
+static shaderc_shader_kind ShaderKindToShaderc(RHIShaderType Kind)
 {
     switch (Kind) {
         case RHIShaderType::Compute: return shaderc_compute_shader;

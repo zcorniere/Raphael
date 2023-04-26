@@ -5,24 +5,32 @@
 namespace VulkanRHI
 {
 
+VulkanShader::ShaderHandle::ShaderHandle(Ref<VulkanDevice> &InDevice, const VkShaderModuleCreateInfo &Info)
+    : Device(InDevice)
+{
+    VK_CHECK_RESULT(VulkanAPI::vkCreateShaderModule(Device->GetInstanceHandle(), &Info, nullptr, &Handle));
+}
+
+VulkanShader::ShaderHandle::~ShaderHandle()
+{
+    VulkanAPI::vkDestroyShaderModule(Device->GetInstanceHandle(), Handle, nullptr);
+}
+
 VulkanShader::VulkanShader(RHIShaderType Type, std::vector<uint32> InSPIRVCode)
-    : RHIShader(Type), SPIRVCode(InSPIRVCode), ShaderModule(VK_NULL_HANDLE)
+    : RHIShader(Type), SPIRVCode(InSPIRVCode), m_ShaderHandle(nullptr)
 {
 }
 
-uint32 VulkanShader::GetID() { return 0; }
-
-VkShaderModule VulkanShader::GetHandle(Ref<VulkanDevice> InDevice)
+Ref<VulkanShader::ShaderHandle> VulkanShader::GetHandle(Ref<VulkanDevice> InDevice)
 {
-    if (ShaderModule == VK_NULL_HANDLE) {
-        VkShaderModuleCreateInfo CreateInfo{
-            .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-            .codeSize = SPIRVCode.size() * sizeof(uint32),
-            .pCode = SPIRVCode.data(),
-        };
-        VulkanAPI::vkCreateShaderModule(InDevice->GetInstanceHandle(), &CreateInfo, nullptr, &ShaderModule);
-    }
-    return ShaderModule;
+    if (m_ShaderHandle.IsValid()) { return Ref(m_ShaderHandle); }
+    VkShaderModuleCreateInfo CreateInfo{
+        .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+        .codeSize = SPIRVCode.size() * sizeof(uint32),
+        .pCode = SPIRVCode.data(),
+    };
+    m_ShaderHandle = Ref<ShaderHandle>::Create(InDevice, CreateInfo);
+    return Ref(m_ShaderHandle);
 }
 
 }    // namespace VulkanRHI

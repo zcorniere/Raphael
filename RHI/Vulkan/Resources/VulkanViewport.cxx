@@ -50,7 +50,7 @@ void VulkanViewport::CreateSwapchain()
     Ref<VulkanDynamicRHI> RHI = GetVulkanDynamicRHI();
 
     SwapChain = Ref<VulkanSwapChain>::Create(RHI->RHIGetVkInstance(), Device, WindowHandle, Size, 0, BackBufferImages,
-                                             false, nullptr);
+                                             true, nullptr);
 
     RenderingDoneSemaphores.resize(BackBufferImages.size());
     for (unsigned i = 0; i < BackBufferImages.size(); i++) {

@@ -12,14 +12,27 @@ class VulkanDevice;
 class VulkanShader : public RHIShader
 {
 public:
+    class ShaderHandle : public RObject
+    {
+    public:
+        ShaderHandle() = delete;
+        ShaderHandle(Ref<VulkanDevice> &InDevice, const VkShaderModuleCreateInfo &Info);
+        ~ShaderHandle();
+
+        VkShaderModule Handle;
+
+    private:
+        Ref<VulkanDevice> Device;
+    };
+
+public:
     VulkanShader(RHIShaderType Type, std::vector<uint32> InSPRIVCode);
 
-    uint32 GetID();
-    VkShaderModule GetHandle(Ref<VulkanDevice> InDevice);
+    Ref<ShaderHandle> GetHandle(Ref<VulkanDevice> InDevice);
 
 private:
     std::vector<uint32> SPIRVCode;
-    VkShaderModule ShaderModule;
+    WeakRef<ShaderHandle> m_ShaderHandle;
 
     friend class VulkanShaderCompiler;
 };

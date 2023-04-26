@@ -79,7 +79,7 @@ Ref<IExternalModule> LinuxMisc::LoadExternalModule(const std::string &ModuleName
     auto Iter = s_ModuleStorage.find(ModuleName);
 
     if (Iter == s_ModuleStorage.end() || !Iter->second.IsValid()) {
-        Ref<LinuxExternalModule> Module = Ref<LinuxExternalModule>::Create(ModuleName);
+        Ref<LinuxExternalModule> Module = Ref<LinuxExternalModule>::CreateNamed(ModuleName, ModuleName);
         s_ModuleStorage[ModuleName] = Module;
         return Module;
     }
