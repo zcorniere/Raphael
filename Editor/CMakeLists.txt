@@ -29,4 +29,11 @@ if(NOT NO_PROFILING)
     target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
 endif(NOT NO_PROFILING)
 
+if(SELECTED_RHI STREQUAL "Vulkan")
+    target_link_libraries(${PROJECT_NAME} PRIVATE RaphaelRHIVulkan)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE RAPHAEL_SELECTED_RHI_VULKAN=1)
+else()
+    message(FATAL_ERROR "${SELECTED_RHI} is not supported !")
+endif()
+
 # target_generate_debug_file(${PROJECT_NAME})

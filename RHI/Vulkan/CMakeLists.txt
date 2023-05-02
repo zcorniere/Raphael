@@ -1,27 +1,26 @@
 project(RaphaelRHIVulkan)
 
+add_subdirectory(External/)
+
 option(ENABLE_VULKAN_DEBUGGING "" ON)
 
-file(GLOB VULKAN_RENDERER_FILES
-     ${CMAKE_CURRENT_SOURCE_DIR}/*.cxx
-     ${CMAKE_CURRENT_SOURCE_DIR}/Resources/*.cxx
+file(GLOB VULKAN_RENDERER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/VulkanRHI/*.cxx
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/VulkanRHI/Resources/*.cxx
 )
 
 add_library(${PROJECT_NAME} STATIC ${VULKAN_RENDERER_FILES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_precompile_headers(${PROJECT_NAME} REUSE_FROM RaphaelEngine)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 target_link_libraries(
     ${PROJECT_NAME}
-    PRIVATE RaphaelEngine
-           spirv-cross-core
-           shaderc
-           VulkanMemoryAllocator
-           VulkanHelpers
+    PRIVATE spirv-cross-core
+            shaderc
+            VulkanMemoryAllocator
+            VulkanHelpers
+            Vulkan::Headers
 )
-target_link_libraries(
-    ${PROJECT_NAME} PUBLIC            Vulkan::Headers
-)
+target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelEngine)
 
 target_compile_options(
     ${PROJECT_NAME}

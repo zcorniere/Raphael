@@ -1,61 +1,56 @@
 project(RaphaelEngine)
 
-set(SELECTED_RHI "Vulkan" CACHE STRING "Select the RHI to use")
+add_subdirectory(External/)
+
+set(SELECTED_RHI
+    "Vulkan"
+    CACHE STRING "Select the RHI to use"
+)
 
 if(WIN32)
-    file(GLOB PLATFORM_SOURCE_FILES Platforms/Windows/*.cxx)
+    file(GLOB PLATFORM_SOURCE_FILES src/Engine/Platforms/Windows/*.cxx)
 elseif(UNIX)
-    file(GLOB PLATFORM_SOURCE_FILES Platforms/Linux/*.cxx)
+    file(GLOB PLATFORM_SOURCE_FILES src/Engine/Platforms/Linux/*.cxx)
 else()
     message(FATAL_ERROR "Platform Not supported !")
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(COMPILER_SOURCE_FILE Compilers/ClangCompiler.cxx)
+    set(COMPILER_SOURCE_FILE src/Engine/Compilers/ClangCompiler.cxx)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(COMPILER_SOURCE_FILE Compilers/GNUCompiler.cxx)
+    set(COMPILER_SOURCE_FILE src/Engine/Compilers/GNUCompiler.cxx)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(COMPILER_SOURCE_FILE Compilers/MSVCCompiler.cxx)
+    set(COMPILER_SOURCE_FILE src/Engine/Compilers/MSVCCompiler.cxx)
 else()
     message(FATAL_ERROR "Compiler not supported !")
 endif()
 
-
 add_library(
     ${PROJECT_NAME} STATIC
-    Core/Log.cxx
-    Core/UUID.cxx
-    Core/Memory.cxx
-    Core/RObject.cxx
-    Core/Application.cxx
-
-    Core/FrameGraph/FrameGraph.cxx
-    Core/FrameGraph/PassNode.cxx
-    Core/FrameGraph/FrameGraphBuilder.cxx
-    Core/FrameGraph/ResourceEntry.cxx
-    Core/FrameGraph/ResourceNode.cxx
-    Core/Window.cxx
-    Core/RHI/GenericRHI.cxx
-    Core/RHI/RHICommandQueue.cxx
-
-    Misc/DataLocation.cxx
-    Misc/Utils.cxx
-    Misc/Assertions.cxx
-
-    Threading/Thread.cxx
-    Threading/ThreadPool.cxx
-    
+    src/Engine/Core/Log.cxx
+    src/Engine/Core/UUID.cxx
+    src/Engine/Core/Memory.cxx
+    src/Engine/Core/RObject.cxx
+    src/Engine/Core/Application.cxx
+    src/Engine/Core/FrameGraph/FrameGraph.cxx
+    src/Engine/Core/FrameGraph/PassNode.cxx
+    src/Engine/Core/FrameGraph/FrameGraphBuilder.cxx
+    src/Engine/Core/FrameGraph/ResourceEntry.cxx
+    src/Engine/Core/FrameGraph/ResourceNode.cxx
+    src/Engine/Core/Window.cxx
+    src/Engine/Core/RHI/RHI.cxx
+    src/Engine/Core/RHI/GenericRHI.cxx
+    src/Engine/Core/RHI/RHICommandQueue.cxx
+    src/Engine/Misc/DataLocation.cxx
+    src/Engine/Misc/Utils.cxx
+    src/Engine/Misc/Assertions.cxx
+    src/Engine/Threading/Thread.cxx
+    src/Engine/Threading/ThreadPool.cxx
     ${PLATFORM_SOURCE_FILES}
     ${COMPILER_SOURCE_FILE}
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
-target_link_libraries(
-    ${PROJECT_NAME}
-    PUBLIC logger
-           magic_enum
-           glm
-           SDL3-static
-)
+target_link_libraries(${PROJECT_NAME} PUBLIC logger magic_enum glm SDL3-static)
 
 target_compile_options(
     ${PROJECT_NAME}
@@ -72,12 +67,5 @@ target_compile_options(
             /wd4324
             /wd4702>
 )
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
-target_precompile_headers(${PROJECT_NAME} PRIVATE Raphael.hxx)
-
-if (SELECTED_RHI STREQUAL "Vulkan")
-    target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelRHIVulkan)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC RAPHAEL_SELECTED_RHI_VULKAN=1)
-else()
-    message(Fatal "${SELECTED_RHI} is not supported !")
-endif()
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/)
+target_precompile_headers(${PROJECT_NAME} PRIVATE src/Engine/Raphael.hxx)
