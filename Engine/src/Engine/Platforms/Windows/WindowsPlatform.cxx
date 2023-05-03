@@ -2,6 +2,7 @@
 
 #include <debugapi.h>
 #include <processthreadsapi.h>
+#include <libloaderapi.h>
 
 DECLARE_LOGGER_CATEGORY(Core, LogWindowsPlateform, Info)
 
@@ -12,8 +13,9 @@ bool WindowsPlatform::isDebuggerPresent()
 
 std::filesystem::path WindowsPlatform::GetExecutablePath()
 {
-    // GetModuleFilename(nullptr);
-    return "";
+    char Buffer[MAX_PATH] = {0};
+    GetModuleFileNameA(nullptr, Buffer, MAX_PATH);
+    return std::filesystem::canonical(Buffer);
 }
 
 void WindowsPlatform::setThreadName(std::jthread &thread, const std::string &name)
