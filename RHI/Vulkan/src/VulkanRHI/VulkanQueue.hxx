@@ -22,6 +22,7 @@ public:
 
     void Submit(Ref<VulkanCmdBuffer> &CmdBuffer, uint32 NumSignaledSemaphores = 0,
                 VkSemaphore *SignalSemaphores = nullptr);
+
     void Submit(Ref<VulkanCmdBuffer> &CmdBuffer, VkSemaphore SignalSemaphores)
     {
         return Submit(CmdBuffer, 1, &SignalSemaphores);

@@ -112,12 +112,18 @@ public:
     void Init();
     void Shutdown();
 
-    Ref<VulkanCmdBuffer> &GetActiveCmdBuffer() { return ActiveCmdBuffer; }
+    Ref<VulkanCmdBuffer> &GetActiveCmdBuffer();
+    Ref<VulkanCmdBuffer> &GetUploadCmdBuffer();
 
     void PrepareForNewActiveCommandBuffer();
 
-    void SubmitActiveCmdBuffer(Ref<Semaphore> SignedSemaphore);
-    void SubmitActiveCmdBuffer() { return SubmitActiveCmdBuffer(nullptr); }
+    void SubmitUploadCmdBuffer(Ref<Semaphore> SignalSemaphore = nullptr);
+
+    void SubmitActiveCmdBuffer(Ref<Semaphore> SignalSemaphore = nullptr);
+    void SubmitActiveCmdBufferFormPresent(Ref<Semaphore> SignalSemaphore = nullptr);
+
+private:
+    Ref<VulkanCmdBuffer> FindAvailableCmdBuffer();
 
 private:
     Ref<VulkanDevice> Device;
@@ -125,6 +131,7 @@ private:
 
     Ref<VulkanCommandBufferPool> Pool;
     Ref<VulkanCmdBuffer> ActiveCmdBuffer;
+    Ref<VulkanCmdBuffer> UploadCmdBuffer;
 };
 
 }    // namespace VulkanRHI

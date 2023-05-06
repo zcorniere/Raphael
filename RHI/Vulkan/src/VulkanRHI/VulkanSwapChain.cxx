@@ -116,7 +116,12 @@ VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const glm::uvec2 &s
 VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice> &InDevice, void *WindowHandle,
                                  glm::uvec2 Size, uint32 InDesiredNumBackBuffers, std::vector<VkImage> &OutImages,
                                  bool LockToVSync, VulkanSwapChainRecreateInfo *RecreateInfo)
-    : Device(InDevice), CurrentImageIndex(0), SwapChain(VK_NULL_HANDLE), Surface(VK_NULL_HANDLE), Instance(InInstance)
+    : Device(InDevice),
+      CurrentImageIndex(-1),
+      LockToVSync(LockToVSync),
+      SwapChain(VK_NULL_HANDLE),
+      Surface(VK_NULL_HANDLE),
+      Instance(InInstance)
 {
     if (RecreateInfo && RecreateInfo->SwapChain != VK_NULL_HANDLE) {
         check(RecreateInfo->Surface != VK_NULL_HANDLE);
@@ -135,6 +140,8 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice> &InDev
     if (SwapChainSupport.Capabilities.maxImageCount > 0 && ImageCount > SwapChainSupport.Capabilities.maxImageCount) {
         ImageCount = SwapChainSupport.Capabilities.maxImageCount;
     }
+
+    Device->SetupPresentQueue(Surface);
 
     VkSwapchainCreateInfoKHR CreateInfo{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
@@ -213,7 +220,7 @@ void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo *RecreateInfo)
 
 VulkanSwapChain::Status VulkanSwapChain::Present(Ref<VulkanQueue> &PresentQueue, Ref<Semaphore> &RenderingComplete)
 {
-    check(CurrentImageIndex == -1);
+    check(CurrentImageIndex != -1);
     VkSemaphore Semaphore = RenderingComplete->GetHandle();
     VkPresentInfoKHR Info{
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
@@ -235,6 +242,12 @@ VulkanSwapChain::Status VulkanSwapChain::Present(Ref<VulkanQueue> &PresentQueue,
     return Status::Healty;
 }
 
+void VulkanSwapChain::SetName(std::string_view InName)
+{
+    RObject::SetName(InName);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SWAPCHAIN_KHR, SwapChain, "Swapchain - \"{:s}\"", InName);
+}
+
 int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore> &OutSemaphore)
 {
     check(CurrentImageIndex == -1);
@@ -244,7 +257,7 @@ int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore> &OutSemaphore)
     SemaphoreIndex = (SemaphoreIndex + 1) % ImageAcquiredSemaphore.size();
 
     Ref<Fence> AcquiredFence = ImageInUseFence[SemaphoreIndex];
-    AcquiredFence.Reset();
+    AcquiredFence->Reset();
 
     VkResult Result = VulkanAPI::vkAcquireNextImageKHR(Device->GetInstanceHandle(), SwapChain, UINT64_MAX,
                                                        ImageAcquiredSemaphore[SemaphoreIndex]->GetHandle(),

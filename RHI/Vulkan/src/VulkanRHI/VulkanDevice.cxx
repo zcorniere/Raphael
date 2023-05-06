@@ -8,6 +8,8 @@
 #include "VulkanRHI/VulkanSynchronization.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
 
+#include "Engine/Platforms/PlatformMisc.hxx"
+
 static constexpr const char *VulkanVendorIDToString(std::uint32_t vendorID)
 {
     switch (vendorID) {
@@ -188,6 +190,35 @@ void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char *> &DeviceL
     for (const char *Extension: DeviceExtensions) { LOG(LogVulkanRHI, Info, "* {}", Extension); }
 }
 
+void VulkanDevice::SetupPresentQueue(VkSurfaceKHR Surface)
+{
+    if (!PresentQueue) {
+        const auto SupportsPresent = [Surface](VkPhysicalDevice PhysicalDevice, Ref<VulkanQueue> &Queue) {
+            VkBool32 bSupportsPresent = VK_FALSE;
+            const uint32 FamilyIndex = Queue->GetFamilyIndex();
+            VK_CHECK_RESULT(VulkanAPI::vkGetPhysicalDeviceSurfaceSupportKHR(PhysicalDevice, FamilyIndex, Surface,
+                                                                            &bSupportsPresent));
+            if (bSupportsPresent) { LOG(LogVulkanRHI, Info, "Queue Family {}: Supports Present", FamilyIndex); }
+            return (bSupportsPresent == VK_TRUE);
+        };
+
+        bool bGfx = SupportsPresent(Gpu, GraphicsQueue);
+        if (!bGfx) {
+            PlatformMisc::DisplayMessageBox(
+                EBoxMessageType::Ok, "Cannot find a compatible Vulkan device that supports surface presentation.\n\n",
+                "Vulkan device not available");
+            _exit(1);
+        }
+
+        if (TransferQueue->GetFamilyIndex() != GraphicsQueue->GetFamilyIndex() &&
+            TransferQueue->GetFamilyIndex() != ComputeQueue->GetFamilyIndex()) {
+            SupportsPresent(Gpu, TransferQueue);
+        }
+
+        PresentQueue = GraphicsQueue;
+    }
+}
+
 void VulkanDevice::Destroy()
 {
     WaitUntilIdle();
@@ -211,6 +242,10 @@ void VulkanDevice::Destroy()
 
 void VulkanDevice::WaitUntilIdle() { VK_CHECK_RESULT(VulkanAPI::vkDeviceWaitIdle(Device)); }
 
-Ref<VulkanCmdBuffer> &VulkanDevice::GetCommandbuffer() { return CommandManager->GetActiveCmdBuffer(); }
+VulkanCommandBufferManager *VulkanDevice::GetCommandManager()
+{
+    check(CommandManager);
+    return CommandManager;
+}
 
 }    // namespace VulkanRHI

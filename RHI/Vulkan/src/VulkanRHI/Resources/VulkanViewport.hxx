@@ -10,6 +10,9 @@ namespace VulkanRHI
 class VulkanDevice;
 class Semaphore;
 class VulkanSwapChain;
+class VulkanQueue;
+class VulkanCmdBuffer;
+struct VulkanSwapChainRecreateInfo;
 
 class VulkanViewport : public RHIViewport
 {
@@ -18,9 +21,13 @@ public:
     ~VulkanViewport();
 
     void SetName(std::string_view InName) override;
+    bool Present(Ref<VulkanCmdBuffer> &CmdBuffer, Ref<VulkanQueue> &Queue, Ref<VulkanQueue> &PresentQueue);
+    void RecreateSwapchain(void *NewNativeWindow);
 
 private:
-    void CreateSwapchain();
+    void CreateSwapchain(VulkanSwapChainRecreateInfo *RecreateInfo);
+    void DeleteSwapchain(VulkanSwapChainRecreateInfo *RecreateInfo);
+    bool TryAcquireImageIndex();
 
 private:
     Ref<VulkanDevice> Device;
@@ -32,6 +39,9 @@ private:
 
     void *WindowHandle;
     glm::uvec2 Size;
+
+    int32 AcquiredImageIndex;
+    Ref<Semaphore> AcquiredSemaphore;
 };
 
 }    // namespace VulkanRHI

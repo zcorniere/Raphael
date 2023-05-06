@@ -11,6 +11,21 @@ void GenericRHI::BeginFrame() { checkNoEntry(); }
 void GenericRHI::EndFrame() { checkNoEntry(); }
 void GenericRHI::NextFrame() { checkNoEntry(); }
 
+void GenericRHI::BeginDrawingViewport(Ref<RHIViewport> &Viewport)
+{
+    (void)Viewport;
+    checkNoEntry();
+}
+void GenericRHI::EndDrawingViewport(Ref<RHIViewport> &Viewport)
+{
+    (void)Viewport;
+    checkNoEntry();
+}
+
+//
+//  -------------------- RHI Create resources --------------------
+//
+
 Ref<RHIViewport> GenericRHI::CreateViewport(void *InWindowHandle, glm::uvec2 InSize)
 {
     (void)InWindowHandle;

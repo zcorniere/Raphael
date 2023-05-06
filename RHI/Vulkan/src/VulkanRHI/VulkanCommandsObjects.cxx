@@ -145,7 +145,7 @@ Ref<VulkanCmdBuffer> VulkanCommandBufferPool::CreateCmdBuffer()
         // ... grab some memory ...
         CmdBuffer->Allocate();
 
-        // put it in the "inused" buffers
+        // put it in the "in use" buffers
         m_CmdBuffers.push_back(CmdBuffer);
 
         return CmdBuffer;
@@ -174,33 +174,45 @@ VulkanCommandBufferManager::VulkanCommandBufferManager(Ref<VulkanDevice> InDevic
     Pool->Initialize(Queue->GetFamilyIndex());
 
     ActiveCmdBuffer = Pool->CreateCmdBuffer();
+    UploadCmdBuffer = nullptr;
 }
 VulkanCommandBufferManager ::~VulkanCommandBufferManager() {}
 
 void VulkanCommandBufferManager::Init() { ActiveCmdBuffer->Begin(); }
 void VulkanCommandBufferManager::Shutdown() {}
 
-void VulkanCommandBufferManager::PrepareForNewActiveCommandBuffer()
+Ref<VulkanCmdBuffer> &VulkanCommandBufferManager::GetActiveCmdBuffer()
 {
-    for (uint32 Index = 0; Index < Pool->m_CmdBuffers.size(); Index++) {
-        Ref<VulkanCmdBuffer> &CmdBuffer = Pool->m_CmdBuffers[Index];
-        CmdBuffer->RefreshFenceStatus();
-
-        if (CmdBuffer->State == VulkanCmdBuffer::EState::ReadyForBegin ||
-            CmdBuffer->State == VulkanCmdBuffer::EState::NeedReset) {
-            ActiveCmdBuffer = CmdBuffer;
-            ActiveCmdBuffer->Begin();
-            return;
-        } else {
-            check(CmdBuffer->State == VulkanCmdBuffer::EState::Submitted);
-        }
-    }
-
-    ActiveCmdBuffer = Pool->CreateCmdBuffer();
-    ActiveCmdBuffer->Begin();
+    if (UploadCmdBuffer) { SubmitUploadCmdBuffer(); }
+    return ActiveCmdBuffer;
+}
+Ref<VulkanCmdBuffer> &VulkanCommandBufferManager::GetUploadCmdBuffer()
+{
+    if (!UploadCmdBuffer) { UploadCmdBuffer = FindAvailableCmdBuffer(); }
+    return UploadCmdBuffer;
 }
 
-void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Ref<Semaphore> SignedSemaphore)
+void VulkanCommandBufferManager::PrepareForNewActiveCommandBuffer() { ActiveCmdBuffer = FindAvailableCmdBuffer(); }
+
+void VulkanCommandBufferManager::SubmitUploadCmdBuffer(Ref<Semaphore> SignalSemaphore)
+{
+    check(UploadCmdBuffer);
+
+    if (!UploadCmdBuffer->IsSubmitted() && UploadCmdBuffer->HasBegun()) {
+        check(UploadCmdBuffer->IsOutsideRenderPass());
+
+        UploadCmdBuffer->End();
+
+        if (SignalSemaphore) {
+            Queue->Submit(UploadCmdBuffer, SignalSemaphore->GetHandle());
+        } else {
+            Queue->Submit(UploadCmdBuffer);
+        }
+    }
+    UploadCmdBuffer = nullptr;
+}
+
+void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Ref<Semaphore> SignalSemaphore)
 {
     check(ActiveCmdBuffer);
 
@@ -212,13 +224,42 @@ void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Ref<Semaphore> SignedSema
 
         ActiveCmdBuffer->End();
 
-        if (SignedSemaphore) {
-            Queue->Submit(ActiveCmdBuffer, SignedSemaphore->GetHandle());
+        if (SignalSemaphore) {
+            Queue->Submit(ActiveCmdBuffer, SignalSemaphore->GetHandle());
         } else {
             Queue->Submit(ActiveCmdBuffer);
         }
     }
     ActiveCmdBuffer = nullptr;
+}
+
+void VulkanCommandBufferManager::SubmitActiveCmdBufferFormPresent(Ref<Semaphore> SignalSemaphore)
+{
+    if (SignalSemaphore) {
+        Queue->Submit(ActiveCmdBuffer, SignalSemaphore->GetHandle());
+    } else {
+        Queue->Submit(ActiveCmdBuffer);
+    }
+}
+
+Ref<VulkanCmdBuffer> VulkanCommandBufferManager::FindAvailableCmdBuffer()
+{
+    for (uint32 Index = 0; Index < Pool->m_CmdBuffers.size(); Index++) {
+        Ref<VulkanCmdBuffer> &CmdBuffer = Pool->m_CmdBuffers[Index];
+        CmdBuffer->RefreshFenceStatus();
+
+        if (CmdBuffer->State == VulkanCmdBuffer::EState::ReadyForBegin ||
+            CmdBuffer->State == VulkanCmdBuffer::EState::NeedReset) {
+            CmdBuffer->Begin();
+            return CmdBuffer;
+        } else {
+            check(CmdBuffer->State == VulkanCmdBuffer::EState::Submitted);
+        }
+    }
+
+    Ref<VulkanCmdBuffer> NewBuffer = Pool->CreateCmdBuffer();
+    NewBuffer->Begin();
+    return NewBuffer;
 }
 
 }    // namespace VulkanRHI

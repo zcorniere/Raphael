@@ -28,6 +28,9 @@ public:
     virtual void EndFrame();
     virtual void NextFrame();
 
+    virtual void BeginDrawingViewport(Ref<RHIViewport> &Viewport);
+    virtual void EndDrawingViewport(Ref<RHIViewport> &Viewport);
+
     virtual Ref<RHIViewport> CreateViewport(void *InWindowHandle, glm::uvec2 InSize);
     virtual Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc);
     virtual Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile);

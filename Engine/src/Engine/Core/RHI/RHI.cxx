@@ -28,6 +28,20 @@ void RHI::EndFrame() { return RHI::Get<GenericRHI>()->EndFrame(); }
 
 void RHI::NextFrame() { return RHI::Get<GenericRHI>()->NextFrame(); }
 
+void RHI::BeginDrawingViewport(Ref<RHIViewport> &Viewport)
+{
+    return RHI::Get<GenericRHI>()->BeginDrawingViewport(Viewport);
+}
+
+void RHI::EndDrawingViewport(Ref<RHIViewport> &Viewport)
+{
+    return RHI::Get<GenericRHI>()->EndDrawingViewport(Viewport);
+}
+
+//
+//  -------------------- RHI Create resources --------------------
+//
+
 Ref<RHIViewport> RHI::CreateViewport(void *InWindowHandle, glm::uvec2 InSize)
 {
     return RHI::Get<GenericRHI>()->CreateViewport(InWindowHandle, InSize);

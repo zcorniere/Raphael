@@ -20,9 +20,29 @@ void VulkanDynamicRHI::EndFrame()
 
 void VulkanDynamicRHI::NextFrame() { GetDevice()->CommandManager->PrepareForNewActiveCommandBuffer(); }
 
+void VulkanDynamicRHI::BeginDrawingViewport(Ref<RHIViewport> &RHIViewport)
+{
+    DrawingViewport = RHIViewport.As<VulkanViewport>();
+}
+
+void VulkanDynamicRHI::EndDrawingViewport(Ref<RHIViewport> &RHIViewport)
+{
+    Ref<VulkanViewport> Viewport = RHIViewport.As<VulkanViewport>();
+
+    Ref<VulkanCmdBuffer> CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
+    check(!CmdBuffer->HasEnded() && !CmdBuffer->IsInsideRenderPass());
+
+    Viewport->Present(CmdBuffer, Device->GraphicsQueue, Device->PresentQueue);
+}
+
+//
+//  -------------------- RHI Create resources --------------------
+//
+
 Ref<RHIViewport> VulkanDynamicRHI::CreateViewport(void *InWindowHandle, glm::uvec2 InSize)
 {
-    return Ref<VulkanViewport>::Create(GetDevice(), InWindowHandle, InSize);
+    Viewports.push_back(Ref<VulkanViewport>::Create(GetDevice(), InWindowHandle, InSize));
+    return Viewports.back();
 }
 
 Ref<RHITexture> VulkanDynamicRHI::CreateTexture(const RHITextureCreateDesc InDesc)

@@ -11,6 +11,11 @@ class Semaphore;
 class Fence;
 class VulkanQueue;
 
+struct VulkanSwapChainRecreateInfo {
+    VkSwapchainKHR SwapChain = VK_NULL_HANDLE;
+    VkSurfaceKHR Surface = VK_NULL_HANDLE;
+};
+
 class VulkanSwapChain : public RObject
 {
 public:
@@ -18,11 +23,6 @@ public:
         Healty = 0,
         OutOfDate = -1,
         SurfaceLost = -2,
-    };
-
-    struct VulkanSwapChainRecreateInfo {
-        VkSwapchainKHR SwapChain = VK_NULL_HANDLE;
-        VkSurfaceKHR Surface = VK_NULL_HANDLE;
     };
 
 private:
@@ -63,6 +63,10 @@ public:
 
     VkSwapchainKHR GetHandle() const { return SwapChain; }
 
+    inline bool DoesLockToVSync() const { return LockToVSync; }
+
+    void SetName(std::string_view InName) override;
+
 private:
     int32 AcquireImageIndex(Ref<Semaphore> &OutSemaphore);
 
@@ -70,6 +74,8 @@ private:
     Ref<VulkanDevice> Device;
     int32 CurrentImageIndex;
     int32 SemaphoreIndex;
+
+    bool LockToVSync;
 
     glm::uvec2 InternalSize;
 
@@ -80,6 +86,8 @@ private:
 
     std::vector<Ref<Semaphore>> ImageAcquiredSemaphore;
     std::vector<Ref<Fence>> ImageInUseFence;
+
+    friend class VulkanViewport;
 };
 
 }    // namespace VulkanRHI

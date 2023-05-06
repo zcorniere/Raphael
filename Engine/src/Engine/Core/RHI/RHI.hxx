@@ -23,6 +23,7 @@ public:
         return GDynamicRHI.As<TRHI>();
     }
 
+    // TO BE IMPLEMENTED BY RHIs //
     static Ref<GenericRHI> CreateRHI();
 
     static void DeleteRHI();
@@ -37,6 +38,9 @@ public:
     static void BeginFrame();
     static void EndFrame();
     static void NextFrame();
+
+    static void BeginDrawingViewport(Ref<RHIViewport> &Viewport);
+    static void EndDrawingViewport(Ref<RHIViewport> &Viewport);
 
     static Ref<RHIViewport> CreateViewport(void *InWindowHandle, glm::uvec2 InSize);
     static Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc);

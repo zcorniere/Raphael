@@ -10,7 +10,7 @@
 
 #define CONSTEXPR_ELSE_ERROR(Type, Message) static_assert(AlwaysFalse<Type>, Message);
 
-template <class...>
+template <typename...>
 /// Used to error out in constexpr if
 constexpr std::false_type AlwaysFalse{};
 

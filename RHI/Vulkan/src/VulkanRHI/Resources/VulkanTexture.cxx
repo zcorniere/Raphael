@@ -8,7 +8,7 @@ namespace VulkanRHI
 {
 
 VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateDesc &InDesc)
-    : RHITexture(InDesc), Description(InDesc), Device(InDevice), Allocation(nullptr)
+    : RHITexture(InDesc), Description(InDesc), Device(InDevice), Allocation(nullptr), Layout(VK_IMAGE_LAYOUT_UNDEFINED)
 {
     const VkPhysicalDeviceProperties &DeviceProperties = Device->GetDeviceProperties();
 
@@ -26,7 +26,7 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
         .arrayLayers = 1,
         .usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-        .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+        .initialLayout = Layout,
     };
 
     const VkImageViewType ResourceImageView = TextureDimensionToVkImageViewType(InDesc.Dimension);

@@ -24,6 +24,9 @@ public:
     virtual void EndFrame() override;
     virtual void NextFrame() override;
 
+    virtual void BeginDrawingViewport(Ref<RHIViewport> &Viewport) override;
+    virtual void EndDrawingViewport(Ref<RHIViewport> &Viewport) override;
+
     virtual Ref<RHIViewport> CreateViewport(void *InWindowHandle, glm::uvec2 InSize) override;
     virtual Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc) override;
     virtual Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) override;
@@ -46,7 +49,7 @@ public:
 
     Ref<VulkanDevice> GetDevice();
 
-protected:
+private:
     void CreateInstance();
     void SelectDevice();
 
@@ -57,9 +60,12 @@ protected:
     void RemoveDebugLayerCallback();
 #endif
 
-protected:
+private:
     VkInstance m_Instance;
     Ref<VulkanDevice> Device;
+
+    std::vector<Ref<VulkanViewport>> Viewports;
+    WeakRef<VulkanViewport> DrawingViewport;
 
     VulkanShaderCompiler ShaderCompiler;
 };

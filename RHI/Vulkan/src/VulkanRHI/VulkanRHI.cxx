@@ -70,6 +70,8 @@ void VulkanDynamicRHI::PostInit() {}
 
 void VulkanDynamicRHI::Shutdown()
 {
+    Viewports.clear();
+
     Device->Destroy();
     Device = nullptr;
 

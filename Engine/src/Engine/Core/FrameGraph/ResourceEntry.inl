@@ -12,7 +12,7 @@ void TResourceEntry<ResourceType, ArgTypes...>::ConstructResource()
 
     RHI_CREATE_FUNCTION(Viewport)
     RHI_CREATE_FUNCTION(Shader)
-    RHI_CREATE_FUNCTION(Texture) { static_assert(AlwaysFalse<ArgTypes...>); }
+    RHI_CREATE_FUNCTION(Texture) { static_assert(AlwaysFalse<decltype(ResourceType)>); }
 }
 
 #undef RHI_CREATE_FUNCTION

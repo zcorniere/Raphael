@@ -32,7 +32,7 @@ public:
     void InitPhysicalDevice();
     void CreateDeviceAndQueue(const std::vector<const char *> &DeviceLayers,
                               const std::vector<const char *> &DeviceExtensions);
-
+    void SetupPresentQueue(VkSurfaceKHR Surface);
     void Destroy();
 
     void WaitUntilIdle();
@@ -64,7 +64,7 @@ public:
     inline const VkPhysicalDeviceLimits &GetLimits() const { return GpuProps.limits; }
     inline VulkanMemoryManager *GetMemoryManager() { return MemoryAllocator; }
 
-    Ref<VulkanCmdBuffer> &GetCommandbuffer();
+    VulkanCommandBufferManager *GetCommandManager();
 
 private:
     VulkanMemoryManager *MemoryAllocator;

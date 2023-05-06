@@ -48,6 +48,7 @@ public:
     void *GetNativeResource() const override { return (void *)Image; }
 
     VkImageViewType GetViewType() const { return TextureDimensionToVkImageViewType(Description.Dimension); }
+    VkImageLayout GetLayout() const { return Layout; }
 
 private:
     RHITextureCreateDesc Description;
@@ -55,6 +56,7 @@ private:
     Ref<VulkanMemoryAllocation> Allocation;
     VkMemoryRequirements MemoryRequirements;
     VkImage Image;
+    VkImageLayout Layout;
 };
 
 struct VulkanTextureView {
