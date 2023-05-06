@@ -36,10 +36,11 @@ void VulkanQueue::Submit(Ref<VulkanCmdBuffer> &CmdBuffer, uint32 NumSignaledSema
 
     std::vector<VkSemaphore> WaitSemaphores;
     if (!CmdBuffer->WaitSemaphore.empty()) {
-        WaitSemaphores.resize(CmdBuffer->WaitSemaphore.size());
+        WaitSemaphores.reserve(CmdBuffer->WaitSemaphore.size());
         for (Ref<Semaphore> &Semaphore: CmdBuffer->WaitSemaphore) { WaitSemaphores.push_back(Semaphore->GetHandle()); }
-        SubmitInfo.waitSemaphoreCount = WaitSemaphores.size();
+        SubmitInfo.waitSemaphoreCount = CmdBuffer->WaitSemaphore.size();
         SubmitInfo.pWaitSemaphores = WaitSemaphores.data();
+        SubmitInfo.pWaitDstStageMask = CmdBuffer->WaitFlags.data();
     }
     VK_CHECK_RESULT(VulkanAPI::vkQueueSubmit(Queue, 1, &SubmitInfo, Fence->GetHandle()));
 

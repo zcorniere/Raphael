@@ -221,6 +221,7 @@ void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo *RecreateInfo)
 VulkanSwapChain::Status VulkanSwapChain::Present(Ref<VulkanQueue> &PresentQueue, Ref<Semaphore> &RenderingComplete)
 {
     check(CurrentImageIndex != -1);
+
     VkSemaphore Semaphore = RenderingComplete->GetHandle();
     VkPresentInfoKHR Info{
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
@@ -232,6 +233,8 @@ VulkanSwapChain::Status VulkanSwapChain::Present(Ref<VulkanQueue> &PresentQueue,
     };
 
     VkResult PresentResult = VulkanPlatform::Present(PresentQueue->GetHandle(), Info);
+
+    CurrentImageIndex = -1;
 
     if (PresentResult == VK_ERROR_OUT_OF_DATE_KHR) { return Status::OutOfDate; }
 

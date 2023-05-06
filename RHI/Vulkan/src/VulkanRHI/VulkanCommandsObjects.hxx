@@ -37,7 +37,7 @@ public:
     void BeginRenderPass(/* Argument */);
     void EndRenderPass();
 
-    void AddWaitSemaphore(Ref<Semaphore> &InSemaphore);
+    void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore> &InSemaphore);
 
     inline VkCommandBuffer GetHandle() const { return m_CommandBufferHandle; }
 
@@ -69,6 +69,7 @@ private:
     WeakRef<VulkanCommandBufferPool> m_OwnerPool;
 
     Ref<Fence> m_Fence;
+    std::vector<VkPipelineStageFlags> WaitFlags;
     std::vector<Ref<Semaphore>> WaitSemaphore;
 
     VkCommandBuffer m_CommandBufferHandle;
@@ -111,6 +112,9 @@ public:
 
     void Init();
     void Shutdown();
+
+    // Update the fences of all cmd buffers except SkipCmdBuffer
+    void RefreshFenceStatus(Ref<VulkanCmdBuffer> SkipCmdBuffer = nullptr) { Pool->RefreshFenceStatus(SkipCmdBuffer); }
 
     Ref<VulkanCmdBuffer> &GetActiveCmdBuffer();
     Ref<VulkanCmdBuffer> &GetUploadCmdBuffer();

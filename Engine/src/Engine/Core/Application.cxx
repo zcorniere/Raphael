@@ -104,8 +104,8 @@ void Application::Tick(const float DeltaTime)
     // Process All event
     while (SDL_PollEvent(&event)) { ProcessEvent(event); }
 
-    // RHI::Submit([this] { RHI::BeginDrawingViewport(Viewport); });
-    // RHI::Submit([this] { RHI::EndDrawingViewport(Viewport); });
+    RHI::Submit([this] { RHI::BeginDrawingViewport(Viewport); });
+    RHI::Submit([this] { RHI::EndDrawingViewport(Viewport); });
 
     RHI::EndFrame();
 }

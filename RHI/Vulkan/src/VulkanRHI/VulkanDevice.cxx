@@ -240,7 +240,11 @@ void VulkanDevice::Destroy()
     Device = VK_NULL_HANDLE;
 }
 
-void VulkanDevice::WaitUntilIdle() { VK_CHECK_RESULT(VulkanAPI::vkDeviceWaitIdle(Device)); }
+void VulkanDevice::WaitUntilIdle()
+{
+    VK_CHECK_RESULT(VulkanAPI::vkDeviceWaitIdle(Device));
+    CommandManager->RefreshFenceStatus();
+}
 
 VulkanCommandBufferManager *VulkanDevice::GetCommandManager()
 {

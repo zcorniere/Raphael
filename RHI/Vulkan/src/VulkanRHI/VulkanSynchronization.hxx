@@ -7,6 +7,27 @@ namespace VulkanRHI
 
 class VulkanDevice;
 
+void VulkanSetImageLayout(VkCommandBuffer CmdBuffer, VkImage Image, VkImageLayout OldLayout, VkImageLayout NewLayout,
+                          const VkImageSubresourceRange &SubresourceRange);
+
+class Barrier
+{
+public:
+    static VkImageSubresourceRange MakeSubresourceRange(VkImageAspectFlags AspectMask, uint32 FirstMip = 0,
+                                                        uint32 NumMips = VK_REMAINING_MIP_LEVELS, uint32 FirstLayer = 0,
+                                                        uint32 NumLayers = VK_REMAINING_ARRAY_LAYERS);
+
+public:
+    Barrier();
+
+    void TransitionLayout(VkImage Image, VkImageLayout OldLayout, VkImageLayout NewLayout,
+                          const VkImageSubresourceRange &SubresourceRange);
+    void Execute(VkCommandBuffer CmdBuffer);
+
+private:
+    std::vector<VkImageMemoryBarrier> ImageBarrier;
+};
+
 class Semaphore : public RObject
 {
 public:

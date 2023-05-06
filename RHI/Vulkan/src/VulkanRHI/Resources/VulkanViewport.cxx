@@ -52,8 +52,12 @@ bool VulkanViewport::Present(Ref<VulkanCmdBuffer> &CmdBuffer, Ref<VulkanQueue> &
 
     bool bSuccesfullyAquiredImage = TryAcquireImageIndex();
 
+    VulkanSetImageLayout(CmdBuffer->GetHandle(), BackBufferImages[AcquiredImageIndex], VK_IMAGE_LAYOUT_UNDEFINED,
+                         VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, Barrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT));
+
     CmdBuffer->End();
     if (LIKELY(bSuccesfullyAquiredImage)) {
+        CmdBuffer->AddWaitSemaphore(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, AcquiredSemaphore);
         Ref<Semaphore> SignalSemaphore =
             (AcquiredImageIndex >= 0) ? RenderingDoneSemaphores[AcquiredImageIndex] : nullptr;
         Device->GetCommandManager()->SubmitActiveCmdBufferFormPresent(SignalSemaphore);
@@ -106,23 +110,19 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo *RecreateInfo)
     Ref<VulkanCmdBuffer> &CmdBuffer = Device->GetCommandManager()->GetUploadCmdBuffer();
     verify(CmdBuffer->IsOutsideRenderPass());
 
-    // VkClearColorValue ClearColor;
-    // std::memset(&ClearColor, 0, sizeof(VkClearColorValue));
+    VkClearColorValue ClearColor;
+    std::memset(&ClearColor, 0, sizeof(VkClearColorValue));
 
-    // const VkImageSubresourceRange Range{
-    //     .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-    //     .baseMipLevel = 0,
-    //     .levelCount = VK_REMAINING_MIP_LEVELS,
-    //     .baseArrayLayer = 0,
-    //     .layerCount = VK_REMAINING_ARRAY_LAYERS,
-    // };
+    const VkImageSubresourceRange Range = Barrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT);
 
     TexturesViews.resize(BackBufferImages.size());
     for (unsigned i = 0; i < BackBufferImages.size(); i++) {
         TexturesViews.at(i).Create(Device, BackBufferImages.at(i), VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT,
                                    SwapChain->GetFormat(), 0, 1);
-        // VulkanAPI::vkCmdClearColorImage(CmdBuffer->GetHandle(), BackBufferImages[i], VK_IMAGE_LAYOUT_UNDEFINED,
-        //                                 &ClearColor, 1, &Range);
+        VulkanSetImageLayout(CmdBuffer->GetHandle(), BackBufferImages.at(i), VK_IMAGE_LAYOUT_UNDEFINED,
+                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, Range);
+        VulkanAPI::vkCmdClearColorImage(CmdBuffer->GetHandle(), BackBufferImages.at(i),
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &ClearColor, 1, &Range);
     }
 
     Device->GetCommandManager()->SubmitUploadCmdBuffer();

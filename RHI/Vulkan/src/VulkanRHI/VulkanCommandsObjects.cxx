@@ -62,9 +62,10 @@ void VulkanCmdBuffer::EndRenderPass()
     State = EState::IsInsideBegin;
 }
 
-void VulkanCmdBuffer::AddWaitSemaphore(Ref<Semaphore> &InSemaphore)
+void VulkanCmdBuffer::AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore> &InSemaphore)
 {
     // TODO: check if InSemaphore is not already inside WaitSemaphore (std::vector does not have find() / contains())
+    WaitFlags.push_back(InWaitFlags);
     WaitSemaphore.push_back(InSemaphore);
 }
 
