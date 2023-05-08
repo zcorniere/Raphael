@@ -1,16 +1,3 @@
-#include <Engine/Core/Log.hxx>
-#include <Engine/Core/Application.hxx>
+#include "EditorApplication.hxx"
 
-int main(int, char **)
-{
-    Application *App = new Application();
-
-    check(App->Initialize());
-    while (!App->ShouldExit()) {
-        App->Tick(0.0f);
-    }
-    App->Shutdown();
-
-    delete App;
-    return 0;
-}
+int main(int ac, char **av) { return Engine::Start<EditorApplication>(ac, av); }

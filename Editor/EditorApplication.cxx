@@ -1,42 +1,15 @@
-#include "Engine/Core/Application.hxx"
+#include "EditorApplication.hxx"
 
-#include "Engine/Core/RHI/GenericRHI.hxx"
-#include "Engine/Core/RHI/RHI.hxx"
-
-#include "Engine/Core/FrameGraph/FrameGraph.hxx"
+#include <Engine/Core/FrameGraph/FrameGraph.hxx>
 
 DECLARE_LOGGER_CATEGORY(Core, LogApplication, Warn)
 
-Application *GApplication = nullptr;
+EditorApplication::EditorApplication() {}
 
-Application::Application()
+EditorApplication::~EditorApplication() {}
+
+bool EditorApplication::OnEngineInitialization()
 {
-    Log::Init();
-
-    m_RHI = RHI::CreateRHI();
-
-    check(GApplication == nullptr);
-    GApplication = this;
-}
-
-Application::~Application()
-{
-    m_RHI = nullptr;
-    GApplication = nullptr;
-
-    RHI::DeleteRHI();
-
-    // Make sure no RObjects are left undestroyed
-    // Not strictly necessary, but this precaution don't hurt ¯\_(ツ)_/¯
-    check(RObjectUtils::AreThereAnyLiveObject() == false);
-
-    Log::Shutdown();
-}
-
-bool Application::Initialize()
-{
-    m_RHI->Init();
-
     WindowDefinition WindowDef{
         .AppearsInTaskbar = true,
         .Title = "Raphael Engine",
@@ -75,7 +48,7 @@ bool Application::Initialize()
     return true;
 }
 
-void Application::Shutdown()
+void EditorApplication::OnEngineDestruction()
 {
     Viewport = nullptr;
 
@@ -83,7 +56,7 @@ void Application::Shutdown()
     Windows.clear();
 }
 
-void Application::ProcessEvent(SDL_Event SDLEvent)
+void EditorApplication::ProcessEvent(SDL_Event SDLEvent)
 {
     Ref<Window> EventWindow = FindEventWindow(SDLEvent);
     if (!EventWindow) { return; }
@@ -94,11 +67,8 @@ void Application::ProcessEvent(SDL_Event SDLEvent)
     }
 }
 
-void Application::Tick(const float DeltaTime)
+void EditorApplication::Tick(const float DeltaTime)
 {
-    RHI::NextFrame();
-    RHI::BeginFrame();
-
     (void)DeltaTime;
     SDL_Event event;
     // Process All event
@@ -106,13 +76,11 @@ void Application::Tick(const float DeltaTime)
 
     RHI::Submit([this] { RHI::BeginDrawingViewport(Viewport); });
     RHI::Submit([this] { RHI::EndDrawingViewport(Viewport); });
-
-    RHI::EndFrame();
 }
 
-bool Application::ShouldExit() const { return bShouldExit; }
+bool EditorApplication::ShouldExit() const { return bShouldExit; }
 
-Ref<Window> Application::FindEventWindow(SDL_Event &Event)
+Ref<Window> EditorApplication::FindEventWindow(SDL_Event &Event)
 {
     uint32 WindowID;
 

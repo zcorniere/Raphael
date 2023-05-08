@@ -2,7 +2,7 @@ project(RaphaelEditor)
 
 option(NO_PROFILING "Disable the profiling" ON)
 
-add_executable(${PROJECT_NAME} main.cxx)
+add_executable(${PROJECT_NAME} main.cxx EditorApplication.cxx)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelEngine)
 target_precompile_headers(${PROJECT_NAME} REUSE_FROM RaphaelEngine)
