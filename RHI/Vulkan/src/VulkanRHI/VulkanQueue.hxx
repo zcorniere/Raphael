@@ -28,6 +28,8 @@ public:
         return Submit(CmdBuffer, 1, &SignalSemaphores);
     }
 
+    void SetName(std::string_view InName) override;
+
 private:
     VkQueue Queue;
     std::uint32_t FamilyIndex;

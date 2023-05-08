@@ -10,7 +10,7 @@
 
 #if VULKAN_USE_DEBUG_NAMES
     #define VULKAN_SET_DEBUG_NAME(Device, Type, Handle, Format, ...) \
-        Device->SetObjectName(Type, Handle, cpplogger::fmt::format(Format, __VA_ARGS__));
+        Device->SetObjectName(Type, Handle, cpplogger::fmt::format(Format, ##__VA_ARGS__));
 #else
     #define VULKAN_SET_DEBUG_NAME(Device, Type, Handle, Format, ...)
 #endif

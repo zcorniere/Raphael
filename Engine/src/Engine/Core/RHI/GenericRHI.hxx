@@ -13,27 +13,27 @@ public:
     virtual ~GenericRHI() {}
 
     // Initialize the RHI
-    virtual void Init();
+    virtual void Init() = 0;
 
     // Called after the RHI init
-    virtual void PostInit();
+    virtual void PostInit() = 0;
 
     // Shutdown the RHI
-    virtual void Shutdown();
+    virtual void Shutdown() = 0;
 
     virtual RHIInterfaceType GetInterfaceType() const { return RHIInterfaceType::Null; }
 
     // ---------------------- RHI Operations --------------------- //
-    virtual void BeginFrame();
-    virtual void EndFrame();
-    virtual void NextFrame();
+    virtual void BeginFrame() = 0;
+    virtual void EndFrame() = 0;
+    virtual void NextFrame() = 0;
 
-    virtual void BeginDrawingViewport(Ref<RHIViewport> &Viewport);
-    virtual void EndDrawingViewport(Ref<RHIViewport> &Viewport);
+    virtual void BeginDrawingViewport(Ref<RHIViewport> &Viewport) = 0;
+    virtual void EndDrawingViewport(Ref<RHIViewport> &Viewport) = 0;
 
-    virtual Ref<RHIViewport> CreateViewport(void *InWindowHandle, glm::uvec2 InSize);
-    virtual Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc);
-    virtual Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile);
+    virtual Ref<RHIViewport> CreateViewport(void *InWindowHandle, glm::uvec2 InSize) = 0;
+    virtual Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc) = 0;
+    virtual Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) = 0;
 
 private:
     friend class RHI;

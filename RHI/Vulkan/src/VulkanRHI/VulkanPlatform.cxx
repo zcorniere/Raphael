@@ -21,7 +21,7 @@ VK_ENTRYPOINTS_DEBUG_UTILS(DEFINE_VK_ENTRYPOINTS)
 
 #undef DEFINE_VK_ENTRYPOINTS
 
-static Ref<IExternalModule> VulkanModuleHandle = nullptr;
+static Ref<IExternalModule> s_VulkanModuleHandle = nullptr;
 
 #if defined(PLATFORM_WINDOWS)
 static constexpr auto VulkanLibraryName = "vulkan-1.dll";
@@ -33,11 +33,11 @@ static constexpr auto VulkanLibraryName = "libvulkan.so.1";
 
 bool VulkanPlatform::LoadVulkanLibrary()
 {
-    if (VulkanModuleHandle) { return true; }
+    if (s_VulkanModuleHandle) { return true; }
 
-    VulkanModuleHandle = PlatformMisc::LoadExternalModule(VulkanLibraryName);
+    s_VulkanModuleHandle = PlatformMisc::LoadExternalModule(VulkanLibraryName);
 
-    if (VulkanModuleHandle == nullptr) { return false; }
+    if (s_VulkanModuleHandle == nullptr) { return false; }
 
     bool bFoundAllEntryPoints = true;
 #define CHECK_VK_ENTRYPOINTS(Type, Func)                                   \
@@ -46,7 +46,7 @@ bool VulkanPlatform::LoadVulkanLibrary()
         LOG(LogVulkanRHI, Error, "Failed to find entry point for " #Func); \
     }
 
-#define GET_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = VulkanModuleHandle->GetSymbol<Type>(#Func);
+#define GET_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = s_VulkanModuleHandle->GetSymbol<Type>(#Func);
 
     VK_ENTRYPOINTS_BASE(GET_VK_ENTRYPOINTS);
     VK_ENTRYPOINTS_BASE(CHECK_VK_ENTRYPOINTS);
@@ -89,16 +89,16 @@ bool VulkanPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
 
 void VulkanPlatform::FreeVulkanLibrary()
 {
-    if (VulkanModuleHandle != nullptr) {
+    if (s_VulkanModuleHandle != nullptr) {
 #define CLEAR_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = nullptr;
         VK_ENTRYPOINT_ALL(CLEAR_VK_ENTRYPOINTS);
 #undef CLEAR_VK_ENTRYPOINTS
 
-        VulkanModuleHandle = nullptr;
+        s_VulkanModuleHandle = nullptr;
     }
 }
 
-void VulkanPlatform::GetInstanceExtensions([[maybe_unused]] std::vector<const char *> &OutExtensions)
+void VulkanPlatform::GetInstanceExtensions(std::vector<const char *> &OutExtensions)
 {
     Window::EnsureSDLInit();
 

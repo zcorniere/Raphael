@@ -48,4 +48,11 @@ void VulkanQueue::Submit(Ref<VulkanCmdBuffer> &CmdBuffer, uint32 NumSignaledSema
     CmdBuffer->WaitSemaphore.clear();
 }
 
+void VulkanQueue::SetName(std::string_view InName)
+{
+    RObject::SetName(InName);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_QUEUE, Queue, "{}", InName);
+}
+
 }    // namespace VulkanRHI
+

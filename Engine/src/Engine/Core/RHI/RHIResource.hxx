@@ -21,10 +21,7 @@ enum class RHIResourceType : uint8 {
 class RHIResource : public RObject
 {
 public:
-    RHIResource(RHIResourceType InResourceType, std::string_view InName = ""): ResourceType(InResourceType)
-    {
-        SetName(InName);
-    }
+    RHIResource(RHIResourceType InResourceType): ResourceType(InResourceType) {}
 
     virtual ~RHIResource() {}
 

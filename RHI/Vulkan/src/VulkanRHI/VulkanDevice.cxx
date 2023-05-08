@@ -58,6 +58,7 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice InGpu)
 VulkanDevice::~VulkanDevice()
 {
     if (Device != VK_NULL_HANDLE) {
+        WaitUntilIdle();
         Destroy();
         Device = VK_NULL_HANDLE;
     }

@@ -195,11 +195,14 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice> &InDev
     ImageAcquiredSemaphore.resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
         ImageAcquiredSemaphore[BufferIndex] = Ref<Semaphore>::Create(Device);
+        ImageAcquiredSemaphore[BufferIndex]->SetName(
+            cpplogger::fmt::format("Swapchain Semaphore Image Acquired [{}]", BufferIndex));
     }
 
     ImageInUseFence.resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
         ImageInUseFence[BufferIndex] = Ref<Fence>::Create(Device, false);
+        ImageInUseFence[BufferIndex]->SetName(cpplogger::fmt::format("Swapchain Fence Image In Use [{}]", BufferIndex));
     }
 }
 

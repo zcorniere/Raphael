@@ -61,12 +61,12 @@ public:
     void IncrementRefCount() const
     {
         checkMsg(m_RefCount <= UINT32_MAX - 1, "Ref count have overflowed !");
-        m_RefCount.fetch_add(1, std::memory_order_seq_cst);
+        m_RefCount.fetch_add(1, std::memory_order_acq_rel);
     }
     void DecrementRefCount() const
     {
         if (!verifyAlwaysMsg(m_RefCount > 0, "Ref count is already at 0")) { return; }
-        m_RefCount.fetch_sub(1, std::memory_order_seq_cst);
+        m_RefCount.fetch_sub(1, std::memory_order_acq_rel);
     }
 
     std::uint32_t GetRefCount() const

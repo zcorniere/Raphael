@@ -6,7 +6,7 @@ static Ref<RHICommandQueue> s_CommandQueue = nullptr;
 
 Ref<GenericRHI> GDynamicRHI = nullptr;
 
-void RHI::Init() { s_CommandQueue = Ref<RHICommandQueue>::CreateNamed("RHI Command Queue"); }
+void RHI::Init() { s_CommandQueue = Ref<RHICommandQueue>::Create(); }
 
 void RHI::DeleteRHI()
 {

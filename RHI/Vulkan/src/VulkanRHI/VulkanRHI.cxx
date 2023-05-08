@@ -40,12 +40,9 @@ VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr
             "Failed to find all of the required Vulkan entry points; make sure your driver supports Vulkan!");
         _exit(1);
     }
-
-    CreateInstance();
-    SelectDevice();
 }
 
-VulkanDynamicRHI::~VulkanDynamicRHI() {}
+VulkanDynamicRHI::~VulkanDynamicRHI() { VulkanPlatform::FreeVulkanLibrary(); }
 
 VkInstance VulkanDynamicRHI::RHIGetVkInstance() const { return GetInstance(); }
 
@@ -56,6 +53,9 @@ VkPhysicalDevice VulkanDynamicRHI::RHIGetVkPhysicalDevice() const { return Devic
 void VulkanDynamicRHI::Init()
 {
     GenericRHI::Init();
+
+    CreateInstance();
+    SelectDevice();
 
 #if VULKAN_DEBUGGING_ENABLED
     ShaderCompiler.SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::None);
@@ -70,6 +70,8 @@ void VulkanDynamicRHI::PostInit() {}
 
 void VulkanDynamicRHI::Shutdown()
 {
+    Device->WaitUntilIdle();
+
     Viewports.clear();
 
     Device->Destroy();
@@ -80,7 +82,6 @@ void VulkanDynamicRHI::Shutdown()
 #endif
 
     VulkanAPI::vkDestroyInstance(m_Instance, nullptr);
-    VulkanPlatform::FreeVulkanLibrary();
 
     GenericRHI::Shutdown();
 }
