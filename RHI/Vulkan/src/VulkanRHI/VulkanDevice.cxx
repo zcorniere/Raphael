@@ -29,8 +29,7 @@ static constexpr std::string GetQueueInfoString(const VkQueueFamilyProperties &P
     return Info;
 };
 
-static const std::vector<const char *> DefaultDeviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                                                               VK_EXT_VALIDATION_CACHE_EXTENSION_NAME};
+static const std::vector<const char *> DefaultDeviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 namespace VulkanRHI
 {

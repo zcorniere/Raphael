@@ -3,6 +3,8 @@
 #include "VulkanRHI/VulkanLoader.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
 
+#if VULKAN_DEBUGGING_ENABLED
+
 static std::string_view VulkanMessageType(const VkDebugUtilsMessageTypeFlagsEXT &s)
 {
     switch (s) {
@@ -77,7 +79,6 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
 namespace VulkanRHI
 {
 
-#if VULKAN_DEBUGGING_ENABLED
 
 void VulkanDynamicRHI::SetupDebugLayerCallback()
 {
@@ -98,6 +99,7 @@ void VulkanDynamicRHI::RemoveDebugLayerCallback()
     if (Messenger != VK_NULL_HANDLE) { VulkanAPI::vkDestroyDebugUtilsMessengerEXT(m_Instance, Messenger, nullptr); }
 }
 
-#endif
 
 }    // namespace VulkanRHI
+
+#endif

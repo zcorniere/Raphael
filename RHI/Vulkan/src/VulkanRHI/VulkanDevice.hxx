@@ -6,9 +6,7 @@
 #include "VulkanRHI/VulkanRHI.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
 
-#define VULKAN_USE_DEBUG_NAMES 1
-
-#if VULKAN_USE_DEBUG_NAMES
+#if VULKAN_DEBUGGING_ENABLED
     #define VULKAN_SET_DEBUG_NAME(Device, Type, Handle, Format, ...) \
         Device->SetObjectName(Type, Handle, cpplogger::fmt::format(Format, ##__VA_ARGS__));
 #else
@@ -37,6 +35,7 @@ public:
 
     void WaitUntilIdle();
 
+    #if VULKAN_DEBUGGING_ENABLED
     template <typename T>
     void SetObjectName(VkObjectType Type, const T Handle, const std::string Name)
     {
@@ -49,6 +48,7 @@ public:
 
         VK_CHECK_RESULT(VulkanAPI::vkSetDebugUtilsObjectNameEXT(Device, &NameInfo));
     }
+    #endif
 
     inline VkPhysicalDevice GetPhysicalHandle() const
     {
