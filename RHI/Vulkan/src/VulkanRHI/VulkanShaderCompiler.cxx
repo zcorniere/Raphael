@@ -97,7 +97,7 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
     }
 
     std::string PreprocessCode(PreProcessResult.begin(), PreProcessResult.end());
-    LOG(LogVulkanShaderCompiler, Debug, "Pre-process Result \"{}\": {}", Path.string().c_str(), PreprocessCode);
+    LOG(LogVulkanShaderCompiler, Info, "Pre-process Result \"{}\": {}", Path.string().c_str(), PreprocessCode);
 
     shaderc::CompilationResult CompilationResult =
         ShaderCompiler.CompileGlslToSpv(PreprocessCode, ShaderKind, Path.string().c_str(), Options);

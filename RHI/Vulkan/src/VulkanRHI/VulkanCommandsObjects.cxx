@@ -18,7 +18,8 @@ VulkanCmdBuffer::VulkanCmdBuffer(Ref<VulkanDevice> InDevice, WeakRef<VulkanComma
 VulkanCmdBuffer::~VulkanCmdBuffer()
 {
     if (State == EState::Submitted) {
-        LOG(LogVulkanRHI, Warn, "Attempting to destroy a buffer still in flight ! Waiting 16ms so it can be destroyed");
+        LOG(LogVulkanRHI, Warning,
+            "Attempting to destroy a buffer still in flight ! Waiting 16ms so it can be destroyed");
         // Wait 16 ms
         m_Fence->Wait(16 * 1000 * 1000LL);
         m_Fence->Reset();
@@ -219,7 +220,7 @@ void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Ref<Semaphore> SignalSema
 
     if (!ActiveCmdBuffer->IsSubmitted() && ActiveCmdBuffer->HasBegun()) {
         if (!ActiveCmdBuffer->IsOutsideRenderPass()) {
-            LOG(LogVulkanRHI, Warn, "Forcing EndRenderPass() for submission");
+            LOG(LogVulkanRHI, Warning, "Forcing EndRenderPass() for submission");
             ActiveCmdBuffer->EndRenderPass();
         }
 

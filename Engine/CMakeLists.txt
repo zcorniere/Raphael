@@ -50,7 +50,7 @@ add_library(
     ${COMPILER_SOURCE_FILE}
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
-target_link_libraries(${PROJECT_NAME} PUBLIC logger magic_enum glm SDL3-static)
+target_link_libraries(${PROJECT_NAME} PUBLIC cpplogger magic_enum glm SDL3-static)
 
 target_compile_options(
     ${PROJECT_NAME}

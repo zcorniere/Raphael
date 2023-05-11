@@ -37,7 +37,7 @@ private:
     virtual void *GetSymbol_Internal(std::string_view SymbolName) const = 0;
 };
 
-DECLARE_LOGGER_CATEGORY(Core, LogPlatformMisc, Debug);
+DECLARE_LOGGER_CATEGORY(Core, LogPlatformMisc, Info);
 
 class GenericMisc
 {

@@ -136,9 +136,9 @@ void VulkanDynamicRHI::CreateInstance()
 
         PlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok,
-            cpplogger::fmt::format("Vulkan driver doesn't contain specified extensions:\n{:s}\nMake sure your layers "
-                                   "path is set appropriately.",
-                                   MissingExtensions),
+            std::format("Vulkan driver doesn't contain specified extensions:\n{:s}\nMake sure your layers "
+                        "path is set appropriately.",
+                        MissingExtensions),
             "Incompatible Vulkan driver found!");
         LOG(LogVulkanRHI, Fatal, "Extension not found : {} !", MissingExtensions);
         _exit(1);
@@ -166,7 +166,7 @@ void VulkanDynamicRHI::CreateInstance()
     for (const char *Layer: InstanceExtensions) { LOG(LogVulkanRHI, Info, "* {}", Layer); }
 
 #if VULKAN_DEBUGGING_ENABLED
-    LOG(LogVulkanRHI, Warn, "Vulkan Debugging is enabled !");
+    LOG(LogVulkanRHI, Warning, "Vulkan Debugging is enabled !");
     SetupDebugLayerCallback();
 #endif
 }

@@ -23,9 +23,9 @@ static cpplogger::Level VulkanMessageSeverityToLogLevel(const VkDebugUtilsMessag
 {
     switch (severity) {
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: return cpplogger::Level::Error;
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: return cpplogger::Level::Warn;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: return cpplogger::Level::Warning;
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: return cpplogger::Level::Info;
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: return cpplogger::Level::Debug;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: return cpplogger::Level::Info;
         default: return cpplogger::Level::Trace;
     }
 }
@@ -59,13 +59,12 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
 
     std::string Objects;
     if (pCallbackData->objectCount) {
-        Objects = cpplogger::fmt::format("\n\tObjects({}): \n", pCallbackData->objectCount);
+        Objects = std::format("\n\tObjects({}): \n", pCallbackData->objectCount);
         for (uint32_t i = 0; i < pCallbackData->objectCount; ++i) {
             const auto &object = pCallbackData->pObjects[i];
-            Objects.append(cpplogger::fmt::format("\t\t- Object[{0}] name: {1}, type: {2}, handle: {3:#x}\n", i,
-                                                  object.pObjectName ? object.pObjectName : "NULL",
-                                                  VK_TYPE_TO_STRING(VkObjectType, object.objectType),
-                                                  object.objectHandle));
+            Objects.append(std::format("\t\t- Object[{0}] name: {1}, type: {2}, handle: {3:#x}\n", i,
+                                       object.pObjectName ? object.pObjectName : "NULL",
+                                       VK_TYPE_TO_STRING(VkObjectType, object.objectType), object.objectHandle));
         }
     }
 

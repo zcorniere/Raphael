@@ -39,6 +39,7 @@ public:
     }
 
 public:
+    Engine() = delete;
     Engine(IApplication *Application, const int ac, const char *const *const av);
     ~Engine();
 

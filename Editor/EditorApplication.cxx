@@ -2,7 +2,7 @@
 
 #include <Engine/Core/FrameGraph/FrameGraph.hxx>
 
-DECLARE_LOGGER_CATEGORY(Core, LogApplication, Warn)
+DECLARE_LOGGER_CATEGORY(Core, LogApplication, Warning)
 
 EditorApplication::EditorApplication() {}
 

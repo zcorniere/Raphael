@@ -1,6 +1,6 @@
 #include "Engine/Threading/ThreadPool.hxx"
 
-DECLARE_LOGGER_CATEGORY(Core, LogWorkerThreadRuntime, Warn);
+DECLARE_LOGGER_CATEGORY(Core, LogWorkerThreadRuntime, Warning);
 
 ThreadPool::ThreadPool(): state(std::make_shared<ThreadPool::State>()) {}
 
@@ -17,7 +17,7 @@ void ThreadPool::Resize(unsigned size)
     unsigned old_size = thread_p.size();
     thread_p.resize(size);
     for (; old_size < thread_p.size(); old_size++) {
-        thread_p.at(old_size).Create(cpplogger::fmt::format("Worker Thread nb {}", old_size),
+        thread_p.at(old_size).Create(std::format("Worker Thread nb {}", old_size),
                                      std::make_unique<WorkerPoolRuntime>(state));
     }
 }

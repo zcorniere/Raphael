@@ -52,9 +52,9 @@ public:
     virtual std::string ToString() const
     {
         if (GetName().empty()) {
-            return cpplogger::fmt::format("(<{:s}> {:p})", GetTypeName(), (void *)this);
+            return std::format("(<{:s}> {:p})", GetTypeName(), (void *)this);
         } else {
-            return cpplogger::fmt::format("(\"{:s}\" <{:s}> {:p})", GetName(), GetTypeName(), (void *)this);
+            return std::format("(\"{:s}\" <{:s}> {:p})", GetName(), GetTypeName(), (void *)this);
         }
     }
 
@@ -107,7 +107,7 @@ private:
         ObjectPtr->SetTypeName(type_name<T>());
         ObjectPtr->SetName(Name);
 
-        LOG(RObjectUtils::LogRObject, Debug, "Creating RObject {:s}", ObjectPtr->ToString());
+        LOG(RObjectUtils::LogRObject, Info, "Creating RObject {:s}", ObjectPtr->ToString());
 
         return Ref<T>(ObjectPtr);
     }
@@ -268,7 +268,7 @@ private:
 
         if (m_ObjPtr->GetRefCount() > 0) return;
 
-        LOG(RObjectUtils::LogRObject, Debug, "Deleting RObject {:s}", m_ObjPtr->ToString());
+        LOG(RObjectUtils::LogRObject, Info, "Deleting RObject {:s}", m_ObjPtr->ToString());
 
         delete m_ObjPtr;
         RObjectUtils::RemoveFromLiveReferences(m_ObjPtr);

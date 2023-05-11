@@ -79,7 +79,7 @@ void VulkanMemoryManager::Init(Ref<VulkanDevice> InDevice)
     Functions.Name = (Type)VulkanAPI::vkGetInstanceProcAddr(RHI->RHIGetVkInstance(), #Name);
 
 #define CHECK_VMA_FUNCTION(Type, Name) \
-    if (Functions.Name == nullptr) { LOG(LogVulkanMemoryAllocator, Warn, "Failed to find entry point for " #Name); }
+    if (Functions.Name == nullptr) { LOG(LogVulkanMemoryAllocator, Warning, "Failed to find entry point for " #Name); }
 
     VK_ENTRYPOINTS_VMA(GET_VMA_FUNCTION);
     VK_ENTRYPOINTS_VMA(CHECK_VMA_FUNCTION);

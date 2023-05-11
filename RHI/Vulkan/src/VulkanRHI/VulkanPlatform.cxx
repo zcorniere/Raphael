@@ -67,7 +67,7 @@ bool VulkanPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
 #define CHECK_VK_ENTRYPOINTS(Type, Func)                                  \
     if (VulkanAPI::Func == nullptr) {                                     \
         bFoundAllEntryPoints = false;                                     \
-        LOG(LogVulkanRHI, Warn, "Failed to find entry point for " #Func); \
+        LOG(LogVulkanRHI, Warning, "Failed to find entry point for " #Func); \
     }
 
 #define GETINSTANCE_VK_ENTRYPOINTS(Type, Func) \

@@ -15,20 +15,22 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
 
 #ifndef NDEBUG
 
-    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, Format, ...)                                  \
-        ((LIKELY(!!(Expression))) || ([Capture]() {                                                        \
-                                         static std::atomic_bool bExecuted = false;                        \
-                                         if (!bExecuted || Always) {                                       \
-                                             bExecuted = true;                                             \
-                                             /* TODO: Check if another assertion is in progress */         \
-                                             CollectAndPrintStackTrace(Compiler::ReturnAddress());         \
-                                             cpplogger::fmt::print(stderr, "Assertion failed:" STR(#Expression)          \
-                                                                 __VA_OPT__(" :: " Format, ) __VA_ARGS__); \
-                                             cpplogger::fmt::print(stderr, "\n");                                        \
-                                             return Platform::isDebuggerPresent();                         \
-                                         }                                                                 \
-                                         return false;                                                     \
-                                     }()) &&                                                               \
+    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, Format, ...)                               \
+        ((LIKELY(!!(Expression))) || ([Capture]() {                                                     \
+                                         static std::atomic_bool bExecuted = false;                     \
+                                         if (!bExecuted || Always) {                                    \
+                                             bExecuted = true;                                          \
+                                             /* TODO: Check if another assertion is in progress */      \
+                                             CollectAndPrintStackTrace(Compiler::ReturnAddress());      \
+                                             std::string Message = std::format("Assertion failed:" STR( \
+                                                 #Expression) __VA_OPT__(" :: " Format, ) __VA_ARGS__); \
+                                             fprintf(stderr, "%s", Message.c_str());                    \
+                                             fprintf(stderr, "\n");                                     \
+                                             fflush(stderr);                                            \
+                                             return Platform::isDebuggerPresent();                      \
+                                         }                                                              \
+                                         return false;                                                  \
+                                     }()) &&                                                            \
                                          ([]() { PLATFORM_BREAK(); }(), false))
 
     #define verify(Expression) RAPHAEL_VERIFY_IMPL(, false, Expression, )
@@ -36,16 +38,18 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
     #define verifyAlways(Expression) RAPHAEL_VERIFY_IMPL(, true, Expression, )
     #define verifyAlwaysMsg(Expression, Format, ...) RAPHAEL_VERIFY_IMPL(&, true, Expression, Format, ##__VA_ARGS__)
 
-    #define RAPHAEL_CHECK_IMPL(Expression, ...)                                                        \
-        {                                                                                              \
-            if (UNLIKELY(!(Expression))) {                                                             \
-                CollectAndPrintStackTrace(Compiler::ReturnAddress());                                  \
-                cpplogger::fmt::print(stderr, "Assertion failed: " STR(#Expression) __VA_OPT__(" :: ") __VA_ARGS__); \
-                cpplogger::fmt::print(stderr, "\n");                                                                 \
-                fflush(stderr);                                                                        \
-                if (Platform::isDebuggerPresent()) { PLATFORM_BREAK(); }                               \
-                std::abort();                                                                          \
-            }                                                                                          \
+    #define RAPHAEL_CHECK_IMPL(Expression, ...)                                                       \
+        {                                                                                             \
+            if (UNLIKELY(!(Expression))) {                                                            \
+                CollectAndPrintStackTrace(Compiler::ReturnAddress());                                 \
+                std::string Message =                                                                 \
+                    std::format("Assertion failed:" STR(#Expression) __VA_OPT__(" :: ") __VA_ARGS__); \
+                fprintf(stderr, "%s", Message.c_str());                                               \
+                fprintf(stderr, "\n");                                                                \
+                fflush(stderr);                                                                       \
+                if (Platform::isDebuggerPresent()) { PLATFORM_BREAK(); }                              \
+                std::abort();                                                                         \
+            }                                                                                         \
         }
 
     #define check(Expression) RAPHAEL_CHECK_IMPL(Expression, )

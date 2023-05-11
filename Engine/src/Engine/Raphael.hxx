@@ -3,6 +3,7 @@
 #include <cpplogger/Logger.hpp>
 #include <glm/glm.hpp>
 
+#include <cstring>
 #include <filesystem>
 #include <mutex>
 #include <optional>

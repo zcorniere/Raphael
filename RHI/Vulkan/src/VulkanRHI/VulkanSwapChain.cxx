@@ -92,7 +92,7 @@ VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool Loc
     } else if (bFoundPresentModeFIFO) {
         return VK_PRESENT_MODE_FIFO_KHR;
     } else {
-        LOG(LogVulkanSwapchain, Warn, "Couldn't find desired PresentMode! Using {}",
+        LOG(LogVulkanSwapchain, Warning, "Couldn't find desired PresentMode! Using {}",
             VK_TYPE_TO_STRING(VkPresentModeKHR, PresentModes[0]));
         return PresentModes[0];
     }
@@ -196,13 +196,13 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice> &InDev
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
         ImageAcquiredSemaphore[BufferIndex] = Ref<Semaphore>::Create(Device);
         ImageAcquiredSemaphore[BufferIndex]->SetName(
-            cpplogger::fmt::format("Swapchain Semaphore Image Acquired [{}]", BufferIndex));
+            std::format("Swapchain Semaphore Image Acquired [{}]", BufferIndex));
     }
 
     ImageInUseFence.resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
         ImageInUseFence[BufferIndex] = Ref<Fence>::Create(Device, false);
-        ImageInUseFence[BufferIndex]->SetName(cpplogger::fmt::format("Swapchain Fence Image In Use [{}]", BufferIndex));
+        ImageInUseFence[BufferIndex]->SetName(std::format("Swapchain Fence Image In Use [{}]", BufferIndex));
     }
 }
 

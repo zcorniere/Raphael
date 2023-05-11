@@ -151,7 +151,7 @@ bool Window::InitializeSDL()
     if (SDL_Init((SDL_INIT_EVERYTHING ^ SDL_INIT_AUDIO)) != 0) {
         const char *ErrorMessage = SDL_GetError();
         if (strcmp("No message system available", ErrorMessage) != 0) {
-            LOG(LogWindow, Warn, "Could not initialize SDL: {}", ErrorMessage);
+            LOG(LogWindow, Warning, "Could not initialize SDL: {}", ErrorMessage);
         }
     }
 
