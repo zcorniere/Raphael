@@ -71,14 +71,7 @@ bool VulkanViewport::Present(Ref<VulkanCmdBuffer> &CmdBuffer, Ref<VulkanQueue> &
         return true;
     }
 
-    bool bResult = false;
-    if (SwapChain->Present(PresentQueue, RenderingDoneSemaphores[AcquiredImageIndex]) !=
-        VulkanSwapChain::Status::Healty) {
-        LOG(LogVulkanRHI, Error, "Swapchain present failed !");
-        bResult = false;
-    } else {
-        bResult = true;
-    }
+    bool bResult = TryPresenting(PresentQueue);
 
     AcquiredImageIndex = -1;
 
@@ -135,6 +128,11 @@ void VulkanViewport::DeleteSwapchain(VulkanSwapChainRecreateInfo *RecreateInfo)
 {
     Device->WaitUntilIdle();
 
+    for (unsigned Index = 0; Index < BackBufferImages.size(); Index++) {
+        TexturesViews[Index].Destroy(Device);
+        BackBufferImages[Index] = VK_NULL_HANDLE;
+    }
+
     SwapChain->Destroy(RecreateInfo);
     SwapChain = nullptr;
 
@@ -151,6 +149,32 @@ bool VulkanViewport::TryAcquireImageIndex()
         }
     }
     return false;
+}
+
+bool VulkanViewport::TryPresenting(Ref<VulkanQueue> &PresentQueue)
+{
+    int32 AttemptsPending = 4;
+    VulkanSwapChain::Status Status = SwapChain->Present(PresentQueue, RenderingDoneSemaphores[AcquiredImageIndex]);
+
+    while (Status < VulkanSwapChain::Status::Healty && AttemptsPending > 0) {
+        if (Status == VulkanSwapChain::Status::OutOfDate) {
+            LOG(LogVulkanRHI, Info, "Swapchain is out of date! Trying to recreate the swapchain.");
+        } else if (Status == VulkanSwapChain::Status::SurfaceLost) {
+            LOG(LogVulkanRHI, Warning, "Swapchain surface lost! Trying to recreate the swapchain.");
+        } else {
+            checkNoEntry();
+        }
+
+        RecreateSwapchain(WindowHandle);
+
+        Device->WaitUntilIdle();
+
+        if (AcquiredImageIndex == -1) { return true; }
+        Status = SwapChain->Present(PresentQueue, RenderingDoneSemaphores[AcquiredImageIndex]);
+
+        AttemptsPending -= 1;
+    }
+    return Status >= VulkanSwapChain::Status::Healty;
 }
 
 }    // namespace VulkanRHI

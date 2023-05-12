@@ -29,6 +29,8 @@ private:
     void DeleteSwapchain(VulkanSwapChainRecreateInfo *RecreateInfo);
     bool TryAcquireImageIndex();
 
+    bool TryPresenting(Ref<VulkanQueue> &PresentQueue);
+
 private:
     Ref<VulkanDevice> Device;
     Ref<VulkanSwapChain> SwapChain;

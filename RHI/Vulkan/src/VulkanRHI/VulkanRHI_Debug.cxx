@@ -106,6 +106,7 @@ std::vector<const char *> VulkanDynamicRHI::GetSupportedInstanceLayers()
         };
         std::vector<const char *> MissingLayer;
         LOG(LogVulkanRHI, Warning, "Some Validation layers was not found !");
+        // @WATCHME: LLVM 16 should fix the compilation error
         for (const char *Layer: ExpectedValidationLayers | std::views::filter(FilterLambda)) {
             LOG(LogVulkanRHI, Warning, "- {}", Layer);
         }

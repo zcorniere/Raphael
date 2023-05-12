@@ -72,4 +72,8 @@ set(SDL_RENDER
     OFF
     CACHE BOOL ""
 )
+set(SDL_SHARED
+    OFF
+    CACHE BOOL ""
+)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SDL)

@@ -97,7 +97,11 @@ void VulkanTextureView::Create(Ref<VulkanDevice> &Device, VkImage InImage, VkIma
 
 void VulkanTextureView::Destroy(Ref<VulkanDevice> &Device)
 {
-    if (View) { VulkanAPI::vkDestroyImageView(Device->GetInstanceHandle(), View, nullptr); }
+    if (View) {
+        VulkanAPI::vkDestroyImageView(Device->GetInstanceHandle(), View, nullptr);
+        Image = VK_NULL_HANDLE;
+        View = VK_NULL_HANDLE;
+    }
 }
 
 }    // namespace VulkanRHI

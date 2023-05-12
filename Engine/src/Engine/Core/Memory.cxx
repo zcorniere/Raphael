@@ -26,7 +26,7 @@ void *operator new[](std::size_t n)
     return Memory;
 }
 
-void operator delete(void *p)
+void operator delete(void *p) noexcept
 {
     if (p == nullptr) return;
 #if TRACY_ENABLE
@@ -35,7 +35,13 @@ void operator delete(void *p)
     s_Allocator.Free((uint8 *)p);
 }
 
-void operator delete[](void *p)
+void operator delete(void *p, std::size_t n) noexcept
+{
+    (void)n;
+    ::operator delete(p);
+}
+
+void operator delete[](void *p) noexcept
 {
     if (p == nullptr) return;
 #if TRACY_ENABLE
@@ -43,4 +49,10 @@ void operator delete[](void *p)
 #endif
 
     s_Allocator.Free((uint8 *)p);
+}
+
+void operator delete[](void *p, std::size_t n) noexcept
+{
+    (void)n;
+    ::operator delete[](p);
 }
