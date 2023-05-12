@@ -3,6 +3,8 @@
 #include "VulkanRHI/VulkanLoader.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
 
+#include <ranges>
+
 #if VULKAN_DEBUGGING_ENABLED
 
 static std::string_view VulkanMessageType(const VkDebugUtilsMessageTypeFlagsEXT &s)
@@ -78,6 +80,38 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
 namespace VulkanRHI
 {
 
+std::vector<const char *> VulkanDynamicRHI::GetSupportedInstanceLayers()
+{
+    static const std::vector<const char *> ExpectedValidationLayers{"VK_LAYER_KHRONOS_validation"};
+    std::vector<const char *> FoundLayers;
+
+    uint32 PropertiesCount;
+    std::vector<VkLayerProperties> AvailableLayers;
+    VulkanAPI::vkEnumerateInstanceLayerProperties(&PropertiesCount, nullptr);
+    AvailableLayers.resize(PropertiesCount);
+    VulkanAPI::vkEnumerateInstanceLayerProperties(&PropertiesCount, AvailableLayers.data());
+
+    for (VkLayerProperties &Properties: AvailableLayers) {
+        for (const char *ExpectedLayer: ExpectedValidationLayers) {
+            if (std::strcmp(ExpectedLayer, Properties.layerName) == 0) { FoundLayers.push_back(ExpectedLayer); }
+        }
+    }
+    if (FoundLayers.size() != ExpectedValidationLayers.size()) {
+        bValidationLayersAreMissing = true;
+        auto FilterLambda = [&FoundLayers](const char *LayerName) {
+            for (const char *Layer: FoundLayers) {
+                if (std::strcmp(Layer, LayerName) == 0) return false;
+            }
+            return true;
+        };
+        std::vector<const char *> MissingLayer;
+        LOG(LogVulkanRHI, Warning, "Some Validation layers was not found !");
+        for (const char *Layer: ExpectedValidationLayers | std::views::filter(FilterLambda)) {
+            LOG(LogVulkanRHI, Warning, "- {}", Layer);
+        }
+    }
+    return FoundLayers;
+}
 
 void VulkanDynamicRHI::SetupDebugLayerCallback()
 {
@@ -97,7 +131,6 @@ void VulkanDynamicRHI::RemoveDebugLayerCallback()
 {
     if (Messenger != VK_NULL_HANDLE) { VulkanAPI::vkDestroyDebugUtilsMessengerEXT(m_Instance, Messenger, nullptr); }
 }
-
 
 }    // namespace VulkanRHI
 

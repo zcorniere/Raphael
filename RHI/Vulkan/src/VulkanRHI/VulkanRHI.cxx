@@ -115,7 +115,7 @@ void VulkanDynamicRHI::CreateInstance()
     InstInfo.ppEnabledExtensionNames = InstanceExtensions.data();
 
 #if VULKAN_DEBUGGING_ENABLED
-    std::vector<const char *> ValidationLayers{"VK_LAYER_KHRONOS_validation"};
+    std::vector<const char *> ValidationLayers = GetSupportedInstanceLayers();
 
     InstInfo.enabledLayerCount = ValidationLayers.size();
     InstInfo.ppEnabledLayerNames = ValidationLayers.data();
@@ -166,7 +166,7 @@ void VulkanDynamicRHI::CreateInstance()
     for (const char *Layer: InstanceExtensions) { LOG(LogVulkanRHI, Info, "* {}", Layer); }
 
 #if VULKAN_DEBUGGING_ENABLED
-    LOG(LogVulkanRHI, Warning, "Vulkan Debugging is enabled !");
+    LOG(LogVulkanRHI, Warning, "Vulkan Debugging is enabled {}!", (bValidationLayersAreMissing) ? ("but some instance layers are missing ") : (""));
     SetupDebugLayerCallback();
 #endif
 }

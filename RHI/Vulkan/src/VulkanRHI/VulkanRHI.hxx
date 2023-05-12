@@ -55,7 +55,9 @@ private:
 
 #if VULKAN_DEBUGGING_ENABLED
     VkDebugUtilsMessengerEXT Messenger = VK_NULL_HANDLE;
+    bool bValidationLayersAreMissing = false;
 
+    std::vector<const char *> GetSupportedInstanceLayers();
     void SetupDebugLayerCallback();
     void RemoveDebugLayerCallback();
 #endif
