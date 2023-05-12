@@ -13,7 +13,7 @@ class RObject;
 namespace RObjectUtils
 {
 
-DECLARE_LOGGER_CATEGORY(Core, LogRObject, Trace)
+DECLARE_LOGGER_CATEGORY(Core, LogRObject, Warning)
 
 void AddToLiveReferences(RObject *instance);
 void RemoveFromLiveReferences(RObject *instance);
@@ -107,7 +107,7 @@ private:
         ObjectPtr->SetTypeName(type_name<T>());
         ObjectPtr->SetName(Name);
 
-        LOG(RObjectUtils::LogRObject, Info, "Creating RObject {:s}", ObjectPtr->ToString());
+        LOG(RObjectUtils::LogRObject, Trace, "Creating RObject {:s}", ObjectPtr->ToString());
 
         return Ref<T>(ObjectPtr);
     }
@@ -268,7 +268,7 @@ private:
 
         if (m_ObjPtr->GetRefCount() > 0) return;
 
-        LOG(RObjectUtils::LogRObject, Info, "Deleting RObject {:s}", m_ObjPtr->ToString());
+        LOG(RObjectUtils::LogRObject, Trace, "Deleting RObject {:s}", m_ObjPtr->ToString());
 
         delete m_ObjPtr;
         RObjectUtils::RemoveFromLiveReferences(m_ObjPtr);

@@ -6,7 +6,7 @@
 
 #include <shaderc/shaderc.hpp>
 
-DECLARE_LOGGER_CATEGORY(Core, LogVulkanShaderCompiler, Info)
+DECLARE_LOGGER_CATEGORY(Core, LogVulkanShaderCompiler, Warning)
 
 static uint32 VulkanVersionToShaderc(uint32 Version)
 {
