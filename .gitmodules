@@ -34,3 +34,6 @@
 [submodule "External/magic_enum"]
 	path = Engine/External/magic_enum
 	url = https://github.com/Neargye/magic_enum.git
+[submodule "Engine/External/tomlplusplus"]
+	path = Engine/External/tomlplusplus
+	url = https://github.com/marzer/tomlplusplus.git

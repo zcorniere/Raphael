@@ -17,8 +17,8 @@ public:
     ~FrameGraph();
 
     template <typename Data, typename SetupCallback, typename ExecuteCallback>
-        requires ValidFrameGraphSetupLambda<SetupCallback, Data> &&
-                 ValidFrameGraphExecutionLambda<ExecuteCallback, Data>
+        requires CValidFrameGraphSetupLambda<SetupCallback, Data> &&
+                 CValidFrameGraphExecutionLambda<ExecuteCallback, Data>
     const Data &AddCallbackPass(const std::string_view Name, SetupCallback &&setup, ExecuteCallback &&Exec);
 
     bool Compile();

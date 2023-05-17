@@ -13,8 +13,6 @@ enum class ETextureCreateFlags {
 ENUM_CLASS_FLAGS(ETextureCreateFlags)
 
 struct RHITextureCreateDesc {
-    Ref<Buffer> InitialData = nullptr;
-
     ETextureCreateFlags Flags = ETextureCreateFlags::None;
     EImageDimension Dimension = EImageDimension::Texture2D;
     EImageFormat Format = EImageFormat::R8G8B8A8_RGBA;

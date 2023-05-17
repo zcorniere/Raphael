@@ -15,22 +15,21 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
 
 #ifndef NDEBUG
 
-    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, Format, ...)                               \
-        ((LIKELY(!!(Expression))) || ([Capture]() {                                                     \
-                                         static std::atomic_bool bExecuted = false;                     \
-                                         if (!bExecuted || Always) {                                    \
-                                             bExecuted = true;                                          \
-                                             /* TODO: Check if another assertion is in progress */      \
-                                             CollectAndPrintStackTrace(Compiler::ReturnAddress());      \
-                                             std::string Message = std::format("Assertion failed:" STR( \
-                                                 #Expression) __VA_OPT__(" :: " Format, ) __VA_ARGS__); \
-                                             fprintf(stderr, "%s", Message.c_str());                    \
-                                             fprintf(stderr, "\n");                                     \
-                                             fflush(stderr);                                            \
-                                             return Platform::isDebuggerPresent();                      \
-                                         }                                                              \
-                                         return false;                                                  \
-                                     }()) &&                                                            \
+    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, Format, ...)                                     \
+        ((LIKELY(!!(Expression))) || ([Capture]() {                                                           \
+                                         static std::atomic_bool bExecuted = false;                           \
+                                         if (!bExecuted || Always) {                                          \
+                                             bExecuted = true;                                                \
+                                             /* TODO: Check if another assertion is in progress */            \
+                                             CollectAndPrintStackTrace(Compiler::ReturnAddress());            \
+                                             const std::string Message = std::format("Assertion failed:" STR( \
+                                                 #Expression) __VA_OPT__(" :: " Format, ) __VA_ARGS__);       \
+                                             fprintf(stderr, "%s\n", Message.c_str());                        \
+                                             fflush(stderr);                                                  \
+                                             return Platform::isDebuggerPresent();                            \
+                                         }                                                                    \
+                                         return false;                                                        \
+                                     }()) &&                                                                  \
                                          ([]() { PLATFORM_BREAK(); }(), false))
 
     #define verify(Expression) RAPHAEL_VERIFY_IMPL(, false, Expression, )
@@ -38,18 +37,17 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
     #define verifyAlways(Expression) RAPHAEL_VERIFY_IMPL(, true, Expression, )
     #define verifyAlwaysMsg(Expression, Format, ...) RAPHAEL_VERIFY_IMPL(&, true, Expression, Format, ##__VA_ARGS__)
 
-    #define RAPHAEL_CHECK_IMPL(Expression, ...)                                                       \
-        {                                                                                             \
-            if (UNLIKELY(!(Expression))) {                                                            \
-                CollectAndPrintStackTrace(Compiler::ReturnAddress());                                 \
-                std::string Message =                                                                 \
-                    std::format("Assertion failed:" STR(#Expression) __VA_OPT__(" :: ") __VA_ARGS__); \
-                fprintf(stderr, "%s", Message.c_str());                                               \
-                fprintf(stderr, "\n");                                                                \
-                fflush(stderr);                                                                       \
-                if (Platform::isDebuggerPresent()) { PLATFORM_BREAK(); }                              \
-                std::abort();                                                                         \
-            }                                                                                         \
+    #define RAPHAEL_CHECK_IMPL(Expression, Format, ...)                                                        \
+        {                                                                                                      \
+            if (UNLIKELY(!(Expression))) {                                                                     \
+                CollectAndPrintStackTrace(Compiler::ReturnAddress());                                          \
+                const std::string Message =                                                                    \
+                    std::format("Assertion failed:" STR(#Expression) __VA_OPT__(" :: " Format, ) __VA_ARGS__); \
+                fprintf(stderr, "%s\n", Message.c_str());                                                      \
+                fflush(stderr);                                                                                \
+                if (Platform::isDebuggerPresent()) { PLATFORM_BREAK(); }                                       \
+                std::abort();                                                                                  \
+            }                                                                                                  \
         }
 
     #define check(Expression) RAPHAEL_CHECK_IMPL(Expression, )
@@ -81,11 +79,11 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
         {                                       \
             ::Compiler::Unreachable(); \
         }
-    #define checkNoReentry()                                                                        \
-        {                                                                                           \
-            static std::atomic_bool MACRO_EXPENDER(beenHere, __LINE__) = false;                     \
-            if (MACRO_EXPENDER(beenHere, __LINE__) == true) { ::Raphael::Compiler::Unreachable(); } \
-            MACRO_EXPENDER(beenHere, __LINE__) = true;                                              \
+    #define checkNoReentry()                                                                         \
+        {                                                                                            \
+            static std::atomic_bool MACRO_EXPENDER(beenHere, __LINE__) = false;                      \
+            if (UNLIKELY(MACRO_EXPENDER(beenHere, __LINE__) == true)) { ::Compiler::Unreachable(); } \
+            MACRO_EXPENDER(beenHere, __LINE__) = true;                                               \
         }
 
 #endif

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Engine/Core/Buffer.hxx"
 #include "Engine/Misc/EnumFlags.hxx"
 
 enum class EImageDimension {

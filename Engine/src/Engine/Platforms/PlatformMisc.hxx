@@ -27,7 +27,7 @@ public:
     IExternalModule(std::string_view) {}
     virtual ~IExternalModule() {}
 
-    template <IsFunctionPointer T>
+    template <CIsFunctionPointer T>
     T GetSymbol(std::string_view SymbolName) const
     {
         return (T)GetSymbol_Internal(SymbolName);

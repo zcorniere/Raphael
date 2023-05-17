@@ -4,11 +4,11 @@ class FrameGraphPassResources;
 class FrameGraphBuilder;
 
 template <typename T, typename Data>
-concept ValidFrameGraphExecutionLambda = std::is_invocable_r_v<void, T, const Data &, FrameGraphPassResources &> &&
-                                         sizeof(T) < 10'000;    // Shouldn't be larger that 10 ko
+concept CValidFrameGraphExecutionLambda = std::is_invocable_r_v<void, T, const Data &, FrameGraphPassResources &> &&
+                                          sizeof(T) < 10'000;    // Shouldn't be larger that 10 ko
 
 template <typename T, typename Data>
-concept ValidFrameGraphSetupLambda = std::is_invocable_r_v<void, T, FrameGraphBuilder &, Data &> && sizeof(T) < 10'000;
+concept CValidFrameGraphSetupLambda = std::is_invocable_r_v<void, T, FrameGraphBuilder &, Data &> && sizeof(T) < 10'000;
 
 class FrameGraphPass : public RObject
 {
@@ -21,7 +21,7 @@ public:
 };
 
 template <typename Data, typename Execute>
-    requires ValidFrameGraphExecutionLambda<Execute, Data>
+    requires CValidFrameGraphExecutionLambda<Execute, Data>
 class TFrameGraphPass : public FrameGraphPass
 {
 public:

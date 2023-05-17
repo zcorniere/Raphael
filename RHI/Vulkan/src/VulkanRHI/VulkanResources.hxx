@@ -4,7 +4,6 @@
 #include "Engine/Core/RHI/RHIResource.hxx"
 
 // Include other VulkanResources
-#include "VulkanRHI/Resources/VulkanFramebuffer.hxx"
 #include "VulkanRHI/Resources/VulkanShader.hxx"
 #include "VulkanRHI/Resources/VulkanTexture.hxx"
 #include "VulkanRHI/Resources/VulkanViewport.hxx"

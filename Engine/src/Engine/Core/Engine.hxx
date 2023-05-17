@@ -22,10 +22,10 @@ public:
     template <std::derived_from<IApplication> T>
     static int Start(const int ac, const char *const *const av)
     {
-        IApplication *Application = new T();
-        GEngine = new Engine(Application, ac, av);
+        GEngine = new Engine(ac, av);
 
-        if (!GEngine->Initialisation()) { return -1; }
+        IApplication *Application = new T();
+        if (!GEngine->Initialisation(Application)) { return -1; }
 
         unsigned Result = GEngine->Run();
 
@@ -40,13 +40,13 @@ public:
 
 public:
     Engine() = delete;
-    Engine(IApplication *Application, const int ac, const char *const *const av);
+    Engine(const int ac, const char *const *const av);
     ~Engine();
 
     ThreadPool &GetThreadPool() { return m_ThreadPool; }
 
 private:
-    bool Initialisation();
+    bool Initialisation(IApplication *Application);
     void Destroy();
 
     unsigned Run();

@@ -6,13 +6,11 @@
 
 Engine *GEngine = nullptr;
 
-Engine::Engine(IApplication *Application, const int ac, const char *const *const av): App(Application)
+Engine::Engine(const int ac, const char *const *const av)
 {
     (void)ac;
     (void)av;
     Log::Init();
-
-    check(App);
 }
 
 Engine::~Engine()
@@ -24,8 +22,13 @@ Engine::~Engine()
     Log::Shutdown();
 }
 
-bool Engine::Initialisation()
+bool Engine::Initialisation(IApplication *Application)
 {
+    checkNoReentry();
+
+    App = Application;
+    check(App);
+
     RHI::CreateRHI();
     GDynamicRHI->Init();
     m_ThreadPool.Start();
@@ -42,6 +45,8 @@ void Engine::Destroy()
 
 unsigned Engine::Run()
 {
+    checkNoReentry();
+
     float dt = 0.0f;
     while (!App->ShouldExit()) {
         RHI::NextFrame();
