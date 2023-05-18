@@ -2,6 +2,7 @@
 
 #include <libloaderapi.h>
 #include <winuser.h>
+#include <shlobj_core.h>
 
 EBoxReturnType WindowsMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
                                        const std::string_view Caption)

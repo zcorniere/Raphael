@@ -18,11 +18,11 @@ VulkanViewport::VulkanViewport(Ref<VulkanDevice> InDevice, void *InWindowHandle,
 
 VulkanViewport::~VulkanViewport()
 {
+    DeleteSwapchain(nullptr);
+
     for (VulkanTextureView &View: TexturesViews) { View.Destroy(Device); }
     TexturesViews.clear();
     RenderingDoneSemaphores.clear();
-
-    DeleteSwapchain(nullptr);
 }
 
 void VulkanViewport::SetName(std::string_view InName)
