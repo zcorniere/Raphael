@@ -48,11 +48,9 @@ public:
         return EBoxReturnType::Ok;
     }
 
-    static Ref<IExternalModule> LoadExternalModule(std::string_view ModuleName)
-    {
-        (void)ModuleName;
-        return nullptr;
-    }
+    static Ref<IExternalModule> LoadExternalModule(std::string_view ModuleName);
+
+    static std::filesystem::path GetConfigPath();
 };
 
 #if defined(PLATFORM_WINDOWS)

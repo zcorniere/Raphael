@@ -1,9 +1,11 @@
 #include "Engine/Misc/DataLocation.hxx"
 
-std::filesystem::path DataLocationFinder::GetShaderPath()
-{
-    namespace fs = std::filesystem;
+#include "Engine/Platforms/PlatformMisc.hxx"
 
+namespace fs = std::filesystem;
+
+fs::path DataLocationFinder::GetShaderPath()
+{
     fs::path ExePath = Platform::GetExecutablePath();
 
     fs::path SearchDirectory = ExePath;
@@ -13,5 +15,14 @@ std::filesystem::path DataLocationFinder::GetShaderPath()
         if (fs::exists(FolderPath) && fs::is_directory(FolderPath)) { return FolderPath; }
         SearchDirectory = SearchDirectory.parent_path();
     }
-    checkNoEntry();
+    return fs::current_path();
+}
+
+fs::path DataLocationFinder::GetConfigPath()
+{
+#ifndef NDEBUG
+    return fs::current_path();
+#else
+    return PlatformMisc::GetConfigPath();
+#endif
 }

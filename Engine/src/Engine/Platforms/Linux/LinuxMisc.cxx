@@ -2,6 +2,9 @@
 
 #include "Engine/Core/Window.hxx"
 
+#include <xdg.hpp>
+
+#include "LinuxMisc.hxx"
 #include <dlfcn.h>
 
 EBoxReturnType LinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
@@ -83,5 +86,8 @@ Ref<IExternalModule> LinuxMisc::LoadExternalModule(const std::string &ModuleName
         s_ModuleStorage[ModuleName] = Module;
         return Module;
     }
+
     return Ref(Iter->second);
 }
+
+std::filesystem::path LinuxMisc::GetConfigPath() { return xdg::ConfigHomeDir() / "RaphaelEngine"; }

@@ -52,3 +52,15 @@ Ref<IExternalModule> WindowsMisc::LoadExternalModule(const std::string &ModuleNa
     }
     return Ref(Iter->second);
 }
+
+std::filesystem::path WindowsMisc::GetConfigPath()
+{
+    std::filesystem::path returnPath = std::filesystem::current_path();
+    PWSTR wAppDataPath = nullptr;
+    if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_CREATE, nullptr, &wAppDataPath))) {
+        returnPath = std::filesystem::path(wAppDataPath);
+        CoTaskMemFree(wAppDataPath);
+    }
+
+    return returnPath;
+}

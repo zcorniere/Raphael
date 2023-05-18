@@ -21,6 +21,8 @@ public:
                                      const std::string_view Caption);
 
     static Ref<IExternalModule> LoadExternalModule(const std::string &ModuleName);
+
+    static std::filesystem::path GetConfigPath();
 };
 
 using PlatformMisc = LinuxMisc;
