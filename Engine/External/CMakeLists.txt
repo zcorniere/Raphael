@@ -78,9 +78,6 @@ set(SDL_SHARED
 )
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SDL)
 
-# tomlplusplus
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tomlplusplus ${CMAKE_CURRENT_BINARY_DIR}/tomlplusplus)
-
 #xdgpp
 add_library(xdgpp INTERFACE)
 target_include_directories(xdgpp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/xdgpp)

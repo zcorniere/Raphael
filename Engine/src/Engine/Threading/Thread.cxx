@@ -1,6 +1,6 @@
 #include "Engine/Threading/Thread.hxx"
 
-DECLARE_LOGGER_CATEGORY(Core, LogThread, Info)
+DECLARE_LOGGER_CATEGORY(Core, LogThread, Warning)
 
 Thread::Thread(): m_name(), m_internalRuntime(nullptr)
 {

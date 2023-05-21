@@ -25,6 +25,15 @@ VulkanViewport::~VulkanViewport()
     RenderingDoneSemaphores.clear();
 }
 
+void VulkanViewport::RT_BeginDrawViewport() { GetVulkanDynamicRHI()->RT_SetDrawingViewport(this); }
+void VulkanViewport::RT_EndDrawViewport()
+{
+    Ref<VulkanCmdBuffer> CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
+    check(!CmdBuffer->HasEnded() && !CmdBuffer->IsInsideRenderPass());
+
+    this->Present(CmdBuffer, Device->GraphicsQueue, Device->PresentQueue);
+}
+
 void VulkanViewport::SetName(std::string_view InName)
 {
     RHIResource::SetName(InName);

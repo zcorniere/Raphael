@@ -75,8 +75,8 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
     #define check(Expression) (LIKELY(!!(Expression)))
     #define checkSlow(Expression)
     #define checkMsg(Expression, ...) (LIKELY(!!(Expression)))
-    #define checkNoEntry()                      \
-        {                                       \
+    #define checkNoEntry()             \
+        {                              \
             ::Compiler::Unreachable(); \
         }
     #define checkNoReentry()                                                                         \

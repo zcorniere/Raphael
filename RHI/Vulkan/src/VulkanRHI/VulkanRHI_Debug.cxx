@@ -3,6 +3,7 @@
 #include "VulkanRHI/VulkanLoader.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
 
+#include "VulkanRHI.hxx"
 #include <ranges>
 
 #if VULKAN_DEBUGGING_ENABLED

@@ -20,19 +20,11 @@ void VulkanDynamicRHI::EndFrame()
 
 void VulkanDynamicRHI::NextFrame() { GetDevice()->CommandManager->PrepareForNewActiveCommandBuffer(); }
 
-void VulkanDynamicRHI::BeginDrawingViewport(Ref<RHIViewport> &RHIViewport)
+void VulkanDynamicRHI::RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport)
 {
-    DrawingViewport = RHIViewport.As<VulkanViewport>();
-}
-
-void VulkanDynamicRHI::EndDrawingViewport(Ref<RHIViewport> &RHIViewport)
-{
-    Ref<VulkanViewport> Viewport = RHIViewport.As<VulkanViewport>();
-
-    Ref<VulkanCmdBuffer> CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
-    check(!CmdBuffer->HasEnded() && !CmdBuffer->IsInsideRenderPass());
-
-    Viewport->Present(CmdBuffer, Device->GraphicsQueue, Device->PresentQueue);
+    // TODO: check if Viewport is inside Viewports (wtf no find in std::vector ?)
+    // TODO: check if we are really on the renderthread once such thing exists
+    DrawingViewport = Viewport;
 }
 
 //

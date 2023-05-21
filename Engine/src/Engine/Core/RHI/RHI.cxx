@@ -28,16 +28,6 @@ void RHI::EndFrame() { return RHI::Get<GenericRHI>()->EndFrame(); }
 
 void RHI::NextFrame() { return RHI::Get<GenericRHI>()->NextFrame(); }
 
-void RHI::BeginDrawingViewport(Ref<RHIViewport> &Viewport)
-{
-    return RHI::Get<GenericRHI>()->BeginDrawingViewport(Viewport);
-}
-
-void RHI::EndDrawingViewport(Ref<RHIViewport> &Viewport)
-{
-    return RHI::Get<GenericRHI>()->EndDrawingViewport(Viewport);
-}
-
 //
 //  -------------------- RHI Create resources --------------------
 //

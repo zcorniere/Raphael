@@ -39,9 +39,6 @@ public:
     static void EndFrame();
     static void NextFrame();
 
-    static void BeginDrawingViewport(Ref<RHIViewport> &Viewport);
-    static void EndDrawingViewport(Ref<RHIViewport> &Viewport);
-
     static Ref<RHIViewport> CreateViewport(void *InWindowHandle, glm::uvec2 InSize);
     static Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc);
     static Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile);

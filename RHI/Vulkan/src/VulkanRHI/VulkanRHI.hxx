@@ -24,9 +24,6 @@ public:
     virtual void EndFrame() override;
     virtual void NextFrame() override;
 
-    virtual void BeginDrawingViewport(Ref<RHIViewport> &Viewport) override;
-    virtual void EndDrawingViewport(Ref<RHIViewport> &Viewport) override;
-
     virtual Ref<RHIViewport> CreateViewport(void *InWindowHandle, glm::uvec2 InSize) override;
     virtual Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc) override;
     virtual Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) override;
@@ -61,6 +58,10 @@ private:
     void SetupDebugLayerCallback();
     void RemoveDebugLayerCallback();
 #endif
+
+private:
+    friend class VulkanViewport;
+    void RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport);
 
 private:
     VkInstance m_Instance;

@@ -66,6 +66,12 @@ public:
 
     VulkanCommandBufferManager *GetCommandManager();
 
+public:
+    Ref<VulkanQueue> GraphicsQueue;
+    Ref<VulkanQueue> ComputeQueue;
+    Ref<VulkanQueue> TransferQueue;
+    Ref<VulkanQueue> PresentQueue;
+
 private:
     VulkanMemoryManager *MemoryAllocator;
     VulkanCommandBufferManager *CommandManager;
@@ -76,11 +82,6 @@ private:
 
     VkPhysicalDeviceFeatures PhysicalFeatures;
     std::vector<VkQueueFamilyProperties> QueueFamilyProps;
-
-    Ref<VulkanQueue> GraphicsQueue;
-    Ref<VulkanQueue> ComputeQueue;
-    Ref<VulkanQueue> TransferQueue;
-    Ref<VulkanQueue> PresentQueue;
 
     friend class VulkanDynamicRHI;
 };
