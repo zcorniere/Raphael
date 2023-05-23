@@ -9,7 +9,9 @@ namespace VulkanRHI
 {
 
 // RHI Operation default function
-void VulkanDynamicRHI::BeginFrame() {}
+void VulkanDynamicRHI::BeginFrame()
+{
+}
 
 void VulkanDynamicRHI::EndFrame()
 {
@@ -18,7 +20,10 @@ void VulkanDynamicRHI::EndFrame()
     RHI::GetRHICommandQueue()->Execute();
 }
 
-void VulkanDynamicRHI::NextFrame() { GetDevice()->CommandManager->PrepareForNewActiveCommandBuffer(); }
+void VulkanDynamicRHI::NextFrame()
+{
+    GetDevice()->CommandManager->PrepareForNewActiveCommandBuffer();
+}
 
 void VulkanDynamicRHI::RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport)
 {
@@ -31,7 +36,7 @@ void VulkanDynamicRHI::RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport)
 //  -------------------- RHI Create resources --------------------
 //
 
-Ref<RHIViewport> VulkanDynamicRHI::CreateViewport(void *InWindowHandle, glm::uvec2 InSize)
+Ref<RHIViewport> VulkanDynamicRHI::CreateViewport(void* InWindowHandle, glm::uvec2 InSize)
 {
     Viewports.push_back(Ref<VulkanViewport>::Create(GetDevice(), InWindowHandle, InSize));
     return Viewports.back();

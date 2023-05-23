@@ -8,7 +8,7 @@ namespace VulkanRHI
 class VulkanDevice;
 
 void VulkanSetImageLayout(VkCommandBuffer CmdBuffer, VkImage Image, VkImageLayout OldLayout, VkImageLayout NewLayout,
-                          const VkImageSubresourceRange &SubresourceRange);
+                          const VkImageSubresourceRange& SubresourceRange);
 
 class Barrier
 {
@@ -21,7 +21,7 @@ public:
     Barrier();
 
     void TransitionLayout(VkImage Image, VkImageLayout OldLayout, VkImageLayout NewLayout,
-                          const VkImageSubresourceRange &SubresourceRange);
+                          const VkImageSubresourceRange& SubresourceRange);
     void Execute(VkCommandBuffer CmdBuffer);
 
 private:
@@ -31,10 +31,13 @@ private:
 class Semaphore : public RObject
 {
 public:
-    Semaphore(Ref<VulkanDevice> &InDevice);
+    Semaphore(Ref<VulkanDevice>& InDevice);
     virtual ~Semaphore();
 
-    inline VkSemaphore GetHandle() const { return SemaphoreHandle; }
+    inline VkSemaphore GetHandle() const
+    {
+        return SemaphoreHandle;
+    }
 
 private:
     Ref<VulkanDevice> Device;
@@ -56,12 +59,18 @@ public:
     Fence(Ref<VulkanDevice> InDevice, bool bCreateSignaled);
     ~Fence();
 
-    inline VkFence GetHandle() const { return Handle; }
+    inline VkFence GetHandle() const
+    {
+        return Handle;
+    }
 
     void Reset();
     bool Wait(uint64 TimeInNanoseconds);
 
-    inline bool IsSignaled() { return State == State::Signaled || CheckFenceStatus(); }
+    inline bool IsSignaled()
+    {
+        return State == State::Signaled || CheckFenceStatus();
+    }
 
 private:
     bool CheckFenceStatus();

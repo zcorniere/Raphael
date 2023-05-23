@@ -6,7 +6,7 @@
 
 #include <atomic>
 
-void CollectAndPrintStackTrace(void *ReturnAddress);
+void CollectAndPrintStackTrace(void* ReturnAddress);
 
 #define __MACRO_EXPENDER_INTERNAL(X, Y) X##Y
 #define MACRO_EXPENDER(X, Y) __MACRO_EXPENDER_INTERNAL(X, Y)
@@ -45,7 +45,9 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
                     std::format("Assertion failed:" STR(#Expression) __VA_OPT__(" :: " Format, ) __VA_ARGS__); \
                 fprintf(stderr, "%s\n", Message.c_str());                                                      \
                 fflush(stderr);                                                                                \
-                if (Platform::isDebuggerPresent()) { PLATFORM_BREAK(); }                                       \
+                if (Platform::isDebuggerPresent()) {                                                           \
+                    PLATFORM_BREAK();                                                                          \
+                }                                                                                              \
                 std::abort();                                                                                  \
             }                                                                                                  \
         }
@@ -79,11 +81,13 @@ void CollectAndPrintStackTrace(void *ReturnAddress);
         {                              \
             ::Compiler::Unreachable(); \
         }
-    #define checkNoReentry()                                                                         \
-        {                                                                                            \
-            static std::atomic_bool MACRO_EXPENDER(beenHere, __LINE__) = false;                      \
-            if (UNLIKELY(MACRO_EXPENDER(beenHere, __LINE__) == true)) { ::Compiler::Unreachable(); } \
-            MACRO_EXPENDER(beenHere, __LINE__) = true;                                               \
+    #define checkNoReentry()                                                    \
+        {                                                                       \
+            static std::atomic_bool MACRO_EXPENDER(beenHere, __LINE__) = false; \
+            if (UNLIKELY(MACRO_EXPENDER(beenHere, __LINE__) == true)) {         \
+                ::Compiler::Unreachable();                                      \
+            }                                                                   \
+            MACRO_EXPENDER(beenHere, __LINE__) = true;                          \
         }
 
 #endif

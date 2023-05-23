@@ -4,7 +4,7 @@
 #include <cpplogger/sinks/StdoutSink.hpp>
 #include <cstdio>
 
-static cpplogger::Logger *s_CoreLogger = nullptr;
+static cpplogger::Logger* s_CoreLogger = nullptr;
 
 void Log::Init()
 {

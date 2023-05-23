@@ -1,27 +1,37 @@
 #include "Engine/Platforms/Windows/WindowsMisc.hxx"
 
 #include <libloaderapi.h>
-#include <winuser.h>
 #include <shlobj_core.h>
+#include <winuser.h>
 
 EBoxReturnType WindowsMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
-                                       const std::string_view Caption)
+                                              const std::string_view Caption)
 {
     unsigned WindowFlags = MB_ICONWARNING;
     switch (MsgType) {
-        case EBoxMessageType::Ok: WindowFlags |= MB_OK; break;
+        case EBoxMessageType::Ok:
+            WindowFlags |= MB_OK;
+            break;
 
-        case EBoxMessageType::YesNo: WindowFlags |= MB_YESNO; break;
-        default: checkNoEntry(); break;
+        case EBoxMessageType::YesNo:
+            WindowFlags |= MB_YESNO;
+            break;
+        default:
+            checkNoEntry();
+            break;
     }
 
     int Result = ::MessageBox(nullptr, Text.data(), Caption.data(), WindowFlags);
 
     switch (Result) {
-        case IDYES: return EBoxReturnType::Yes;
-        case IDNO: return EBoxReturnType::No;
-        case IDOK: return EBoxReturnType::Ok;
-        case IDCANCEL: return EBoxReturnType::Cancel;
+        case IDYES:
+            return EBoxReturnType::Yes;
+        case IDNO:
+            return EBoxReturnType::No;
+        case IDOK:
+            return EBoxReturnType::Ok;
+        case IDCANCEL:
+            return EBoxReturnType::Cancel;
     }
     return EBoxReturnType::Cancel;
 }
@@ -35,14 +45,17 @@ WindowsExternalModule::WindowsExternalModule(std::string_view ModulePath): IExte
     ModuleHandle = ::LoadLibrary(ModulePath.data());
 }
 
-WindowsExternalModule::~WindowsExternalModule() { ::FreeLibrary(ModuleHandle); }
+WindowsExternalModule::~WindowsExternalModule()
+{
+    ::FreeLibrary(ModuleHandle);
+}
 
-void *WindowsExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
+void* WindowsExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
 {
     return ::GetProcAddress(ModuleHandle, SymbolName.data());
 }
 
-Ref<IExternalModule> WindowsMisc::LoadExternalModule(const std::string &ModuleName)
+Ref<IExternalModule> WindowsMisc::LoadExternalModule(const std::string& ModuleName)
 {
     auto Iter = s_ModuleStorage.find(ModuleName);
 

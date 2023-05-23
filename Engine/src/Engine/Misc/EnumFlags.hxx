@@ -2,15 +2,15 @@
 
 // Defines all bitwise operators for enum classes so it can be (mostly) used as a regular flags enum
 #define ENUM_CLASS_FLAGS(Enum)                                                                      \
-    inline Enum &operator|=(Enum &Lhs, Enum Rhs)                                                    \
+    inline Enum& operator|=(Enum& Lhs, Enum Rhs)                                                    \
     {                                                                                               \
         return Lhs = (Enum)((std::underlying_type_t<Enum>)Lhs | (std::underlying_type_t<Enum>)Rhs); \
     }                                                                                               \
-    inline Enum &operator&=(Enum &Lhs, Enum Rhs)                                                    \
+    inline Enum& operator&=(Enum& Lhs, Enum Rhs)                                                    \
     {                                                                                               \
         return Lhs = (Enum)((std::underlying_type_t<Enum>)Lhs & (std::underlying_type_t<Enum>)Rhs); \
     }                                                                                               \
-    inline Enum &operator^=(Enum &Lhs, Enum Rhs)                                                    \
+    inline Enum& operator^=(Enum& Lhs, Enum Rhs)                                                    \
     {                                                                                               \
         return Lhs = (Enum)((std::underlying_type_t<Enum>)Lhs ^ (std::underlying_type_t<Enum>)Rhs); \
     }                                                                                               \
@@ -61,13 +61,13 @@ constexpr bool EnumHasAnyFlags(Enum Flags, typename std::underlying_type_t<Enum>
 }
 
 template <typename Enum>
-void EnumAddFlags(Enum &Flags, Enum FlagsToAdd)
+void EnumAddFlags(Enum& Flags, Enum FlagsToAdd)
 {
     Flags |= FlagsToAdd;
 }
 
 template <typename Enum>
-void EnumRemoveFlags(Enum &Flags, Enum FlagsToRemove)
+void EnumRemoveFlags(Enum& Flags, Enum FlagsToRemove)
 {
     Flags &= ~FlagsToRemove;
 }

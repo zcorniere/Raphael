@@ -16,7 +16,7 @@ public:
     {
     public:
         ShaderHandle() = delete;
-        ShaderHandle(Ref<VulkanDevice> &InDevice, const VkShaderModuleCreateInfo &Info);
+        ShaderHandle(Ref<VulkanDevice>& InDevice, const VkShaderModuleCreateInfo& Info);
         ~ShaderHandle();
 
         VkShaderModule Handle;

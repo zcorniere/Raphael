@@ -28,14 +28,14 @@ public:
     ~VulkanDevice();
 
     void InitPhysicalDevice();
-    void CreateDeviceAndQueue(const std::vector<const char *> &DeviceLayers,
-                              const std::vector<const char *> &DeviceExtensions);
+    void CreateDeviceAndQueue(const std::vector<const char*>& DeviceLayers,
+                              const std::vector<const char*>& DeviceExtensions);
     void SetupPresentQueue(VkSurfaceKHR Surface);
     void Destroy();
 
     void WaitUntilIdle();
 
-    #if VULKAN_DEBUGGING_ENABLED
+#if VULKAN_DEBUGGING_ENABLED
     template <typename T>
     void SetObjectName(VkObjectType Type, const T Handle, const std::string Name)
     {
@@ -48,7 +48,7 @@ public:
 
         VK_CHECK_RESULT(VulkanAPI::vkSetDebugUtilsObjectNameEXT(Device, &NameInfo));
     }
-    #endif
+#endif
 
     inline VkPhysicalDevice GetPhysicalHandle() const
     {
@@ -60,11 +60,20 @@ public:
         verify(Device);
         return Device;
     }
-    inline const VkPhysicalDeviceProperties &GetDeviceProperties() const { return GpuProps; }
-    inline const VkPhysicalDeviceLimits &GetLimits() const { return GpuProps.limits; }
-    inline VulkanMemoryManager *GetMemoryManager() { return MemoryAllocator; }
+    inline const VkPhysicalDeviceProperties& GetDeviceProperties() const
+    {
+        return GpuProps;
+    }
+    inline const VkPhysicalDeviceLimits& GetLimits() const
+    {
+        return GpuProps.limits;
+    }
+    inline VulkanMemoryManager* GetMemoryManager()
+    {
+        return MemoryAllocator;
+    }
 
-    VulkanCommandBufferManager *GetCommandManager();
+    VulkanCommandBufferManager* GetCommandManager();
 
 public:
     Ref<VulkanQueue> GraphicsQueue;
@@ -73,8 +82,8 @@ public:
     Ref<VulkanQueue> PresentQueue;
 
 private:
-    VulkanMemoryManager *MemoryAllocator;
-    VulkanCommandBufferManager *CommandManager;
+    VulkanMemoryManager* MemoryAllocator;
+    VulkanCommandBufferManager* CommandManager;
 
     VkDevice Device;
     VkPhysicalDevice Gpu;

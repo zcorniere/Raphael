@@ -3,11 +3,12 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogAssert, Trace)
 
-void CollectAndPrintStackTrace(void *ReturnAddress)
+void CollectAndPrintStackTrace(void* ReturnAddress)
 {
     static bool bIsAlreadyHandlerAssertions = false;
 
-    if (bIsAlreadyHandlerAssertions) return;
+    if (bIsAlreadyHandlerAssertions)
+        return;
     bIsAlreadyHandlerAssertions = true;
 
     StacktraceContent trace = PlatformStacktrace::GetStackTraceFromReturnAddress(ReturnAddress);
@@ -18,7 +19,7 @@ void CollectAndPrintStackTrace(void *ReturnAddress)
         PlatformStacktrace::TryFillDetailedSymbolInfo(trace.StackTrace[CurrentDepth], detailed_info);
 
         std::string demangled = Compiler::Demangle(detailed_info.FunctionName);
-        void *ProgramCounter = reinterpret_cast<void *>(detailed_info.ProgramCounter);
+        void* ProgramCounter = reinterpret_cast<void*>(detailed_info.ProgramCounter);
         LOG(LogAssert, Trace, "{} {} [{}]", ProgramCounter,
             (detailed_info.FunctionName[0] == '\0') ? ("UnknownFunction") : (demangled), detailed_info.ModuleName);
     }

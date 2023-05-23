@@ -62,9 +62,11 @@ public:
     template <class F, typename... Args>
     /// Push a new job in the pool and return a future
     requires std::is_invocable_v<F, unsigned, Args...>
-    [[nodiscard]] auto Push(F &&f, Args &&...args) -> std::future<decltype(f(0, args...))>
+    [[nodiscard]] auto Push(F&& f, Args&&... args) -> std::future<decltype(f(0, args...))>
     {
-        if (!verifyAlwaysMsg(!thread_p.empty(), "Pushing task when no thread are started !")) { Start(1); }
+        if (!verifyAlwaysMsg(!thread_p.empty(), "Pushing task when no thread are started !")) {
+            Start(1);
+        }
         auto packagedFunction = std::make_shared<std::packaged_task<decltype(f(0, args...))(unsigned)>>(
             std::bind(std::forward<F>(f), std::placeholders::_1, std::forward<Args>(args)...));
 

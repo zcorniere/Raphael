@@ -5,7 +5,9 @@
 class IApplication
 {
 public:
-    virtual ~IApplication() {}
+    virtual ~IApplication()
+    {
+    }
 
     virtual bool OnEngineInitialization() = 0;
     virtual void OnEngineDestruction() = 0;
@@ -14,23 +16,27 @@ public:
     virtual bool ShouldExit() const = 0;
 };
 
-extern class Engine *GEngine;
+extern class Engine* GEngine;
 
 class Engine
 {
 public:
     template <std::derived_from<IApplication> T>
-    static int Start(const int ac, const char *const *const av)
+    static int Start(const int ac, const char* const* const av)
     {
         GEngine = new Engine(ac, av);
 
-        IApplication *Application = new T();
-        if (!GEngine->Initialisation(Application)) { return -1; }
+        IApplication* Application = new T();
+        if (!GEngine->Initialisation(Application)) {
+            return -1;
+        }
 
         unsigned Result = GEngine->Run();
 
         // Only destroy if the return value is ok
-        if (Result == 0) { GEngine->Destroy(); }
+        if (Result == 0) {
+            GEngine->Destroy();
+        }
 
         delete GEngine;
         delete Application;
@@ -40,18 +46,21 @@ public:
 
 public:
     Engine() = delete;
-    Engine(const int ac, const char *const *const av);
+    Engine(const int ac, const char* const* const av);
     ~Engine();
 
-    ThreadPool &GetThreadPool() { return m_ThreadPool; }
+    ThreadPool& GetThreadPool()
+    {
+        return m_ThreadPool;
+    }
 
 private:
-    bool Initialisation(IApplication *Application);
+    bool Initialisation(IApplication* Application);
     void Destroy();
 
     unsigned Run();
 
 public:
-    IApplication *App;
+    IApplication* App;
     ThreadPool m_ThreadPool;
 };

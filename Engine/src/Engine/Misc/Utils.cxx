@@ -5,14 +5,15 @@
 namespace Utils
 {
 
-std::string readFile(const std::filesystem::path &filename)
+std::string readFile(const std::filesystem::path& filename)
 {
     /// Must be opened in binary mode, so Windows won't mess with the newlines
     std::string fileContent;
     std::ifstream file(filename, std::ios::binary);
     size_t fileSize = std::filesystem::file_size(filename);
 
-    if (!file.is_open()) return "";
+    if (!file.is_open())
+        return "";
 
     fileContent.resize(fileSize);
     file.read(fileContent.data(), fileSize);

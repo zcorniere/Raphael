@@ -2,9 +2,14 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogWorkerThreadRuntime, Warning);
 
-ThreadPool::ThreadPool(): state(std::make_shared<ThreadPool::State>()) {}
+ThreadPool::ThreadPool(): state(std::make_shared<ThreadPool::State>())
+{
+}
 
-void ThreadPool::Start(unsigned i) { Resize(i); }
+void ThreadPool::Start(unsigned i)
+{
+    Resize(i);
+}
 
 void ThreadPool::Stop()
 {
@@ -44,16 +49,19 @@ std::uint32_t ThreadPool::WorkerPoolRuntime::Run()
         try {
             {
                 std::unique_lock lock(p_state->q_mutex);
-                if (p_state->qWork.empty()) p_state->q_var.wait_for(lock, 10ms);
+                if (p_state->qWork.empty())
+                    p_state->q_var.wait_for(lock, 10ms);
                 /// lock is owned by this thread when .wait return
 
-                if (p_state->qWork.empty()) continue;
+                if (p_state->qWork.empty())
+                    continue;
 
                 work = std::move(p_state->qWork.front());
                 p_state->qWork.pop();
             }
-            if (work) work(i_threadID);
-        } catch (const std::exception &e) {
+            if (work)
+                work(i_threadID);
+        } catch (const std::exception& e) {
             LOG(LogWorkerThreadRuntime, Fatal, "{} : {}", i_threadID, e.what());
         } catch (...) {
             LOG(LogWorkerThreadRuntime, Fatal, "Unknown error on thread {}", i_threadID);

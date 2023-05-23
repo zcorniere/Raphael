@@ -28,9 +28,9 @@ public:
     Window();
     ~Window();
 
-    void Initialize(const WindowDefinition InDefinition, const Ref<Window> &InParent);
+    void Initialize(const WindowDefinition InDefinition, const Ref<Window>& InParent);
 
-    const Ref<Window> &GetParent() const;
+    const Ref<Window>& GetParent() const;
 
     void ReshapeWindow(int32 X, int32 Y, int32 Width, int32 Height);
     void MoveWindow(int32 X, int32 Y);
@@ -55,16 +55,19 @@ public:
     void SetText(const std::string_view Text);
     void DrawAttention(bool bStop = false);
 
-    SDL_Window *GetHandle();
+    SDL_Window* GetHandle();
 
-    const WindowDefinition &GetDefinition() const { return Definition; }
+    const WindowDefinition& GetDefinition() const
+    {
+        return Definition;
+    }
 
 private:
     static bool InitializeSDL();
 
 private:
     WindowDefinition Definition;
-    SDL_Window *p_HWnd;
+    SDL_Window* p_HWnd;
 
     bool bIsVisible;
     Ref<Window> p_ParentWindow;

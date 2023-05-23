@@ -20,7 +20,7 @@ public:
     void Tick(const float DeltaTime) override;
     bool ShouldExit() const override;
 
-    Ref<Window> FindEventWindow(SDL_Event &Event);
+    Ref<Window> FindEventWindow(SDL_Event& Event);
 
 private:
     bool bShouldExit = false;

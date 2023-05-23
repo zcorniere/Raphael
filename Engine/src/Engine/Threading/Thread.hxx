@@ -18,9 +18,9 @@ public:
     ///
     Thread();
 
-    Thread(Thread &other) = delete;
+    Thread(Thread& other) = delete;
     /// Default move ctor
-    Thread(Thread &&other) = default;
+    Thread(Thread&& other) = default;
 
     virtual ~Thread();
     /// Initialize the thread
@@ -36,7 +36,7 @@ public:
     ///
     /// @param name the name of the new thread
     /// @param threadCode The runtime to be executed in the thread
-    void Create(const std::string &name, std::unique_ptr<ThreadRuntime> threadCode);
+    void Create(const std::string& name, std::unique_ptr<ThreadRuntime> threadCode);
 
 protected:
     /// Executed from the thread when started
@@ -47,7 +47,7 @@ protected:
     virtual void PostRun();
 
 private:
-    static void thread_runtime(Thread *pThis);
+    static void thread_runtime(Thread* pThis);
 
 private:
     std::string m_name;

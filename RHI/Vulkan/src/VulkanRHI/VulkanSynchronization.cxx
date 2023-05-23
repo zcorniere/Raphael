@@ -10,9 +10,15 @@ static VkAccessFlags GetVkAccessMaskForLayout(const VkImageLayout Layout)
     VkAccessFlags Flags = 0;
 
     switch (Layout) {
-        case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL: Flags = VK_ACCESS_TRANSFER_READ_BIT; break;
-        case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL: Flags = VK_ACCESS_TRANSFER_WRITE_BIT; break;
-        case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL: Flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT; break;
+        case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+            Flags = VK_ACCESS_TRANSFER_READ_BIT;
+            break;
+        case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+            Flags = VK_ACCESS_TRANSFER_WRITE_BIT;
+            break;
+        case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+            Flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            break;
 
         case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
         case VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL:
@@ -26,7 +32,9 @@ static VkAccessFlags GetVkAccessMaskForLayout(const VkImageLayout Layout)
                     VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
             break;
 
-        case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL: Flags = VK_ACCESS_SHADER_READ_BIT; break;
+        case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+            Flags = VK_ACCESS_SHADER_READ_BIT;
+            break;
 
         case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
         case VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL:
@@ -34,7 +42,9 @@ static VkAccessFlags GetVkAccessMaskForLayout(const VkImageLayout Layout)
             Flags = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
             break;
 
-        case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR: Flags = 0; break;
+        case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR:
+            Flags = 0;
+            break;
 
         case VK_IMAGE_LAYOUT_FRAGMENT_DENSITY_MAP_OPTIMAL_EXT:
             Flags = VK_ACCESS_FRAGMENT_DENSITY_MAP_READ_BIT_EXT;
@@ -46,7 +56,9 @@ static VkAccessFlags GetVkAccessMaskForLayout(const VkImageLayout Layout)
 
         case VK_IMAGE_LAYOUT_GENERAL:
             // todo-jn: could be used for R64 in read layout
-        case VK_IMAGE_LAYOUT_UNDEFINED: Flags = 0; break;
+        case VK_IMAGE_LAYOUT_UNDEFINED:
+            Flags = 0;
+            break;
 
         case VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL:
             // todo-jn: sync2 currently only used by depth/stencil targets
@@ -58,7 +70,9 @@ static VkAccessFlags GetVkAccessMaskForLayout(const VkImageLayout Layout)
             Flags = VK_ACCESS_SHADER_READ_BIT;
             break;
 
-        default: checkNoEntry(); break;
+        default:
+            checkNoEntry();
+            break;
     }
 
     return Flags;
@@ -69,11 +83,17 @@ static VkPipelineStageFlags GetVkStageFlagsForLayout(VkImageLayout Layout)
     VkPipelineStageFlags Flags = 0;
 
     switch (Layout) {
-        case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL: Flags = VK_PIPELINE_STAGE_TRANSFER_BIT; break;
+        case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+            Flags = VK_PIPELINE_STAGE_TRANSFER_BIT;
+            break;
 
-        case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL: Flags = VK_PIPELINE_STAGE_TRANSFER_BIT; break;
+        case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+            Flags = VK_PIPELINE_STAGE_TRANSFER_BIT;
+            break;
 
-        case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL: Flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT; break;
+        case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+            Flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            break;
 
         case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
         case VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL:
@@ -81,7 +101,9 @@ static VkPipelineStageFlags GetVkStageFlagsForLayout(VkImageLayout Layout)
             Flags = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
             break;
 
-        case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL: Flags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT; break;
+        case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+            Flags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+            break;
 
         case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
         case VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL:
@@ -92,7 +114,9 @@ static VkPipelineStageFlags GetVkStageFlagsForLayout(VkImageLayout Layout)
                     VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
             break;
 
-        case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR: Flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT; break;
+        case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR:
+            Flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+            break;
 
         case VK_IMAGE_LAYOUT_FRAGMENT_DENSITY_MAP_OPTIMAL_EXT:
             Flags = VK_PIPELINE_STAGE_FRAGMENT_DENSITY_PROCESS_BIT_EXT;
@@ -103,7 +127,9 @@ static VkPipelineStageFlags GetVkStageFlagsForLayout(VkImageLayout Layout)
             break;
 
         case VK_IMAGE_LAYOUT_GENERAL:
-        case VK_IMAGE_LAYOUT_UNDEFINED: Flags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; break;
+        case VK_IMAGE_LAYOUT_UNDEFINED:
+            Flags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            break;
 
         case VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL:
             // todo-jn: sync2 currently only used by depth/stencil targets
@@ -116,7 +142,9 @@ static VkPipelineStageFlags GetVkStageFlagsForLayout(VkImageLayout Layout)
                     VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
             break;
 
-        default: checkNoEntry(); break;
+        default:
+            checkNoEntry();
+            break;
     }
 
     return Flags;
@@ -124,7 +152,7 @@ static VkPipelineStageFlags GetVkStageFlagsForLayout(VkImageLayout Layout)
 }    // namespace
 
 void VulkanRHI::VulkanSetImageLayout(VkCommandBuffer CmdBuffer, VkImage Image, VkImageLayout OldLayout,
-                                     VkImageLayout NewLayout, const VkImageSubresourceRange &SubresourceRange)
+                                     VkImageLayout NewLayout, const VkImageSubresourceRange& SubresourceRange)
 {
     VulkanRHI::Barrier Barrier;
     Barrier.TransitionLayout(Image, OldLayout, NewLayout, SubresourceRange);
@@ -146,12 +174,14 @@ VkImageSubresourceRange Barrier::MakeSubresourceRange(VkImageAspectFlags AspectM
     return Range;
 }
 
-Barrier::Barrier() {}
+Barrier::Barrier()
+{
+}
 
 void Barrier::TransitionLayout(VkImage Image, VkImageLayout OldLayout, VkImageLayout NewLayout,
-                               const VkImageSubresourceRange &SubresourceRange)
+                               const VkImageSubresourceRange& SubresourceRange)
 {
-    VkImageMemoryBarrier &Barrier = ImageBarrier.emplace_back();
+    VkImageMemoryBarrier& Barrier = ImageBarrier.emplace_back();
 
     std::memset(&Barrier, 0, sizeof(Barrier));
     Barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -168,7 +198,7 @@ void Barrier::Execute(VkCommandBuffer CmdBuffer)
     VkPipelineStageFlags SrcStageMask = 0;
     VkPipelineStageFlags DstStageMask = 0;
 
-    for (const auto &Barrier: ImageBarrier) {
+    for (const auto& Barrier: ImageBarrier) {
         SrcStageMask |= GetVkStageFlagsForLayout(Barrier.oldLayout);
         DstStageMask |= GetVkStageFlagsForLayout(Barrier.newLayout);
     }
@@ -178,7 +208,7 @@ void Barrier::Execute(VkCommandBuffer CmdBuffer)
     }
 }
 
-Semaphore::Semaphore(Ref<VulkanDevice> &InDevice): Device(InDevice), SemaphoreHandle(VK_NULL_HANDLE)
+Semaphore::Semaphore(Ref<VulkanDevice>& InDevice): Device(InDevice), SemaphoreHandle(VK_NULL_HANDLE)
 {
     VkSemaphoreCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
@@ -188,7 +218,9 @@ Semaphore::Semaphore(Ref<VulkanDevice> &InDevice): Device(InDevice), SemaphoreHa
 
 Semaphore::~Semaphore()
 {
-    if (SemaphoreHandle) { VulkanAPI::vkDestroySemaphore(Device->GetInstanceHandle(), SemaphoreHandle, nullptr); }
+    if (SemaphoreHandle) {
+        VulkanAPI::vkDestroySemaphore(Device->GetInstanceHandle(), SemaphoreHandle, nullptr);
+    }
     SemaphoreHandle = VK_NULL_HANDLE;
 }
 
@@ -199,11 +231,16 @@ Fence::Fence(Ref<VulkanDevice> InDevice, bool bCreateSignaled)
         .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
         .flags = 0,
     };
-    if (bCreateSignaled) { Info.flags = VK_FENCE_CREATE_SIGNALED_BIT; }
+    if (bCreateSignaled) {
+        Info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+    }
     VK_CHECK_RESULT(VulkanAPI::vkCreateFence(Device->GetInstanceHandle(), &Info, nullptr, &Handle));
 }
 
-Fence::~Fence() { VulkanAPI::vkDestroyFence(Device->GetInstanceHandle(), Handle, nullptr); }
+Fence::~Fence()
+{
+    VulkanAPI::vkDestroyFence(Device->GetInstanceHandle(), Handle, nullptr);
+}
 
 void Fence::Reset()
 {
@@ -219,9 +256,14 @@ bool Fence::Wait(uint64 TimeInNanoseconds)
 
     VkResult Result = VulkanAPI::vkWaitForFences(Device->GetInstanceHandle(), 1, &Handle, true, TimeInNanoseconds);
     switch (Result) {
-        case VK_SUCCESS: State = State::Signaled; return true;
-        case VK_TIMEOUT: break;
-        default: VK_CHECK_RESULT_EXPANDED(Result); break;
+        case VK_SUCCESS:
+            State = State::Signaled;
+            return true;
+        case VK_TIMEOUT:
+            break;
+        default:
+            VK_CHECK_RESULT_EXPANDED(Result);
+            break;
     }
     return false;
 }
@@ -231,11 +273,16 @@ bool Fence::CheckFenceStatus()
     check(State == State::NotReady);
     VkResult Result = VulkanAPI::vkGetFenceStatus(Device->GetInstanceHandle(), Handle);
     switch (Result) {
-        case VK_SUCCESS: State = State::Signaled; return true;
+        case VK_SUCCESS:
+            State = State::Signaled;
+            return true;
 
-        case VK_NOT_READY: break;
+        case VK_NOT_READY:
+            break;
 
-        default: VK_CHECK_RESULT(Result); break;
+        default:
+            VK_CHECK_RESULT(Result);
+            break;
     }
 
     return false;

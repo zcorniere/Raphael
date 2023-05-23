@@ -17,7 +17,10 @@ public:
     virtual void ConstructResource() = 0;
     virtual void DestroyResource() = 0;
 
-    uint32 GetVersion() const { return m_Version; }
+    uint32 GetVersion() const
+    {
+        return m_Version;
+    }
 
 protected:
     uint32 m_Version;
@@ -48,14 +51,19 @@ private:
     };
 
 public:
-    TResourceEntry(uint32 InVersion, ArgTypes... args): ResourceEntry(nullptr, InVersion), Arguments(args...) {}
+    TResourceEntry(uint32 InVersion, ArgTypes... args): ResourceEntry(nullptr, InVersion), Arguments(args...)
+    {
+    }
 
     void ConstructResource() override;
-    void DestroyResource() override { m_Resource = nullptr; }
+    void DestroyResource() override
+    {
+        m_Resource = nullptr;
+    }
 
 private:
     template <typename Func, int... S>
-    Ref<RHIResource> UnpackTupleAndCallRHIFunction(Func &&func, Sequence<S...>)
+    Ref<RHIResource> UnpackTupleAndCallRHIFunction(Func&& func, Sequence<S...>)
     {
         return func(std::get<S>(Arguments)...);
     }

@@ -13,12 +13,12 @@ class VulkanMemoryAllocation : public RObject
 {
 public:
     VulkanMemoryAllocation() = delete;
-    VulkanMemoryAllocation(VulkanMemoryManager &InManager)
+    VulkanMemoryAllocation(VulkanMemoryManager& InManager)
         : Size(0), MappedPointer(nullptr), ManagerHandle(InManager), bCanBeMapped(false), bIsCoherent(false)
     {
     }
 
-    void *Map(VkDeviceSize InSize, VkDeviceSize Offset = 0);
+    void* Map(VkDeviceSize InSize, VkDeviceSize Offset = 0);
     void Unmap();
 
     bool CanBeMapped() const
@@ -29,7 +29,7 @@ public:
     {
         return MappedPointer;
     }
-    void *GetMappedPointer()
+    void* GetMappedPointer()
     {
         check(IsMapped());
         return MappedPointer;
@@ -44,7 +44,7 @@ public:
     void BindBuffer(VkBuffer Buffer);
     void BindImage(VkImage Image);
 
-    VmaAllocation &GetHandle()
+    VmaAllocation& GetHandle()
     {
         return Allocation;
     }
@@ -57,8 +57,8 @@ private:
     VmaAllocation Allocation;
 
     VkDeviceSize Size;
-    void *MappedPointer = nullptr;
-    VulkanMemoryManager &ManagerHandle;
+    void* MappedPointer = nullptr;
+    VulkanMemoryManager& ManagerHandle;
     bool bCanBeMapped;
     bool bIsCoherent;
 };
@@ -72,9 +72,9 @@ public:
     void Init(Ref<VulkanDevice> InDevice);
     void Shutdown();
 
-    Ref<VulkanMemoryAllocation> Alloc(const VkMemoryRequirements &MemoryRequirement, VmaMemoryUsage MemUsage,
+    Ref<VulkanMemoryAllocation> Alloc(const VkMemoryRequirements& MemoryRequirement, VmaMemoryUsage MemUsage,
                                       bool Mappable);
-    void Free(Ref<VulkanMemoryAllocation> &Allocation);
+    void Free(Ref<VulkanMemoryAllocation>& Allocation);
 
     uint64 GetTotalMemory(bool bGPUOnly) const;
     void PrintMemInfo() const;

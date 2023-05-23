@@ -4,16 +4,20 @@
 
 #include "VulkanRHI/VulkanLoader.hxx"
 
-#define VK_CHECK_RESULT(f)                                                                  \
-    {                                                                                       \
-        const VkResult ScopedResult = (f);                                                  \
-        if (ScopedResult != VK_SUCCESS) { VulkanRHI::VulkanCheckResult(ScopedResult, #f); } \
+#define VK_CHECK_RESULT(f)                                  \
+    {                                                       \
+        const VkResult ScopedResult = (f);                  \
+        if (ScopedResult != VK_SUCCESS) {                   \
+            VulkanRHI::VulkanCheckResult(ScopedResult, #f); \
+        }                                                   \
     }
 
-#define VK_CHECK_RESULT_EXPANDED(f)                                                        \
-    {                                                                                      \
-        const VkResult ScopedResult = (f);                                                 \
-        if (ScopedResult < VK_SUCCESS) { VulkanRHI::VulkanCheckResult(ScopedResult, #f); } \
+#define VK_CHECK_RESULT_EXPANDED(f)                         \
+    {                                                       \
+        const VkResult ScopedResult = (f);                  \
+        if (ScopedResult < VK_SUCCESS) {                    \
+            VulkanRHI::VulkanCheckResult(ScopedResult, #f); \
+        }                                                   \
     }
 
 #ifndef NDEBUG
@@ -26,8 +30,8 @@
 namespace VulkanRHI
 {
 
-void VulkanCheckResult(VkResult result, const char *VulkanFunction,
-                       const std::source_location &location = std::source_location::current());
+void VulkanCheckResult(VkResult result, const char* VulkanFunction,
+                       const std::source_location& location = std::source_location::current());
 
 template <typename BitsType>
 constexpr bool VulkanHasAllFlags(VkFlags Flags, BitsType Contains)

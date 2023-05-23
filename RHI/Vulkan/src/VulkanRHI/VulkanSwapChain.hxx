@@ -31,7 +31,7 @@ private:
     {
     public:
         /// Gather swapchain support information
-        static SupportDetails QuerySwapChainSupport(const Ref<VulkanDevice> &device, const VkSurfaceKHR &surface);
+        static SupportDetails QuerySwapChainSupport(const Ref<VulkanDevice>& device, const VkSurfaceKHR& surface);
 
     public:
         /// Choose a fitting format
@@ -39,7 +39,7 @@ private:
         /// Choose a presentation mode
         VkPresentModeKHR ChooseSwapPresentMode(bool LockToVSync) const noexcept;
         /// Check if the size if supported
-        VkExtent2D ChooseSwapExtent(const glm::uvec2 &size) const noexcept;
+        VkExtent2D ChooseSwapExtent(const glm::uvec2& size) const noexcept;
 
     public:
         /// surface capability
@@ -51,24 +51,33 @@ private:
     };
 
 public:
-    VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice> &InDevice, void *WindowHandle, glm::uvec2 Size,
-                    uint32 InOutDesiredNumBackBuffers, std::vector<VkImage> &OutImages, bool LockToVSync,
-                    VulkanSwapChainRecreateInfo *RecreateInfo);
+    VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice>& InDevice, void* WindowHandle, glm::uvec2 Size,
+                    uint32 InOutDesiredNumBackBuffers, std::vector<VkImage>& OutImages, bool LockToVSync,
+                    VulkanSwapChainRecreateInfo* RecreateInfo);
 
-    void Destroy(VulkanSwapChainRecreateInfo *RecreateInfo);
+    void Destroy(VulkanSwapChainRecreateInfo* RecreateInfo);
 
-    Status Present(Ref<VulkanQueue> &PresentQueue, Ref<Semaphore> &RenderingComplete);
+    Status Present(Ref<VulkanQueue>& PresentQueue, Ref<Semaphore>& RenderingComplete);
 
-    VkFormat GetFormat() const { return ImageFormat; }
+    VkFormat GetFormat() const
+    {
+        return ImageFormat;
+    }
 
-    VkSwapchainKHR GetHandle() const { return SwapChain; }
+    VkSwapchainKHR GetHandle() const
+    {
+        return SwapChain;
+    }
 
-    inline bool DoesLockToVSync() const { return LockToVSync; }
+    inline bool DoesLockToVSync() const
+    {
+        return LockToVSync;
+    }
 
     void SetName(std::string_view InName) override;
 
 private:
-    int32 AcquireImageIndex(Ref<Semaphore> &OutSemaphore);
+    int32 AcquireImageIndex(Ref<Semaphore>& OutSemaphore);
 
 private:
     Ref<VulkanDevice> Device;

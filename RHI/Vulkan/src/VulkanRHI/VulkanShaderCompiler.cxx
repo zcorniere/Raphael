@@ -11,10 +11,14 @@ DECLARE_LOGGER_CATEGORY(Core, LogVulkanShaderCompiler, Warning)
 static uint32 VulkanVersionToShaderc(uint32 Version)
 {
     switch (Version) {
-        case VK_API_VERSION_1_0: return shaderc_env_version_vulkan_1_0;
-        case VK_API_VERSION_1_1: return shaderc_env_version_vulkan_1_1;
-        case VK_API_VERSION_1_2: return shaderc_env_version_vulkan_1_2;
-        case VK_API_VERSION_1_3: return shaderc_env_version_vulkan_1_3;
+        case VK_API_VERSION_1_0:
+            return shaderc_env_version_vulkan_1_0;
+        case VK_API_VERSION_1_1:
+            return shaderc_env_version_vulkan_1_1;
+        case VK_API_VERSION_1_2:
+            return shaderc_env_version_vulkan_1_2;
+        case VK_API_VERSION_1_3:
+            return shaderc_env_version_vulkan_1_3;
     }
     checkNoEntry();
     return 0;
@@ -43,37 +47,54 @@ static shaderc::CompileOptions GetCompileOption(VulkanShaderCompiler::Optimizati
     return Options;
 }
 
-static RHIShaderType GetShaderKind(const std::filesystem::path &File)
+static std::optional<RHIShaderType> GetShaderKind(const std::filesystem::path& File)
 {
     const auto stage = File.extension();
-    if (stage == ".vert") return RHIShaderType::Vertex;
-    if (stage == ".frag") return RHIShaderType::Fragment;
-    if (stage == ".comp") return RHIShaderType::Compute;
-    checkNoEntry();
+    if (stage == ".vert")
+        return RHIShaderType::Vertex;
+    if (stage == ".frag")
+        return RHIShaderType::Fragment;
+    if (stage == ".comp")
+        return RHIShaderType::Compute;
+    else
+        return std::nullopt;
 }
 
 static shaderc_shader_kind ShaderKindToShaderc(RHIShaderType Kind)
 {
     switch (Kind) {
-        case RHIShaderType::Compute: return shaderc_compute_shader;
-        case RHIShaderType::Vertex: return shaderc_vertex_shader;
-        case RHIShaderType::Fragment: return shaderc_fragment_shader;
+        case RHIShaderType::Compute:
+            return shaderc_compute_shader;
+        case RHIShaderType::Vertex:
+            return shaderc_vertex_shader;
+        case RHIShaderType::Fragment:
+            return shaderc_fragment_shader;
     }
     checkNoEntry();
 }
 
-VulkanShaderCompiler::VulkanShaderCompiler() {}
+VulkanShaderCompiler::VulkanShaderCompiler()
+{
+}
 
-VulkanShaderCompiler::~VulkanShaderCompiler() { m_ShaderCache.clear(); }
+VulkanShaderCompiler::~VulkanShaderCompiler()
+{
+    m_ShaderCache.clear();
+}
 
-void VulkanShaderCompiler::SetOptimizationLevel(OptimizationLevel InLevel) { Level = InLevel; }
+void VulkanShaderCompiler::SetOptimizationLevel(OptimizationLevel InLevel)
+{
+    Level = InLevel;
+}
 
 Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile)
 {
     {
         std::unique_lock Lock(m_ShaderCacheMutex);
         auto Iter = m_ShaderCache.find(Path.filename().string());
-        if (Iter != m_ShaderCache.end() && !bForceCompile) { return Ref(Iter->second); }
+        if (Iter != m_ShaderCache.end() && !bForceCompile) {
+            return Ref(Iter->second);
+        }
     }
 
     shaderc::Compiler ShaderCompiler;
@@ -84,8 +105,9 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
     }
 
     shaderc::CompileOptions Options = GetCompileOption(Level);
-    RHIShaderType ShaderType = GetShaderKind(Path);
-    shaderc_shader_kind ShaderKind = ShaderKindToShaderc(ShaderType);
+    std::optional<RHIShaderType> ShaderType = GetShaderKind(Path);
+    check(ShaderType);
+    shaderc_shader_kind ShaderKind = ShaderKindToShaderc(ShaderType.value());
     std::string FileContent = Utils::readFile(Path);
 
     shaderc::PreprocessedSourceCompilationResult PreProcessResult =
@@ -109,7 +131,8 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
 
     std::vector<uint32> ShaderCode(CompilationResult.begin(), CompilationResult.end());
 
-    Ref<VulkanShader> ShaderUnit = Ref<VulkanShader>::CreateNamed(Path.filename().string(), ShaderType, ShaderCode);
+    Ref<VulkanShader> ShaderUnit =
+        Ref<VulkanShader>::CreateNamed(Path.filename().string(), ShaderType.value(), ShaderCode);
 
     {
         std::unique_lock Lock(m_ShaderCacheMutex);

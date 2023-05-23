@@ -3,7 +3,7 @@
 #include "Engine/Core/FrameGraph/FrameGraph.hxx"
 #include "Engine/Core/FrameGraph/PassNode.hxx"
 
-FrameGraphBuilder::FrameGraphBuilder(FrameGraph &InFrameGraph, Ref<PassNode> InPassNode)
+FrameGraphBuilder::FrameGraphBuilder(FrameGraph& InFrameGraph, Ref<PassNode> InPassNode)
     : m_FrameGraph(InFrameGraph), m_PassNode(InPassNode)
 {
 }

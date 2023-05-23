@@ -16,9 +16,13 @@ enum class RHIResourceType : uint8 {
 class RHIResource : public RObject
 {
 public:
-    RHIResource(RHIResourceType InResourceType): ResourceType(InResourceType) {}
+    RHIResource(RHIResourceType InResourceType): ResourceType(InResourceType)
+    {
+    }
 
-    virtual ~RHIResource() {}
+    virtual ~RHIResource()
+    {
+    }
 
 protected:
     const RHIResourceType ResourceType;

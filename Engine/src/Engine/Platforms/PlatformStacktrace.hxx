@@ -13,7 +13,6 @@ struct DetailedSymbolInfo final {
     int64 ProgramCounter;
 };
 
-
 struct StacktraceContent {
     static constexpr auto MaxStacktraceDepth = 100;
 
@@ -23,24 +22,22 @@ struct StacktraceContent {
     const std::uint32_t MaxDepth = MaxStacktraceDepth - 1;
 };
 
-
 class GenericStacktrace
 {
 public:
-
     /// @brief Return a stacktrace of the current running process
-    static StacktraceContent GetStackTraceFromReturnAddress(void *returnAddress)
+    static StacktraceContent GetStackTraceFromReturnAddress(void* returnAddress)
     {
         (void)returnAddress;
         return {};
     }
 
-    static bool TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedSymbolInfo &detailed_info) {
+    static bool TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedSymbolInfo& detailed_info)
+    {
         (void)ProgramCounter;
         (void)detailed_info;
         return false;
     }
-
 };
 
 #if defined(PLATFORM_WINDOWS)

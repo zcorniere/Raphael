@@ -4,9 +4,9 @@
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "Engine/Core/RHI/RHI.hxx"
 
-Engine *GEngine = nullptr;
+Engine* GEngine = nullptr;
 
-Engine::Engine(const int ac, const char *const *const av)
+Engine::Engine(const int ac, const char* const* const av)
 {
     (void)ac;
     (void)av;
@@ -22,7 +22,7 @@ Engine::~Engine()
     Log::Shutdown();
 }
 
-bool Engine::Initialisation(IApplication *Application)
+bool Engine::Initialisation(IApplication* Application)
 {
     checkNoReentry();
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Engine/Misc/EnumFlags.hxx"
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
+#include "Engine/Misc/EnumFlags.hxx"
 
 enum class ETextureCreateFlags {
     None = 0,
@@ -26,17 +26,27 @@ struct RHITextureCreateDesc {
 class RHITexture : public RHIResource
 {
 public:
-    RHITexture(const RHITextureCreateDesc &InDesc): RHIResource(RHIResourceType::Texture), Description(InDesc) {}
-    virtual ~RHITexture() {}
+    RHITexture(const RHITextureCreateDesc& InDesc): RHIResource(RHIResourceType::Texture), Description(InDesc)
+    {
+    }
+    virtual ~RHITexture()
+    {
+    }
 
-    const RHITextureCreateDesc &GetDescription() const { return Description; }
+    const RHITextureCreateDesc& GetDescription() const
+    {
+        return Description;
+    }
 
     // RHI specific function
-    virtual void *GetNativeResource() const { return nullptr; }
+    virtual void* GetNativeResource() const
+    {
+        return nullptr;
+    }
 
     glm::ivec3 GetMipDimensions(uint8 MipIndex) const
     {
-        const RHITextureCreateDesc &Desc = GetDescription();
+        const RHITextureCreateDesc& Desc = GetDescription();
         return glm::ivec3(std::max(Desc.Extent.x >> MipIndex, 1u), std::max(Desc.Extent.y >> MipIndex, 1u),
                           std::max(Desc.Depth >> MipIndex, 1u));
     }

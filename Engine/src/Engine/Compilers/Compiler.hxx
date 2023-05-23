@@ -49,7 +49,7 @@ class GenericCompiler
 {
 public:
     /// Return the address of the current function,
-    static void *ReturnAddress()
+    static void* ReturnAddress()
     {
         return nullptr;
     }
@@ -59,7 +59,7 @@ public:
     {
     }
 
-    static std::string Demangle(const std::string_view &name)
+    static std::string Demangle(const std::string_view& name)
     {
         return std::string(name);
     }

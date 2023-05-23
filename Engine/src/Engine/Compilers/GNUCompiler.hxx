@@ -19,7 +19,7 @@ class GNUCompiler : public GenericCompiler
 {
 public:
     /// Return the address of the current function,
-    FORCEINLINE static void *ReturnAddress()
+    FORCEINLINE static void* ReturnAddress()
     {
         return __builtin_return_address(0);
     }
@@ -30,7 +30,7 @@ public:
         __builtin_unreachable();
     }
 
-    static std::string Demangle(const std::string_view &name);
+    static std::string Demangle(const std::string_view& name);
 };
 
 /// Alias of the correct compiler currently used

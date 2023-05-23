@@ -15,9 +15,9 @@ namespace RObjectUtils
 
 DECLARE_LOGGER_CATEGORY(Core, LogRObject, Warning)
 
-void AddToLiveReferences(RObject *instance);
-void RemoveFromLiveReferences(RObject *instance);
-bool IsLive(RObject *instance);
+void AddToLiveReferences(RObject* instance);
+void RemoveFromLiveReferences(RObject* instance);
+bool IsLive(RObject* instance);
 
 bool AreThereAnyLiveObject(bool bPrintObjects = true);
 
@@ -42,9 +42,12 @@ public:
         m_TypeName = InTypeName;
     }
 
-    const std::string &GetTypeName() const { return m_TypeName; }
+    const std::string& GetTypeName() const
+    {
+        return m_TypeName;
+    }
 
-    const std::string &GetName() const
+    const std::string& GetName() const
     {
         return m_Name;
     }
@@ -52,9 +55,9 @@ public:
     virtual std::string ToString() const
     {
         if (GetName().empty()) {
-            return std::format("(<{:s}> {:p})", GetTypeName(), (void *)this);
+            return std::format("(<{:s}> {:p})", GetTypeName(), (void*)this);
         } else {
-            return std::format("(\"{:s}\" <{:s}> {:p})", GetName(), GetTypeName(), (void *)this);
+            return std::format("(\"{:s}\" <{:s}> {:p})", GetName(), GetTypeName(), (void*)this);
         }
     }
 
@@ -65,7 +68,9 @@ public:
     }
     void DecrementRefCount() const
     {
-        if (!verifyAlwaysMsg(m_RefCount > 0, "Ref count is already at 0")) { return; }
+        if (!verifyAlwaysMsg(m_RefCount > 0, "Ref count is already at 0")) {
+            return;
+        }
         m_RefCount.fetch_sub(1, std::memory_order_acq_rel);
     }
 
@@ -86,24 +91,24 @@ class Ref
 public:
     template <typename... Args>
     requires std::is_constructible_v<T, Args...>
-    static Ref<T> CreateNamed(std::string_view Name, Args &&...args)
+    static Ref<T> CreateNamed(std::string_view Name, Args&&... args)
     {
         return CreateInternal(Name, std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     requires std::is_constructible_v<T, Args...>
-    static Ref<T> Create(Args &&...args)
+    static Ref<T> Create(Args&&... args)
     {
         return CreateInternal("", std::forward<Args>(args)...);
     }
 
 private:
     template <typename... Args>
-        requires std::is_constructible_v<T, Args...>
-    static Ref<T> CreateInternal(std::string_view Name, Args &&...args)
+    requires std::is_constructible_v<T, Args...>
+    static Ref<T> CreateInternal(std::string_view Name, Args&&... args)
     {
-        T *ObjectPtr = new T(std::forward<Args>(args)...);
+        T* ObjectPtr = new T(std::forward<Args>(args)...);
         ObjectPtr->SetTypeName(type_name<T>());
         ObjectPtr->SetName(Name);
 
@@ -113,32 +118,38 @@ private:
     }
 
 public:
-    Ref(): m_ObjPtr(nullptr) {}
+    Ref(): m_ObjPtr(nullptr)
+    {
+    }
 
     Ref(std::nullptr_t): m_ObjPtr(nullptr)
     {
     }
 
-    Ref(T *Object): m_ObjPtr(Object)
+    Ref(T* Object): m_ObjPtr(Object)
     {
         static_assert(std::is_base_of<RObject, T>::value, "Class is not RefCounted!");
 
         IncrementRefCount();
     }
 
-    explicit Ref(WeakRef<T> &other): Ref(other.m_Instance) {}
+    explicit Ref(WeakRef<T>& other): Ref(other.m_Instance)
+    {
+    }
 
-    Ref(const Ref<T> &other): Ref(other.m_ObjPtr) {}
-
-    template <typename Other>
-    Ref(const Ref<Other> &other): Ref((T *)other.m_ObjPtr)
+    Ref(const Ref<T>& other): Ref(other.m_ObjPtr)
     {
     }
 
     template <typename Other>
-    Ref(const Ref<Other> &&other)
+    Ref(const Ref<Other>& other): Ref((T*)other.m_ObjPtr)
     {
-        m_ObjPtr = (T *)other.m_ObjPtr;
+    }
+
+    template <typename Other>
+    Ref(const Ref<Other>&& other)
+    {
+        m_ObjPtr = (T*)other.m_ObjPtr;
         other.m_ObjPtr = nullptr;
     }
 
@@ -147,14 +158,14 @@ public:
         DecrementRefCount();
     }
 
-    Ref &operator=(std::nullptr_t)
+    Ref& operator=(std::nullptr_t)
     {
         DecrementRefCount();
         m_ObjPtr = nullptr;
         return *this;
     }
 
-    Ref &operator=(const Ref<T> &other)
+    Ref& operator=(const Ref<T>& other)
     {
         other.IncrementRefCount();
         DecrementRefCount();
@@ -164,21 +175,21 @@ public:
     }
 
     template <typename Other>
-    Ref &operator=(const Ref<Other> &other)
+    Ref& operator=(const Ref<Other>& other)
     {
         other.IncrementRefCount();
         DecrementRefCount();
 
-        m_ObjPtr = (const T *)other.m_ObjPtr;
+        m_ObjPtr = (const T*)other.m_ObjPtr;
         return *this;
     }
 
     template <typename Other>
-    Ref &operator=(Ref<Other> &&other)
+    Ref& operator=(Ref<Other>&& other)
     {
         DecrementRefCount();
 
-        m_ObjPtr = (T *)other.m_ObjPtr;
+        m_ObjPtr = (T*)other.m_ObjPtr;
         other.m_ObjPtr = nullptr;
         return *this;
     }
@@ -192,38 +203,38 @@ public:
         return m_ObjPtr != nullptr;
     }
 
-    T *operator->()
+    T* operator->()
     {
         check(m_ObjPtr);
         return m_ObjPtr;
     }
-    const T *operator->() const
+    const T* operator->() const
     {
         check(m_ObjPtr);
         return m_ObjPtr;
     }
 
-    T &operator*()
+    T& operator*()
     {
         check(m_ObjPtr);
         return *m_ObjPtr;
     }
-    const T &operator*() const
+    const T& operator*() const
     {
         check(m_ObjPtr);
         return *m_ObjPtr;
     }
 
-    T *Raw()
+    T* Raw()
     {
         return m_ObjPtr;
     }
-    const T *Raw() const
+    const T* Raw() const
     {
         return m_ObjPtr;
     }
 
-    void Reset(T *instance = nullptr)
+    void Reset(T* instance = nullptr)
     {
         DecrementRefCount();
         m_ObjPtr = instance;
@@ -235,14 +246,15 @@ public:
         return Ref<Other>(*this);
     }
 
-    bool operator==(const Ref<T> &other) const
+    bool operator==(const Ref<T>& other) const
     {
         return m_ObjPtr == other.m_ObjPtr;
     }
 
-    bool EqualsObject(const Ref<T> &other)
+    bool EqualsObject(const Ref<T>& other)
     {
-        if (!m_ObjPtr || !other.m_ObjPtr) return false;
+        if (!m_ObjPtr || !other.m_ObjPtr)
+            return false;
 
         return *m_ObjPtr == *other.m_ObjPtr;
     }
@@ -252,7 +264,8 @@ private:
     {
         static_assert(std::is_base_of<RObject, T>::value, "Class is not RefCounted!");
 
-        if (!m_ObjPtr) return;
+        if (!m_ObjPtr)
+            return;
 
         m_ObjPtr->IncrementRefCount();
         RObjectUtils::AddToLiveReferences(m_ObjPtr);
@@ -262,11 +275,13 @@ private:
     {
         static_assert(std::is_base_of<RObject, T>::value, "Class is not RefCounted!");
 
-        if (!m_ObjPtr) return;
+        if (!m_ObjPtr)
+            return;
 
         m_ObjPtr->DecrementRefCount();
 
-        if (m_ObjPtr->GetRefCount() > 0) return;
+        if (m_ObjPtr->GetRefCount() > 0)
+            return;
 
         LOG(RObjectUtils::LogRObject, Trace, "Deleting RObject {:s}", m_ObjPtr->ToString());
 
@@ -276,7 +291,7 @@ private:
     }
 
 private:
-    mutable T *m_ObjPtr = nullptr;
+    mutable T* m_ObjPtr = nullptr;
 
     template <class Other>
     friend class Ref;
@@ -296,28 +311,28 @@ public:
         m_Instance = ref.Raw();
     }
 
-    WeakRef(T *instance)
+    WeakRef(T* instance)
     {
         m_Instance = instance;
     }
 
-    T *operator->()
+    T* operator->()
     {
         check(IsValid());
         return m_Instance;
     }
-    const T *operator->() const
+    const T* operator->() const
     {
         check(IsValid());
         return m_Instance;
     }
 
-    T &operator*()
+    T& operator*()
     {
         check(IsValid());
         return *m_Instance;
     }
-    const T &operator*() const
+    const T& operator*() const
     {
         check(IsValid());
         return *m_Instance;
@@ -333,7 +348,7 @@ public:
     }
 
 private:
-    T *m_Instance = nullptr;
+    T* m_Instance = nullptr;
 
     template <typename Other>
     friend class Ref;

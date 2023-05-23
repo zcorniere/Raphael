@@ -16,16 +16,16 @@ public:
     FrameGraphBuilder() = delete;
 
     template <RHIResourceType Type, typename... Args>
-    [[nodiscard]] FrameGraphResource Create(const std::string_view, Args &&...args);
+    [[nodiscard]] FrameGraphResource Create(const std::string_view, Args&&... args);
 
     FrameGraphResource Read(FrameGraphResource Id);
     [[nodiscard]] FrameGraphResource Write(FrameGraphResource Id);
 
 private:
-    FrameGraphBuilder(FrameGraph &, Ref<PassNode>);
+    FrameGraphBuilder(FrameGraph&, Ref<PassNode>);
 
 private:
-    FrameGraph &m_FrameGraph;
+    FrameGraph& m_FrameGraph;
     Ref<PassNode> m_PassNode;
 };
 

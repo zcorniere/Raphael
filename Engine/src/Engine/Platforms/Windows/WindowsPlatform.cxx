@@ -1,8 +1,8 @@
 #include "Engine/Platforms/Windows/WindowsPlatform.hxx"
 
 #include <debugapi.h>
-#include <processthreadsapi.h>
 #include <libloaderapi.h>
+#include <processthreadsapi.h>
 
 DECLARE_LOGGER_CATEGORY(Core, LogWindowsPlateform, Info)
 
@@ -18,14 +18,16 @@ std::filesystem::path WindowsPlatform::GetExecutablePath()
     return std::filesystem::canonical(Buffer);
 }
 
-void WindowsPlatform::setThreadName(std::jthread &thread, const std::string &name)
+void WindowsPlatform::setThreadName(std::jthread& thread, const std::string& name)
 {
     std::wstring nameStupidType(name.begin(), name.end());
     HRESULT hr = ::SetThreadDescription(thread.native_handle(), nameStupidType.c_str());
-    if (FAILED(hr)) { LOG(LogWindowsPlateform, Error, "SetThreadDescription('{}') failed", name); }
+    if (FAILED(hr)) {
+        LOG(LogWindowsPlateform, Error, "SetThreadDescription('{}') failed", name);
+    }
 }
 
-std::string WindowsPlatform::getThreadName(std::jthread &thread)
+std::string WindowsPlatform::getThreadName(std::jthread& thread)
 {
     PWSTR name;
     HRESULT hr = ::GetThreadDescription(thread.native_handle(), &name);

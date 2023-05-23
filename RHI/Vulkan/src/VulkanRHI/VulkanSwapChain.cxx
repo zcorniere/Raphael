@@ -12,8 +12,8 @@ DECLARE_LOGGER_CATEGORY(Core, LogVulkanSwapchain, Info);
 namespace VulkanRHI
 {
 
-VulkanSwapChain::SupportDetails VulkanSwapChain::SupportDetails::QuerySwapChainSupport(const Ref<VulkanDevice> &Device,
-                                                                                       const VkSurfaceKHR &Surface)
+VulkanSwapChain::SupportDetails VulkanSwapChain::SupportDetails::QuerySwapChainSupport(const Ref<VulkanDevice>& Device,
+                                                                                       const VkSurfaceKHR& Surface)
 {
     VulkanSwapChain::SupportDetails Details;
 
@@ -48,7 +48,7 @@ VulkanSwapChain::SupportDetails VulkanSwapChain::SupportDetails::QuerySwapChainS
 
 VkSurfaceFormatKHR VulkanSwapChain::SupportDetails::ChooseSwapSurfaceFormat() const noexcept
 {
-    for (const auto &availableFormat: Formats)
+    for (const auto& availableFormat: Formats)
         if (availableFormat.format == VK_FORMAT_R8G8B8A8_SRGB &&
             availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
             return availableFormat;
@@ -63,25 +63,31 @@ VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool Loc
 
     LOG(LogVulkanSwapchain, Info, "Found {} Surface present modes:", PresentModes.size());
 
-    for (const auto &availablePresentMode: PresentModes) {
+    for (const auto& availablePresentMode: PresentModes) {
         switch (availablePresentMode) {
             case VK_PRESENT_MODE_MAILBOX_KHR:
                 bFoundPresentModeMailbox = true;
-                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_MAILBOX_KHR ({})", static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_MAILBOX_KHR));
+                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_MAILBOX_KHR ({})",
+                    static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_MAILBOX_KHR));
                 break;
             case VK_PRESENT_MODE_IMMEDIATE_KHR:
                 bFoundPresentModeImmediate = true;
-                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_IMMEDIATE_KHR ({})", static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_IMMEDIATE_KHR));
+                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_IMMEDIATE_KHR ({})",
+                    static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_IMMEDIATE_KHR));
                 break;
             case VK_PRESENT_MODE_FIFO_KHR:
                 bFoundPresentModeFIFO = true;
-                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_FIFO_KHR ({})", static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_FIFO_KHR));
+                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_FIFO_KHR ({})",
+                    static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_FIFO_KHR));
                 break;
             case VK_PRESENT_MODE_FIFO_RELAXED_KHR:
                 LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_FIFO_RELAXED_KHR ({})",
                     static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_FIFO_RELAXED_KHR));
                 break;
-            default: LOG(LogVulkanSwapchain, Info, "- VkPresentModeKHR {}", static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_FIFO_RELAXED_KHR)); break;
+            default:
+                LOG(LogVulkanSwapchain, Info, "- VkPresentModeKHR {}",
+                    static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_FIFO_RELAXED_KHR));
+                break;
         }
     }
 
@@ -98,7 +104,7 @@ VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool Loc
     }
 }
 
-VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const glm::uvec2 &s) const noexcept
+VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const glm::uvec2& s) const noexcept
 {
     if (Capabilities.currentExtent.width != UINT32_MAX) {
         return Capabilities.currentExtent;
@@ -113,9 +119,9 @@ VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const glm::uvec2 &s
     }
 }
 
-VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice> &InDevice, void *WindowHandle,
-                                 glm::uvec2 Size, uint32 InDesiredNumBackBuffers, std::vector<VkImage> &OutImages,
-                                 bool LockToVSync, VulkanSwapChainRecreateInfo *RecreateInfo)
+VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice>& InDevice, void* WindowHandle,
+                                 glm::uvec2 Size, uint32 InDesiredNumBackBuffers, std::vector<VkImage>& OutImages,
+                                 bool LockToVSync, VulkanSwapChainRecreateInfo* RecreateInfo)
     : Device(InDevice),
       CurrentImageIndex(-1),
       LockToVSync(LockToVSync),
@@ -206,7 +212,7 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice> &InDev
     }
 }
 
-void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo *RecreateInfo)
+void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo* RecreateInfo)
 {
     if (RecreateInfo) {
         RecreateInfo->SwapChain = SwapChain;
@@ -221,7 +227,7 @@ void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo *RecreateInfo)
     ImageInUseFence.clear();
 }
 
-VulkanSwapChain::Status VulkanSwapChain::Present(Ref<VulkanQueue> &PresentQueue, Ref<Semaphore> &RenderingComplete)
+VulkanSwapChain::Status VulkanSwapChain::Present(Ref<VulkanQueue>& PresentQueue, Ref<Semaphore>& RenderingComplete)
 {
     check(CurrentImageIndex != -1);
 
@@ -232,18 +238,24 @@ VulkanSwapChain::Status VulkanSwapChain::Present(Ref<VulkanQueue> &PresentQueue,
         .pWaitSemaphores = &Semaphore,
         .swapchainCount = 1,
         .pSwapchains = &SwapChain,
-        .pImageIndices = (uint32 *)&CurrentImageIndex,
+        .pImageIndices = (uint32*)&CurrentImageIndex,
     };
 
     VkResult PresentResult = VulkanPlatform::Present(PresentQueue->GetHandle(), Info);
 
     CurrentImageIndex = -1;
 
-    if (PresentResult == VK_ERROR_OUT_OF_DATE_KHR) { return Status::OutOfDate; }
+    if (PresentResult == VK_ERROR_OUT_OF_DATE_KHR) {
+        return Status::OutOfDate;
+    }
 
-    if (PresentResult == VK_ERROR_SURFACE_LOST_KHR) { return Status::SurfaceLost; }
+    if (PresentResult == VK_ERROR_SURFACE_LOST_KHR) {
+        return Status::SurfaceLost;
+    }
 
-    if (PresentResult != VK_SUCCESS && PresentResult != VK_SUBOPTIMAL_KHR) { VK_CHECK_RESULT(PresentResult); }
+    if (PresentResult != VK_SUCCESS && PresentResult != VK_SUBOPTIMAL_KHR) {
+        VK_CHECK_RESULT(PresentResult);
+    }
 
     return Status::Healty;
 }
@@ -254,7 +266,7 @@ void VulkanSwapChain::SetName(std::string_view InName)
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SWAPCHAIN_KHR, SwapChain, "Swapchain - \"{:s}\"", InName);
 }
 
-int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore> &OutSemaphore)
+int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore>& OutSemaphore)
 {
     check(CurrentImageIndex == -1);
 

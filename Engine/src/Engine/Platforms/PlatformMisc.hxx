@@ -24,8 +24,12 @@ class IExternalModule : public RObject
 {
 public:
     IExternalModule() = delete;
-    IExternalModule(std::string_view) {}
-    virtual ~IExternalModule() {}
+    IExternalModule(std::string_view)
+    {
+    }
+    virtual ~IExternalModule()
+    {
+    }
 
     template <CIsFunctionPointer T>
     T GetSymbol(std::string_view SymbolName) const
@@ -34,7 +38,7 @@ public:
     }
 
 private:
-    virtual void *GetSymbol_Internal(std::string_view SymbolName) const = 0;
+    virtual void* GetSymbol_Internal(std::string_view SymbolName) const = 0;
 };
 
 DECLARE_LOGGER_CATEGORY(Core, LogPlatformMisc, Info);
@@ -42,7 +46,8 @@ DECLARE_LOGGER_CATEGORY(Core, LogPlatformMisc, Info);
 class GenericMisc
 {
 public:
-    static EBoxReturnType DisplayMessageBox(EBoxMessageType, const std::string_view Text, const std::string_view Caption)
+    static EBoxReturnType DisplayMessageBox(EBoxMessageType, const std::string_view Text,
+                                            const std::string_view Caption)
     {
         LOG(LogPlatformMisc, Info, "Message Box: {:s} {:s}", Text, Caption);
         return EBoxReturnType::Ok;

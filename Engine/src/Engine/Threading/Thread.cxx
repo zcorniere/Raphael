@@ -17,13 +17,17 @@ void Thread::Start()
 
 void Thread::End(bool bShouldWait)
 {
-    if (m_internalRuntime) { m_internalRuntime->Stop(); }
+    if (m_internalRuntime) {
+        m_internalRuntime->Stop();
+    }
     m_managedThread.request_stop();
 
-    if (bShouldWait && m_managedThread.joinable()) { m_managedThread.join(); }
+    if (bShouldWait && m_managedThread.joinable()) {
+        m_managedThread.join();
+    }
 }
 
-void Thread::Create(const std::string &name, std::unique_ptr<ThreadRuntime> threadCode)
+void Thread::Create(const std::string& name, std::unique_ptr<ThreadRuntime> threadCode)
 {
     if (m_managedThread.joinable()) {
         m_managedThread.request_stop();
@@ -61,7 +65,7 @@ void Thread::PostRun()
 {
 }
 
-void Thread::thread_runtime(Thread *pThis)
+void Thread::thread_runtime(Thread* pThis)
 {
     check(pThis);
     pThis->Start();

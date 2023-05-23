@@ -37,7 +37,7 @@ bool LinuxPlateform::isDebuggerPresent()
     constexpr char TracerString[] = "TracerPid:\t";
     const ssize_t LenTracerString = std::strlen(TracerString);
 
-    const char *foundStr = std::strstr(Buffer, TracerString);
+    const char* foundStr = std::strstr(Buffer, TracerString);
 
     if (foundStr != nullptr) {
         return foundStr[LenTracerString] != '0';
@@ -46,9 +46,12 @@ bool LinuxPlateform::isDebuggerPresent()
     }
 }
 
-std::filesystem::path LinuxPlateform::GetExecutablePath() { return std::filesystem::canonical("/proc/self/exe"); }
+std::filesystem::path LinuxPlateform::GetExecutablePath()
+{
+    return std::filesystem::canonical("/proc/self/exe");
+}
 
-void LinuxPlateform::setThreadName(std::jthread &thread, const std::string &name)
+void LinuxPlateform::setThreadName(std::jthread& thread, const std::string& name)
 {
     std::string sizeLimitedThreadName = name;
 
@@ -72,7 +75,7 @@ void LinuxPlateform::setThreadName(std::jthread &thread, const std::string &name
     }
 }
 
-std::string LinuxPlateform::getThreadName(std::jthread &thread)
+std::string LinuxPlateform::getThreadName(std::jthread& thread)
 {
     char name[UnixThreadNameLimit + 1] = {'\0'};
 

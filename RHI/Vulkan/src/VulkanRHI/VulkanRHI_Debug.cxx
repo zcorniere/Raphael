@@ -8,28 +8,41 @@
 
 #if VULKAN_DEBUGGING_ENABLED
 
-static std::string_view VulkanMessageType(const VkDebugUtilsMessageTypeFlagsEXT &s)
+static std::string_view VulkanMessageType(const VkDebugUtilsMessageTypeFlagsEXT& s)
 {
     switch (s) {
-        case 7: return "General | Validation | Performance";
-        case 6: return "Validation | Performance";
-        case 5: return "General | Performance";
-        case 4 /*VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT*/: return "Performance";
-        case 3: return "General | Validation";
-        case 2 /*VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT*/: return "Validation";
-        case 1 /*VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT*/: return "General";
-        default: return "Unknown";
+        case 7:
+            return "General | Validation | Performance";
+        case 6:
+            return "Validation | Performance";
+        case 5:
+            return "General | Performance";
+        case 4 /*VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT*/:
+            return "Performance";
+        case 3:
+            return "General | Validation";
+        case 2 /*VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT*/:
+            return "Validation";
+        case 1 /*VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT*/:
+            return "General";
+        default:
+            return "Unknown";
     }
 }
 
 static cpplogger::Level VulkanMessageSeverityToLogLevel(const VkDebugUtilsMessageSeverityFlagBitsEXT severity)
 {
     switch (severity) {
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: return cpplogger::Level::Error;
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: return cpplogger::Level::Warning;
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: return cpplogger::Level::Info;
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: return cpplogger::Level::Info;
-        default: return cpplogger::Level::Trace;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+            return cpplogger::Level::Error;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+            return cpplogger::Level::Warning;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+            return cpplogger::Level::Info;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+            return cpplogger::Level::Info;
+        default:
+            return cpplogger::Level::Trace;
     }
 }
 
@@ -56,7 +69,7 @@ static std::string_view GetMessageSeverity(const VkDebugUtilsMessageSeverityFlag
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
     const VkDebugUtilsMessageSeverityFlagBitsEXT MsgSeverity, const VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *)
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void*)
 {
     const std::string_view Severity = GetMessageSeverity(MsgSeverity);
 
@@ -64,7 +77,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
     if (pCallbackData->objectCount) {
         Objects = std::format("\n\tObjects({}): \n", pCallbackData->objectCount);
         for (uint32_t i = 0; i < pCallbackData->objectCount; ++i) {
-            const auto &object = pCallbackData->pObjects[i];
+            const auto& object = pCallbackData->pObjects[i];
             Objects.append(std::format("\t\t- Object[{0}] name: {1}, type: {2}, handle: {3:#x}\n", i,
                                        object.pObjectName ? object.pObjectName : "NULL",
                                        VK_TYPE_TO_STRING(VkObjectType, object.objectType), object.objectHandle));
@@ -74,17 +87,19 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
     LOG_V(LogVulkanRHI, VulkanMessageSeverityToLogLevel(MsgSeverity), "[{}:{}({})] {}{}", Severity,
           VulkanMessageType(messageType), pCallbackData->messageIdNumber, pCallbackData->pMessage, Objects);
 
-    if (Platform::isDebuggerPresent()) { PLATFORM_BREAK(); }
+    if (Platform::isDebuggerPresent()) {
+        PLATFORM_BREAK();
+    }
     return VK_FALSE;
 }
 
 namespace VulkanRHI
 {
 
-std::vector<const char *> VulkanDynamicRHI::GetSupportedInstanceLayers()
+std::vector<const char*> VulkanDynamicRHI::GetSupportedInstanceLayers()
 {
-    static const std::vector<const char *> ExpectedValidationLayers{"VK_LAYER_KHRONOS_validation"};
-    std::vector<const char *> FoundLayers;
+    static const std::vector<const char*> ExpectedValidationLayers{"VK_LAYER_KHRONOS_validation"};
+    std::vector<const char*> FoundLayers;
 
     uint32 PropertiesCount;
     std::vector<VkLayerProperties> AvailableLayers;
@@ -92,23 +107,26 @@ std::vector<const char *> VulkanDynamicRHI::GetSupportedInstanceLayers()
     AvailableLayers.resize(PropertiesCount);
     VulkanAPI::vkEnumerateInstanceLayerProperties(&PropertiesCount, AvailableLayers.data());
 
-    for (VkLayerProperties &Properties: AvailableLayers) {
-        for (const char *ExpectedLayer: ExpectedValidationLayers) {
-            if (std::strcmp(ExpectedLayer, Properties.layerName) == 0) { FoundLayers.push_back(ExpectedLayer); }
+    for (VkLayerProperties& Properties: AvailableLayers) {
+        for (const char* ExpectedLayer: ExpectedValidationLayers) {
+            if (std::strcmp(ExpectedLayer, Properties.layerName) == 0) {
+                FoundLayers.push_back(ExpectedLayer);
+            }
         }
     }
     if (FoundLayers.size() != ExpectedValidationLayers.size()) {
         bValidationLayersAreMissing = true;
-        auto FilterLambda = [&FoundLayers](const char *LayerName) {
-            for (const char *Layer: FoundLayers) {
-                if (std::strcmp(Layer, LayerName) == 0) return false;
+        auto FilterLambda = [&FoundLayers](const char* LayerName) {
+            for (const char* Layer: FoundLayers) {
+                if (std::strcmp(Layer, LayerName) == 0)
+                    return false;
             }
             return true;
         };
-        std::vector<const char *> MissingLayer;
+        std::vector<const char*> MissingLayer;
         LOG(LogVulkanRHI, Warning, "Some Validation layers was not found !");
         // @WATCHME: LLVM 16 should fix the compilation error
-        for (const char *Layer: ExpectedValidationLayers | std::views::filter(FilterLambda)) {
+        for (const char* Layer: ExpectedValidationLayers | std::views::filter(FilterLambda)) {
             LOG(LogVulkanRHI, Warning, "- {}", Layer);
         }
     }
@@ -131,7 +149,9 @@ void VulkanDynamicRHI::SetupDebugLayerCallback()
 
 void VulkanDynamicRHI::RemoveDebugLayerCallback()
 {
-    if (Messenger != VK_NULL_HANDLE) { VulkanAPI::vkDestroyDebugUtilsMessengerEXT(m_Instance, Messenger, nullptr); }
+    if (Messenger != VK_NULL_HANDLE) {
+        VulkanAPI::vkDestroyDebugUtilsMessengerEXT(m_Instance, Messenger, nullptr);
+    }
 }
 
 }    // namespace VulkanRHI

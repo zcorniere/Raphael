@@ -29,9 +29,9 @@ public:
     static void DeleteRHI();
 
     template <typename TFunction>
-    static void Submit(TFunction &&func);
+    static void Submit(TFunction&& func);
 
-    static Ref<RHICommandQueue> &GetRHICommandQueue();
+    static Ref<RHICommandQueue>& GetRHICommandQueue();
 
     /// RHI Operations
 
@@ -39,7 +39,7 @@ public:
     static void EndFrame();
     static void NextFrame();
 
-    static Ref<RHIViewport> CreateViewport(void *InWindowHandle, glm::uvec2 InSize);
+    static Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize);
     static Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc);
     static Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile);
 

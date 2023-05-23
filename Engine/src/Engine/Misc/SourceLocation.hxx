@@ -3,12 +3,12 @@
 #include <filesystem>
 #include <source_location>
 
-inline std::string function_name(const std::source_location &location = std::source_location::current())
+inline std::string function_name(const std::source_location& location = std::source_location::current())
 {
     return location.function_name();
 }
 
-inline std::string file_position(const std::source_location &location = std::source_location::current())
+inline std::string file_position(const std::source_location& location = std::source_location::current())
 {
     return std::string() +
            ::std::filesystem::relative(location.file_name(), ::std::filesystem::current_path()).string() + ":" +
@@ -64,6 +64,6 @@ struct type_name_holder {
 template <typename T>
 constexpr auto type_name() -> std::string_view
 {
-    constexpr auto &value = type_name_holder<T>::value;
+    constexpr auto& value = type_name_holder<T>::value;
     return std::string_view{value.data(), value.size()};
 }

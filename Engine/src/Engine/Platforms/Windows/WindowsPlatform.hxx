@@ -31,7 +31,7 @@ public:
     /// @param thread the handle of the thread to name
     /// @param name the new  name of the thread
     ///
-    static void setThreadName(std::jthread &thread, const std::string &name);
+    static void setThreadName(std::jthread& thread, const std::string& name);
 
     ///
     /// @brief Get the Thread Name
@@ -39,7 +39,7 @@ public:
     /// @param thread the thread handle to get the name of
     /// @return std::string the name of the thread
     ///
-    static std::string getThreadName(std::jthread &thread);
+    static std::string getThreadName(std::jthread& thread);
 };
 
 /// Alias to the current platform

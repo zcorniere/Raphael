@@ -37,23 +37,47 @@ public:
     void BeginRenderPass(/* Argument */);
     void EndRenderPass();
 
-    void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore> &InSemaphore);
+    void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore>& InSemaphore);
 
-    inline VkCommandBuffer GetHandle() const { return m_CommandBufferHandle; }
+    inline VkCommandBuffer GetHandle() const
+    {
+        return m_CommandBufferHandle;
+    }
 
-    inline WeakRef<VulkanCommandBufferPool> GetOwner() const { return m_OwnerPool; }
+    inline WeakRef<VulkanCommandBufferPool> GetOwner() const
+    {
+        return m_OwnerPool;
+    }
 
-    inline bool IsInsideRenderPass() const { return State == EState::IsInsideRenderPass; }
+    inline bool IsInsideRenderPass() const
+    {
+        return State == EState::IsInsideRenderPass;
+    }
 
-    inline bool IsOutsideRenderPass() const { return State == EState::IsInsideBegin; }
+    inline bool IsOutsideRenderPass() const
+    {
+        return State == EState::IsInsideBegin;
+    }
 
-    inline bool HasBegun() const { return State == EState::IsInsideBegin || State == EState::IsInsideRenderPass; }
+    inline bool HasBegun() const
+    {
+        return State == EState::IsInsideBegin || State == EState::IsInsideRenderPass;
+    }
 
-    inline bool HasEnded() const { return State == EState::HasEnded; }
+    inline bool HasEnded() const
+    {
+        return State == EState::HasEnded;
+    }
 
-    inline bool IsSubmitted() const { return State == EState::Submitted; }
+    inline bool IsSubmitted() const
+    {
+        return State == EState::Submitted;
+    }
 
-    inline bool IsAllocated() const { return State != EState::NotAllocated; }
+    inline bool IsAllocated() const
+    {
+        return State != EState::NotAllocated;
+    }
 
 private:
     void Allocate();
@@ -83,15 +107,18 @@ class VulkanCommandBufferPool : public RObject
 {
 public:
     VulkanCommandBufferPool() = delete;
-    VulkanCommandBufferPool(Ref<VulkanDevice> InDevice, VulkanCommandBufferManager *InManager);
+    VulkanCommandBufferPool(Ref<VulkanDevice> InDevice, VulkanCommandBufferManager* InManager);
     ~VulkanCommandBufferPool();
 
     void Initialize(uint32 QueueFamilyIndex);
     [[nodiscard]] Ref<VulkanCmdBuffer> CreateCmdBuffer();
 
-    VkCommandPool GetHandle() const { return m_Handle; }
+    VkCommandPool GetHandle() const
+    {
+        return m_Handle;
+    }
 
-    void RefreshFenceStatus(Ref<VulkanCmdBuffer> &SkipCmdBuffer);
+    void RefreshFenceStatus(Ref<VulkanCmdBuffer>& SkipCmdBuffer);
 
 private:
     VkCommandPool m_Handle;
@@ -99,7 +126,7 @@ private:
     std::vector<Ref<VulkanCmdBuffer>> m_FreeCmdBuffers;
 
     Ref<VulkanDevice> m_Device;
-    VulkanCommandBufferManager *p_Manager;
+    VulkanCommandBufferManager* p_Manager;
 
     friend class VulkanCommandBufferManager;
 };
@@ -114,10 +141,13 @@ public:
     void Shutdown();
 
     // Update the fences of all cmd buffers except SkipCmdBuffer
-    void RefreshFenceStatus(Ref<VulkanCmdBuffer> SkipCmdBuffer = nullptr) { Pool->RefreshFenceStatus(SkipCmdBuffer); }
+    void RefreshFenceStatus(Ref<VulkanCmdBuffer> SkipCmdBuffer = nullptr)
+    {
+        Pool->RefreshFenceStatus(SkipCmdBuffer);
+    }
 
-    Ref<VulkanCmdBuffer> &GetActiveCmdBuffer();
-    Ref<VulkanCmdBuffer> &GetUploadCmdBuffer();
+    Ref<VulkanCmdBuffer>& GetActiveCmdBuffer();
+    Ref<VulkanCmdBuffer>& GetUploadCmdBuffer();
 
     void PrepareForNewActiveCommandBuffer();
 

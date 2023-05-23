@@ -24,7 +24,7 @@ public:
     virtual void EndFrame() override;
     virtual void NextFrame() override;
 
-    virtual Ref<RHIViewport> CreateViewport(void *InWindowHandle, glm::uvec2 InSize) override;
+    virtual Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize) override;
     virtual Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc) override;
     virtual Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) override;
 
@@ -40,9 +40,15 @@ public:
     virtual void PostInit() final override;
     virtual void Shutdown() final override;
 
-    RHIInterfaceType GetInterfaceType() const final { return RHIInterfaceType::Vulkan; }
+    RHIInterfaceType GetInterfaceType() const final
+    {
+        return RHIInterfaceType::Vulkan;
+    }
 
-    inline VkInstance GetInstance() const { return m_Instance; }
+    inline VkInstance GetInstance() const
+    {
+        return m_Instance;
+    }
 
     Ref<VulkanDevice> GetDevice();
 
@@ -54,7 +60,7 @@ private:
     VkDebugUtilsMessengerEXT Messenger = VK_NULL_HANDLE;
     bool bValidationLayersAreMissing = false;
 
-    std::vector<const char *> GetSupportedInstanceLayers();
+    std::vector<const char*> GetSupportedInstanceLayers();
     void SetupDebugLayerCallback();
     void RemoveDebugLayerCallback();
 #endif

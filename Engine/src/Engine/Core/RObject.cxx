@@ -2,13 +2,13 @@
 
 #include <unordered_set>
 
-static std::unordered_set<RObject *> s_LiveReferences;
+static std::unordered_set<RObject*> s_LiveReferences;
 static std::recursive_mutex s_LiveReferenceMutex;
 
 namespace RObjectUtils
 {
 
-void AddToLiveReferences(RObject *instance)
+void AddToLiveReferences(RObject* instance)
 {
     check(instance);
 
@@ -16,7 +16,7 @@ void AddToLiveReferences(RObject *instance)
     s_LiveReferences.insert(instance);
 }
 
-void RemoveFromLiveReferences(RObject *instance)
+void RemoveFromLiveReferences(RObject* instance)
 {
     check(instance);
 
@@ -25,7 +25,7 @@ void RemoveFromLiveReferences(RObject *instance)
     s_LiveReferences.erase(instance);
 }
 
-bool IsLive(RObject *instance)
+bool IsLive(RObject* instance)
 {
     check(instance);
     std::scoped_lock lock(s_LiveReferenceMutex);
@@ -37,8 +37,8 @@ bool AreThereAnyLiveObject(bool bPrintObjects)
     std::scoped_lock lock(s_LiveReferenceMutex);
 
     if (bPrintObjects) {
-        for (RObject *ObjectPtr: s_LiveReferences) {
-            LOG(LogRObject, Trace, "RObject<{}> ({:p}) have {} references", ObjectPtr->GetName(), (void *)ObjectPtr,
+        for (RObject* ObjectPtr: s_LiveReferences) {
+            LOG(LogRObject, Trace, "RObject<{}> ({:p}) have {} references", ObjectPtr->GetName(), (void*)ObjectPtr,
                 ObjectPtr->GetRefCount());
         }
     }

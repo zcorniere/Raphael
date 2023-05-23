@@ -7,10 +7,10 @@
 namespace VulkanRHI
 {
 
-VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateDesc &InDesc)
+VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateDesc& InDesc)
     : RHITexture(InDesc), Description(InDesc), Device(InDevice), Allocation(nullptr), Layout(VK_IMAGE_LAYOUT_UNDEFINED)
 {
-    const VkPhysicalDeviceProperties &DeviceProperties = Device->GetDeviceProperties();
+    const VkPhysicalDeviceProperties& DeviceProperties = Device->GetDeviceProperties();
 
     VkImageCreateInfo ImageCreateInfo{
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -36,18 +36,35 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
             check(InDesc.Extent.x <= DeviceProperties.limits.maxImageDimension2D);
             check(InDesc.Extent.y <= DeviceProperties.limits.maxImageDimension2D);
             break;
-        default: checkNoEntry() break;
+        default:
+            checkNoEntry() break;
     }
 
     switch (InDesc.NumSamples) {
-        case 1: ImageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT; break;
-        case 2: ImageCreateInfo.samples = VK_SAMPLE_COUNT_2_BIT; break;
-        case 4: ImageCreateInfo.samples = VK_SAMPLE_COUNT_4_BIT; break;
-        case 8: ImageCreateInfo.samples = VK_SAMPLE_COUNT_8_BIT; break;
-        case 16: ImageCreateInfo.samples = VK_SAMPLE_COUNT_16_BIT; break;
-        case 32: ImageCreateInfo.samples = VK_SAMPLE_COUNT_32_BIT; break;
-        case 64: ImageCreateInfo.samples = VK_SAMPLE_COUNT_64_BIT; break;
-        default: checkNoEntry(); break;
+        case 1:
+            ImageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+            break;
+        case 2:
+            ImageCreateInfo.samples = VK_SAMPLE_COUNT_2_BIT;
+            break;
+        case 4:
+            ImageCreateInfo.samples = VK_SAMPLE_COUNT_4_BIT;
+            break;
+        case 8:
+            ImageCreateInfo.samples = VK_SAMPLE_COUNT_8_BIT;
+            break;
+        case 16:
+            ImageCreateInfo.samples = VK_SAMPLE_COUNT_16_BIT;
+            break;
+        case 32:
+            ImageCreateInfo.samples = VK_SAMPLE_COUNT_32_BIT;
+            break;
+        case 64:
+            ImageCreateInfo.samples = VK_SAMPLE_COUNT_64_BIT;
+            break;
+        default:
+            checkNoEntry();
+            break;
     }
 
     VK_CHECK_RESULT(VulkanAPI::vkCreateImage(Device->GetInstanceHandle(), &ImageCreateInfo, nullptr, &Image));
@@ -72,7 +89,7 @@ void VulkanTexture::SetName(std::string_view InName)
 
 //////////////////// VulkanTextureView ////////////////////
 
-void VulkanTextureView::Create(Ref<VulkanDevice> &Device, VkImage InImage, VkImageViewType ViewType,
+void VulkanTextureView::Create(Ref<VulkanDevice>& Device, VkImage InImage, VkImageViewType ViewType,
                                VkImageAspectFlags AspectFlags, VkFormat Format, uint32 FirstMip, uint32 NumMips)
 {
     VkImageViewCreateInfo ViewInfo{
@@ -95,7 +112,7 @@ void VulkanTextureView::Create(Ref<VulkanDevice> &Device, VkImage InImage, VkIma
     Image = InImage;
 }
 
-void VulkanTextureView::Destroy(Ref<VulkanDevice> &Device)
+void VulkanTextureView::Destroy(Ref<VulkanDevice>& Device)
 {
     if (View) {
         VulkanAPI::vkDestroyImageView(Device->GetInstanceHandle(), View, nullptr);

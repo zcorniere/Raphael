@@ -2,14 +2,12 @@
 
 #include "Engine/Platforms/PlatformStacktrace.hxx"
 
-class LinuxStacktrace: public GenericStacktrace
+class LinuxStacktrace : public GenericStacktrace
 {
 public:
-
     /// @brief Return a stacktrace of the current running process
-    static StacktraceContent GetStackTraceFromReturnAddress(void *returnAddress);
+    static StacktraceContent GetStackTraceFromReturnAddress(void* returnAddress);
 
-    static bool TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedSymbolInfo &detailed_info);
-
+    static bool TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedSymbolInfo& detailed_info);
 };
 using PlatformStacktrace = LinuxStacktrace;

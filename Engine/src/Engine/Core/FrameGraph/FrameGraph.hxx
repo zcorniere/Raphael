@@ -17,9 +17,8 @@ public:
     ~FrameGraph();
 
     template <typename Data, typename SetupCallback, typename ExecuteCallback>
-        requires CValidFrameGraphSetupLambda<SetupCallback, Data> &&
-                 CValidFrameGraphExecutionLambda<ExecuteCallback, Data>
-    const Data &AddCallbackPass(const std::string_view Name, SetupCallback &&setup, ExecuteCallback &&Exec);
+    requires CValidFrameGraphSetupLambda<SetupCallback, Data> && CValidFrameGraphExecutionLambda<ExecuteCallback, Data>
+    const Data& AddCallbackPass(const std::string_view Name, SetupCallback&& setup, ExecuteCallback&& Exec);
 
     bool Compile();
     void Execute();
@@ -32,8 +31,8 @@ private:
     template <RHIResourceType Type, typename... Args>
     FrameGraphResource CreateResource(const std::string_view, Args... args);
 
-    const Ref<ResourceNode> &GetResourceNode(FrameGraphResource Id) const;
-    Ref<ResourceEntry> &GetResourceEntry(FrameGraphResource Id);
+    const Ref<ResourceNode>& GetResourceNode(FrameGraphResource Id) const;
+    Ref<ResourceEntry>& GetResourceEntry(FrameGraphResource Id);
 
 private:
     std::vector<Ref<PassNode>> m_PassNodes;

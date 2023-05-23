@@ -10,37 +10,46 @@
 
 #include "Engine/Platforms/PlatformMisc.hxx"
 
-static constexpr const char *VulkanVendorIDToString(std::uint32_t vendorID)
+static constexpr const char* VulkanVendorIDToString(std::uint32_t vendorID)
 {
     switch (vendorID) {
-        case 0x10DE: return "NVIDIA";
-        case 0x1002: return "AMD";
-        case 0x8086: return "INTEL";
+        case 0x10DE:
+            return "NVIDIA";
+        case 0x1002:
+            return "AMD";
+        case 0x8086:
+            return "INTEL";
     }
     return "Unknown";
 }
 
-static constexpr std::string GetQueueInfoString(const VkQueueFamilyProperties &Props)
+static constexpr std::string GetQueueInfoString(const VkQueueFamilyProperties& Props)
 {
     std::string Info;
-    if ((Props.queueFlags & VK_QUEUE_GRAPHICS_BIT) == VK_QUEUE_GRAPHICS_BIT) { Info += " Graphics"; }
-    if ((Props.queueFlags & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT) { Info += " Compute"; }
-    if ((Props.queueFlags & VK_QUEUE_TRANSFER_BIT) == VK_QUEUE_TRANSFER_BIT) { Info += " Transfert"; }
+    if ((Props.queueFlags & VK_QUEUE_GRAPHICS_BIT) == VK_QUEUE_GRAPHICS_BIT) {
+        Info += " Graphics";
+    }
+    if ((Props.queueFlags & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT) {
+        Info += " Compute";
+    }
+    if ((Props.queueFlags & VK_QUEUE_TRANSFER_BIT) == VK_QUEUE_TRANSFER_BIT) {
+        Info += " Transfert";
+    }
     return Info;
 };
 
-static const std::vector<const char *> DefaultDeviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+static const std::vector<const char*> DefaultDeviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 namespace VulkanRHI
 {
 
 VulkanDevice::VulkanDevice(VkPhysicalDevice InGpu)
-    : Device(VK_NULL_HANDLE),
-      Gpu(InGpu),
-      GraphicsQueue(nullptr),
+    : GraphicsQueue(nullptr),
       ComputeQueue(nullptr),
       TransferQueue(nullptr),
-      PresentQueue(nullptr)
+      PresentQueue(nullptr),
+      Device(VK_NULL_HANDLE),
+      Gpu(InGpu)
 {
     VulkanAPI::vkGetPhysicalDeviceProperties(Gpu, &GpuProps);
     LOG(LogVulkanRHI, Info, "- DeviceName: {}", GpuProps.deviceName);
@@ -76,7 +85,7 @@ void VulkanDevice::InitPhysicalDevice()
     VulkanAPI::vkGetPhysicalDeviceFeatures(Gpu, &PhysicalFeatures);
 
     // Setup layers and extensions
-    std::vector<const char *> DeviceExtensions = DefaultDeviceExtensions;
+    std::vector<const char*> DeviceExtensions = DefaultDeviceExtensions;
     VulkanPlatform::GetDeviceExtensions(this, DeviceExtensions);
     CreateDeviceAndQueue({}, DeviceExtensions);
 
@@ -86,8 +95,8 @@ void VulkanDevice::InitPhysicalDevice()
     CommandManager = new VulkanCommandBufferManager(this, GraphicsQueue);
 }
 
-void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char *> &DeviceLayers,
-                                        const std::vector<const char *> &DeviceExtensions)
+void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char*>& DeviceLayers,
+                                        const std::vector<const char*>& DeviceExtensions)
 {
     VkDeviceCreateInfo DeviceInfo{
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -107,7 +116,7 @@ void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char *> &DeviceL
 
     std::uint32_t NumPriorities = 0;
     for (int32 FamilyIndex = 0; FamilyIndex < (int32)QueueFamilyProps.size(); FamilyIndex++) {
-        const VkQueueFamilyProperties &CurrProps = QueueFamilyProps[FamilyIndex];
+        const VkQueueFamilyProperties& CurrProps = QueueFamilyProps[FamilyIndex];
 
         bool bIsValidQueue = false;
         if ((CurrProps.queueFlags & VK_QUEUE_GRAPHICS_BIT) == VK_QUEUE_GRAPHICS_BIT) {
@@ -142,7 +151,7 @@ void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char *> &DeviceL
         int32 QueueIndex = QueueFamilyInfos.size();
         QueueFamilyInfos.resize(1 + QueueFamilyInfos.size());
 
-        VkDeviceQueueCreateInfo &CurrQueue = QueueFamilyInfos[QueueIndex];
+        VkDeviceQueueCreateInfo& CurrQueue = QueueFamilyInfos[QueueIndex];
         CurrQueue.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         CurrQueue.queueFamilyIndex = FamilyIndex;
         CurrQueue.queueCount = CurrProps.queueCount;
@@ -153,13 +162,13 @@ void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char *> &DeviceL
             GetQueueInfoString(CurrProps));
     }
     std::vector<float> QueuePriorities(NumPriorities);
-    float *CurrentPriorities = QueuePriorities.data();
+    float* CurrentPriorities = QueuePriorities.data();
 
     for (int32 Index = 0; Index < (int32)QueueFamilyInfos.size(); Index++) {
-        VkDeviceQueueCreateInfo &CurrQueue = QueueFamilyInfos[Index];
+        VkDeviceQueueCreateInfo& CurrQueue = QueueFamilyInfos[Index];
         CurrQueue.pQueuePriorities = CurrentPriorities;
 
-        const VkQueueFamilyProperties &CurrProps = QueueFamilyProps[CurrQueue.queueFamilyIndex];
+        const VkQueueFamilyProperties& CurrProps = QueueFamilyProps[CurrQueue.queueFamilyIndex];
         for (std::uint32_t QueueIndex = 0; QueueIndex < CurrProps.queueCount; QueueIndex++) {
             *CurrentPriorities++ = 1.0f;
         }
@@ -177,28 +186,38 @@ void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char *> &DeviceL
 
     GraphicsQueue = Ref<VulkanQueue>::CreateNamed("Graphics Queue", this, GraphicsQueueFamilyIndex);
 
-    if (ComputeQueueFamilyIndex == -1) { ComputeQueueFamilyIndex = GraphicsQueueFamilyIndex; }
+    if (ComputeQueueFamilyIndex == -1) {
+        ComputeQueueFamilyIndex = GraphicsQueueFamilyIndex;
+    }
     ComputeQueue = Ref<VulkanQueue>::CreateNamed("Compute Queue", this, ComputeQueueFamilyIndex);
 
-    if (TransferQueueFamilyIndex == -1) { TransferQueueFamilyIndex = ComputeQueueFamilyIndex; }
+    if (TransferQueueFamilyIndex == -1) {
+        TransferQueueFamilyIndex = ComputeQueueFamilyIndex;
+    }
     TransferQueue = Ref<VulkanQueue>::CreateNamed("Transfer Queue", this, TransferQueueFamilyIndex);
 
     LOG(LogVulkanRHI, Info, "Using {} device layers{}", DeviceLayers.size(), DeviceLayers.size() ? ":" : ".");
-    for (const char *Layer: DeviceLayers) { LOG(LogVulkanRHI, Info, "* {}", Layer); }
+    for (const char* Layer: DeviceLayers) {
+        LOG(LogVulkanRHI, Info, "* {}", Layer);
+    }
 
     LOG(LogVulkanRHI, Info, "Using {} device extensions:", DeviceExtensions.size());
-    for (const char *Extension: DeviceExtensions) { LOG(LogVulkanRHI, Info, "* {}", Extension); }
+    for (const char* Extension: DeviceExtensions) {
+        LOG(LogVulkanRHI, Info, "* {}", Extension);
+    }
 }
 
 void VulkanDevice::SetupPresentQueue(VkSurfaceKHR Surface)
 {
     if (!PresentQueue) {
-        const auto SupportsPresent = [Surface](VkPhysicalDevice PhysicalDevice, Ref<VulkanQueue> &Queue) {
+        const auto SupportsPresent = [Surface](VkPhysicalDevice PhysicalDevice, Ref<VulkanQueue>& Queue) {
             VkBool32 bSupportsPresent = VK_FALSE;
             const uint32 FamilyIndex = Queue->GetFamilyIndex();
             VK_CHECK_RESULT(VulkanAPI::vkGetPhysicalDeviceSurfaceSupportKHR(PhysicalDevice, FamilyIndex, Surface,
                                                                             &bSupportsPresent));
-            if (bSupportsPresent) { LOG(LogVulkanRHI, Info, "Queue Family {}: Supports Present", FamilyIndex); }
+            if (bSupportsPresent) {
+                LOG(LogVulkanRHI, Info, "Queue Family {}: Supports Present", FamilyIndex);
+            }
             return (bSupportsPresent == VK_TRUE);
         };
 
@@ -246,7 +265,7 @@ void VulkanDevice::WaitUntilIdle()
     CommandManager->RefreshFenceStatus();
 }
 
-VulkanCommandBufferManager *VulkanDevice::GetCommandManager()
+VulkanCommandBufferManager* VulkanDevice::GetCommandManager()
 {
     check(CommandManager);
     return CommandManager;

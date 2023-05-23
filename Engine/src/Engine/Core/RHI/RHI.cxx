@@ -6,7 +6,10 @@ static Ref<RHICommandQueue> s_CommandQueue = nullptr;
 
 Ref<GenericRHI> GDynamicRHI = nullptr;
 
-void RHI::Init() { s_CommandQueue = Ref<RHICommandQueue>::Create(); }
+void RHI::Init()
+{
+    s_CommandQueue = Ref<RHICommandQueue>::Create();
+}
 
 void RHI::DeleteRHI()
 {
@@ -15,24 +18,33 @@ void RHI::DeleteRHI()
     GDynamicRHI = nullptr;
 }
 
-Ref<RHICommandQueue> &RHI::GetRHICommandQueue()
+Ref<RHICommandQueue>& RHI::GetRHICommandQueue()
 {
     check(s_CommandQueue);
     return s_CommandQueue;
 }
 
 /// RHI Fowarding
-void RHI::BeginFrame() { return RHI::Get<GenericRHI>()->BeginFrame(); }
+void RHI::BeginFrame()
+{
+    return RHI::Get<GenericRHI>()->BeginFrame();
+}
 
-void RHI::EndFrame() { return RHI::Get<GenericRHI>()->EndFrame(); }
+void RHI::EndFrame()
+{
+    return RHI::Get<GenericRHI>()->EndFrame();
+}
 
-void RHI::NextFrame() { return RHI::Get<GenericRHI>()->NextFrame(); }
+void RHI::NextFrame()
+{
+    return RHI::Get<GenericRHI>()->NextFrame();
+}
 
 //
 //  -------------------- RHI Create resources --------------------
 //
 
-Ref<RHIViewport> RHI::CreateViewport(void *InWindowHandle, glm::uvec2 InSize)
+Ref<RHIViewport> RHI::CreateViewport(void* InWindowHandle, glm::uvec2 InSize)
 {
     return RHI::Get<GenericRHI>()->CreateViewport(InWindowHandle, InSize);
 }

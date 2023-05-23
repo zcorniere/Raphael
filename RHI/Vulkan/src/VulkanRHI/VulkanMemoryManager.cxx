@@ -10,7 +10,7 @@ DECLARE_LOGGER_CATEGORY(Core, LogVulkanMemoryAllocator, Info);
 namespace VulkanRHI
 {
 
-void *VulkanMemoryAllocation::Map(VkDeviceSize InSize, VkDeviceSize Offset)
+void* VulkanMemoryAllocation::Map(VkDeviceSize InSize, VkDeviceSize Offset)
 {
     check(bCanBeMapped);
     if (!MappedPointer) {
@@ -61,9 +61,13 @@ void VulkanMemoryAllocation::BindImage(VkImage Image)
 /// VulkanMemoryManager
 ////////////////////////////////////////////////////////////////////
 
-VulkanMemoryManager::VulkanMemoryManager(): Allocator(VK_NULL_HANDLE), AllocationCount(0) {}
+VulkanMemoryManager::VulkanMemoryManager(): Allocator(VK_NULL_HANDLE), AllocationCount(0)
+{
+}
 
-VulkanMemoryManager::~VulkanMemoryManager() {}
+VulkanMemoryManager::~VulkanMemoryManager()
+{
+}
 
 void VulkanMemoryManager::Init(Ref<VulkanDevice> InDevice)
 {
@@ -78,8 +82,10 @@ void VulkanMemoryManager::Init(Ref<VulkanDevice> InDevice)
 #define GET_VMA_FUNCTION(Type, Name) \
     Functions.Name = (Type)VulkanAPI::vkGetInstanceProcAddr(RHI->RHIGetVkInstance(), #Name);
 
-#define CHECK_VMA_FUNCTION(Type, Name) \
-    if (Functions.Name == nullptr) { LOG(LogVulkanMemoryAllocator, Warning, "Failed to find entry point for " #Name); }
+#define CHECK_VMA_FUNCTION(Type, Name)                                                   \
+    if (Functions.Name == nullptr) {                                                     \
+        LOG(LogVulkanMemoryAllocator, Warning, "Failed to find entry point for " #Name); \
+    }
 
     VK_ENTRYPOINTS_VMA(GET_VMA_FUNCTION);
     VK_ENTRYPOINTS_VMA(CHECK_VMA_FUNCTION);
@@ -105,7 +111,7 @@ void VulkanMemoryManager::Shutdown()
     Allocator = VK_NULL_HANDLE;
 }
 
-Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(const VkMemoryRequirements &MemoryRequirement,
+Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(const VkMemoryRequirements& MemoryRequirement,
                                                        VmaMemoryUsage MemUsage, bool Mappable)
 {
     VmaAllocationCreateInfo CreateInfo = GetCreateInfo(MemUsage, Mappable);
@@ -115,7 +121,7 @@ Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(const VkMemoryRequirement
     return Alloc;
 }
 
-void VulkanMemoryManager::Free(Ref<VulkanMemoryAllocation> &Allocation)
+void VulkanMemoryManager::Free(Ref<VulkanMemoryAllocation>& Allocation)
 {
     // Allocator should be removed after this call
     check(Allocation->GetRefCount() == 1);
@@ -131,7 +137,9 @@ uint64 VulkanMemoryManager::GetTotalMemory(bool bGPUOnly) const
         const bool bIsGPUHeap = ((MemoryProperties.memoryHeaps[Index].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) ==
                                  VK_MEMORY_HEAP_DEVICE_LOCAL_BIT);
 
-        if (bGPUOnly == bIsGPUHeap) { TotalMemory += MemoryProperties.memoryHeaps[Index].size; }
+        if (bGPUOnly == bIsGPUHeap) {
+            TotalMemory += MemoryProperties.memoryHeaps[Index].size;
+        }
     }
     return TotalMemory;
 }
@@ -145,7 +153,7 @@ void VulkanMemoryManager::PrintMemInfo() const
     vmaGetHeapBudgets(Allocator, Budgets.data());
 
     for (unsigned i = 0; i < Budgets.size(); i++) {
-        const VmaBudget &b = Budgets.at(i);
+        const VmaBudget& b = Budgets.at(i);
         LOG(LogVulkanMemoryAllocator, Info, "{} - VmaBudget.allocationBytes = {}", i,
             Utils::BytesToString(b.statistics.allocationBytes));
         LOG(LogVulkanMemoryAllocator, Info, "{} - VmaBudget.allocationCount = {}", i,
@@ -157,7 +165,7 @@ void VulkanMemoryManager::PrintMemInfo() const
         LOG(LogVulkanMemoryAllocator, Info, "{} - VmaBudget.usage = {}", i, Utils::BytesToString(b.usage));
         LOG(LogVulkanMemoryAllocator, Info, "{} - VmaBudget.budget = {}", i, Utils::BytesToString(b.budget));
     }
-    char *JsonString = nullptr;
+    char* JsonString = nullptr;
     vmaBuildStatsString(Allocator, &JsonString, VK_TRUE);
     // write to file
     vmaFreeStatsString(Allocator, JsonString);
@@ -166,7 +174,8 @@ void VulkanMemoryManager::PrintMemInfo() const
 VmaAllocationCreateInfo VulkanMemoryManager::GetCreateInfo(VmaMemoryUsage MemUsage, bool Mappable)
 {
     VmaAllocationCreateFlags flags = 0;
-    if (Mappable) flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+    if (Mappable)
+        flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
 
     return VmaAllocationCreateInfo{
         .flags = flags,

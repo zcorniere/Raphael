@@ -23,7 +23,10 @@ public:
         return false;
     }
 
-    static std::filesystem::path GetExecutablePath() { return std::filesystem::current_path(); }
+    static std::filesystem::path GetExecutablePath()
+    {
+        return std::filesystem::current_path();
+    }
 
     ///
     /// @brief Set the Thread Name
@@ -31,7 +34,7 @@ public:
     /// @param thread the handle of the thread to name
     /// @param name the new  name of the thread
     ///
-    static void setThreadName(std::jthread &thread, const std::string &name)
+    static void setThreadName(std::jthread& thread, const std::string& name)
     {
         (void)thread;
         (void)name;
@@ -43,13 +46,11 @@ public:
     /// @param thread the thread handle to get the name of
     /// @return std::string the name of the thread
     ///
-    static std::string getThreadName(std::jthread &thread)
+    static std::string getThreadName(std::jthread& thread)
     {
         (void)thread;
         return "";
     }
-
-
 };
 
 #if defined(PLATFORM_WINDOWS)

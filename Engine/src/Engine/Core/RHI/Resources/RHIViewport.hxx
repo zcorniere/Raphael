@@ -5,7 +5,9 @@
 class RHIViewport : public RHIResource
 {
 public:
-    RHIViewport(): RHIResource(RHIResourceType::Viewport) {}
+    RHIViewport(): RHIResource(RHIResourceType::Viewport)
+    {
+    }
 
     void BeginDrawViewport();
     void EndDrawViewport();

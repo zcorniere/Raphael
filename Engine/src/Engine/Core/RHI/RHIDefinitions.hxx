@@ -33,6 +33,6 @@ struct VertexElement {
     uint8 AttributeIndex;
     EVertexElementType VertexType;
 
-    bool operator==(const VertexElement &) const = default;
+    bool operator==(const VertexElement&) const = default;
 };
 using VertexElementList = std::vector<VertexElement>;

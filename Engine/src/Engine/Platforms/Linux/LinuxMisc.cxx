@@ -8,9 +8,11 @@
 #include <dlfcn.h>
 
 EBoxReturnType LinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
-                                     const std::string_view Caption)
+                                            const std::string_view Caption)
 {
-    if (!Window::EnsureSDLInit()) { return GenericMisc::DisplayMessageBox(MsgType, Text, Caption); }
+    if (!Window::EnsureSDLInit()) {
+        return GenericMisc::DisplayMessageBox(MsgType, Text, Caption);
+    }
 
     std::vector<SDL_MessageBoxButtonData> Buttons;
 
@@ -70,14 +72,17 @@ LinuxExternalModule::LinuxExternalModule(std::string_view ModulePath): IExternal
     ModuleHandle = dlopen(ModulePath.data(), RTLD_NOW | RTLD_LOCAL);
 }
 
-LinuxExternalModule::~LinuxExternalModule() { dlclose(ModuleHandle); }
+LinuxExternalModule::~LinuxExternalModule()
+{
+    dlclose(ModuleHandle);
+}
 
-void *LinuxExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
+void* LinuxExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
 {
     return dlsym(ModuleHandle, SymbolName.data());
 }
 
-Ref<IExternalModule> LinuxMisc::LoadExternalModule(const std::string &ModuleName)
+Ref<IExternalModule> LinuxMisc::LoadExternalModule(const std::string& ModuleName)
 {
     auto Iter = s_ModuleStorage.find(ModuleName);
 
@@ -90,4 +95,7 @@ Ref<IExternalModule> LinuxMisc::LoadExternalModule(const std::string &ModuleName
     return Ref(Iter->second);
 }
 
-std::filesystem::path LinuxMisc::GetConfigPath() { return xdg::ConfigHomeDir() / "RaphaelEngine"; }
+std::filesystem::path LinuxMisc::GetConfigPath()
+{
+    return xdg::ConfigHomeDir() / "RaphaelEngine";
+}

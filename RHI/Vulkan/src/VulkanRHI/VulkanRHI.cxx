@@ -17,7 +17,7 @@ Ref<GenericRHI> RHI::CreateRHI()
 }
 //
 
-static std::string GetMissingExtensions(std::vector<const char *> VulkanExtensions);
+static std::string GetMissingExtensions(std::vector<const char*> VulkanExtensions);
 
 namespace VulkanRHI
 {
@@ -42,18 +42,28 @@ VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr
     }
 }
 
-VulkanDynamicRHI::~VulkanDynamicRHI() { VulkanPlatform::FreeVulkanLibrary(); }
+VulkanDynamicRHI::~VulkanDynamicRHI()
+{
+    VulkanPlatform::FreeVulkanLibrary();
+}
 
-VkInstance VulkanDynamicRHI::RHIGetVkInstance() const { return GetInstance(); }
+VkInstance VulkanDynamicRHI::RHIGetVkInstance() const
+{
+    return GetInstance();
+}
 
-VkDevice VulkanDynamicRHI::RHIGetVkDevice() const { return Device->GetInstanceHandle(); }
+VkDevice VulkanDynamicRHI::RHIGetVkDevice() const
+{
+    return Device->GetInstanceHandle();
+}
 
-VkPhysicalDevice VulkanDynamicRHI::RHIGetVkPhysicalDevice() const { return Device->GetPhysicalHandle(); }
+VkPhysicalDevice VulkanDynamicRHI::RHIGetVkPhysicalDevice() const
+{
+    return Device->GetPhysicalHandle();
+}
 
 void VulkanDynamicRHI::Init()
 {
-    GenericRHI::Init();
-
     CreateInstance();
     SelectDevice();
 
@@ -66,7 +76,9 @@ void VulkanDynamicRHI::Init()
     Device->InitPhysicalDevice();
 }
 
-void VulkanDynamicRHI::PostInit() {}
+void VulkanDynamicRHI::PostInit()
+{
+}
 
 void VulkanDynamicRHI::Shutdown()
 {
@@ -82,11 +94,12 @@ void VulkanDynamicRHI::Shutdown()
 #endif
 
     VulkanAPI::vkDestroyInstance(m_Instance, nullptr);
-
-    GenericRHI::Shutdown();
 }
 
-Ref<VulkanDevice> VulkanDynamicRHI::GetDevice() { return Device; }
+Ref<VulkanDevice> VulkanDynamicRHI::GetDevice()
+{
+    return Device;
+}
 
 void VulkanDynamicRHI::CreateInstance()
 {
@@ -102,7 +115,7 @@ void VulkanDynamicRHI::CreateInstance()
     };
 
     // TODO: Wrap it into its own class ?
-    std::vector<const char *> InstanceExtensions
+    std::vector<const char*> InstanceExtensions
     {
         VK_KHR_SURFACE_EXTENSION_NAME,
 #if VULKAN_DEBUGGING_ENABLED
@@ -115,7 +128,7 @@ void VulkanDynamicRHI::CreateInstance()
     InstInfo.ppEnabledExtensionNames = InstanceExtensions.data();
 
 #if VULKAN_DEBUGGING_ENABLED
-    std::vector<const char *> ValidationLayers = GetSupportedInstanceLayers();
+    std::vector<const char*> ValidationLayers = GetSupportedInstanceLayers();
 
     InstInfo.enabledLayerCount = ValidationLayers.size();
     InstInfo.ppEnabledLayerNames = ValidationLayers.data();
@@ -163,10 +176,13 @@ void VulkanDynamicRHI::CreateInstance()
 
     LOG(LogVulkanRHI, Info, "Using {} Instance extensions {}", InstanceExtensions.size(),
         InstanceExtensions.size() ? ":" : ".");
-    for (const char *Layer: InstanceExtensions) { LOG(LogVulkanRHI, Info, "* {}", Layer); }
+    for (const char* Layer: InstanceExtensions) {
+        LOG(LogVulkanRHI, Info, "* {}", Layer);
+    }
 
 #if VULKAN_DEBUGGING_ENABLED
-    LOG(LogVulkanRHI, Warning, "Vulkan Debugging is enabled {}!", (bValidationLayersAreMissing) ? ("but some instance layers are missing ") : (""));
+    LOG(LogVulkanRHI, Warning, "Vulkan Debugging is enabled {}!",
+        (bValidationLayersAreMissing) ? ("but some instance layers are missing ") : (""));
     SetupDebugLayerCallback();
 #endif
 }
@@ -230,7 +246,7 @@ void VulkanDynamicRHI::SelectDevice()
 
 }    // namespace VulkanRHI
 
-static std::string GetMissingExtensions(std::vector<const char *> VulkanExtensions)
+static std::string GetMissingExtensions(std::vector<const char*> VulkanExtensions)
 {
     std::string MissingExtensions;
     uint32_t PropertyCount;
@@ -240,11 +256,11 @@ static std::string GetMissingExtensions(std::vector<const char *> VulkanExtensio
     Properties.resize(PropertyCount);
     VulkanRHI::VulkanAPI::vkEnumerateInstanceExtensionProperties(nullptr, &PropertyCount, Properties.data());
 
-    for (const char *Extension: VulkanExtensions) {
+    for (const char* Extension: VulkanExtensions) {
         bool bExtensionFound = false;
 
         for (uint32_t PropertyIndex = 0; PropertyIndex < PropertyCount; PropertyIndex++) {
-            const char *PropertyExtensionName = Properties[PropertyIndex].extensionName;
+            const char* PropertyExtensionName = Properties[PropertyIndex].extensionName;
 
             if (!std::strcmp(PropertyExtensionName, Extension)) {
                 bExtensionFound = true;

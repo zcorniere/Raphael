@@ -11,9 +11,14 @@ enum class RHIShaderType : uint8 {
 class RHIShader : public RHIResource
 {
 public:
-    RHIShader(RHIShaderType Type): RHIResource(RHIResourceType::Shader), ShaderType(Type) {}
+    RHIShader(RHIShaderType Type): RHIResource(RHIResourceType::Shader), ShaderType(Type)
+    {
+    }
 
-    RHIShaderType GetShaderType() const { return ShaderType; }
+    RHIShaderType GetShaderType() const
+    {
+        return ShaderType;
+    }
 
 private:
     const RHIShaderType ShaderType;

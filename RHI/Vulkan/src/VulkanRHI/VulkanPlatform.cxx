@@ -33,11 +33,15 @@ static constexpr auto VulkanLibraryName = "libvulkan.so.1";
 
 bool VulkanPlatform::LoadVulkanLibrary()
 {
-    if (s_VulkanModuleHandle) { return true; }
+    if (s_VulkanModuleHandle) {
+        return true;
+    }
 
     s_VulkanModuleHandle = PlatformMisc::LoadExternalModule(VulkanLibraryName);
 
-    if (s_VulkanModuleHandle == nullptr) { return false; }
+    if (s_VulkanModuleHandle == nullptr) {
+        return false;
+    }
 
     bool bFoundAllEntryPoints = true;
 #define CHECK_VK_ENTRYPOINTS(Type, Func)                                   \
@@ -64,9 +68,9 @@ bool VulkanPlatform::LoadVulkanLibrary()
 bool VulkanPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
 {
     bool bFoundAllEntryPoints = true;
-#define CHECK_VK_ENTRYPOINTS(Type, Func)                                  \
-    if (VulkanAPI::Func == nullptr) {                                     \
-        bFoundAllEntryPoints = false;                                     \
+#define CHECK_VK_ENTRYPOINTS(Type, Func)                                     \
+    if (VulkanAPI::Func == nullptr) {                                        \
+        bFoundAllEntryPoints = false;                                        \
         LOG(LogVulkanRHI, Warning, "Failed to find entry point for " #Func); \
     }
 
@@ -78,7 +82,9 @@ bool VulkanPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
     VK_ENTRYPOINTS_SURFACE_INSTANCE(GETINSTANCE_VK_ENTRYPOINTS);
     VK_ENTRYPOINTS_SURFACE_INSTANCE(CHECK_VK_ENTRYPOINTS);
 
-    if (!bFoundAllEntryPoints) { return false; }
+    if (!bFoundAllEntryPoints) {
+        return false;
+    }
 
     VK_ENTRYPOINTS_DEBUG_UTILS(GETINSTANCE_VK_ENTRYPOINTS);
 
@@ -98,7 +104,7 @@ void VulkanPlatform::FreeVulkanLibrary()
     }
 }
 
-void VulkanPlatform::GetInstanceExtensions(std::vector<const char *> &OutExtensions)
+void VulkanPlatform::GetInstanceExtensions(std::vector<const char*>& OutExtensions)
 {
     Window::EnsureSDLInit();
 
@@ -106,7 +112,7 @@ void VulkanPlatform::GetInstanceExtensions(std::vector<const char *> &OutExtensi
     OutExtensions.push_back("VK_KHR_surface");
     OutExtensions.push_back("VK_KHR_win32_surface");
 #elif defined(PLATFORM_LINUX)
-    const char *SDLDriver = SDL_GetCurrentVideoDriver();
+    const char* SDLDriver = SDL_GetCurrentVideoDriver();
     check(SDLDriver);
 
     if (strcmp(SDLDriver, "x11") == 0) {
@@ -122,33 +128,33 @@ void VulkanPlatform::GetInstanceExtensions(std::vector<const char *> &OutExtensi
 }
 
 void VulkanPlatform::GetDeviceExtensions([[maybe_unused]] Ref<VulkanDevice> Device,
-                                         [[maybe_unused]] std::vector<const char *> &OutExtensions)
+                                         [[maybe_unused]] std::vector<const char*>& OutExtensions)
 {
 }
 
-void VulkanPlatform::CreateSurface(void *WindowHandle, VkInstance Instance, VkSurfaceKHR *OutSurface)
+void VulkanPlatform::CreateSurface(void* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface)
 {
     Window::EnsureSDLInit();
 
-    if (SDL_Vulkan_CreateSurface((SDL_Window *)WindowHandle, Instance, OutSurface) == SDL_FALSE) {
+    if (SDL_Vulkan_CreateSurface((SDL_Window*)WindowHandle, Instance, OutSurface) == SDL_FALSE) {
         LOG(LogVulkanRHI, Fatal, "Error initializing SDL Vulkan Surface: {}", SDL_GetError());
         checkNoEntry();
     }
 }
 
-VkResult VulkanPlatform::Present(VkQueue Queue, VkPresentInfoKHR &PresentInfo)
+VkResult VulkanPlatform::Present(VkQueue Queue, VkPresentInfoKHR& PresentInfo)
 {
     return VulkanAPI::vkQueuePresentKHR(Queue, &PresentInfo);
 }
 
-VkResult VulkanPlatform::CreateSwapchainKHR(VkDevice Device, const VkSwapchainCreateInfoKHR *CreateInfo,
-                                            const VkAllocationCallbacks *Allocator, VkSwapchainKHR *Swapchain)
+VkResult VulkanPlatform::CreateSwapchainKHR(VkDevice Device, const VkSwapchainCreateInfoKHR* CreateInfo,
+                                            const VkAllocationCallbacks* Allocator, VkSwapchainKHR* Swapchain)
 {
     return VulkanAPI::vkCreateSwapchainKHR(Device, CreateInfo, Allocator, Swapchain);
 }
 
 void VulkanPlatform::DestroySwapchainKHR(VkDevice Device, VkSwapchainKHR Swapchain,
-                                         const VkAllocationCallbacks *Allocator)
+                                         const VkAllocationCallbacks* Allocator)
 {
     VulkanAPI::vkDestroySwapchainKHR(Device, Swapchain, Allocator);
 }
