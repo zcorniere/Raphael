@@ -124,6 +124,7 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice>& InDev
                                  bool LockToVSync, VulkanSwapChainRecreateInfo* RecreateInfo)
     : Device(InDevice),
       CurrentImageIndex(-1),
+      SemaphoreIndex(0),
       LockToVSync(LockToVSync),
       SwapChain(VK_NULL_HANDLE),
       Surface(VK_NULL_HANDLE),
