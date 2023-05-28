@@ -3,6 +3,9 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogAssert, Trace)
 
+namespace Raphael
+{
+
 void CollectAndPrintStackTrace(void* ReturnAddress)
 {
     static bool bIsAlreadyHandlerAssertions = false;
@@ -25,3 +28,5 @@ void CollectAndPrintStackTrace(void* ReturnAddress)
     }
     bIsAlreadyHandlerAssertions = false;
 }
+
+}    // namespace Raphael

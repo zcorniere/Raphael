@@ -10,9 +10,7 @@ inline std::string function_name(const std::source_location& location = std::sou
 
 inline std::string file_position(const std::source_location& location = std::source_location::current())
 {
-    return std::string() +
-           ::std::filesystem::relative(location.file_name(), ::std::filesystem::current_path()).string() + ":" +
-           std::to_string(location.line()) + ":" + std::to_string(location.column());
+    return std::filesystem::path(location.file_name()).filename().string() + ":" + std::to_string(location.line());
 }
 
 // From

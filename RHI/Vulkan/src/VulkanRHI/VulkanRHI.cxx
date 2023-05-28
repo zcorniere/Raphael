@@ -1,5 +1,7 @@
 #include "VulkanRHI/VulkanRHI.hxx"
 
+#include "Engine/Misc/Utils.hxx"
+
 #include "Engine/Platforms/PlatformMisc.hxx"
 
 #include "VulkanRHI/VulkanDevice.hxx"
@@ -38,7 +40,7 @@ VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr
             "Unable to initialize Vulkan.");
         LOG(LogVulkanRHI, Fatal,
             "Failed to find all of the required Vulkan entry points; make sure your driver supports Vulkan!");
-        _exit(1);
+        Utils::RequestExit(1);
     }
 }
 
@@ -143,7 +145,7 @@ void VulkanDynamicRHI::CreateInstance()
             "up-to-date libvulkan.so.1 is installed.",
             "Unable to initialize Vulkan.");
         LOG(LogVulkanRHI, Fatal, "Cannot find a compatible Vulkan driver.");
-        _exit(1);
+        Utils::RequestExit(1);
     } else if (Result == VK_ERROR_EXTENSION_NOT_PRESENT) {
         std::string MissingExtensions = GetMissingExtensions(InstanceExtensions);
 
@@ -154,14 +156,14 @@ void VulkanDynamicRHI::CreateInstance()
                         MissingExtensions),
             "Incompatible Vulkan driver found!");
         LOG(LogVulkanRHI, Fatal, "Extension not found : {} !", MissingExtensions);
-        _exit(1);
+        Utils::RequestExit(1);
     } else if (Result != VK_SUCCESS) {
         LOG(LogVulkanRHI, Fatal, "Vulkan failed to create instance! {:s}", magic_enum::enum_name(Result));
         PlatformMisc::DisplayMessageBox(EBoxMessageType::Ok,
                                         "Vulkan failed to create instance !\n\nDo you have a compatible Vulkan "
                                         "driver (ICD) installed?",
                                         "No Vulkan driver found!");
-        _exit(1);
+        Utils::RequestExit(1);
     }
 
     VK_CHECK_RESULT(Result);
@@ -171,7 +173,7 @@ void VulkanDynamicRHI::CreateInstance()
         PlatformMisc::DisplayMessageBox(EBoxMessageType::Ok,
                                         "Failed to find all required Vulkan entry points! Try updating your driver.",
                                         "No Vulkan entry points found!");
-        _exit(1);
+        Utils::RequestExit(1);
     }
 
     LOG(LogVulkanRHI, Info, "Using {} Instance extensions {}", InstanceExtensions.size(),

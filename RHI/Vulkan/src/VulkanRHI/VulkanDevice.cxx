@@ -8,6 +8,7 @@
 #include "VulkanRHI/VulkanSynchronization.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
 
+#include "Engine/Misc/Utils.hxx"
 #include "Engine/Platforms/PlatformMisc.hxx"
 
 static constexpr const char* VulkanVendorIDToString(std::uint32_t vendorID)
@@ -180,7 +181,7 @@ void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char*>& DeviceLa
     VkResult Result = VulkanAPI::vkCreateDevice(Gpu, &DeviceInfo, nullptr, &Device);
     if (Result == VK_ERROR_INITIALIZATION_FAILED) {
         LOG(LogVulkanRHI, Fatal, "Vulkan failed to create device!");
-        _exit(1);
+        Utils::RequestExit(1);
     }
     VK_CHECK_RESULT_EXPANDED(Result);
 
@@ -226,7 +227,7 @@ void VulkanDevice::SetupPresentQueue(VkSurfaceKHR Surface)
             PlatformMisc::DisplayMessageBox(
                 EBoxMessageType::Ok, "Cannot find a compatible Vulkan device that supports surface presentation.\n\n",
                 "Vulkan device not available");
-            _exit(1);
+            Utils::RequestExit(1);
         }
 
         if (TransferQueue->GetFamilyIndex() != GraphicsQueue->GetFamilyIndex() &&

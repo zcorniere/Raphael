@@ -1,6 +1,7 @@
 #include "Engine/Core/Window.hxx"
 
 #include "Engine/Misc/MiscDefines.hxx"
+#include "Engine/Misc/Utils.hxx"
 
 DECLARE_LOGGER_CATEGORY(Core, LogWindow, Info);
 
@@ -58,8 +59,7 @@ void Window::Initialize(const WindowDefinition InDefinition, const Ref<Window>& 
     p_HWnd = SDL_CreateWindow(Definition.Title.c_str(), X, Y, Width, Height, WindowStyle);
     if (!p_HWnd) {
         LOG(LogWindow, Fatal, "Failed To create the SDL Window");
-        checkNoEntry();
-        return;
+        Utils::RequestExit(1);
     }
 
     if (WindowStyle & SDL_WINDOW_RESIZABLE) {

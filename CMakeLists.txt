@@ -4,9 +4,12 @@ project(Raphael)
 include(FetchContent)
 include(CheckIPOSupported)
 include(GNUInstallDirs)
+include(cmake/tests.cmake)
 include(cmake/find_linker.cmake)
 include(cmake/CompileShaders.cmake)
 include(cmake/StripDebugFile.cmake)
+
+option(BUILD_TESTING "Build the unit tests" ON)
 
 # Option to force colored output of the compiler
 option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." TRUE)

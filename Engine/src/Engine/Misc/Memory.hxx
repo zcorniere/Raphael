@@ -13,10 +13,12 @@ public:
 
     T* Allocate(std::size_t Size)
     {
+        if (Size == 0)
+            return nullptr;
         if (Size > std::numeric_limits<std::size_t>::max() / sizeof(T))
             throw std::bad_array_new_length();
 
-        if (auto p = static_cast<T*>(std::malloc(Size * sizeof(T)))) {
+        if (T* p = static_cast<T*>(std::malloc(Size * sizeof(T)))) {
             return p;
         }
 
@@ -25,7 +27,8 @@ public:
 
     void Free(T* pPointer) noexcept
     {
-        return std::free(pPointer);
+        if (pPointer)
+            std::free(pPointer);
     }
 };
 

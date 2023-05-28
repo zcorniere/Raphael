@@ -34,3 +34,6 @@
 [submodule "External/magic_enum"]
 	path = Engine/External/magic_enum
 	url = https://github.com/Neargye/magic_enum.git
+[submodule "External/Catch2"]
+	path = External/Catch2
+	url = https://github.com/catchorg/Catch2.git

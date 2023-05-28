@@ -49,4 +49,10 @@ std::string BytesToString(uint64 bytes)
 
 #undef SPRINTF
 
+[[noreturn]] void RequestExit(int Status)
+{
+    std::exit(Status);
+    Compiler::Unreachable();
+}
+
 }    // namespace Utils

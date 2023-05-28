@@ -35,4 +35,6 @@ std::size_t writeBinaryFile(const std::filesystem::path& filename, const std::sp
 
 std::string BytesToString(uint64 Bytes);
 
+[[noreturn]] void RequestExit(int Status);
+
 }    // namespace Utils

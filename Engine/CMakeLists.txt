@@ -29,7 +29,6 @@ add_library(
     ${PROJECT_NAME} STATIC
     src/Engine/Core/Log.cxx
     src/Engine/Core/UUID.cxx
-    src/Engine/Core/Memory.cxx
     src/Engine/Core/RObject.cxx
     src/Engine/Core/Engine.cxx
     src/Engine/Core/FrameGraph/FrameGraph.cxx
@@ -41,6 +40,7 @@ add_library(
     src/Engine/Core/RHI/RHI.cxx
     src/Engine/Core/RHI/RHICommandQueue.cxx
     src/Engine/Core/RHI/Resources/RHIResources.cxx
+    src/Engine/Misc/Memory.cxx
     src/Engine/Misc/DataLocation.cxx
     src/Engine/Misc/Utils.cxx
     src/Engine/Misc/Assertions.cxx
