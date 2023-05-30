@@ -20,3 +20,5 @@
 #include <Engine/Platforms/Platform.hxx>
 
 #include <Engine/Misc/Memory.hxx>
+
+#include <Engine/Containers/Array.hxx>

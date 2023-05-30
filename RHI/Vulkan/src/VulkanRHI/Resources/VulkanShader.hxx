@@ -26,12 +26,12 @@ public:
     };
 
 public:
-    VulkanShader(RHIShaderType Type, std::vector<uint32> InSPRIVCode);
+    VulkanShader(RHIShaderType Type, Array<uint32> InSPRIVCode);
 
     Ref<ShaderHandle> GetHandle(Ref<VulkanDevice> InDevice);
 
 private:
-    std::vector<uint32> SPIRVCode;
+    Array<uint32> SPIRVCode;
     WeakRef<ShaderHandle> m_ShaderHandle;
 
     friend class VulkanShaderCompiler;

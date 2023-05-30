@@ -96,25 +96,25 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
 namespace VulkanRHI
 {
 
-std::vector<const char*> VulkanDynamicRHI::GetSupportedInstanceLayers()
+Array<const char*> VulkanDynamicRHI::GetSupportedInstanceLayers()
 {
-    static const std::vector<const char*> ExpectedValidationLayers{"VK_LAYER_KHRONOS_validation"};
-    std::vector<const char*> FoundLayers;
+    static const Array<const char*> ExpectedValidationLayers{"VK_LAYER_KHRONOS_validation"};
+    Array<const char*> FoundLayers;
 
     uint32 PropertiesCount;
-    std::vector<VkLayerProperties> AvailableLayers;
+    Array<VkLayerProperties> AvailableLayers;
     VulkanAPI::vkEnumerateInstanceLayerProperties(&PropertiesCount, nullptr);
-    AvailableLayers.resize(PropertiesCount);
-    VulkanAPI::vkEnumerateInstanceLayerProperties(&PropertiesCount, AvailableLayers.data());
+    AvailableLayers.Resize(PropertiesCount);
+    VulkanAPI::vkEnumerateInstanceLayerProperties(&PropertiesCount, AvailableLayers.Raw());
 
     for (VkLayerProperties& Properties: AvailableLayers) {
         for (const char* ExpectedLayer: ExpectedValidationLayers) {
             if (std::strcmp(ExpectedLayer, Properties.layerName) == 0) {
-                FoundLayers.push_back(ExpectedLayer);
+                FoundLayers.Add(ExpectedLayer);
             }
         }
     }
-    if (FoundLayers.size() != ExpectedValidationLayers.size()) {
+    if (FoundLayers.Size() != ExpectedValidationLayers.Size()) {
         bValidationLayersAreMissing = true;
         auto FilterLambda = [&FoundLayers](const char* LayerName) {
             for (const char* Layer: FoundLayers) {
@@ -123,7 +123,7 @@ std::vector<const char*> VulkanDynamicRHI::GetSupportedInstanceLayers()
             }
             return true;
         };
-        std::vector<const char*> MissingLayer;
+        Array<const char*> MissingLayer;
         LOG(LogVulkanRHI, Warning, "Some Validation layers was not found !");
         // @WATCHME: LLVM 16 should fix the compilation error
         for (const char* Layer: ExpectedValidationLayers | std::views::filter(FilterLambda)) {

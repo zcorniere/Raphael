@@ -16,7 +16,7 @@ VulkanShader::ShaderHandle::~ShaderHandle()
     VulkanAPI::vkDestroyShaderModule(Device->GetInstanceHandle(), Handle, nullptr);
 }
 
-VulkanShader::VulkanShader(RHIShaderType Type, std::vector<uint32> InSPIRVCode)
+VulkanShader::VulkanShader(RHIShaderType Type, Array<uint32> InSPIRVCode)
     : RHIShader(Type), SPIRVCode(InSPIRVCode), m_ShaderHandle(nullptr)
 {
 }
@@ -28,8 +28,8 @@ Ref<VulkanShader::ShaderHandle> VulkanShader::GetHandle(Ref<VulkanDevice> InDevi
     }
     VkShaderModuleCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-        .codeSize = SPIRVCode.size() * sizeof(uint32),
-        .pCode = SPIRVCode.data(),
+        .codeSize = SPIRVCode.Size() * sizeof(uint32),
+        .pCode = SPIRVCode.Raw(),
     };
     m_ShaderHandle = Ref<ShaderHandle>::Create(InDevice, CreateInfo);
     return Ref(m_ShaderHandle);

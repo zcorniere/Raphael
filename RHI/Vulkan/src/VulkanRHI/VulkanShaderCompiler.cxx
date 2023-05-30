@@ -129,7 +129,7 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
         return nullptr;
     }
 
-    std::vector<uint32> ShaderCode(CompilationResult.begin(), CompilationResult.end());
+    Array<uint32> ShaderCode(CompilationResult.begin(), CompilationResult.end());
 
     Ref<VulkanShader> ShaderUnit =
         Ref<VulkanShader>::CreateNamed(Path.filename().string(), ShaderType.value(), ShaderCode);

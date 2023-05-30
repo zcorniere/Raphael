@@ -73,3 +73,8 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE src/Engine/Raphael.hxx)
 if(UNIX)
     target_link_libraries(${PROJECT_NAME} PUBLIC xdgpp)
 endif()
+
+build_tests(
+    ${PROJECT_NAME}
+    tests/Containers/Array.cxx
+)

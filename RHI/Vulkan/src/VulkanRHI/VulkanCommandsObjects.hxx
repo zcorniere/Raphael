@@ -93,8 +93,8 @@ private:
     WeakRef<VulkanCommandBufferPool> m_OwnerPool;
 
     Ref<Fence> m_Fence;
-    std::vector<VkPipelineStageFlags> WaitFlags;
-    std::vector<Ref<Semaphore>> WaitSemaphore;
+    Array<VkPipelineStageFlags> WaitFlags;
+    Array<Ref<Semaphore>> WaitSemaphore;
 
     VkCommandBuffer m_CommandBufferHandle;
 
@@ -122,8 +122,8 @@ public:
 
 private:
     VkCommandPool m_Handle;
-    std::vector<Ref<VulkanCmdBuffer>> m_CmdBuffers;
-    std::vector<Ref<VulkanCmdBuffer>> m_FreeCmdBuffers;
+    Array<Ref<VulkanCmdBuffer>> m_CmdBuffers;
+    Array<Ref<VulkanCmdBuffer>> m_FreeCmdBuffers;
 
     Ref<VulkanDevice> m_Device;
     VulkanCommandBufferManager* p_Manager;

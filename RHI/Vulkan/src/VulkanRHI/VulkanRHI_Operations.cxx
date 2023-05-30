@@ -38,8 +38,7 @@ void VulkanDynamicRHI::RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport)
 
 Ref<RHIViewport> VulkanDynamicRHI::CreateViewport(void* InWindowHandle, glm::uvec2 InSize)
 {
-    Viewports.push_back(Ref<VulkanViewport>::Create(GetDevice(), InWindowHandle, InSize));
-    return Viewports.back();
+    return Viewports.Add(Ref<VulkanViewport>::Create(GetDevice(), InWindowHandle, InSize));
 }
 
 Ref<RHITexture> VulkanDynamicRHI::CreateTexture(const RHITextureCreateDesc InDesc)

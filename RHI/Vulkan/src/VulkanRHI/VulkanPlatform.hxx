@@ -15,11 +15,11 @@ public:
     static bool LoadVulkanInstanceFunctions(VkInstance inInstance);
     static void FreeVulkanLibrary();
 
-    static void GetInstanceExtensions(std::vector<const char*>& OutExtensions);
-    static void GetInstanceLayers(std::vector<const char*>& OutLayers);
+    static void GetInstanceExtensions(Array<const char*>& OutExtensions);
+    static void GetInstanceLayers(Array<const char*>& OutLayers);
 
-    static void GetDeviceExtensions(Ref<VulkanDevice> Device, std::vector<const char*>& OutExtensions);
-    static void GetDeviceLayers(std::vector<const char*>& OutLayers);
+    static void GetDeviceExtensions(Ref<VulkanDevice> Device, Array<const char*>& OutExtensions);
+    static void GetDeviceLayers(Array<const char*>& OutLayers);
 
     static void CreateSurface(void* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface);
 

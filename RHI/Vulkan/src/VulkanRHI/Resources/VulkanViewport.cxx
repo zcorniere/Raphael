@@ -23,8 +23,8 @@ VulkanViewport::~VulkanViewport()
     for (VulkanTextureView& View: TexturesViews) {
         View.Destroy(Device);
     }
-    TexturesViews.clear();
-    RenderingDoneSemaphores.clear();
+    TexturesViews.Clear();
+    RenderingDoneSemaphores.Clear();
 }
 
 void VulkanViewport::RT_BeginDrawViewport()
@@ -48,15 +48,15 @@ void VulkanViewport::SetName(std::string_view InName)
 
     SwapChain->SetName(InName);
 
-    check(BackBufferImages.size() == RenderingDoneSemaphores.size());
-    check(BackBufferImages.size() == TexturesViews.size());
+    check(BackBufferImages.Size() == RenderingDoneSemaphores.Size());
+    check(BackBufferImages.Size() == TexturesViews.Size());
 
-    for (unsigned i = 0; i < BackBufferImages.size(); i++) {
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SEMAPHORE, RenderingDoneSemaphores.at(i)->GetHandle(),
+    for (unsigned i = 0; i < BackBufferImages.Size(); i++) {
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SEMAPHORE, RenderingDoneSemaphores[i]->GetHandle(),
                               "Swapchain \"{:s}\" - Semaphore Rendering done({})", InName, i);
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, TexturesViews.at(i).Image,
-                              "Swapchain \"{:s}\" - Image ({})", InName, i);
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, TexturesViews.at(i).View,
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, TexturesViews[i].Image, "Swapchain \"{:s}\" - Image ({})",
+                              InName, i);
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, TexturesViews[i].View,
                               "Swapchain \"{:s}\" - Image View ({})", InName, i);
     }
 }
@@ -110,8 +110,8 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
     SwapChain = Ref<VulkanSwapChain>::Create(RHI->RHIGetVkInstance(), Device, WindowHandle, Size, 0, BackBufferImages,
                                              true, RecreateInfo);
 
-    RenderingDoneSemaphores.resize(BackBufferImages.size());
-    for (unsigned i = 0; i < BackBufferImages.size(); i++) {
+    RenderingDoneSemaphores.Resize(BackBufferImages.Size());
+    for (unsigned i = 0; i < BackBufferImages.Size(); i++) {
         RenderingDoneSemaphores[i] = Ref<Semaphore>::Create(Device);
     }
 
@@ -123,13 +123,13 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
 
     const VkImageSubresourceRange Range = Barrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT);
 
-    TexturesViews.resize(BackBufferImages.size());
-    for (unsigned i = 0; i < BackBufferImages.size(); i++) {
-        TexturesViews.at(i).Create(Device, BackBufferImages.at(i), VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT,
-                                   SwapChain->GetFormat(), 0, 1);
-        VulkanSetImageLayout(CmdBuffer->GetHandle(), BackBufferImages.at(i), VK_IMAGE_LAYOUT_UNDEFINED,
+    TexturesViews.Resize(BackBufferImages.Size());
+    for (unsigned i = 0; i < BackBufferImages.Size(); i++) {
+        TexturesViews[i].Create(Device, BackBufferImages[i], VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT,
+                                SwapChain->GetFormat(), 0, 1);
+        VulkanSetImageLayout(CmdBuffer->GetHandle(), BackBufferImages[i], VK_IMAGE_LAYOUT_UNDEFINED,
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, Range);
-        VulkanAPI::vkCmdClearColorImage(CmdBuffer->GetHandle(), BackBufferImages.at(i),
+        VulkanAPI::vkCmdClearColorImage(CmdBuffer->GetHandle(), BackBufferImages[i],
                                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &ClearColor, 1, &Range);
     }
 
@@ -143,7 +143,7 @@ void VulkanViewport::DeleteSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
 {
     Device->WaitUntilIdle();
 
-    for (unsigned Index = 0; Index < BackBufferImages.size(); Index++) {
+    for (unsigned Index = 0; Index < BackBufferImages.Size(); Index++) {
         TexturesViews[Index].Destroy(Device);
         BackBufferImages[Index] = VK_NULL_HANDLE;
     }

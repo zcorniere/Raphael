@@ -8,7 +8,7 @@ static Raphael::Allocator<uint8> s_Allocator;
 
 void* operator new(std::size_t n)
 {
-    void* Memory = s_Allocator.Allocate(n);
+    void* Memory = s_Allocator.allocate(n);
 
 #if TRACY_ENABLE
     TracyAlloc(Memory, n);
@@ -18,7 +18,7 @@ void* operator new(std::size_t n)
 
 void* operator new[](std::size_t n)
 {
-    void* Memory = s_Allocator.Allocate(n);
+    void* Memory = s_Allocator.allocate(n);
 
 #if TRACY_ENABLE
     TracyAlloc(Memory, n);
@@ -33,13 +33,18 @@ void operator delete(void* p) noexcept
 #if TRACY_ENABLE
     TracyFree(p);
 #endif
-    s_Allocator.Free((uint8*)p);
+    s_Allocator.deallocate((uint8*)p);
 }
 
 void operator delete(void* p, std::size_t n) noexcept
 {
-    (void)n;
-    ::operator delete(p);
+    if (p == nullptr)
+        return;
+#if TRACY_ENABLE
+    TracyFree(p);
+#endif
+
+    s_Allocator.deallocate((uint8*)p, n);
 }
 
 void operator delete[](void* p) noexcept
@@ -50,11 +55,16 @@ void operator delete[](void* p) noexcept
     TracyFree(p);
 #endif
 
-    s_Allocator.Free((uint8*)p);
+    s_Allocator.deallocate((uint8*)p);
 }
 
 void operator delete[](void* p, std::size_t n) noexcept
 {
-    (void)n;
-    ::operator delete[](p);
+    if (p == nullptr)
+        return;
+#if TRACY_ENABLE
+    TracyFree(p);
+#endif
+
+    s_Allocator.deallocate((uint8*)p, n);
 }

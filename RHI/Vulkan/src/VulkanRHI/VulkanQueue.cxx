@@ -36,20 +36,20 @@ void VulkanQueue::Submit(Ref<VulkanCmdBuffer>& CmdBuffer, uint32 NumSignaledSema
         .pSignalSemaphores = SignalSemaphores,
     };
 
-    std::vector<VkSemaphore> WaitSemaphores;
-    if (!CmdBuffer->WaitSemaphore.empty()) {
-        WaitSemaphores.reserve(CmdBuffer->WaitSemaphore.size());
+    Array<VkSemaphore> WaitSemaphores;
+    if (!CmdBuffer->WaitSemaphore.IsEmpty()) {
+        WaitSemaphores.Reserve(CmdBuffer->WaitSemaphore.Size());
         for (Ref<Semaphore>& Semaphore: CmdBuffer->WaitSemaphore) {
-            WaitSemaphores.push_back(Semaphore->GetHandle());
+            WaitSemaphores.Add(Semaphore->GetHandle());
         }
-        SubmitInfo.waitSemaphoreCount = CmdBuffer->WaitSemaphore.size();
-        SubmitInfo.pWaitSemaphores = WaitSemaphores.data();
-        SubmitInfo.pWaitDstStageMask = CmdBuffer->WaitFlags.data();
+        SubmitInfo.waitSemaphoreCount = CmdBuffer->WaitSemaphore.Size();
+        SubmitInfo.pWaitSemaphores = WaitSemaphores.Raw();
+        SubmitInfo.pWaitDstStageMask = CmdBuffer->WaitFlags.Raw();
     }
     VK_CHECK_RESULT(VulkanAPI::vkQueueSubmit(Queue, 1, &SubmitInfo, Fence->GetHandle()));
 
     CmdBuffer->State = VulkanCmdBuffer::EState::Submitted;
-    CmdBuffer->WaitSemaphore.clear();
+    CmdBuffer->WaitSemaphore.Clear();
 }
 
 void VulkanQueue::SetName(std::string_view InName)

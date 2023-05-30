@@ -25,6 +25,10 @@ concept CHashable = requires(T a) {
 template <typename T>
 concept CIsFunctionPointer = requires { std::is_pointer_v<T>&& std::is_function_v<typename std::remove_pointer<T>>; };
 
+template <typename TSource, typename TDest>
+concept CCompatibleTypes =
+    std::is_same<TDest, std::decay_t<TSource>>::Value || std::is_constructible<TDest, TSource>::value;
+
 typedef std::uint8_t uint8;
 typedef std::uint16_t uint16;
 typedef std::uint32_t uint32;

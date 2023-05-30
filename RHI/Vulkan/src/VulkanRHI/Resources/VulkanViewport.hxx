@@ -40,9 +40,9 @@ private:
     Ref<VulkanDevice> Device;
     Ref<VulkanSwapChain> SwapChain;
 
-    std::vector<VkImage> BackBufferImages;
-    std::vector<VulkanTextureView> TexturesViews;
-    std::vector<Ref<Semaphore>> RenderingDoneSemaphores;
+    Array<VkImage> BackBufferImages;
+    Array<VulkanTextureView> TexturesViews;
+    Array<Ref<Semaphore>> RenderingDoneSemaphores;
 
     void* WindowHandle;
     glm::uvec2 Size;

@@ -71,8 +71,8 @@ void VulkanCmdBuffer::EndRenderPass()
 void VulkanCmdBuffer::AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore>& InSemaphore)
 {
     // TODO: check if InSemaphore is not already inside WaitSemaphore (std::vector does not have find() / contains())
-    WaitFlags.push_back(InWaitFlags);
-    WaitSemaphore.push_back(InSemaphore);
+    WaitFlags.Add(InWaitFlags);
+    WaitSemaphore.Add(InSemaphore);
 }
 
 void VulkanCmdBuffer::Allocate()
@@ -109,7 +109,7 @@ void VulkanCmdBuffer::RefreshFenceStatus()
     }
 
     if (m_Fence->IsSignaled()) {
-        WaitSemaphore.clear();
+        WaitSemaphore.Clear();
 
         m_Fence->Reset();
         State = EState::NeedReset;
@@ -125,8 +125,8 @@ VulkanCommandBufferPool::VulkanCommandBufferPool(Ref<VulkanDevice> InDevice, Vul
 
 VulkanCommandBufferPool ::~VulkanCommandBufferPool()
 {
-    m_CmdBuffers.clear();
-    m_FreeCmdBuffers.clear();
+    m_CmdBuffers.Clear();
+    m_FreeCmdBuffers.Clear();
 
     VulkanAPI::vkDestroyCommandPool(m_Device->GetInstanceHandle(), m_Handle, nullptr);
     m_Handle = VK_NULL_HANDLE;
@@ -145,22 +145,22 @@ void VulkanCommandBufferPool::Initialize(uint32 QueueFamilyIndex)
 Ref<VulkanCmdBuffer> VulkanCommandBufferPool::CreateCmdBuffer()
 {
     // Find already allocated buffer ...
-    for (int32 i = m_FreeCmdBuffers.size() - 1; i >= 0; --i) {
+    for (int32 i = m_FreeCmdBuffers.Size() - 1; i >= 0; --i) {
         Ref<VulkanCmdBuffer> CmdBuffer = m_FreeCmdBuffers[i];
 
-        m_FreeCmdBuffers.pop_back();
+        m_FreeCmdBuffers.Pop();
         // ... grab some memory ...
         CmdBuffer->Allocate();
 
         // put it in the "in use" buffers
-        m_CmdBuffers.push_back(CmdBuffer);
+        m_CmdBuffers.Add(CmdBuffer);
 
         return CmdBuffer;
     }
 
     // No buffer are available, create a new one. It already has memory
     Ref<VulkanCmdBuffer> NewCmdBuffer = Ref<VulkanCmdBuffer>::Create(m_Device, this);
-    m_CmdBuffers.push_back(NewCmdBuffer);
+    m_CmdBuffers.Add(NewCmdBuffer);
     return NewCmdBuffer;
 }
 
@@ -266,7 +266,7 @@ void VulkanCommandBufferManager::SubmitActiveCmdBufferFormPresent(Ref<Semaphore>
 
 Ref<VulkanCmdBuffer> VulkanCommandBufferManager::FindAvailableCmdBuffer()
 {
-    for (uint32 Index = 0; Index < Pool->m_CmdBuffers.size(); Index++) {
+    for (uint32 Index = 0; Index < Pool->m_CmdBuffers.Size(); Index++) {
         Ref<VulkanCmdBuffer>& CmdBuffer = Pool->m_CmdBuffers[Index];
         CmdBuffer->RefreshFenceStatus();
 

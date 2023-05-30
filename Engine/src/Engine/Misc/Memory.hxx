@@ -11,8 +11,9 @@ public:
 
     Allocator() = default;
 
-    T* Allocate(std::size_t Size)
+    T* allocate(std::size_t Size, const void* hint = nullptr)
     {
+        (void)hint;
         if (Size == 0)
             return nullptr;
         if (Size > std::numeric_limits<std::size_t>::max() / sizeof(T))
@@ -25,8 +26,9 @@ public:
         throw std::bad_alloc();
     }
 
-    void Free(T* pPointer) noexcept
+    void deallocate(T* pPointer, std::size_t n = 0) noexcept
     {
+        (void)n;
         if (pPointer)
             std::free(pPointer);
     }

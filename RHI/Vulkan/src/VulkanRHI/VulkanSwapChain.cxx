@@ -28,9 +28,9 @@ VulkanSwapChain::SupportDetails VulkanSwapChain::SupportDetails::QuerySwapChainS
                                                                         &NumFormats, nullptr));
         check(NumFormats > 0);
 
-        Details.Formats.resize(NumFormats);
+        Details.Formats.Resize(NumFormats);
         VK_CHECK_RESULT(VulkanAPI::vkGetPhysicalDeviceSurfaceFormatsKHR(Device->GetPhysicalHandle(), Surface,
-                                                                        &NumFormats, Details.Formats.data()));
+                                                                        &NumFormats, Details.Formats.Raw()));
     }
 
     {
@@ -39,9 +39,9 @@ VulkanSwapChain::SupportDetails VulkanSwapChain::SupportDetails::QuerySwapChainS
                                                                              &NumFormats, nullptr));
         check(NumFormats > 0);
 
-        Details.PresentModes.resize(NumFormats);
+        Details.PresentModes.Resize(NumFormats);
         VK_CHECK_RESULT(VulkanAPI::vkGetPhysicalDeviceSurfacePresentModesKHR(Device->GetPhysicalHandle(), Surface,
-                                                                             &NumFormats, Details.PresentModes.data()));
+                                                                             &NumFormats, Details.PresentModes.Raw()));
     }
     return Details;
 }
@@ -52,7 +52,7 @@ VkSurfaceFormatKHR VulkanSwapChain::SupportDetails::ChooseSwapSurfaceFormat() co
         if (availableFormat.format == VK_FORMAT_R8G8B8A8_SRGB &&
             availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
             return availableFormat;
-    return Formats.at(0);
+    return Formats[0];
 }
 
 VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool LockToVSync) const noexcept
@@ -61,7 +61,7 @@ VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool Loc
     bool bFoundPresentModeImmediate = false;
     bool bFoundPresentModeFIFO = false;
 
-    LOG(LogVulkanSwapchain, Info, "Found {} Surface present modes:", PresentModes.size());
+    LOG(LogVulkanSwapchain, Info, "Found {} Surface present modes:", PresentModes.Size());
 
     for (const auto& availablePresentMode: PresentModes) {
         switch (availablePresentMode) {
@@ -120,7 +120,7 @@ VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const glm::uvec2& s
 }
 
 VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice>& InDevice, void* WindowHandle,
-                                 glm::uvec2 Size, uint32 InDesiredNumBackBuffers, std::vector<VkImage>& OutImages,
+                                 glm::uvec2 Size, uint32 InDesiredNumBackBuffers, Array<VkImage>& OutImages,
                                  bool LockToVSync, VulkanSwapChainRecreateInfo* RecreateInfo)
     : Device(InDevice),
       CurrentImageIndex(-1),
@@ -195,18 +195,18 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice>& InDev
     uint32 NumSwapchainImages;
     VK_CHECK_RESULT_EXPANDED(
         VulkanAPI::vkGetSwapchainImagesKHR(Device->GetInstanceHandle(), SwapChain, &NumSwapchainImages, nullptr));
-    OutImages.resize(NumSwapchainImages);
+    OutImages.Resize(NumSwapchainImages);
     VK_CHECK_RESULT_EXPANDED(VulkanAPI::vkGetSwapchainImagesKHR(Device->GetInstanceHandle(), SwapChain,
-                                                                &NumSwapchainImages, OutImages.data()));
+                                                                &NumSwapchainImages, OutImages.Raw()));
 
-    ImageAcquiredSemaphore.resize(NumSwapchainImages);
+    ImageAcquiredSemaphore.Resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
         ImageAcquiredSemaphore[BufferIndex] = Ref<Semaphore>::Create(Device);
         ImageAcquiredSemaphore[BufferIndex]->SetName(
             std::format("Swapchain Semaphore Image Acquired [{}]", BufferIndex));
     }
 
-    ImageInUseFence.resize(NumSwapchainImages);
+    ImageInUseFence.Resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
         ImageInUseFence[BufferIndex] = Ref<Fence>::Create(Device, false);
         ImageInUseFence[BufferIndex]->SetName(std::format("Swapchain Fence Image In Use [{}]", BufferIndex));
@@ -224,8 +224,8 @@ void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo* RecreateInfo)
     }
     Surface = VK_NULL_HANDLE;
     SwapChain = VK_NULL_HANDLE;
-    ImageAcquiredSemaphore.clear();
-    ImageInUseFence.clear();
+    ImageAcquiredSemaphore.Clear();
+    ImageInUseFence.Clear();
 }
 
 VulkanSwapChain::Status VulkanSwapChain::Present(Ref<VulkanQueue>& PresentQueue, Ref<Semaphore>& RenderingComplete)
@@ -273,7 +273,7 @@ int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore>& OutSemaphore)
 
     uint32 ImageIndex = 0;
     const int32 PrevSemaphoreIndex = SemaphoreIndex;
-    SemaphoreIndex = (SemaphoreIndex + 1) % ImageAcquiredSemaphore.size();
+    SemaphoreIndex = (SemaphoreIndex + 1) % ImageAcquiredSemaphore.Size();
 
     Ref<Fence> AcquiredFence = ImageInUseFence[SemaphoreIndex];
     AcquiredFence->Reset();

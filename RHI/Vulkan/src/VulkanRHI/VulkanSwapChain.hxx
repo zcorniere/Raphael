@@ -45,14 +45,14 @@ private:
         /// surface capability
         VkSurfaceCapabilitiesKHR Capabilities;
         /// List of supported format
-        std::vector<VkSurfaceFormatKHR> Formats;
+        Array<VkSurfaceFormatKHR> Formats;
         /// List of supported presentation modes
-        std::vector<VkPresentModeKHR> PresentModes;
+        Array<VkPresentModeKHR> PresentModes;
     };
 
 public:
     VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice>& InDevice, void* WindowHandle, glm::uvec2 Size,
-                    uint32 InOutDesiredNumBackBuffers, std::vector<VkImage>& OutImages, bool LockToVSync,
+                    uint32 InOutDesiredNumBackBuffers, Array<VkImage>& OutImages, bool LockToVSync,
                     VulkanSwapChainRecreateInfo* RecreateInfo);
 
     void Destroy(VulkanSwapChainRecreateInfo* RecreateInfo);
@@ -93,8 +93,8 @@ private:
     VkSurfaceKHR Surface;
     VkInstance Instance;
 
-    std::vector<Ref<Semaphore>> ImageAcquiredSemaphore;
-    std::vector<Ref<Fence>> ImageInUseFence;
+    Array<Ref<Semaphore>> ImageAcquiredSemaphore;
+    Array<Ref<Fence>> ImageInUseFence;
 
     friend class VulkanViewport;
 };

@@ -39,7 +39,7 @@ static constexpr std::string GetQueueInfoString(const VkQueueFamilyProperties& P
     return Info;
 };
 
-static const std::vector<const char*> DefaultDeviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+static const Array<const char*> DefaultDeviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 namespace VulkanRHI
 {
@@ -79,14 +79,14 @@ void VulkanDevice::InitPhysicalDevice()
     VulkanAPI::vkGetPhysicalDeviceQueueFamilyProperties(Gpu, &QueueCount, nullptr);
     check(QueueCount >= 1);
 
-    QueueFamilyProps.resize(QueueCount);
-    VulkanAPI::vkGetPhysicalDeviceQueueFamilyProperties(Gpu, &QueueCount, QueueFamilyProps.data());
+    QueueFamilyProps.Resize(QueueCount);
+    VulkanAPI::vkGetPhysicalDeviceQueueFamilyProperties(Gpu, &QueueCount, QueueFamilyProps.Raw());
 
     // Query base features
     VulkanAPI::vkGetPhysicalDeviceFeatures(Gpu, &PhysicalFeatures);
 
     // Setup layers and extensions
-    std::vector<const char*> DeviceExtensions = DefaultDeviceExtensions;
+    Array<const char*> DeviceExtensions = DefaultDeviceExtensions;
     VulkanPlatform::GetDeviceExtensions(this, DeviceExtensions);
     CreateDeviceAndQueue({}, DeviceExtensions);
 
@@ -96,27 +96,27 @@ void VulkanDevice::InitPhysicalDevice()
     CommandManager = new VulkanCommandBufferManager(this, GraphicsQueue);
 }
 
-void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char*>& DeviceLayers,
-                                        const std::vector<const char*>& DeviceExtensions)
+void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
+                                        const Array<const char*>& DeviceExtensions)
 {
     VkDeviceCreateInfo DeviceInfo{
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
     };
 
-    DeviceInfo.enabledLayerCount = DeviceLayers.size();
-    DeviceInfo.ppEnabledLayerNames = DeviceLayers.data();
+    DeviceInfo.enabledLayerCount = DeviceLayers.Size();
+    DeviceInfo.ppEnabledLayerNames = DeviceLayers.Raw();
 
-    DeviceInfo.enabledExtensionCount = DeviceExtensions.size();
-    DeviceInfo.ppEnabledExtensionNames = DeviceExtensions.data();
+    DeviceInfo.enabledExtensionCount = DeviceExtensions.Size();
+    DeviceInfo.ppEnabledExtensionNames = DeviceExtensions.Raw();
 
-    std::vector<VkDeviceQueueCreateInfo> QueueFamilyInfos;
+    Array<VkDeviceQueueCreateInfo> QueueFamilyInfos;
     int32 GraphicsQueueFamilyIndex = -1;
     int32 ComputeQueueFamilyIndex = -1;
     int32 TransferQueueFamilyIndex = -1;
-    LOG(LogVulkanRHI, Info, "Found {} Queue Families", QueueFamilyProps.size());
+    LOG(LogVulkanRHI, Info, "Found {} Queue Families", QueueFamilyProps.Size());
 
     std::uint32_t NumPriorities = 0;
-    for (int32 FamilyIndex = 0; FamilyIndex < (int32)QueueFamilyProps.size(); FamilyIndex++) {
+    for (int32 FamilyIndex = 0; FamilyIndex < (int32)QueueFamilyProps.Size(); FamilyIndex++) {
         const VkQueueFamilyProperties& CurrProps = QueueFamilyProps[FamilyIndex];
 
         bool bIsValidQueue = false;
@@ -149,8 +149,8 @@ void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char*>& DeviceLa
             continue;
         }
 
-        int32 QueueIndex = QueueFamilyInfos.size();
-        QueueFamilyInfos.resize(1 + QueueFamilyInfos.size());
+        int32 QueueIndex = QueueFamilyInfos.Size();
+        QueueFamilyInfos.Resize(1 + QueueFamilyInfos.Size());
 
         VkDeviceQueueCreateInfo& CurrQueue = QueueFamilyInfos[QueueIndex];
         CurrQueue.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -162,10 +162,10 @@ void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char*>& DeviceLa
         LOG(LogVulkanRHI, Info, "Initializing Queue Family {:d}: {:d} queues{:s}", FamilyIndex, CurrProps.queueCount,
             GetQueueInfoString(CurrProps));
     }
-    std::vector<float> QueuePriorities(NumPriorities);
-    float* CurrentPriorities = QueuePriorities.data();
+    Array<float> QueuePriorities(NumPriorities);
+    float* CurrentPriorities = QueuePriorities.Raw();
 
-    for (int32 Index = 0; Index < (int32)QueueFamilyInfos.size(); Index++) {
+    for (int32 Index = 0; Index < (int32)QueueFamilyInfos.Size(); Index++) {
         VkDeviceQueueCreateInfo& CurrQueue = QueueFamilyInfos[Index];
         CurrQueue.pQueuePriorities = CurrentPriorities;
 
@@ -175,8 +175,8 @@ void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char*>& DeviceLa
         }
     }
 
-    DeviceInfo.queueCreateInfoCount = QueueFamilyInfos.size();
-    DeviceInfo.pQueueCreateInfos = QueueFamilyInfos.data();
+    DeviceInfo.queueCreateInfoCount = QueueFamilyInfos.Size();
+    DeviceInfo.pQueueCreateInfos = QueueFamilyInfos.Raw();
 
     VkResult Result = VulkanAPI::vkCreateDevice(Gpu, &DeviceInfo, nullptr, &Device);
     if (Result == VK_ERROR_INITIALIZATION_FAILED) {
@@ -197,12 +197,12 @@ void VulkanDevice::CreateDeviceAndQueue(const std::vector<const char*>& DeviceLa
     }
     TransferQueue = Ref<VulkanQueue>::CreateNamed("Transfer Queue", this, TransferQueueFamilyIndex);
 
-    LOG(LogVulkanRHI, Info, "Using {} device layers{}", DeviceLayers.size(), DeviceLayers.size() ? ":" : ".");
+    LOG(LogVulkanRHI, Info, "Using {} device layers{}", DeviceLayers.Size(), DeviceLayers.Size() ? ":" : ".");
     for (const char* Layer: DeviceLayers) {
         LOG(LogVulkanRHI, Info, "* {}", Layer);
     }
 
-    LOG(LogVulkanRHI, Info, "Using {} device extensions:", DeviceExtensions.size());
+    LOG(LogVulkanRHI, Info, "Using {} device extensions:", DeviceExtensions.Size());
     for (const char* Extension: DeviceExtensions) {
         LOG(LogVulkanRHI, Info, "* {}", Extension);
     }

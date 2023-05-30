@@ -104,21 +104,21 @@ void VulkanPlatform::FreeVulkanLibrary()
     }
 }
 
-void VulkanPlatform::GetInstanceExtensions(std::vector<const char*>& OutExtensions)
+void VulkanPlatform::GetInstanceExtensions(Array<const char*>& OutExtensions)
 {
     Window::EnsureSDLInit();
 
 #if defined(PLATFORM_WINDOWS)
-    OutExtensions.push_back("VK_KHR_surface");
-    OutExtensions.push_back("VK_KHR_win32_surface");
+    OutExtensions.Add("VK_KHR_surface");
+    OutExtensions.Add("VK_KHR_win32_surface");
 #elif defined(PLATFORM_LINUX)
     const char* SDLDriver = SDL_GetCurrentVideoDriver();
     check(SDLDriver);
 
     if (strcmp(SDLDriver, "x11") == 0) {
-        OutExtensions.push_back("VK_KHR_xlib_surface");
+        OutExtensions.Add("VK_KHR_xlib_surface");
     } else if (strcmp(SDLDriver, "wayland") == 0) {
-        OutExtensions.push_back("VK_KHR_wayland_surface");
+        OutExtensions.Add("VK_KHR_wayland_surface");
     } else {
         checkNoEntry();
     }
@@ -128,7 +128,7 @@ void VulkanPlatform::GetInstanceExtensions(std::vector<const char*>& OutExtensio
 }
 
 void VulkanPlatform::GetDeviceExtensions([[maybe_unused]] Ref<VulkanDevice> Device,
-                                         [[maybe_unused]] std::vector<const char*>& OutExtensions)
+                                         [[maybe_unused]] Array<const char*>& OutExtensions)
 {
 }
 

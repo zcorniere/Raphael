@@ -60,7 +60,7 @@ private:
     VkDebugUtilsMessengerEXT Messenger = VK_NULL_HANDLE;
     bool bValidationLayersAreMissing = false;
 
-    std::vector<const char*> GetSupportedInstanceLayers();
+    Array<const char*> GetSupportedInstanceLayers();
     void SetupDebugLayerCallback();
     void RemoveDebugLayerCallback();
 #endif
@@ -73,7 +73,7 @@ private:
     VkInstance m_Instance;
     Ref<VulkanDevice> Device;
 
-    std::vector<Ref<VulkanViewport>> Viewports;
+    Array<Ref<VulkanViewport>> Viewports;
     WeakRef<VulkanViewport> DrawingViewport;
 
     VulkanShaderCompiler ShaderCompiler;

@@ -28,8 +28,7 @@ public:
     ~VulkanDevice();
 
     void InitPhysicalDevice();
-    void CreateDeviceAndQueue(const std::vector<const char*>& DeviceLayers,
-                              const std::vector<const char*>& DeviceExtensions);
+    void CreateDeviceAndQueue(const Array<const char*>& DeviceLayers, const Array<const char*>& DeviceExtensions);
     void SetupPresentQueue(VkSurfaceKHR Surface);
     void Destroy();
 
@@ -90,7 +89,7 @@ private:
     VkPhysicalDeviceProperties GpuProps;
 
     VkPhysicalDeviceFeatures PhysicalFeatures;
-    std::vector<VkQueueFamilyProperties> QueueFamilyProps;
+    Array<VkQueueFamilyProperties> QueueFamilyProps;
 
     friend class VulkanDynamicRHI;
 };

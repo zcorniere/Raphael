@@ -14,16 +14,16 @@ void ThreadPool::Start(unsigned i)
 void ThreadPool::Stop()
 {
     state->q_var.notify_all();
-    thread_p.clear();
+    thread_p.Clear();
 }
 
 void ThreadPool::Resize(unsigned size)
 {
-    unsigned old_size = thread_p.size();
-    thread_p.resize(size);
-    for (; old_size < thread_p.size(); old_size++) {
-        thread_p.at(old_size).Create(std::format("Worker Thread nb {}", old_size),
-                                     std::make_unique<WorkerPoolRuntime>(state));
+    unsigned old_size = thread_p.Size();
+    thread_p.Resize(size);
+    for (; old_size < thread_p.Size(); old_size++) {
+        thread_p[old_size].Create(std::format("Worker Thread nb {}", old_size),
+                                  std::make_unique<WorkerPoolRuntime>(state));
     }
 }
 

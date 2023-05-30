@@ -54,7 +54,7 @@ public:
     /// Return the amount of thread in the pool
     unsigned Size()
     {
-        return thread_p.size();
+        return thread_p.Size();
     }
     /// Resize the thread pool
     void Resize(unsigned size);
@@ -82,5 +82,5 @@ public:
 
 private:
     std::shared_ptr<State> state;
-    std::vector<Thread> thread_p;
+    Array<Thread> thread_p;
 };

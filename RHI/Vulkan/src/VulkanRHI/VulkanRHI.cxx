@@ -19,7 +19,7 @@ Ref<GenericRHI> RHI::CreateRHI()
 }
 //
 
-static std::string GetMissingExtensions(std::vector<const char*> VulkanExtensions);
+static std::string GetMissingExtensions(Array<const char*> VulkanExtensions);
 
 namespace VulkanRHI
 {
@@ -86,7 +86,7 @@ void VulkanDynamicRHI::Shutdown()
 {
     Device->WaitUntilIdle();
 
-    Viewports.clear();
+    Viewports.Clear();
 
     Device->Destroy();
     Device = nullptr;
@@ -117,7 +117,7 @@ void VulkanDynamicRHI::CreateInstance()
     };
 
     // TODO: Wrap it into its own class ?
-    std::vector<const char*> InstanceExtensions
+    Array<const char*> InstanceExtensions
     {
         VK_KHR_SURFACE_EXTENSION_NAME,
 #if VULKAN_DEBUGGING_ENABLED
@@ -126,14 +126,14 @@ void VulkanDynamicRHI::CreateInstance()
     };
     VulkanPlatform::GetInstanceExtensions(InstanceExtensions);
 
-    InstInfo.enabledExtensionCount = InstanceExtensions.size();
-    InstInfo.ppEnabledExtensionNames = InstanceExtensions.data();
+    InstInfo.enabledExtensionCount = InstanceExtensions.Size();
+    InstInfo.ppEnabledExtensionNames = InstanceExtensions.Raw();
 
 #if VULKAN_DEBUGGING_ENABLED
-    std::vector<const char*> ValidationLayers = GetSupportedInstanceLayers();
+    Array<const char*> ValidationLayers = GetSupportedInstanceLayers();
 
-    InstInfo.enabledLayerCount = ValidationLayers.size();
-    InstInfo.ppEnabledLayerNames = ValidationLayers.data();
+    InstInfo.enabledLayerCount = ValidationLayers.Size();
+    InstInfo.ppEnabledLayerNames = ValidationLayers.Raw();
 #endif
 
     VkResult Result = VulkanAPI::vkCreateInstance(&InstInfo, nullptr, &m_Instance);
@@ -176,8 +176,8 @@ void VulkanDynamicRHI::CreateInstance()
         Utils::RequestExit(1);
     }
 
-    LOG(LogVulkanRHI, Info, "Using {} Instance extensions {}", InstanceExtensions.size(),
-        InstanceExtensions.size() ? ":" : ".");
+    LOG(LogVulkanRHI, Info, "Using {} Instance extensions {}", InstanceExtensions.Size(),
+        InstanceExtensions.Size() ? ":" : ".");
     for (const char* Layer: InstanceExtensions) {
         LOG(LogVulkanRHI, Info, "* {}", Layer);
     }
@@ -200,41 +200,41 @@ void VulkanDynamicRHI::SelectDevice()
     VK_CHECK_RESULT_EXPANDED(Result);
     checkMsg(GpuCount >= 1, "No GPU(s)/Driver(s) that support Vulkan were found!");
 
-    std::vector<VkPhysicalDevice> PhysicalDevices(GpuCount);
-    VK_CHECK_RESULT_EXPANDED(VulkanAPI::vkEnumeratePhysicalDevices(m_Instance, &GpuCount, PhysicalDevices.data()));
+    Array<VkPhysicalDevice> PhysicalDevices(GpuCount);
+    VK_CHECK_RESULT_EXPANDED(VulkanAPI::vkEnumeratePhysicalDevices(m_Instance, &GpuCount, PhysicalDevices.Raw()));
     checkMsg(GpuCount >= 1, "Couldn't enumerate physical devices!");
 
     struct DeviceInfo {
         Ref<VulkanDevice> Device;
         std::uint32_t DeviceIndex;
     };
-    std::vector<Ref<VulkanDevice>> Devices;
-    std::vector<DeviceInfo> DiscreteDevice;
-    std::vector<DeviceInfo> IntegratedDevice;
+    Array<Ref<VulkanDevice>> Devices;
+    Array<DeviceInfo> DiscreteDevice;
+    Array<DeviceInfo> IntegratedDevice;
 
     LOG(LogVulkanRHI, Info, "Found {} device(s)", GpuCount);
     for (std::uint32_t Index = 0; Index < GpuCount; Index++) {
         LOG(LogVulkanRHI, Info, "Device {}:", Index);
         Ref<VulkanDevice> NewDevice = Ref<VulkanDevice>::Create(PhysicalDevices[Index]);
-        Devices.push_back(NewDevice);
+        Devices.Add(NewDevice);
 
         const bool bIsDiscrete = (NewDevice->GetDeviceProperties().deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
         const bool bIsCPUDevice = (NewDevice->GetDeviceProperties().deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU);
 
         if (bIsDiscrete) {
-            DiscreteDevice.push_back({NewDevice, Index});
+            DiscreteDevice.Add({NewDevice, Index});
         } else if (bIsCPUDevice) {
             LOG(LogVulkanRHI, Info, "Skipping device[{}] of type VK_PHYSICAL_DEVICE_TYPE_CPU",
                 NewDevice->GetDeviceProperties().deviceName);
         } else {
-            IntegratedDevice.push_back({NewDevice, Index});
+            IntegratedDevice.Add({NewDevice, Index});
         }
     }
 
     uint32 DeviceIndex = (uint32)-1;
-    DiscreteDevice.insert(DiscreteDevice.end(), IntegratedDevice.begin(), IntegratedDevice.end());
+    DiscreteDevice.Append(IntegratedDevice);
 
-    if (DiscreteDevice.size() > 0) {
+    if (DiscreteDevice.Size() > 0) {
         Device = DiscreteDevice[0].Device;
         DeviceIndex = DiscreteDevice[0].DeviceIndex;
     } else {
@@ -248,15 +248,15 @@ void VulkanDynamicRHI::SelectDevice()
 
 }    // namespace VulkanRHI
 
-static std::string GetMissingExtensions(std::vector<const char*> VulkanExtensions)
+static std::string GetMissingExtensions(Array<const char*> VulkanExtensions)
 {
     std::string MissingExtensions;
     uint32_t PropertyCount;
     VulkanRHI::VulkanAPI::vkEnumerateInstanceExtensionProperties(nullptr, &PropertyCount, nullptr);
 
-    std::vector<VkExtensionProperties> Properties;
-    Properties.resize(PropertyCount);
-    VulkanRHI::VulkanAPI::vkEnumerateInstanceExtensionProperties(nullptr, &PropertyCount, Properties.data());
+    Array<VkExtensionProperties> Properties;
+    Properties.Resize(PropertyCount);
+    VulkanRHI::VulkanAPI::vkEnumerateInstanceExtensionProperties(nullptr, &PropertyCount, Properties.Raw());
 
     for (const char* Extension: VulkanExtensions) {
         bool bExtensionFound = false;
