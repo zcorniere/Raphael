@@ -52,7 +52,7 @@ void Window::Initialize(const WindowDefinition InDefinition, const Ref<Window>& 
             WindowStyle |= SDL_WINDOW_SKIP_TASKBAR;
         }
     }
-    if (Definition.IsRegularWindow && Definition.HasSizingFrame) {
+    if (Definition.HasSizingFrame) {
         WindowStyle |= SDL_WINDOW_RESIZABLE;
     }
 

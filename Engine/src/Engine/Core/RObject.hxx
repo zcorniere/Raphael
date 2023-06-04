@@ -15,14 +15,20 @@ namespace RObjectUtils
 
 DECLARE_LOGGER_CATEGORY(Core, LogRObject, Warning)
 
+/// Mark the RObject as a live ref
 void AddToLiveReferences(RObject* instance);
+/// Mark the RObject as dead
 void RemoveFromLiveReferences(RObject* instance);
+/// Is the RObject live ?
 bool IsLive(RObject* instance);
 
+/// @brief check is there is any live RObject
+/// @return true is a RObject was not deleted
 bool AreThereAnyLiveObject(bool bPrintObjects = true);
 
 }    // namespace RObjectUtils
 
+/// Custom RefCounting class
 class RObject
 {
 public:
@@ -30,11 +36,13 @@ public:
     {
     }
 
+    /// Give the RObject a debug name
     virtual void SetName(std::string_view InName)
     {
         m_Name = InName;
     }
 
+    /// Set the typename of the RObject (should NOT be called by the user)
     void SetTypeName(std::string_view InTypeName)
     {
         // Should not be called multiple time
@@ -42,16 +50,19 @@ public:
         m_TypeName = InTypeName;
     }
 
+    /// Return the typename
     const std::string& GetTypeName() const
     {
         return m_TypeName;
     }
 
+    /// Return the debug name of the object
     const std::string& GetName() const
     {
         return m_Name;
     }
 
+    /// Return a string representing the RObject
     virtual std::string ToString() const
     {
         if (GetName().empty()) {
@@ -61,11 +72,13 @@ public:
         }
     }
 
+    /// Increment the ref count of the RObject
     void IncrementRefCount() const
     {
         checkMsg(m_RefCount <= UINT32_MAX - 1, "Ref count have overflowed !");
         m_RefCount.fetch_add(1, std::memory_order_acq_rel);
     }
+    /// Decrement the ref count of the RObject
     void DecrementRefCount() const
     {
         if (!verifyAlwaysMsg(m_RefCount > 0, "Ref count is already at 0")) {
@@ -74,6 +87,7 @@ public:
         m_RefCount.fetch_sub(1, std::memory_order_acq_rel);
     }
 
+    /// Get the current ref count
     std::uint32_t GetRefCount() const
     {
         return m_RefCount.load();
@@ -85,10 +99,14 @@ private:
     mutable std::atomic<std::uint32_t> m_RefCount = 0;
 };
 
+/// @brief Hold a reference to a RObject
+/// @tparam T The type contained by the Ref (MUST BE A ROBJECT)
 template <typename T>
 class Ref
 {
 public:
+    /// @brief Create a new RObject and give it is name
+    /// @return the new RObject
     template <typename... Args>
     requires std::is_constructible_v<T, Args...>
     static Ref<T> CreateNamed(std::string_view Name, Args&&... args)
@@ -96,6 +114,8 @@ public:
         return CreateInternal(Name, std::forward<Args>(args)...);
     }
 
+    /// @brief Create a new RObject
+    /// @return the new RObject
     template <typename... Args>
     requires std::is_constructible_v<T, Args...>
     static Ref<T> Create(Args&&... args)

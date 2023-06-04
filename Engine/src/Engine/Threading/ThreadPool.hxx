@@ -44,7 +44,9 @@ private:
     };
 
 public:
+    /// Default construction
     ThreadPool();
+    /// Default dtor
     ~ThreadPool() = default;
 
     /// Create the pool with a given number of thread (default 2 / 3 of the max number of thread)

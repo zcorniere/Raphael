@@ -22,12 +22,6 @@ public:
     static void GetDeviceLayers(Array<const char*>& OutLayers);
 
     static void CreateSurface(void* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface);
-
-    static VkResult Present(VkQueue Queue, VkPresentInfoKHR& PresentInfo);
-
-    static VkResult CreateSwapchainKHR(VkDevice Device, const VkSwapchainCreateInfoKHR* CreateInfo,
-                                       const VkAllocationCallbacks* Allocator, VkSwapchainKHR* Swapchain);
-    static void DestroySwapchainKHR(VkDevice Device, VkSwapchainKHR Swapchain, const VkAllocationCallbacks* Allocator);
 };
 
 }    // namespace VulkanRHI

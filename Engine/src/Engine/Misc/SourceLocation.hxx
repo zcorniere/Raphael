@@ -13,12 +13,14 @@ inline std::string file_position(const std::source_location& location = std::sou
     return std::filesystem::path(location.file_name()).filename().string() + ":" + std::to_string(location.line());
 }
 
-// From
-// https://bitwizeshift.github.io/posts/2021/03/09/getting-an-unmangled-type-name-at-compile-time/#a-working-solution
-#include <array>
-#include <string>
-#include <string_view>
-#include <utility>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+    // From
+    // https://bitwizeshift.github.io/posts/2021/03/09/getting-an-unmangled-type-name-at-compile-time/#a-working-solution
+    #include <array>
+    #include <string>
+    #include <string_view>
+    #include <utility>
 
 template <std::size_t... Idxs>
 constexpr auto substring_as_array(std::string_view str, std::index_sequence<Idxs...>)
@@ -58,7 +60,9 @@ template <typename T>
 struct type_name_holder {
     static inline constexpr auto value = type_name_array<T>();
 };
+#endif
 
+/// @brief Return the template type name
 template <typename T>
 constexpr auto type_name() -> std::string_view
 {

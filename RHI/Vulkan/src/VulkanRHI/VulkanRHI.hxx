@@ -32,9 +32,8 @@ public:
     VulkanDynamicRHI();
     virtual ~VulkanDynamicRHI();
 
-    virtual VkInstance RHIGetVkInstance() const;
-    virtual VkDevice RHIGetVkDevice() const;
-    virtual VkPhysicalDevice RHIGetVkPhysicalDevice() const;
+    VkDevice RHIGetVkDevice() const;
+    VkPhysicalDevice RHIGetVkPhysicalDevice() const;
 
     virtual void Init() final override;
     virtual void PostInit() final override;

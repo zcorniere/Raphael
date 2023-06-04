@@ -3,6 +3,7 @@
 #include <glm/vec3.hpp>
 #include <magic_enum.hpp>
 
+/// The type of THI resource
 enum class RHIResourceType : uint8 {
     None = 0,
 
@@ -13,6 +14,7 @@ enum class RHIResourceType : uint8 {
     MAX_VALUE,
 };
 
+/// Represent and abstract abore RHI ressources
 class RHIResource : public RObject
 {
 public:

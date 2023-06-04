@@ -37,6 +37,25 @@ else()
     message(STATUS "LTO not supported")
 endif()
 
+option(BUILD_DOCUMENTATION "Build the Doxygen documentation" OFF)
+if(BUILD_DOCUMENTATION)
+    message(STATUS "Documentation building using Doxygen enabled")
+    find_package(Doxygen)
+    if(DOXYGEN_FOUND)
+        set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
+        set(DOXYGEN_WARN_LOGFILE ${CMAKE_BINARY_DIR}/doxygen-warnings.log)
+        set(DOXYGEN_PREDEFINED DOXYGEN_SHOULD_SKIP_THIS)
+        doxygen_add_docs(
+            doc
+            Engine/src/
+            RHI/Vulkan/src/
+            README.md
+        )
+    else()
+        message(SEND_ERROR "Doxygen needs to be installed to build the documentation")
+    endif()
+endif()
+
 add_subdirectory(External/)
 add_subdirectory(Engine/)
 add_subdirectory(Editor/)

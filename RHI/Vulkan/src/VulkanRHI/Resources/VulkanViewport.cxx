@@ -107,8 +107,8 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
 {
     Ref<VulkanDynamicRHI> RHI = GetVulkanDynamicRHI();
 
-    SwapChain = Ref<VulkanSwapChain>::Create(RHI->RHIGetVkInstance(), Device, WindowHandle, Size, 0, BackBufferImages,
-                                             true, RecreateInfo);
+    SwapChain = Ref<VulkanSwapChain>::Create(RHI->GetInstance(), Device, WindowHandle, Size, 0, BackBufferImages, true,
+                                             RecreateInfo);
 
     RenderingDoneSemaphores.Resize(BackBufferImages.Size());
     for (unsigned i = 0; i < BackBufferImages.Size(); i++) {

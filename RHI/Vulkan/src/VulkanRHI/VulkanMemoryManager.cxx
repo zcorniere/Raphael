@@ -79,9 +79,8 @@ void VulkanMemoryManager::Init(Ref<VulkanDevice> InDevice)
     VulkanAPI::vkGetPhysicalDeviceMemoryProperties(Device->GetPhysicalHandle(), &MemoryProperties);
 
     VmaVulkanFunctions Functions;
-#define GET_VMA_FUNCTION(Type, Name) \
-    Functions.Name = (Type)VulkanAPI::vkGetInstanceProcAddr(RHI->RHIGetVkInstance(), #Name);
 
+#define GET_VMA_FUNCTION(Type, Name) Functions.Name = (Type)VulkanAPI::vkGetInstanceProcAddr(RHI->GetInstance(), #Name);
 #define CHECK_VMA_FUNCTION(Type, Name)                                                   \
     if (Functions.Name == nullptr) {                                                     \
         LOG(LogVulkanMemoryAllocator, Warning, "Failed to find entry point for " #Name); \
@@ -89,6 +88,7 @@ void VulkanMemoryManager::Init(Ref<VulkanDevice> InDevice)
 
     VK_ENTRYPOINTS_VMA(GET_VMA_FUNCTION);
     VK_ENTRYPOINTS_VMA(CHECK_VMA_FUNCTION);
+
 #undef GET_VMA_FUNCTION
 #undef CHECK_VMA_FUNCTION
 
@@ -96,7 +96,7 @@ void VulkanMemoryManager::Init(Ref<VulkanDevice> InDevice)
         .physicalDevice = RHI->RHIGetVkPhysicalDevice(),
         .device = Device->GetInstanceHandle(),
         .pVulkanFunctions = &Functions,
-        .instance = RHI->RHIGetVkInstance(),
+        .instance = RHI->GetInstance(),
         .vulkanApiVersion = RHI_VULKAN_VERSION,
     };
     VK_CHECK_RESULT(vmaCreateAllocator(&CreateInfo, &Allocator));

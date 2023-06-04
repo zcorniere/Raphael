@@ -4,6 +4,7 @@
 #include "Engine/Core/RHI/RHIResource.hxx"
 #include "Engine/Misc/EnumFlags.hxx"
 
+/// @brief What the texture will be used for
 enum class ETextureCreateFlags {
     None = 0,
     RenderTargetable = BIT(0),
@@ -12,6 +13,7 @@ enum class ETextureCreateFlags {
 };
 ENUM_CLASS_FLAGS(ETextureCreateFlags)
 
+/// @brief Describe the texture to be created
 struct RHITextureCreateDesc {
     ETextureCreateFlags Flags = ETextureCreateFlags::None;
     EImageDimension Dimension = EImageDimension::Texture2D;
@@ -23,6 +25,7 @@ struct RHITextureCreateDesc {
     uint8 NumSamples = 1;
 };
 
+/// @brief Represent a Texture used by the RHI
 class RHITexture : public RHIResource
 {
 public:

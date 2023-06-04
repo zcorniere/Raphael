@@ -175,12 +175,12 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice>& InDev
         VK_TYPE_TO_STRING(VkColorSpaceKHR, CreateInfo.imageColorSpace), static_cast<uint32>(CreateInfo.minImageCount));
 
     VK_CHECK_RESULT_EXPANDED(
-        VulkanPlatform::CreateSwapchainKHR(Device->GetInstanceHandle(), &CreateInfo, nullptr, &SwapChain));
+        VulkanAPI::vkCreateSwapchainKHR(Device->GetInstanceHandle(), &CreateInfo, nullptr, &SwapChain));
 
     ImageFormat = SurfaceFormat.format;
     if (RecreateInfo) {
         if (RecreateInfo->SwapChain != VK_NULL_HANDLE) {
-            VulkanPlatform::DestroySwapchainKHR(Device->GetInstanceHandle(), RecreateInfo->SwapChain, nullptr);
+            VulkanAPI::vkDestroySwapchainKHR(Device->GetInstanceHandle(), RecreateInfo->SwapChain, nullptr);
             RecreateInfo->SwapChain = VK_NULL_HANDLE;
         }
         if (RecreateInfo->Surface != VK_NULL_HANDLE) {
@@ -242,7 +242,7 @@ VulkanSwapChain::Status VulkanSwapChain::Present(Ref<VulkanQueue>& PresentQueue,
         .pImageIndices = (uint32*)&CurrentImageIndex,
     };
 
-    VkResult PresentResult = VulkanPlatform::Present(PresentQueue->GetHandle(), Info);
+    VkResult PresentResult = VulkanAPI::vkQueuePresentKHR(PresentQueue->GetHandle(), &Info);
 
     CurrentImageIndex = -1;
 

@@ -9,10 +9,15 @@ public:
     {
     }
 
+    /// Called when the Engine created
     virtual bool OnEngineInitialization() = 0;
+    /// Called when the Engine is destroyed
     virtual void OnEngineDestruction() = 0;
 
+    /// Called once per frame
+    /// @param DeltaTime the time elapsed since last frame
     virtual void Tick(const float DeltaTime) = 0;
+    /// Determine if the application want the engine to exit
     virtual bool ShouldExit() const = 0;
 };
 
@@ -21,6 +26,9 @@ extern class Engine* GEngine;
 class Engine
 {
 public:
+    /// @brief Start the Engine
+    /// @tparam T The Application type to use
+    /// @return The exit code of the engine.
     template <std::derived_from<IApplication> T>
     static int Start(const int ac, const char* const* const av)
     {

@@ -3,6 +3,8 @@
 namespace Raphael
 {
 
+/// @brief Malloc-based allocator
+/// @tparam T The type of the allocated memory
 template <typename T>
 class Allocator
 {
@@ -11,6 +13,15 @@ public:
 
     Allocator() = default;
 
+    template <class U>
+    constexpr Allocator(const Allocator<U>&) noexcept
+    {
+    }
+
+    /// @brief Return new allocated memory location of (sizeof(T) * Size)
+    /// @param Size The amount of the T we want to allocate
+    /// @param hint (unused)
+    /// @return return a valid memory location
     T* allocate(std::size_t Size, const void* hint = nullptr)
     {
         (void)hint;
@@ -26,6 +37,9 @@ public:
         throw std::bad_alloc();
     }
 
+    /// @brief Deallocate the given memory pointer
+    /// @param pPointer the memory location to release
+    /// @param n (unused)
     void deallocate(T* pPointer, std::size_t n = 0) noexcept
     {
         (void)n;

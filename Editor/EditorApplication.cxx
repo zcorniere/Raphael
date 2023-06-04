@@ -21,6 +21,7 @@ bool EditorApplication::OnEngineInitialization()
     Windows.push_back(Ref<Window>::CreateNamed("Main Window"));
     Windows[0]->Initialize(WindowDef, nullptr);
     Windows[0]->Show();
+    Windows[0]->Maximize();
 
     Viewport = RHI::CreateViewport((void*)Windows[0]->GetHandle(), glm::uvec2{500u, 500u});
     Viewport->SetName("Main viewport");

@@ -208,21 +208,22 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
     }
 }
 
+static bool DoesQueueSupportPresent(VkSurfaceKHR Surface, VkPhysicalDevice PhysicalDevice, Ref<VulkanQueue>& Queue)
+{
+    VkBool32 bSupportsPresent = VK_FALSE;
+    const uint32 FamilyIndex = Queue->GetFamilyIndex();
+    VK_CHECK_RESULT(
+        VulkanAPI::vkGetPhysicalDeviceSurfaceSupportKHR(PhysicalDevice, FamilyIndex, Surface, &bSupportsPresent));
+    if (bSupportsPresent) {
+        LOG(LogVulkanRHI, Info, "Queue Family {}({}): Supports Present", FamilyIndex, Queue->GetName());
+    }
+    return bSupportsPresent == VK_TRUE;
+}
+
 void VulkanDevice::SetupPresentQueue(VkSurfaceKHR Surface)
 {
     if (!PresentQueue) {
-        const auto SupportsPresent = [Surface](VkPhysicalDevice PhysicalDevice, Ref<VulkanQueue>& Queue) {
-            VkBool32 bSupportsPresent = VK_FALSE;
-            const uint32 FamilyIndex = Queue->GetFamilyIndex();
-            VK_CHECK_RESULT(VulkanAPI::vkGetPhysicalDeviceSurfaceSupportKHR(PhysicalDevice, FamilyIndex, Surface,
-                                                                            &bSupportsPresent));
-            if (bSupportsPresent) {
-                LOG(LogVulkanRHI, Info, "Queue Family {}: Supports Present", FamilyIndex);
-            }
-            return (bSupportsPresent == VK_TRUE);
-        };
-
-        bool bGfx = SupportsPresent(Gpu, GraphicsQueue);
+        bool bGfx = DoesQueueSupportPresent(Surface, Gpu, GraphicsQueue);
         if (!bGfx) {
             PlatformMisc::DisplayMessageBox(
                 EBoxMessageType::Ok, "Cannot find a compatible Vulkan device that supports surface presentation.\n\n",
@@ -230,12 +231,18 @@ void VulkanDevice::SetupPresentQueue(VkSurfaceKHR Surface)
             Utils::RequestExit(1);
         }
 
+        bool bCompute = DoesQueueSupportPresent(Surface, Gpu, ComputeQueue);
         if (TransferQueue->GetFamilyIndex() != GraphicsQueue->GetFamilyIndex() &&
             TransferQueue->GetFamilyIndex() != ComputeQueue->GetFamilyIndex()) {
-            SupportsPresent(Gpu, TransferQueue);
+            DoesQueueSupportPresent(Surface, Gpu, TransferQueue);
         }
 
-        PresentQueue = GraphicsQueue;
+        if (ComputeQueue->GetFamilyIndex() != GraphicsQueue->GetFamilyIndex() && bCompute) {
+            PresentQueue = ComputeQueue;
+        } else {
+            PresentQueue = GraphicsQueue;
+        }
+        LOG(LogVulkanRHI, Info, "Using {} as the present Queue", PresentQueue->GetName());
     }
 }
 

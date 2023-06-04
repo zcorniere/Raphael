@@ -15,9 +15,7 @@ static_assert(false, "Unix Platform header included on a non Unix platform");
 
 #define PLATFORM_BREAK() raise(SIGTRAP)
 
-///
 /// @brief Unix-specific functions
-///
 class LinuxPlateform : public GenericPlatform
 {
 private:

@@ -23,6 +23,8 @@ public:
         return false;
     }
 
+    /// @brief Return the location of the executable
+    /// @return Return the absolute path of the executable
     static std::filesystem::path GetExecutablePath()
     {
         return std::filesystem::current_path();

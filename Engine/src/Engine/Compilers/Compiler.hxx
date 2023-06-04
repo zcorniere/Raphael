@@ -59,6 +59,7 @@ public:
     {
     }
 
+    /// Try to demangle the function name given as argument
     static std::string Demangle(const std::string_view& name)
     {
         return std::string(name);

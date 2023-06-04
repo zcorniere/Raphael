@@ -29,6 +29,11 @@ public:
     Ref<VulkanShader> Get(std::filesystem::path Path, bool bForceCompile = false);
 
 private:
+    Array<uint32> CompileShader(const std::filesystem::path& Path, RHIShaderType ShaderType,
+                                const std::string& ShaderCode);
+    VulkanShader::ReflectionData GenerateReflection(const Array<uint32>& ShaderCode);
+
+private:
     OptimizationLevel Level;
 
     std::mutex m_ShaderCacheMutex;

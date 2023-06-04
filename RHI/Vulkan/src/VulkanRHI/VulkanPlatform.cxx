@@ -142,21 +142,4 @@ void VulkanPlatform::CreateSurface(void* WindowHandle, VkInstance Instance, VkSu
     }
 }
 
-VkResult VulkanPlatform::Present(VkQueue Queue, VkPresentInfoKHR& PresentInfo)
-{
-    return VulkanAPI::vkQueuePresentKHR(Queue, &PresentInfo);
-}
-
-VkResult VulkanPlatform::CreateSwapchainKHR(VkDevice Device, const VkSwapchainCreateInfoKHR* CreateInfo,
-                                            const VkAllocationCallbacks* Allocator, VkSwapchainKHR* Swapchain)
-{
-    return VulkanAPI::vkCreateSwapchainKHR(Device, CreateInfo, Allocator, Swapchain);
-}
-
-void VulkanPlatform::DestroySwapchainKHR(VkDevice Device, VkSwapchainKHR Swapchain,
-                                         const VkAllocationCallbacks* Allocator)
-{
-    VulkanAPI::vkDestroySwapchainKHR(Device, Swapchain, Allocator);
-}
-
 }    // namespace VulkanRHI

@@ -2,17 +2,15 @@
 
 #include "Engine/Misc/MiscDefines.hxx"
 
-/**
- * Enumerates supported message dialog button types.
- */
+#include <magic_enum.hpp>
+
+/// Enumerates supported message dialog button types.
 enum EBoxMessageType {
     Ok,
     YesNo,
 };
 
-/**
- * Enumerates message dialog return types.
- */
+/// Enumerates message dialog return types.
 enum class EBoxReturnType {
     No,
     Yes,
@@ -20,17 +18,25 @@ enum class EBoxReturnType {
     Cancel,
 };
 
+/// @brief Interface that represent a manually loaded shared library
 class IExternalModule : public RObject
 {
 public:
     IExternalModule() = delete;
-    IExternalModule(std::string_view)
+    /// @brief  Construct a new module, and load the library
+    /// @param  Name The name of the shared library
+    IExternalModule(std::string_view Name)
     {
+        (void)Name;
     }
     virtual ~IExternalModule()
     {
     }
 
+    /// @brief Find the requested function pointer
+    /// @tparam T The Function pointer type to return
+    /// @param SymbolName The name of the symbol to find
+    /// @return The requested function pointer
     template <CIsFunctionPointer T>
     T GetSymbol(std::string_view SymbolName) const
     {
@@ -43,18 +49,30 @@ private:
 
 DECLARE_LOGGER_CATEGORY(Core, LogPlatformMisc, Info);
 
+/// @brief Miscellaneous platform agnostic function
 class GenericMisc
 {
 public:
-    static EBoxReturnType DisplayMessageBox(EBoxMessageType, const std::string_view Text,
+    /// @brief Display a simple message box
+    /// @param Type The type of the message box (@see EBoxMessageType)
+    /// @param Title The Title of the message box
+    /// @param Caption The content of the message box
+    /// @return The answer of the user (@see EBoxReturnType)
+    static EBoxReturnType DisplayMessageBox(EBoxMessageType Type, const std::string_view Title,
                                             const std::string_view Caption)
     {
-        LOG(LogPlatformMisc, Info, "Message Box: {:s} {:s}", Text, Caption);
+        LOG(LogPlatformMisc, Info, "{} Message Box: {:s} {:s}", magic_enum::enum_name(Type), Title, Caption);
         return EBoxReturnType::Ok;
     }
 
+    /// @brief Platform independed function to load shared library
+    /// If the same library is loaded multiple times, the return will be cached
+    /// @param ModuleName The name of the module to load
+    /// @return The loaded module
     static Ref<IExternalModule> LoadExternalModule(std::string_view ModuleName);
 
+    /// @brief Platform agnostic way to look for a config file
+    /// @return Return the platform standard path to look for the config
     static std::filesystem::path GetConfigPath();
 };
 

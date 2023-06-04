@@ -3,8 +3,11 @@
 #include "Engine/Misc/Utils.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 #include "VulkanRHI/VulkanRHI.hxx"
+#include "VulkanRHI/VulkanShaderCompiler.hxx"
 
 #include <shaderc/shaderc.hpp>
+#include <spirv-tools/libspirv.h>
+#include <spirv_cross.hpp>
 
 DECLARE_LOGGER_CATEGORY(Core, LogVulkanShaderCompiler, Warning)
 
@@ -97,25 +100,42 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
         }
     }
 
-    shaderc::Compiler ShaderCompiler;
-
     if (!std::filesystem::exists(Path)) {
         LOG(LogVulkanShaderCompiler, Error, "Shader file not found ! \"{}\"", Path.string().c_str());
         return nullptr;
     }
 
-    shaderc::CompileOptions Options = GetCompileOption(Level);
+    std::string FileContent = Utils::readFile(Path);
     std::optional<RHIShaderType> ShaderType = GetShaderKind(Path);
     check(ShaderType);
-    shaderc_shader_kind ShaderKind = ShaderKindToShaderc(ShaderType.value());
-    std::string FileContent = Utils::readFile(Path);
+
+    Array<uint32> ShaderCode = CompileShader(Path, ShaderType.value(), FileContent);
+    VulkanShader::ReflectionData ReflectionData = GenerateReflection(ShaderCode);
+
+    Ref<VulkanShader> ShaderUnit =
+        Ref<VulkanShader>::CreateNamed(Path.filename().string(), ShaderType.value(), ShaderCode, ReflectionData);
+
+    {
+        std::unique_lock Lock(m_ShaderCacheMutex);
+        m_ShaderCache[Path.filename().string()] = ShaderUnit;
+    }
+    return ShaderUnit;
+}
+
+Array<uint32> VulkanShaderCompiler::CompileShader(const std::filesystem::path& Path, RHIShaderType ShaderType,
+                                                  const std::string& ShaderCode)
+{
+    shaderc::Compiler ShaderCompiler;
+
+    shaderc::CompileOptions Options = GetCompileOption(Level);
+    shaderc_shader_kind ShaderKind = ShaderKindToShaderc(ShaderType);
 
     shaderc::PreprocessedSourceCompilationResult PreProcessResult =
-        ShaderCompiler.PreprocessGlsl(FileContent, ShaderKind, Path.string().c_str(), Options);
+        ShaderCompiler.PreprocessGlsl(ShaderCode, ShaderKind, Path.string().c_str(), Options);
     if (PreProcessResult.GetCompilationStatus() != shaderc_compilation_status_success) {
         LOG(LogVulkanShaderCompiler, Error, "Failed to pre-process {}: {}", Path.string().c_str(),
             PreProcessResult.GetErrorMessage());
-        return nullptr;
+        return {};
     }
 
     std::string PreprocessCode(PreProcessResult.begin(), PreProcessResult.end());
@@ -126,19 +146,40 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
     if (CompilationResult.GetCompilationStatus() != shaderc_compilation_status_success) {
         LOG(LogVulkanShaderCompiler, Error, "Failed to compile shader \"{}\": {}", Path.string().c_str(),
             CompilationResult.GetErrorMessage());
-        return nullptr;
+        return {};
     }
+    return {CompilationResult.begin(), CompilationResult.end()};
+}
 
-    Array<uint32> ShaderCode(CompilationResult.begin(), CompilationResult.end());
+VulkanShader::ReflectionData VulkanShaderCompiler::GenerateReflection(const Array<uint32>& ShaderCode)
+{
+    LOG(LogVulkanShaderCompiler, Trace, "===========================");
+    LOG(LogVulkanShaderCompiler, Trace, " Vulkan Shader Reflection");
+    LOG(LogVulkanShaderCompiler, Trace, "===========================");
 
-    Ref<VulkanShader> ShaderUnit =
-        Ref<VulkanShader>::CreateNamed(Path.filename().string(), ShaderType.value(), ShaderCode);
+    spirv_cross::Compiler Compiler(ShaderCode.Raw(), ShaderCode.Size());
+    spirv_cross::ShaderResources Resources = Compiler.get_shader_resources();
 
-    {
-        std::unique_lock Lock(m_ShaderCacheMutex);
-        m_ShaderCache[Path.filename().string()] = ShaderUnit;
+    VulkanShader::ReflectionData Data;
+
+    LOG(LogVulkanShaderCompiler, Trace, "Push Constant Buffers:");
+    for (const spirv_cross::Resource& resource: Resources.push_constant_buffers) {
+        auto& bufferType = Compiler.get_type(resource.base_type_id);
+        auto bufferSize = (uint32_t)Compiler.get_declared_struct_size(bufferType);
+        uint32_t bufferOffset = 0;
+
+        if (!Data.PushConstants.IsEmpty())
+            bufferOffset = Data.PushConstants.Back().Offset + Data.PushConstants.Back().Size;
+
+        ShaderResource::PushConstantRange& Range = Data.PushConstants.Emplace();
+        Range.Size = bufferSize - bufferOffset;
+        Range.Offset = bufferOffset;
+
+        LOG(LogVulkanShaderCompiler, Trace, "  Name: {0}", resource.name);
+        LOG(LogVulkanShaderCompiler, Trace, "  Member Count: {0}", bufferType.member_types.size());
+        LOG(LogVulkanShaderCompiler, Trace, "  Size: {0}", bufferSize);
     }
-    return ShaderUnit;
+    return Data;
 }
 
 }    // namespace VulkanRHI

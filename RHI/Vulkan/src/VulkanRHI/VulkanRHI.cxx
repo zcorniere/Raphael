@@ -49,11 +49,6 @@ VulkanDynamicRHI::~VulkanDynamicRHI()
     VulkanPlatform::FreeVulkanLibrary();
 }
 
-VkInstance VulkanDynamicRHI::RHIGetVkInstance() const
-{
-    return GetInstance();
-}
-
 VkDevice VulkanDynamicRHI::RHIGetVkDevice() const
 {
     return Device->GetInstanceHandle();
