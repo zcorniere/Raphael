@@ -98,20 +98,21 @@ TEST_CASE("Test Advanced Type", "[containers]")
 {
     int DtorCounter = 0;
     struct ComplexType {
-        int* Value;
-        ComplexType(int* InValue = nullptr): Value(InValue)
+        int& Value;
+        ComplexType(int& InValue): Value(InValue)
         {
-            (*Value) += 1;
+            Value += 1;
         }
+        ComplexType(const ComplexType &Other):  ComplexType(Other.Value) {}
         ~ComplexType()
         {
-            (*Value) -= 1;
+            Value -= 1;
         }
     };
 
     Array<ComplexType> Vec2;
-    Vec2.Emplace(&DtorCounter);
-    Vec2.Emplace(&DtorCounter);
+    Vec2.Emplace(ComplexType(DtorCounter));
+    Vec2.Add(ComplexType(DtorCounter));
 
     CHECK_NOTHROW(Vec2.Size() == 2);
     REQUIRE(DtorCounter == 2);
@@ -120,17 +121,17 @@ TEST_CASE("Test Advanced Type", "[containers]")
     {
         Array<ComplexType> TestVec2;
 
-        TestVec2.Emplace(&DtorCounter);
-        TestVec2.Emplace(&DtorCounter);
+        TestVec2.Emplace(ComplexType(DtorCounter));
+        TestVec2.Emplace(ComplexType(DtorCounter));
         REQUIRE(DtorCounter == 4);
 
         Vec2.Append(TestVec2);
+        REQUIRE(DtorCounter == 6);
+        CHECK(Vec2.Size() == 4);
+
+        TestVec2.Clear();
         REQUIRE(DtorCounter == 4);
 
-        Vec2.Resize(2);
-        TestVec2.Clear();
-        CHECK(Vec2.Size() == 2);
-        REQUIRE(DtorCounter == 2);
     }
 
     Vec2.Clear();

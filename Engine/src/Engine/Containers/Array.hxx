@@ -112,11 +112,9 @@ public:
     }
     [[nodiscard]] TSize Find(const T& Item) const
     {
-        auto Start = begin();
-        const auto Ending = end();
-        for (; Start != Ending; ++Start) {
-            if (*Start == Item) {
-                return std::distance(begin(), Start);
+        for (TSize i = 0; i < Size(); i++) {
+            if (Item == (*this)[i]) {
+                return i;
             }
         }
         return InvalidVectorIndex;
