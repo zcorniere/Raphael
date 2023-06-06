@@ -16,4 +16,6 @@ if (BUILD_TESTING)
 
     include(CTest)
     include(Catch)
+    add_custom_target(tests)
+    
 endif(BUILD_TESTING)

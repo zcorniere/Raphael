@@ -1,6 +1,6 @@
 # Unit tests building
 
-add_custom_target(tests)
+enable_testing()
 
 function(build_tests TARGET)
     if(BUILD_TESTING)
