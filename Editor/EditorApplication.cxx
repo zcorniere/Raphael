@@ -48,7 +48,8 @@ bool EditorApplication::OnEngineInitialization()
 #endif
 
     // Create a shader to test the reflection
-    RHI::CreateShader("DefaultTriangle.vert", false);
+    RHI::CreateShader("DefaultTriangle.vert", true);
+    RHI::CreateShader("DefaultTriangle.frag", true);
 
     return true;
 }
