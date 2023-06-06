@@ -22,6 +22,7 @@ public:
     RHICommandQueue();
     ~RHICommandQueue();
 
+    /// @brief Add a command to the back of the queue
     template <typename TFunction>
     void EnqueueCommand(TFunction&& Function)
     {
@@ -36,8 +37,10 @@ public:
         new (pStorageBuffer) TFunction(std::forward<TFunction>(Function));
     }
 
-    void* Allocate(RenderCommandFn Func, uint32_t Size);
     void Execute();
+
+private:
+    void* Allocate(RenderCommandFn Func, uint32_t Size);
 
 private:
     uint8* m_CommandBuffer;

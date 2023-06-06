@@ -7,6 +7,7 @@
     Name& operator=(Name&&) = delete;
 
 #define BIT(x) (1u << x)
+#define NEXT_NEAREST(X, Multiple) ((((X) + (Multiple)-1) / (Multiple)) * (Multiple))
 
 #define CONSTEXPR_ELSE_ERROR(Type, Message) static_assert(AlwaysFalse<Type>, Message);
 
