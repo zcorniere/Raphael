@@ -6,7 +6,6 @@
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 
 #include <shaderc/shaderc.hpp>
-#include <spirv-tools/libspirv.h>
 #include <spirv_cross.hpp>
 
 DECLARE_LOGGER_CATEGORY(Core, LogVulkanShaderCompiler, Warning)
