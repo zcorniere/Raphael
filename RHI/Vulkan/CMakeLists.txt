@@ -41,3 +41,11 @@ target_compile_options(
 if(ENABLE_VULKAN_DEBUGGING)
     target_compile_definitions(${PROJECT_NAME} PUBLIC VULKAN_DEBUGGING_ENABLED=1)
 endif()
+
+build_tests(
+    ${PROJECT_NAME}
+    tests/ShaderCompiler.cxx
+)
+# Give the tests access to the RHI headers
+target_include_directories(${PROJECT_NAME}_Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
