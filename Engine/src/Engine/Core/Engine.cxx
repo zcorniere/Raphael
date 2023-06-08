@@ -29,7 +29,9 @@ bool Engine::Initialisation(IApplication* Application)
     App = Application;
     check(App);
 
+    RHI::Init();
     RHI::CreateRHI();
+    
     GDynamicRHI->Init();
     m_ThreadPool.Start();
 

@@ -26,6 +26,8 @@ public:
         return GDynamicRHI.As<TRHI>();
     }
 
+    /// @brief This function create RHI-agnostic object, like the command queue
+    static void Init();
     /// @brief This function create the RHI, and must be implemented individualy by every RHI
     static Ref<GenericRHI> CreateRHI();
 
@@ -58,6 +60,4 @@ public:
     /// Create a new RHI shader - through the current RHI
     static Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile);
 
-private:
-    static void Init();
 };

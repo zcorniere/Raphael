@@ -13,7 +13,6 @@
 // RHI Creation Implementation
 Ref<GenericRHI> RHI::CreateRHI()
 {
-    RHI::Init();
     GDynamicRHI = Ref<VulkanRHI::VulkanDynamicRHI>::CreateNamed("Vulkan RHI");
     return GDynamicRHI;
 }
