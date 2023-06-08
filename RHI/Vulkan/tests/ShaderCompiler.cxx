@@ -14,14 +14,7 @@ std::filesystem::path GetCurrentFilePath()
     return File.parent_path();
 }
 
-void CheckShaderIO(const VulkanRHI::ShaderResource::StageIO& Got, const VulkanRHI::ShaderResource::StageIO& Expected)
-{
-    CHECK(Got.Name == Expected.Name);
-    CHECK(Got.Type == Expected.Type);
-    CHECK(Got.Location == Expected.Location);
-}
-
-TEST_CASE("Test simple shader Compilation", "[RHI][Vulkan]")
+TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
 {
     ::Log::Init();
 
@@ -38,26 +31,31 @@ TEST_CASE("Test simple shader Compilation", "[RHI][Vulkan]")
         CHECK(ShaderResult == CachedResult);
     }
 
-    // Test the StageInput
-    REQUIRE(ShaderResult->GetReflectionData().StageInput.Size() == 1);
-    CheckShaderIO(ShaderResult->GetReflectionData().StageInput[0], {
-                                                                       .Name = "inVertex",
-                                                                       .Type = EVertexElementType::Float4,
-                                                                       .Location = 0,
-                                                                   });
-
-    // Test the StageOutput
-    REQUIRE(ShaderResult->GetReflectionData().StageOutput.Size() == 2);
-    CheckShaderIO(ShaderResult->GetReflectionData().StageOutput[0], {
-                                                                        .Name = "outVertexPos",
-                                                                        .Type = EVertexElementType::Float4,
-                                                                        .Location = 0,
-                                                                    });
-    CheckShaderIO(ShaderResult->GetReflectionData().StageOutput[1], {
-                                                                        .Name = "outUV",
-                                                                        .Type = EVertexElementType::Uint2,
-                                                                        .Location = 1,
-                                                                    });
+    VulkanRHI::VulkanShader::ReflectionData ExpectedReflection{
+        .StageInput =
+            {
+                {
+                    .Name = "inVertex",
+                    .Type = EVertexElementType::Float4,
+                    .Location = 0,
+                },
+            },
+        .StageOutput =
+            {
+                {
+                    .Name = "outVertexPos",
+                    .Type = EVertexElementType::Float4,
+                    .Location = 0,
+                },
+                {
+                    .Name = "outUV",
+                    .Type = EVertexElementType::Uint2,
+                    .Location = 1,
+                },
+            },
+        .PushConstants = {},
+    };
+    CHECK(ShaderResult->GetReflectionData() == ExpectedReflection);
 
     ::Log::Shutdown();
 }

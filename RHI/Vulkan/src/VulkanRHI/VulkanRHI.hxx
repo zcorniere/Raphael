@@ -16,6 +16,7 @@ namespace VulkanRHI
 
 class VulkanDevice;
 
+/// @brief Vulkan RHI implementation for Raphael
 class VulkanDynamicRHI : public GenericRHI
 {
 public:
@@ -32,7 +33,9 @@ public:
     VulkanDynamicRHI();
     virtual ~VulkanDynamicRHI();
 
+    /// Return the Vulkan Device of the RHI
     VkDevice RHIGetVkDevice() const;
+    /// Return the Vulkan Physical Device of the RHI
     VkPhysicalDevice RHIGetVkPhysicalDevice() const;
 
     virtual void Init() final override;

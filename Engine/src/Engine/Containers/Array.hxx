@@ -119,13 +119,12 @@ public:
         }
         return InvalidVectorIndex;
     }
-    template <typename OtherT, typename OtherAlloc, typename OtherSize>
-    requires CCompatibleTypes<T, OtherT>
-    void Append(const Array<OtherT, OtherAlloc, OtherSize>& Source)
+
+    void Append(const Array& Source)
     {
         check((void*)this != (void*)&Source);
 
-        for (const OtherT& Item: Source) {
+        for (const T& Item: Source) {
             this->Emplace(Item);
         }
     }
@@ -148,5 +147,18 @@ public:
     constexpr const auto end() const
     {
         return std::vector<T, Allocation>::end();
+    }
+
+    constexpr bool operator==(const Array& other) const
+    {
+        if (other.Size() != this->Size())
+            return false;
+
+        for (unsigned i = 0; i < other.Size() && i < this->Size(); i++) {
+            if ((*this)[i] != other[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 };

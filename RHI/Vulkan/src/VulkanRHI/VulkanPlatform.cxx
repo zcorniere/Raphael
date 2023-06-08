@@ -17,7 +17,10 @@ namespace VulkanRHI
 #define DEFINE_VK_ENTRYPOINTS(Type, Func) Type VulkanAPI::Func = nullptr;
 
 VK_ENTRYPOINT_ALL(DEFINE_VK_ENTRYPOINTS)
+
+#if VULKAN_DEBUGGING_ENABLED
 VK_ENTRYPOINTS_DEBUG_UTILS(DEFINE_VK_ENTRYPOINTS)
+#endif
 
 #undef DEFINE_VK_ENTRYPOINTS
 
@@ -82,15 +85,15 @@ bool VulkanPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
     VK_ENTRYPOINTS_SURFACE_INSTANCE(GETINSTANCE_VK_ENTRYPOINTS);
     VK_ENTRYPOINTS_SURFACE_INSTANCE(CHECK_VK_ENTRYPOINTS);
 
-    if (!bFoundAllEntryPoints) {
-        return false;
-    }
-
+#if VULKAN_DEBUGGING_ENABLED
     VK_ENTRYPOINTS_DEBUG_UTILS(GETINSTANCE_VK_ENTRYPOINTS);
+    VK_ENTRYPOINTS_DEBUG_UTILS(CHECK_VK_ENTRYPOINTS);
+#endif
 
 #undef GETINSTANCE_VK_ENTRYPOINTS
 #undef CHECK_VK_ENTRY_POINTS
-    return true;
+
+    return bFoundAllEntryPoints;
 }
 
 void VulkanPlatform::FreeVulkanLibrary()
@@ -98,8 +101,12 @@ void VulkanPlatform::FreeVulkanLibrary()
     if (s_VulkanModuleHandle != nullptr) {
 #define CLEAR_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = nullptr;
         VK_ENTRYPOINT_ALL(CLEAR_VK_ENTRYPOINTS);
-#undef CLEAR_VK_ENTRYPOINTS
 
+#if VULKAN_DEBUGGING_ENABLED
+        VK_ENTRYPOINTS_DEBUG_UTILS(CLEAR_VK_ENTRYPOINTS);
+#endif
+
+#undef CLEAR_VK_ENTRYPOINTS
         s_VulkanModuleHandle = nullptr;
     }
 }

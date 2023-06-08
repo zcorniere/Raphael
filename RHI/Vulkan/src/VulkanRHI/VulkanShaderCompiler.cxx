@@ -134,9 +134,9 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
     };
     if (!bForceCompile) {
         ShaderUnit = CheckCache(Result);
-    }
-    if (ShaderUnit) {
-        return ShaderUnit;
+        if (ShaderUnit) {
+            return ShaderUnit;
+        }
     }
 
     if (!LoadShaderSourceFile(Result)) {

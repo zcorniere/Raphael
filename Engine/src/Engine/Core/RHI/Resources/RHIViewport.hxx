@@ -2,7 +2,7 @@
 
 #include "Engine/Core/RHI/RHIResource.hxx"
 
-/// Represent a viewport used by the RHI to be drawn on
+/// @brief Represent a viewport used by the RHI to be drawn on
 class RHIViewport : public RHIResource
 {
 public:

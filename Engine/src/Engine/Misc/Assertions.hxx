@@ -9,8 +9,10 @@
 namespace Raphael
 {
 
+/// Collect and print the callstack
 void CollectAndPrintStackTrace(void* ReturnAddress);
 
+/// Whether or not the check should print the stacktrace
 constexpr bool ShouldCheckPrintStackTrace()
 {
 #if defined(RPH_CHECK_STACKTRACE)

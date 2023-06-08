@@ -14,12 +14,16 @@ namespace ShaderResource
     struct PushConstantRange {
         uint32 Offset = 0;
         uint32 Size = 0;
+
+        bool operator==(const PushConstantRange&) const = default;
     };
 
     struct StageIO {
         std::string Name;
         EVertexElementType Type;
         uint32 Location;
+
+        bool operator==(const StageIO&) const = default;
     };
 
 }    // namespace ShaderResource
@@ -31,6 +35,8 @@ public:
         Array<ShaderResource::StageIO> StageInput;
         Array<ShaderResource::StageIO> StageOutput;
         Array<ShaderResource::PushConstantRange> PushConstants;
+
+        bool operator==(const ReflectionData&) const = default;
     };
 
     class ShaderHandle : public RObject

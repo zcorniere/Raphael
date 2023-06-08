@@ -5,7 +5,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators_all.hpp>
 
-TEST_CASE("Basic Array Operation", "[containers]")
+TEST_CASE("Array: Basic Operation")
 {
     int Value1 = GENERATE(take(2, random(-42, 50)));
     int Value2 = GENERATE(take(2, random(-4200, 420)));
@@ -94,7 +94,7 @@ TEST_CASE("Basic Array Operation", "[containers]")
     }
 }
 
-TEST_CASE("Test Advanced Type", "[containers]")
+TEST_CASE("Array: Test Advanced Type")
 {
     int DtorCounter = 0;
     struct ComplexType {
@@ -138,7 +138,7 @@ TEST_CASE("Test Advanced Type", "[containers]")
     REQUIRE(DtorCounter == 0);
 }
 
-TEST_CASE("Test Find", "[containers]")
+TEST_CASE("Array: Test Find function")
 {
     int Value1 = GENERATE(take(2, random(-42, 50)));
     int Value2 = GENERATE(take(2, random(-4200, 420)));
