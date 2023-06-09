@@ -11,6 +11,32 @@
 
 #define CONSTEXPR_ELSE_ERROR(Type, Message) static_assert(AlwaysFalse<Type>, Message);
 
+#define DECLARE_PRINTABLE_TYPE(Type)   \
+    template <>                        \
+    struct std::formatter<Type, char>; \
+    std::ostream& operator<<(std::ostream& os, const Type& m);
+#define DEFINE_PRINTABLE_TYPE(Type, Format, ...)                     \
+    template <>                                                      \
+    struct std::formatter<Type, char> {                              \
+        constexpr auto parse(format_parse_context& ctx)              \
+        {                                                            \
+            return begin(ctx);                                       \
+        }                                                            \
+                                                                     \
+        template <class FormatContext>                               \
+        auto format(const Type& Value, FormatContext& ctx) const     \
+        {                                                            \
+            auto&& out = ctx.out();                                  \
+            format_to(out, Format, ##__VA_ARGS__);                   \
+            return out;                                              \
+        }                                                            \
+    };                                                               \
+    inline std::ostream& operator<<(std::ostream& os, const Type& m) \
+    {                                                                \
+        os << std::format("{}", m);                                  \
+        return os;                                                   \
+    }
+
 template <typename...>
 /// Used to error out in constexpr if
 constexpr std::false_type AlwaysFalse{};

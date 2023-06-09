@@ -72,3 +72,9 @@ private:
 };
 
 }    // namespace VulkanRHI
+
+DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::PushConstantRange, "{{ Offset: {0}, Size: {1} }}", Value.Offset,
+                      Value.Size)
+
+DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::StageIO, "{{ Name: {0}, Type: {1}, Location: {2} }}", Value.Name,
+                      magic_enum::enum_name(Value.Type), Value.Location)

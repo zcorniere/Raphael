@@ -16,22 +16,23 @@ std::filesystem::path GetCurrentFilePath()
 
 TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
 {
+    using namespace VulkanRHI;
     ::Log::Init();
 
     std::filesystem::path SimpleShaderPath = GetCurrentFilePath() / "test_shaders/SimpleShader.vert";
-    VulkanRHI::VulkanShaderCompiler Compiler;
+    VulkanShaderCompiler Compiler;
 
-    Ref<VulkanRHI::VulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
+    Ref<VulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
     REQUIRE(ShaderResult);
 
     SECTION("Test shader Cache")
     {
-        Ref<VulkanRHI::VulkanShader> CachedResult = Compiler.Get(SimpleShaderPath);
+        Ref<VulkanShader> CachedResult = Compiler.Get(SimpleShaderPath);
 
         CHECK(ShaderResult == CachedResult);
     }
 
-    VulkanRHI::VulkanShader::ReflectionData ExpectedReflection{
+    const VulkanShader::ReflectionData ExpectedReflection{
         .StageInput =
             {
                 {
@@ -55,7 +56,24 @@ TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
             },
         .PushConstants = {},
     };
-    CHECK(ShaderResult->GetReflectionData() == ExpectedReflection);
+    const VulkanShader::ReflectionData& GotReflection = ShaderResult->GetReflectionData();
+
+    REQUIRE(GotReflection.PushConstants.Size() == ExpectedReflection.PushConstants.Size());
+    for (unsigned i = 0; i < GotReflection.PushConstants.Size(); i++) {
+        CHECK(GotReflection.PushConstants[i] == ExpectedReflection.PushConstants[i]);
+    }
+
+    REQUIRE(GotReflection.StageInput.Size() == ExpectedReflection.StageInput.Size());
+    for (unsigned i = 0; i < GotReflection.StageInput.Size(); i++) {
+        CHECK(GotReflection.StageInput[i] == ExpectedReflection.StageInput[i]);
+    }
+
+    REQUIRE(GotReflection.StageOutput.Size() == ExpectedReflection.StageOutput.Size());
+    for (unsigned i = 0; i < GotReflection.StageOutput.Size(); i++) {
+        CHECK(GotReflection.StageOutput[i] == ExpectedReflection.StageOutput[i]);
+    }
+
+    CHECK(GotReflection == ExpectedReflection);
 
     ::Log::Shutdown();
 }

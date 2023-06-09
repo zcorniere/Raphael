@@ -162,3 +162,29 @@ public:
         return true;
     }
 };
+
+template <typename T, typename Allocation, typename TSize>
+requires std::is_signed_v<TSize>
+std::ostream& operator<<(std::ostream& os, const Array<T, Allocation, TSize>& m)
+{
+    os << std::formatter<decltype(m)>::format(m);
+    return os;
+}
+
+template <typename T, typename Allocation, typename TSize>
+requires std::is_signed_v<TSize>
+struct std::formatter<Array<T, Allocation, TSize>> : std::formatter<T> {
+    template <class FormatContext>
+    auto format(const Array<T, Allocation, TSize>& Value, FormatContext& ctx) const
+    {
+        auto&& out = ctx.out();
+        format_to(out, "[");
+        for (TSize i = 0; i < Value.Size(); i++) {
+            format_to(out, "{}{}", Value[i], (i + 1 < Value.Size()) ? ", " : "");
+        }
+        format_to(out, "]");
+        return out;
+    }
+
+    std::string value_format;
+};

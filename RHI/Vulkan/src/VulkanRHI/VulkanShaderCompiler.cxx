@@ -224,8 +224,8 @@ bool VulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
     return true;
 }
 
-bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resource>& ResourceStage,
-                        const spirv_cross::Compiler& Compiler, Array<ShaderResource::StageIO>& StageIO)
+static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resource>& ResourceStage,
+                               const spirv_cross::Compiler& Compiler, Array<ShaderResource::StageIO>& StageIO)
 {
     StageIO.Reserve(ResourceStage.size());
     for (const spirv_cross::Resource& resource: ResourceStage) {
@@ -241,9 +241,7 @@ bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resource>& R
         OutResource.Type = ElementType.value();
         OutResource.Location = Compiler.get_decoration(resource.id, spv::DecorationLocation);
 
-        LOG(LogVulkanShaderCompiler, Info, "- Location {}:", OutResource.Location);
-        LOG(LogVulkanShaderCompiler, Info, "    Name: {}", OutResource.Name);
-        LOG(LogVulkanShaderCompiler, Info, "    Type: {}", magic_enum::enum_name(OutResource.Type));
+        LOG(LogVulkanShaderCompiler, Info, "- {}", OutResource);
     }
     return true;
 }
@@ -282,9 +280,8 @@ bool VulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
         Range.Size = bufferSize - bufferOffset;
         Range.Offset = bufferOffset;
 
-        LOG(LogVulkanShaderCompiler, Info, "  Name: {0}", resource.name);
-        LOG(LogVulkanShaderCompiler, Info, "  Member Count: {0}", bufferType.member_types.size());
-        LOG(LogVulkanShaderCompiler, Info, "  Size: {0}", bufferSize);
+        LogVulkanShaderCompiler::log<cpplogger::Level::Info>("  {}", Range);
+        LOG(LogVulkanShaderCompiler, Info, "  {}", Range);
     }
     return true;
 }
