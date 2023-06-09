@@ -24,7 +24,7 @@
     #include <vk_enum_string_helper.h>
     #define VK_TYPE_TO_STRING(Type, Value) string_##Type(Value)
 #else
-    #define VK_TYPE_TO_STRING(Type, Value) Value
+    #define VK_TYPE_TO_STRING(Type, Value) magic_enum::enum_name(Value)
 #endif
 
 namespace VulkanRHI
