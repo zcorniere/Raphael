@@ -175,12 +175,12 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice>& InDev
         VK_TYPE_TO_STRING(VkColorSpaceKHR, CreateInfo.imageColorSpace), static_cast<uint32>(CreateInfo.minImageCount));
 
     VK_CHECK_RESULT_EXPANDED(
-        VulkanAPI::vkCreateSwapchainKHR(Device->GetInstanceHandle(), &CreateInfo, nullptr, &SwapChain));
+        VulkanAPI::vkCreateSwapchainKHR(Device->GetHandle(), &CreateInfo, nullptr, &SwapChain));
 
     ImageFormat = SurfaceFormat.format;
     if (RecreateInfo) {
         if (RecreateInfo->SwapChain != VK_NULL_HANDLE) {
-            VulkanAPI::vkDestroySwapchainKHR(Device->GetInstanceHandle(), RecreateInfo->SwapChain, nullptr);
+            VulkanAPI::vkDestroySwapchainKHR(Device->GetHandle(), RecreateInfo->SwapChain, nullptr);
             RecreateInfo->SwapChain = VK_NULL_HANDLE;
         }
         if (RecreateInfo->Surface != VK_NULL_HANDLE) {
@@ -194,9 +194,9 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice>& InDev
 
     uint32 NumSwapchainImages;
     VK_CHECK_RESULT_EXPANDED(
-        VulkanAPI::vkGetSwapchainImagesKHR(Device->GetInstanceHandle(), SwapChain, &NumSwapchainImages, nullptr));
+        VulkanAPI::vkGetSwapchainImagesKHR(Device->GetHandle(), SwapChain, &NumSwapchainImages, nullptr));
     OutImages.Resize(NumSwapchainImages);
-    VK_CHECK_RESULT_EXPANDED(VulkanAPI::vkGetSwapchainImagesKHR(Device->GetInstanceHandle(), SwapChain,
+    VK_CHECK_RESULT_EXPANDED(VulkanAPI::vkGetSwapchainImagesKHR(Device->GetHandle(), SwapChain,
                                                                 &NumSwapchainImages, OutImages.Raw()));
 
     ImageAcquiredSemaphore.Resize(NumSwapchainImages);
@@ -219,7 +219,7 @@ void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo* RecreateInfo)
         RecreateInfo->SwapChain = SwapChain;
         RecreateInfo->Surface = Surface;
     } else {
-        VulkanAPI::vkDestroySwapchainKHR(Device->GetInstanceHandle(), SwapChain, nullptr);
+        VulkanAPI::vkDestroySwapchainKHR(Device->GetHandle(), SwapChain, nullptr);
         VulkanAPI::vkDestroySurfaceKHR(Instance, Surface, nullptr);
     }
     Surface = VK_NULL_HANDLE;
@@ -278,7 +278,7 @@ int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore>& OutSemaphore)
     Ref<Fence> AcquiredFence = ImageInUseFence[SemaphoreIndex];
     AcquiredFence->Reset();
 
-    VkResult Result = VulkanAPI::vkAcquireNextImageKHR(Device->GetInstanceHandle(), SwapChain, UINT64_MAX,
+    VkResult Result = VulkanAPI::vkAcquireNextImageKHR(Device->GetHandle(), SwapChain, UINT64_MAX,
                                                        ImageAcquiredSemaphore[SemaphoreIndex]->GetHandle(),
                                                        AcquiredFence->GetHandle(), &ImageIndex);
 

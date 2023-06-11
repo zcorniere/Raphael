@@ -10,6 +10,7 @@ enum class RHIResourceType : uint8 {
     Texture,
     Shader,
     Viewport,
+    GraphicsPipeline,
 
     MAX_VALUE,
 };
@@ -30,6 +31,7 @@ protected:
     const RHIResourceType ResourceType;
 };
 
+#include "Engine/Core/RHI/Resources/RHIGraphicsPipeline.hxx"
 #include "Engine/Core/RHI/Resources/RHIShader.hxx"
 #include "Engine/Core/RHI/Resources/RHITexture.hxx"
 #include "Engine/Core/RHI/Resources/RHIViewport.hxx"

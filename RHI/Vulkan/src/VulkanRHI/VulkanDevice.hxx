@@ -54,7 +54,7 @@ public:
         verify(Gpu);
         return Gpu;
     }
-    inline VkDevice GetInstanceHandle() const
+    inline VkDevice GetHandle() const
     {
         verify(Device);
         return Device;

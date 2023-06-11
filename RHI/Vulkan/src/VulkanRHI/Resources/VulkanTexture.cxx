@@ -67,8 +67,8 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
             break;
     }
 
-    VK_CHECK_RESULT(VulkanAPI::vkCreateImage(Device->GetInstanceHandle(), &ImageCreateInfo, nullptr, &Image));
-    VulkanAPI::vkGetImageMemoryRequirements(Device->GetInstanceHandle(), Image, &MemoryRequirements);
+    VK_CHECK_RESULT(VulkanAPI::vkCreateImage(Device->GetHandle(), &ImageCreateInfo, nullptr, &Image));
+    VulkanAPI::vkGetImageMemoryRequirements(Device->GetHandle(), Image, &MemoryRequirements);
 
     Allocation = Device->GetMemoryManager()->Alloc(MemoryRequirements, VMA_MEMORY_USAGE_GPU_ONLY, false);
     Allocation->BindImage(Image);
@@ -78,7 +78,7 @@ VulkanTexture::~VulkanTexture()
 {
     Device->GetMemoryManager()->Free(Allocation);
     Allocation = nullptr;
-    VulkanAPI::vkDestroyImage(Device->GetInstanceHandle(), Image, nullptr);
+    VulkanAPI::vkDestroyImage(Device->GetHandle(), Image, nullptr);
 }
 
 void VulkanTexture::SetName(std::string_view InName)
@@ -107,7 +107,7 @@ void VulkanTextureView::Create(Ref<VulkanDevice>& Device, VkImage InImage, VkIma
             },
     };
 
-    VK_CHECK_RESULT(VulkanAPI::vkCreateImageView(Device->GetInstanceHandle(), &ViewInfo, nullptr, &View));
+    VK_CHECK_RESULT(VulkanAPI::vkCreateImageView(Device->GetHandle(), &ViewInfo, nullptr, &View));
 
     Image = InImage;
 }
@@ -115,7 +115,7 @@ void VulkanTextureView::Create(Ref<VulkanDevice>& Device, VkImage InImage, VkIma
 void VulkanTextureView::Destroy(Ref<VulkanDevice>& Device)
 {
     if (View) {
-        VulkanAPI::vkDestroyImageView(Device->GetInstanceHandle(), View, nullptr);
+        VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, nullptr);
         Image = VK_NULL_HANDLE;
         View = VK_NULL_HANDLE;
     }

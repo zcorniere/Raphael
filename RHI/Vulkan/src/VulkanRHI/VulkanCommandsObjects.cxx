@@ -86,7 +86,7 @@ void VulkanCmdBuffer::Allocate()
         .commandBufferCount = 1,
     };
     VK_CHECK_RESULT(
-        VulkanAPI::vkAllocateCommandBuffers(m_Device->GetInstanceHandle(), &CreateCmdBufInfo, &m_CommandBufferHandle));
+        VulkanAPI::vkAllocateCommandBuffers(m_Device->GetHandle(), &CreateCmdBufInfo, &m_CommandBufferHandle));
     State = EState::ReadyForBegin;
 }
 
@@ -95,7 +95,7 @@ void VulkanCmdBuffer::Free()
     check(State != EState::NotAllocated);
     check(m_CommandBufferHandle != VK_NULL_HANDLE);
 
-    VulkanAPI::vkFreeCommandBuffers(m_Device->GetInstanceHandle(), m_OwnerPool->GetHandle(), 1, &m_CommandBufferHandle);
+    VulkanAPI::vkFreeCommandBuffers(m_Device->GetHandle(), m_OwnerPool->GetHandle(), 1, &m_CommandBufferHandle);
 
     m_CommandBufferHandle = VK_NULL_HANDLE;
     State = EState::NotAllocated;
@@ -128,7 +128,7 @@ VulkanCommandBufferPool ::~VulkanCommandBufferPool()
     m_CmdBuffers.Clear();
     m_FreeCmdBuffers.Clear();
 
-    VulkanAPI::vkDestroyCommandPool(m_Device->GetInstanceHandle(), m_Handle, nullptr);
+    VulkanAPI::vkDestroyCommandPool(m_Device->GetHandle(), m_Handle, nullptr);
     m_Handle = VK_NULL_HANDLE;
 }
 
@@ -139,7 +139,7 @@ void VulkanCommandBufferPool::Initialize(uint32 QueueFamilyIndex)
         .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
         .queueFamilyIndex = QueueFamilyIndex,
     };
-    VK_CHECK_RESULT(VulkanAPI::vkCreateCommandPool(m_Device->GetInstanceHandle(), &CmdPoolInfo, nullptr, &m_Handle));
+    VK_CHECK_RESULT(VulkanAPI::vkCreateCommandPool(m_Device->GetHandle(), &CmdPoolInfo, nullptr, &m_Handle));
 }
 
 Ref<VulkanCmdBuffer> VulkanCommandBufferPool::CreateCmdBuffer()

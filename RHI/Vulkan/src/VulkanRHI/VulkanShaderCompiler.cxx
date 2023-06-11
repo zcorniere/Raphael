@@ -59,7 +59,7 @@ namespace Utils
         if (stage == ".vert")
             return RHIShaderType::Vertex;
         if (stage == ".frag")
-            return RHIShaderType::Fragment;
+            return RHIShaderType::Pixel;
         if (stage == ".comp")
             return RHIShaderType::Compute;
         else
@@ -73,7 +73,7 @@ namespace Utils
                 return shaderc_compute_shader;
             case RHIShaderType::Vertex:
                 return shaderc_vertex_shader;
-            case RHIShaderType::Fragment:
+            case RHIShaderType::Pixel:
                 return shaderc_fragment_shader;
         }
         checkNoEntry();

@@ -17,12 +17,14 @@ ENUM_CLASS_FLAGS(ETextureCreateFlags)
 struct RHITextureCreateDesc {
     ETextureCreateFlags Flags = ETextureCreateFlags::None;
     EImageDimension Dimension = EImageDimension::Texture2D;
-    EImageFormat Format = EImageFormat::R8G8B8A8_RGBA;
+    EImageFormat Format = EImageFormat::R8G8B8A8_SRGB;
 
     glm::uvec2 Extent = {1, 1};
     uint32 Depth = 1;
     uint8 NumMips = 1;
     uint8 NumSamples = 1;
+
+    bool operator==(const RHITextureCreateDesc&) const = default;
 };
 
 /// @brief Represent a Texture used by the RHI

@@ -50,7 +50,7 @@ VulkanDynamicRHI::~VulkanDynamicRHI()
 
 VkDevice VulkanDynamicRHI::RHIGetVkDevice() const
 {
-    return Device->GetInstanceHandle();
+    return Device->GetHandle();
 }
 
 VkPhysicalDevice VulkanDynamicRHI::RHIGetVkPhysicalDevice() const

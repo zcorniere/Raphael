@@ -8,9 +8,10 @@ enum class EImageDimension {
 
 enum class EImageFormat {
     R8G8B8_SRGB,
-    R8G8B8A8_RGBA,
+    R8G8B8A8_SRGB,
 };
 
+/// The Type of the Vertex
 enum class EVertexElementType {
     Float1,
     Float2,
@@ -25,14 +26,21 @@ enum class EVertexElementType {
     Int3,
     Int4,
 };
-ENUM_CLASS_FLAGS(EVertexElementType)
 
-struct VertexElement {
-    uint8 Offset;
-    uint16 Stride;
-    uint8 AttributeIndex;
-    EVertexElementType VertexType;
-
-    bool operator==(const VertexElement&) const = default;
+enum class EPolygonMode {
+    Fill,
+    Line,
+    Point,
 };
-using VertexElementList = std::vector<VertexElement>;
+
+enum class ECullMode {
+    None,
+    Front,
+    Back,
+    FrontAndBack,
+};
+
+enum class EFrontFace {
+    CounterClockwise,
+    Clockwise,
+};

@@ -4,8 +4,9 @@
 
 /// @brief The type of the shader
 enum class RHIShaderType : uint8 {
-    Vertex,
-    Fragment,
+    Vertex = 0,
+    Pixel = 1,
+
     Compute,
 };
 

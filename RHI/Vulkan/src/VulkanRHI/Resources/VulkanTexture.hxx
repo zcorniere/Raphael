@@ -16,7 +16,7 @@ inline VkFormat TextureFormatToVkFormat(EImageFormat Format)
     switch (Format) {
         case EImageFormat::R8G8B8_SRGB:
             return VK_FORMAT_R8G8B8_SRGB;
-        case EImageFormat::R8G8B8A8_RGBA:
+        case EImageFormat::R8G8B8A8_SRGB:
             return VK_FORMAT_R8G8B8A8_SRGB;
     }
     checkNoEntry();
@@ -36,8 +36,6 @@ inline VkImageType TextureDimensionToVkImageType(EImageDimension Dimension)
     switch (Dimension) {
         case EImageDimension::Texture2D:
             return VK_IMAGE_TYPE_2D;
-        default:
-            checkNoEntry();
     }
     checkNoEntry();
 }

@@ -213,13 +213,13 @@ Semaphore::Semaphore(Ref<VulkanDevice>& InDevice): Device(InDevice), SemaphoreHa
     VkSemaphoreCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
     };
-    VK_CHECK_RESULT(VulkanAPI::vkCreateSemaphore(Device->GetInstanceHandle(), &CreateInfo, nullptr, &SemaphoreHandle));
+    VK_CHECK_RESULT(VulkanAPI::vkCreateSemaphore(Device->GetHandle(), &CreateInfo, nullptr, &SemaphoreHandle));
 }
 
 Semaphore::~Semaphore()
 {
     if (SemaphoreHandle) {
-        VulkanAPI::vkDestroySemaphore(Device->GetInstanceHandle(), SemaphoreHandle, nullptr);
+        VulkanAPI::vkDestroySemaphore(Device->GetHandle(), SemaphoreHandle, nullptr);
     }
     SemaphoreHandle = VK_NULL_HANDLE;
 }
@@ -234,18 +234,18 @@ Fence::Fence(Ref<VulkanDevice> InDevice, bool bCreateSignaled)
     if (bCreateSignaled) {
         Info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
     }
-    VK_CHECK_RESULT(VulkanAPI::vkCreateFence(Device->GetInstanceHandle(), &Info, nullptr, &Handle));
+    VK_CHECK_RESULT(VulkanAPI::vkCreateFence(Device->GetHandle(), &Info, nullptr, &Handle));
 }
 
 Fence::~Fence()
 {
-    VulkanAPI::vkDestroyFence(Device->GetInstanceHandle(), Handle, nullptr);
+    VulkanAPI::vkDestroyFence(Device->GetHandle(), Handle, nullptr);
 }
 
 void Fence::Reset()
 {
     if (State != State::NotReady) {
-        VK_CHECK_RESULT(VulkanAPI::vkResetFences(Device->GetInstanceHandle(), 1, &Handle));
+        VK_CHECK_RESULT(VulkanAPI::vkResetFences(Device->GetHandle(), 1, &Handle));
         State = State::NotReady;
     }
 }
@@ -254,7 +254,7 @@ bool Fence::Wait(uint64 TimeInNanoseconds)
 {
     check(State == State::NotReady);
 
-    VkResult Result = VulkanAPI::vkWaitForFences(Device->GetInstanceHandle(), 1, &Handle, true, TimeInNanoseconds);
+    VkResult Result = VulkanAPI::vkWaitForFences(Device->GetHandle(), 1, &Handle, true, TimeInNanoseconds);
     switch (Result) {
         case VK_SUCCESS:
             State = State::Signaled;
@@ -271,7 +271,7 @@ bool Fence::Wait(uint64 TimeInNanoseconds)
 bool Fence::CheckFenceStatus()
 {
     check(State == State::NotReady);
-    VkResult Result = VulkanAPI::vkGetFenceStatus(Device->GetInstanceHandle(), Handle);
+    VkResult Result = VulkanAPI::vkGetFenceStatus(Device->GetHandle(), Handle);
     switch (Result) {
         case VK_SUCCESS:
             State = State::Signaled;
