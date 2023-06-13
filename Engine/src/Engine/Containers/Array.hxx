@@ -51,12 +51,12 @@ public:
     // Operators
     [[nodiscard]] FORCEINLINE T& operator[](const TSize Index)
     {
-        checkMsg((Index >= 0) & (Index < Size()), "Index is out of bounds.");
+        checkMsg((Index >= 0) & (Index < TSize(Size())), "Index is out of bounds.");
         return std::vector<T, Allocation>::operator[](Index);
     }
     [[nodiscard]] FORCEINLINE const T& operator[](const TSize Index) const
     {
-        checkMsg((Index >= 0) & (Index < Size()), "Index is out of bounds.");
+        checkMsg((Index >= 0) & (Index < TSize(Size())), "Index is out of bounds.");
         return std::vector<T, Allocation>::operator[](Index);
     }
 
