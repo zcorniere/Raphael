@@ -97,11 +97,15 @@ class VulkanGraphicsPipeline : public RHIGraphicsPipeline
     }
 
 private:
+    bool CreatePipelineLayout();
+
+private:
     Ref<VulkanDevice> Device;
     GraphicsPipelineDescription Desc;
 
     Ref<VulkanShader> Shaders[2];
 
+    VkPipelineLayout PipelineLayout;
     VkPipeline VulkanPipeline;
 };
 
