@@ -69,8 +69,9 @@ constexpr bool ShouldCheckPrintStackTrace()
                 fflush(stderr);                                                                           \
                 if (Platform::isDebuggerPresent()) {                                                      \
                     PLATFORM_BREAK();                                                                     \
+                } else {                                                                                  \
+                    std::abort();                                                                         \
                 }                                                                                         \
-                std::abort();                                                                             \
             }                                                                                             \
         }
 
