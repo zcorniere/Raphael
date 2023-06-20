@@ -2,10 +2,15 @@
 
 #include "Engine/Misc/EnumFlags.hxx"
 
+/// @brief The max amount of render target that may used used simultaneously
+constexpr unsigned MaxRenderTargets = 8;
+
+/// @brief Dimension of an RHI Texture
 enum class EImageDimension {
     Texture2D,
 };
 
+/// @brief Format of an RHI Texture
 enum class EImageFormat {
     R8G8B8_SRGB,
     R8G8B8A8_SRGB,
@@ -27,12 +32,14 @@ enum class EVertexElementType {
     Int4,
 };
 
+/// @brief How the polygon should be rendered
 enum class EPolygonMode {
     Fill,
     Line,
     Point,
 };
 
+/// @brief Configure the back-face culling
 enum class ECullMode {
     None,
     Front,
@@ -40,6 +47,7 @@ enum class ECullMode {
     FrontAndBack,
 };
 
+/// @brief The unwinding order of the meshes
 enum class EFrontFace {
     CounterClockwise,
     Clockwise,
