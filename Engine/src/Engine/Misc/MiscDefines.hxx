@@ -1,5 +1,7 @@
 #pragma once
 
+#include <magic_enum.hpp>
+
 #define RPH_NONCOPYABLE(Name)              \
     Name(Name&&) = delete;                 \
     Name(const Name&) = delete;            \

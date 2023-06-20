@@ -1,8 +1,5 @@
 #pragma once
 
-#include <glm/vec3.hpp>
-#include <magic_enum.hpp>
-
 /// The type of THI resource
 enum class RHIResourceType : uint8 {
     None = 0,

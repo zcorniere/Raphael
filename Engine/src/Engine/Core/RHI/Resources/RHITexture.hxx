@@ -4,6 +4,8 @@
 #include "Engine/Core/RHI/RHIResource.hxx"
 #include "Engine/Misc/EnumFlags.hxx"
 
+#include <glm/vec3.hpp>
+
 /// @brief What the texture will be used for
 enum class ETextureCreateFlags {
     None = 0,
