@@ -32,9 +32,9 @@ struct GraphicsPipelineDescription {
     Array<VertexAttribute> VertexAttributes;
 
     struct Rasterizer {
-        EPolygonMode PolygonMode;
-        ECullMode CullMode;
-        EFrontFace FrontFaceCulling;
+        VkPolygonMode PolygonMode;
+        VkCullModeFlags CullMode;
+        VkFrontFace FrontFaceCulling;
 
         void WriteInto(VkPipelineRasterizationStateCreateInfo& OutState) const;
 
@@ -80,8 +80,10 @@ struct GraphicsPipelineDescription {
 class VulkanDevice;
 class VulkanShader;
 
+
 class VulkanGraphicsPipeline : public RHIGraphicsPipeline
 {
+public:
     VulkanGraphicsPipeline(Ref<VulkanDevice>& InDevice, const GraphicsPipelineDescription& Description);
     ~VulkanGraphicsPipeline();
 

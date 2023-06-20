@@ -1,6 +1,7 @@
 #include "Engine/Core/RHI/RHI.hxx"
 
 #include "Engine/Core/RHI/GenericRHI.hxx"
+#include "RHI.hxx"
 
 static Ref<RHICommandQueue> s_CommandQueue = nullptr;
 
@@ -57,4 +58,9 @@ Ref<RHITexture> RHI::CreateTexture(const RHITextureCreateDesc InDesc)
 Ref<RHIShader> RHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)
 {
     return RHI::Get<GenericRHI>()->CreateShader(Path, bForceCompile);
+}
+
+Ref<RHIGraphicsPipeline> RHI::CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config)
+{
+    return RHI::Get<GenericRHI>()->CreateGraphicsPipeline(Config);
 }

@@ -4,6 +4,7 @@
 #include "VulkanRHI/VulkanDevice.hxx"
 
 #include "Engine/Misc/DataLocation.hxx"
+#include "VulkanRHI.hxx"
 
 namespace VulkanRHI
 {
@@ -52,5 +53,18 @@ Ref<RHIShader> VulkanDynamicRHI::CreateShader(const std::filesystem::path Path, 
     Ref<VulkanShader> Shader = ShaderCompiler.Get(RefPath / Path, bForceCompile);
     check(Shader);
     return Shader;
+}
+
+Ref<RHIGraphicsPipeline>
+VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config)
+{
+    GraphicsPipelineDescription Desc;
+    Desc.VertexShader = Config.VertexShader;
+    Desc.PixelShader = Config.PixelShader;
+    Desc.Rasterizer.CullMode = ConvertToVulkanType(Config.Rasterizer.CullMode);
+    Desc.Rasterizer.FrontFaceCulling = ConvertToVulkanType(Config.Rasterizer.FrontFaceCulling);
+    Desc.Rasterizer.PolygonMode = ConvertToVulkanType(Config.Rasterizer.PolygonMode);
+
+    return Ref<VulkanGraphicsPipeline>::Create(Device, Desc);
 }
 }    // namespace VulkanRHI

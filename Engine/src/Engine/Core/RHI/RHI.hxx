@@ -59,5 +59,6 @@ public:
     static Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc);
     /// Create a new RHI shader - through the current RHI
     static Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile);
-
+    /// Create a new RHI Pipeline - through the current RHI
+    static Ref<RHIGraphicsPipeline> CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config);
 };

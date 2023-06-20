@@ -43,6 +43,8 @@ public:
     virtual Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc) = 0;
     /// @copydoc RHI::CreateShader
     virtual Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) = 0;
+    /// @copydoc RHI::CreateGraphicsPipeline
+    virtual Ref<RHIGraphicsPipeline> CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config) = 0;
 
 private:
     friend class RHI;
