@@ -52,6 +52,8 @@ public:
     static void EndFrame();
     /// @brief Indicate the RHI that we are moving to a new frame
     static void NextFrame();
+    /// @brief Indicate the RHI that we are starting drawing
+    void BeginRenderPass(const RHIRenderPassDescription& Description);
 
     /// Create a new RHI viewport - through the current RHI
     static Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize);

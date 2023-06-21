@@ -41,6 +41,11 @@ void RHI::NextFrame()
     return RHI::Get<GenericRHI>()->NextFrame();
 }
 
+void RHI::BeginRenderPass(const RHIRenderPassDescription& Description)
+{
+    return RHI::Get<GenericRHI>()->BeginRenderPass(Description);
+}
+
 //
 //  -------------------- RHI Create resources --------------------
 //

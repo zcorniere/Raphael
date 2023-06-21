@@ -26,6 +26,10 @@ void VulkanDynamicRHI::NextFrame()
     GetDevice()->CommandManager->PrepareForNewActiveCommandBuffer();
 }
 
+void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Description)
+{
+}
+
 void VulkanDynamicRHI::RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport)
 {
     // TODO: check if Viewport is inside Viewports (wtf no find in std::vector ?)

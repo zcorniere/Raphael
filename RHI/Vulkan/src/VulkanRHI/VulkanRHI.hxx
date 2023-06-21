@@ -24,6 +24,7 @@ public:
     virtual void BeginFrame() override;
     virtual void EndFrame() override;
     virtual void NextFrame() override;
+    virtual void BeginRenderPass(const RHIRenderPassDescription& Description) override;
 
     virtual Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize) override;
     virtual Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc) override;

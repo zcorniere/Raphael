@@ -52,3 +52,16 @@ enum class EFrontFace {
     CounterClockwise,
     Clockwise,
 };
+
+class RHITexture;
+class RHIGraphicsPipeline;
+
+struct RHIRenderPassDescription {
+    struct RenderingTarget {
+        Ref<RHITexture> TargetTexture;
+    };
+
+    Array<RenderingTarget> ColorTarget;
+    Array<RenderingTarget> ResolveTarget;
+    RenderingTarget DepthTarget;
+};
