@@ -7,12 +7,12 @@ set(TRACY_ON_DEMAND
     ON
     CACHE BOOL ""
 )
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tracy)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tracy EXCLUDE_FROM_ALL)
 
 if (BUILD_TESTING)
 
     # Catch2
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Catch2)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Catch2 EXCLUDE_FROM_ALL)
 
     include(CTest)
     include(Catch)

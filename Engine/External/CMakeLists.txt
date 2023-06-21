@@ -1,11 +1,11 @@
 # logger
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/logger-cpp)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/logger-cpp EXCLUDE_FROM_ALL)
 
 # magic_enum
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/magic_enum)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/magic_enum EXCLUDE_FROM_ALL)
 
 # glm
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glm)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glm EXCLUDE_FROM_ALL)
 
 # sdl
 set(SDL_TEST_ENABLED_BY_DEFAULT
@@ -76,10 +76,10 @@ set(SDL_SHARED
     OFF
     CACHE BOOL ""
 )
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SDL)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SDL EXCLUDE_FROM_ALL)
 
 #xdgpp
-add_library(xdgpp INTERFACE)
+add_library(xdgpp INTERFACE EXCLUDE_FROM_ALL)
 target_include_directories(xdgpp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/xdgpp)
 target_compile_features(xdgpp INTERFACE cxx_std_17)
 

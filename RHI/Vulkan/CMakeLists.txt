@@ -48,4 +48,5 @@ build_tests(
 )
 # Give the tests access to the RHI headers
 target_include_directories(${PROJECT_NAME}_Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(${PROJECT_NAME}_Test PRIVATE Vulkan::Headers)
 

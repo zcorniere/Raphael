@@ -1,8 +1,8 @@
 # Vulkan Header
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Vulkan-Headers)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Vulkan-Headers EXCLUDE_FROM_ALL)
 
 # Vulkan Helpers
-add_library(VulkanHelpers INTERFACE)
+add_library(VulkanHelpers INTERFACE EXCLUDE_FROM_ALL)
 target_include_directories(VulkanHelpers INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/VulkanHelpers)
 
 # vma
@@ -15,7 +15,7 @@ set(VMA_DYNAMIC_VULKAN_FUNCTIONS
     CACHE BOOL ""
 )
 set(VMA_PATH ${CMAKE_CURRENT_SOURCE_DIR}/VulkanMemoryAllocator)
-add_library(VulkanMemoryAllocator STATIC ${VMA_PATH}/include/vk_mem_alloc.h)
+add_library(VulkanMemoryAllocator EXCLUDE_FROM_ALL STATIC ${VMA_PATH}/include/vk_mem_alloc.h)
 set_source_files_properties(${VMA_PATH}/include/vk_mem_alloc.h PROPERTIES LANGUAGE CXX)
 target_compile_definitions(
     VulkanMemoryAllocator
@@ -40,7 +40,7 @@ set(ENABLE_GLSLANG_BINARIES
     OFF
     CACHE BOOL "" FORCE
 )
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glslang/)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glslang/ EXCLUDE_FROM_ALL)
 
 # SPIRV-Headers
 set(SPIRV_HEADERS_SKIP_EXAMPLES
@@ -71,7 +71,7 @@ set(ENABLE_OPT
     ON
     CACHE BOOL "" FORCE
 )
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SPIRV-Headers/)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SPIRV-Headers/ EXCLUDE_FROM_ALL)
 
 # SPIRV-Tools
 set(SPIRV-Headers_SOURCE_DIR
@@ -98,7 +98,7 @@ set(SPIRV_WERROR
     OFF
     CACHE BOOL "" FORCE
 )
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SPIRV-Tools)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SPIRV-Tools EXCLUDE_FROM_ALL)
 
 # shaderc
 set(SHADERC_SKIP_TESTS
@@ -117,7 +117,7 @@ set(SHADERC_SKIP_COPYRIGHT_CHECK
     ON
     CACHE BOOL ""
 )
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/shaderc/)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/shaderc EXCLUDE_FROM_ALL)
 
 # SPIRV-Cross
 set(SPIRV_CROSS_ENABLE_TESTS
@@ -156,4 +156,4 @@ set(SPIRV_CROSS_ENABLE_UTIL
     OFF
     CACHE BOOL ""
 )
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SPIRV-Cross/)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SPIRV-Cross EXCLUDE_FROM_ALL)
