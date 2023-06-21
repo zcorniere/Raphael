@@ -22,3 +22,5 @@
 #include <Engine/Misc/Memory.hxx>
 
 #include <Engine/Containers/Array.hxx>
+
+static_assert(sizeof(void*) == 8);
