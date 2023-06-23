@@ -2,6 +2,7 @@
 
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
+#include "VulkanRHI/VulkanRenderPass.hxx"
 
 #include "Engine/Misc/DataLocation.hxx"
 #include "VulkanRHI.hxx"
@@ -16,7 +17,7 @@ void VulkanDynamicRHI::BeginFrame()
 
 void VulkanDynamicRHI::EndFrame()
 {
-    RHI::Submit([] { GetVulkanDynamicRHI()->GetDevice()->CommandManager->SubmitActiveCmdBuffer(); });
+    RHI::Submit([this] { GetDevice()->GetCommandManager()->SubmitActiveCmdBuffer(); });
 
     RHI::GetRHICommandQueue()->Execute();
 }
@@ -28,6 +29,24 @@ void VulkanDynamicRHI::NextFrame()
 
 void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Description)
 {
+    RHI::Submit([this, Description] {
+        CurrentRenderPass = Ref<VulkanRenderPass>::Create(GetDevice(), Description);
+        check(CurrentRenderPass);
+
+        Ref<VulkanCmdBuffer> CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
+        CurrentRenderPass->Begin(CmdBuffer);
+    });
+}
+
+void VulkanDynamicRHI::EndRenderPass()
+{
+    RHI::Submit([this] {
+        check(CurrentRenderPass);
+        Ref<VulkanCmdBuffer> CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
+
+        CurrentRenderPass->End(CmdBuffer);
+        CurrentRenderPass = nullptr;
+    });
 }
 
 void VulkanDynamicRHI::RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport)

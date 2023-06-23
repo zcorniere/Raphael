@@ -11,35 +11,6 @@ namespace VulkanRHI
 class VulkanDevice;
 class VulkanMemoryAllocation;
 
-inline VkFormat TextureFormatToVkFormat(EImageFormat Format)
-{
-    switch (Format) {
-        case EImageFormat::R8G8B8_SRGB:
-            return VK_FORMAT_R8G8B8_SRGB;
-        case EImageFormat::R8G8B8A8_SRGB:
-            return VK_FORMAT_R8G8B8A8_SRGB;
-    }
-    checkNoEntry();
-}
-
-inline VkImageViewType TextureDimensionToVkImageViewType(EImageDimension Dimension)
-{
-    switch (Dimension) {
-        case EImageDimension::Texture2D:
-            return VK_IMAGE_VIEW_TYPE_2D;
-    }
-    checkNoEntry();
-}
-
-inline VkImageType TextureDimensionToVkImageType(EImageDimension Dimension)
-{
-    switch (Dimension) {
-        case EImageDimension::Texture2D:
-            return VK_IMAGE_TYPE_2D;
-    }
-    checkNoEntry();
-}
-
 class VulkanTexture : public RHITexture
 {
 public:
@@ -48,19 +19,8 @@ public:
 
     void SetName(std::string_view InName) override;
 
-    void* GetNativeResource() const override
-    {
-        return (void*)Image;
-    }
-
-    VkImageViewType GetViewType() const
-    {
-        return TextureDimensionToVkImageViewType(Description.Dimension);
-    }
-    VkImageLayout GetLayout() const
-    {
-        return Layout;
-    }
+    VkImageViewType GetViewType() const;
+    VkImageLayout GetLayout() const;
 
 private:
     RHITextureCreateDesc Description;

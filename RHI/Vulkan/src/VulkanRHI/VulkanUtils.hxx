@@ -82,10 +82,30 @@ FORCEINLINE VkFormat VertexElementToFormat(const EVertexElementType Type)
 FORCEINLINE VkFormat ImageFormatToFormat(const EImageFormat Format)
 {
     switch (Format) {
+        case EImageFormat::D32_SFLOAT:
+            return VK_FORMAT_D32_SFLOAT;
         case EImageFormat::R8G8B8_SRGB:
             return VK_FORMAT_R8G8B8_SRGB;
         case EImageFormat::R8G8B8A8_SRGB:
             return VK_FORMAT_R8G8B8A8_SRGB;
+    }
+    checkNoEntry();
+}
+
+FORCEINLINE VkImageViewType TextureDimensionToVkImageViewType(EImageDimension Dimension)
+{
+    switch (Dimension) {
+        case EImageDimension::Texture2D:
+            return VK_IMAGE_VIEW_TYPE_2D;
+    }
+    checkNoEntry();
+}
+
+FORCEINLINE VkImageType TextureDimensionToVkImageType(EImageDimension Dimension)
+{
+    switch (Dimension) {
+        case EImageDimension::Texture2D:
+            return VK_IMAGE_TYPE_2D;
     }
     checkNoEntry();
 }

@@ -7,6 +7,7 @@
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 #include "VulkanRHI/VulkanPlatform.hxx"
+#include "VulkanRHI/VulkanRenderPass.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
 
@@ -92,7 +93,7 @@ void VulkanDynamicRHI::Shutdown()
     VulkanAPI::vkDestroyInstance(m_Instance, nullptr);
 }
 
-Ref<VulkanDevice> VulkanDynamicRHI::GetDevice()
+Ref<VulkanDevice>& VulkanDynamicRHI::GetDevice()
 {
     return Device;
 }

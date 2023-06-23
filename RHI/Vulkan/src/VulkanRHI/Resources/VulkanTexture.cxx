@@ -15,7 +15,7 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
     VkImageCreateInfo ImageCreateInfo{
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .imageType = TextureDimensionToVkImageType(InDesc.Dimension),
-        .format = TextureFormatToVkFormat(InDesc.Format),
+        .format = ImageFormatToFormat(InDesc.Format),
         .extent =
             {
                 .width = InDesc.Extent.x,
@@ -85,6 +85,15 @@ void VulkanTexture::SetName(std::string_view InName)
 {
     RHIResource::SetName(InName);
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, Image, "{:s}", InName);
+}
+
+VkImageViewType VulkanTexture::GetViewType() const
+{
+    return TextureDimensionToVkImageViewType(Description.Dimension);
+}
+VkImageLayout VulkanTexture::GetLayout() const
+{
+    return Layout;
 }
 
 //////////////////// VulkanTextureView ////////////////////

@@ -45,12 +45,6 @@ public:
         return Description;
     }
 
-    // RHI specific function
-    virtual void* GetNativeResource() const
-    {
-        return nullptr;
-    }
-
     glm::ivec3 GetMipDimensions(uint8 MipIndex) const
     {
         const RHITextureCreateDesc& Desc = GetDescription();

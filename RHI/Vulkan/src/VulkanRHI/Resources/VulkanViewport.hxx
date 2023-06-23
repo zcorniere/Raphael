@@ -20,6 +20,11 @@ public:
     VulkanViewport(Ref<VulkanDevice> InDevice, void* InWindowHandle, glm::uvec2 InSize);
     ~VulkanViewport();
 
+    virtual glm::uvec2 GetSize() const override
+    {
+        return Size;
+    }
+
     void SetName(std::string_view InName) override;
     bool Present(Ref<VulkanCmdBuffer>& CmdBuffer, Ref<VulkanQueue>& Queue, Ref<VulkanQueue>& PresentQueue);
     void RecreateSwapchain(void* NewNativeWindow);

@@ -19,6 +19,8 @@ public:
     /// Will be queued in the RHI command, and be executed later
     void EndDrawViewport();
 
+    virtual glm::uvec2 GetSize() const = 0;
+
 private:
     virtual void RT_BeginDrawViewport() = 0;
     virtual void RT_EndDrawViewport() = 0;

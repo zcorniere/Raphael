@@ -39,6 +39,8 @@ public:
 
     /// @copydoc RHI::BeginRenderPass
     virtual void BeginRenderPass(const RHIRenderPassDescription& Description) = 0;
+    /// @copydoc RHI::EndRenderPass
+    virtual void EndRenderPass() = 0;
 
     /// @copydoc RHI::CreateViewport
     virtual Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize) = 0;

@@ -14,6 +14,7 @@ class RHIResource;
 namespace VulkanRHI
 {
 
+class VulkanRenderPass;
 class VulkanDevice;
 
 /// @brief Vulkan RHI implementation for Raphael
@@ -25,6 +26,7 @@ public:
     virtual void EndFrame() override;
     virtual void NextFrame() override;
     virtual void BeginRenderPass(const RHIRenderPassDescription& Description) override;
+    virtual void EndRenderPass() override;
 
     virtual Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize) override;
     virtual Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc) override;
@@ -54,7 +56,7 @@ public:
         return m_Instance;
     }
 
-    Ref<VulkanDevice> GetDevice();
+    Ref<VulkanDevice>& GetDevice();
 
 private:
     void CreateInstance();
@@ -79,6 +81,8 @@ private:
 
     Array<Ref<VulkanViewport>> Viewports;
     WeakRef<VulkanViewport> DrawingViewport;
+
+    Ref<VulkanRenderPass> CurrentRenderPass;
 
     VulkanShaderCompiler ShaderCompiler;
 };
