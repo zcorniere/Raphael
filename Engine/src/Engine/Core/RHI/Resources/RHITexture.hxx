@@ -13,7 +13,6 @@ enum class ETextureCreateFlags {
     ResolveTargetable = BIT(1),
     DepthStencilTargetable = BIT(2),
 };
-ENUM_CLASS_FLAGS(ETextureCreateFlags)
 
 /// @brief Describe the texture to be created
 struct RHITextureCreateDesc {

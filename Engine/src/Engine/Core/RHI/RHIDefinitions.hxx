@@ -58,11 +58,13 @@ class RHITexture;
 class RHIGraphicsPipeline;
 
 struct RHIRenderPassDescription {
-    struct RenderingTarget {
-        Ref<RHITexture> TargetTexture;
+    struct RenderingTargetInfo {
+        EImageFormat Format;
     };
 
-    Array<RenderingTarget> ColorTarget;
-    Array<RenderingTarget> ResolveTarget;
-    RenderingTarget DepthTarget;
+    Array<RenderingTargetInfo> ColorTarget;
+    Array<RenderingTargetInfo> ResolveTarget;
+    std::optional<RenderingTargetInfo> DepthTarget;
+
+    glm::uvec2 RenderPassSize;
 };

@@ -114,6 +114,9 @@ void VulkanMemoryManager::Shutdown()
 Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(const VkMemoryRequirements& MemoryRequirement,
                                                        VmaMemoryUsage MemUsage, bool Mappable)
 {
+    if (MemUsage == VMA_MEMORY_USAGE_GPU_ONLY) {
+        checkMsg(!Mappable, "GPU only memory can't be mapped !");
+    }
     VmaAllocationCreateInfo CreateInfo = GetCreateInfo(MemUsage, Mappable);
     Ref<VulkanMemoryAllocation> Alloc = Ref<VulkanMemoryAllocation>::Create(*this);
     VK_CHECK_RESULT(vmaAllocateMemory(Allocator, &MemoryRequirement, &CreateInfo, &(Alloc->GetHandle()), nullptr));

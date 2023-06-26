@@ -2,6 +2,7 @@
 
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
 
+#include "VulkanRHI/Resources/VulkanTexture.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 
 namespace VulkanRHI
@@ -36,15 +37,26 @@ public:
     }
 
 private:
+    VkFramebuffer CreateFrameBuffer();
+    Array<VkImageView> GetFramebufferAttachment(const Array<Ref<VulkanTexture>>& SourceTextures);
+
+    VkRenderPass CreateRenderPass();
     AttachmentRefs FillAttachmentReference(const Array<VkAttachmentDescription>& Targets);
-
-    VkAttachmentDescription GetAttachmentDescription(const RHIRenderPassDescription::RenderingTarget& Target);
-
+    VkAttachmentDescription GetAttachmentDescription(const RHIRenderPassDescription::RenderingTargetInfo& Target,
+                                                     ETextureCreateFlags Flags) const;
     Array<VkAttachmentDescription>
-    GetAttachmentDescriptions(const Array<RHIRenderPassDescription::RenderingTarget>& Targets);
+    GetAttachmentDescriptions(const Array<RHIRenderPassDescription::RenderingTargetInfo>& Targets,
+                              ETextureCreateFlags Flags);
+
+    Ref<VulkanTexture> CreateFramebufferTextures(const RHIRenderPassDescription::RenderingTargetInfo& TargetInfo,
+                                                 ETextureCreateFlags Flags);
 
 private:
     Ref<VulkanDevice> Device;
+
+    Array<Ref<VulkanTexture>> ColorTarget;
+    Array<Ref<VulkanTexture>> ResolveTarget;
+    Ref<VulkanTexture> DepthTarget;
 
     RHIRenderPassDescription Description;
     VkRenderPass RenderPass;

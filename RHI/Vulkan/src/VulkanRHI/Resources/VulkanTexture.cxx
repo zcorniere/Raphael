@@ -1,5 +1,6 @@
 #include "VulkanRHI/Resources/VulkanTexture.hxx"
 
+#include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanMemoryManager.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
@@ -8,7 +9,13 @@ namespace VulkanRHI
 {
 
 VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateDesc& InDesc)
-    : RHITexture(InDesc), Description(InDesc), Device(InDevice), Allocation(nullptr), Layout(VK_IMAGE_LAYOUT_UNDEFINED)
+    : RHITexture(InDesc),
+      Description(InDesc),
+      Device(InDevice),
+      Allocation(nullptr),
+      Image(VK_NULL_HANDLE),
+      Layout(VK_IMAGE_LAYOUT_UNDEFINED),
+      View(VK_NULL_HANDLE)
 {
     const VkPhysicalDeviceProperties& DeviceProperties = Device->GetDeviceProperties();
 
@@ -28,6 +35,21 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .initialLayout = Layout,
     };
+
+    // Add other usage bit to the CreateInfo
+    switch (Description.Flags) {
+        case ETextureCreateFlags::None:
+            break;
+
+        case ETextureCreateFlags::ResolveTargetable:
+        case ETextureCreateFlags::RenderTargetable:
+            ImageCreateInfo.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+            break;
+
+        case ETextureCreateFlags::DepthStencilTargetable:
+            ImageCreateInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+            break;
+    }
 
     const VkImageViewType ResourceImageView = TextureDimensionToVkImageViewType(InDesc.Dimension);
     switch (ResourceImageView) {
@@ -76,6 +98,9 @@ VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateD
 
 VulkanTexture::~VulkanTexture()
 {
+    if (View) {
+        VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, nullptr);
+    }
     Device->GetMemoryManager()->Free(Allocation);
     Allocation = nullptr;
     VulkanAPI::vkDestroyImage(Device->GetHandle(), Image, nullptr);
@@ -87,10 +112,35 @@ void VulkanTexture::SetName(std::string_view InName)
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, Image, "{:s}", InName);
 }
 
+VkImageView VulkanTexture::GetImageView() const
+{
+    if (View != VK_NULL_HANDLE) {
+        return View;
+    }
+    VkImageViewCreateInfo CreateInfo{
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .image = Image,
+        .viewType = TextureDimensionToVkImageViewType(Description.Dimension),
+        .format = ImageFormatToFormat(Description.Format),
+        .components =
+            {
+                .r = VK_COMPONENT_SWIZZLE_IDENTITY,
+                .g = VK_COMPONENT_SWIZZLE_IDENTITY,
+                .b = VK_COMPONENT_SWIZZLE_IDENTITY,
+                .a = VK_COMPONENT_SWIZZLE_IDENTITY,
+            },
+        .subresourceRange = Barrier::MakeSubresourceRange(TextureCreateFlagToVkImageAspectFlags(Description.Flags)),
+    };
+    VK_CHECK_RESULT(VulkanAPI::vkCreateImageView(Device->GetHandle(), &CreateInfo, nullptr, &View));
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, View, "{:s} [View]", GetName());
+    return View;
+}
+
 VkImageViewType VulkanTexture::GetViewType() const
 {
     return TextureDimensionToVkImageViewType(Description.Dimension);
 }
+
 VkImageLayout VulkanTexture::GetLayout() const
 {
     return Layout;

@@ -36,7 +36,7 @@ public:
 
 #if VULKAN_DEBUGGING_ENABLED
     template <typename T>
-    void SetObjectName(VkObjectType Type, const T Handle, const std::string Name)
+    void SetObjectName(VkObjectType Type, const T Handle, const std::string Name) const
     {
         VkDebugUtilsObjectNameInfoEXT NameInfo{
             .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,

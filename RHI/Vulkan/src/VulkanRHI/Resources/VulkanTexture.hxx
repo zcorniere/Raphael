@@ -19,6 +19,7 @@ public:
 
     void SetName(std::string_view InName) override;
 
+    VkImageView GetImageView() const;
     VkImageViewType GetViewType() const;
     VkImageLayout GetLayout() const;
 
@@ -29,6 +30,7 @@ private:
     VkMemoryRequirements MemoryRequirements;
     VkImage Image;
     VkImageLayout Layout;
+    mutable VkImageView View;
 };
 
 struct VulkanTextureView {

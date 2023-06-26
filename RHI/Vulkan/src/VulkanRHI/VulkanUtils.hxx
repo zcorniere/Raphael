@@ -3,6 +3,7 @@
 #include <source_location>
 
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
+#include "Engine/Core/RHI/Resources/RHITexture.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 
 #define VK_CHECK_RESULT(f)                                  \
@@ -97,6 +98,21 @@ FORCEINLINE VkImageViewType TextureDimensionToVkImageViewType(EImageDimension Di
     switch (Dimension) {
         case EImageDimension::Texture2D:
             return VK_IMAGE_VIEW_TYPE_2D;
+    }
+    checkNoEntry();
+}
+
+FORCEINLINE VkImageAspectFlags TextureCreateFlagToVkImageAspectFlags(ETextureCreateFlags CreateFlags)
+{
+    switch (CreateFlags) {
+        case ETextureCreateFlags::None:
+            return VK_IMAGE_ASPECT_NONE;
+        case ETextureCreateFlags::RenderTargetable:
+            return VK_IMAGE_ASPECT_COLOR_BIT;
+        case ETextureCreateFlags::DepthStencilTargetable:
+            return VK_IMAGE_ASPECT_DEPTH_BIT;
+        case ETextureCreateFlags::ResolveTargetable:
+            return VK_IMAGE_ASPECT_COLOR_BIT;
     }
     checkNoEntry();
 }

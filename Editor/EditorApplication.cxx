@@ -55,23 +55,13 @@ bool EditorApplication::OnEngineInitialization()
         .ColorTarget =
             {
                 {
-                    .TargetTexture = RHI::CreateTexture({
-                        .Flags = ETextureCreateFlags::RenderTargetable,
-                        .Dimension = EImageDimension::Texture2D,
-                        .Format = EImageFormat::R8G8B8A8_SRGB,
-                        .Extent = Viewport->GetSize(),
-                    }),
+                    .Format = EImageFormat::R8G8B8A8_SRGB,
                 },
             },
-        .DepthTarget =
-            {
-                .TargetTexture = RHI::CreateTexture({
-                    .Flags = ETextureCreateFlags::DepthStencilTargetable,
-                    .Dimension = EImageDimension::Texture2D,
-                    .Format = EImageFormat::D32_SFLOAT,
-                    .Extent = Viewport->GetSize(),
-                }),
-            },
+        .DepthTarget = std::make_optional<RHIRenderPassDescription::RenderingTargetInfo>({
+            .Format = EImageFormat::D32_SFLOAT,
+        }),
+        .RenderPassSize = Viewport->GetSize(),
     };
     RHI::BeginRenderPass(Description);
     RHI::EndRenderPass();
