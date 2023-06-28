@@ -1,4 +1,4 @@
-#include "VulkanRHI/VulkanRenderPass.hxx"
+#include "VulkanRHI/RenderPass/VulkanRenderPass.hxx"
 
 #include "VulkanRHI/Resources/VulkanTexture.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"

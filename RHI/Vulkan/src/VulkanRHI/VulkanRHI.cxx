@@ -4,10 +4,11 @@
 
 #include "Engine/Platforms/PlatformMisc.hxx"
 
+#include "VulkanRHI/RenderPass/RenderPassManager.hxx"
+#include "VulkanRHI/RenderPass/VulkanRenderPass.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 #include "VulkanRHI/VulkanPlatform.hxx"
-#include "VulkanRHI/VulkanRenderPass.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
 
@@ -71,6 +72,8 @@ void VulkanDynamicRHI::Init()
 #endif
 
     Device->InitPhysicalDevice();
+
+    RPassManager = new RenderPassManager(Device);
 }
 
 void VulkanDynamicRHI::PostInit()
@@ -81,7 +84,7 @@ void VulkanDynamicRHI::Shutdown()
 {
     Device->WaitUntilIdle();
 
-    CurrentRenderPass = nullptr;
+    delete RPassManager;
     Viewports.Clear();
 
     Device->Destroy();

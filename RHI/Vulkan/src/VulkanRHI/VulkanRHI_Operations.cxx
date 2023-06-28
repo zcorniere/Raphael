@@ -1,8 +1,9 @@
 #include "VulkanRHI/VulkanRHI.hxx"
 
+#include "VulkanRHI/RenderPass/RenderPassManager.hxx"
+#include "VulkanRHI/RenderPass/VulkanRenderPass.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
-#include "VulkanRHI/VulkanRenderPass.hxx"
 
 #include "Engine/Misc/DataLocation.hxx"
 #include "VulkanRHI.hxx"
@@ -21,7 +22,7 @@ void VulkanDynamicRHI::EndFrame()
         GetDevice()->GetCommandManager()->SubmitActiveCmdBuffer();
 
         if (DrawingViewport.IsValid()) {
-            LOG(LogVulkanRHI, Error, "Viewport \"%s\"draw session was not ended properly !",
+            LOG(LogVulkanRHI, Error, "Viewport \"{}\"draw session was not ended properly !",
                 DrawingViewport->GetName());
             DrawingViewport->RT_EndDrawViewport();
         }
@@ -38,10 +39,7 @@ void VulkanDynamicRHI::NextFrame()
 void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Description)
 {
     RHI::Submit([this, Description] {
-        // REMOVE ME (need a render pass manager)
-        if (!CurrentRenderPass) {
-            CurrentRenderPass = Ref<VulkanRenderPass>::Create(GetDevice(), Description);
-        }
+        CurrentRenderPass = RPassManager->Get(Description);
         check(CurrentRenderPass);
 
         Ref<VulkanCmdBuffer> CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
@@ -59,7 +57,7 @@ void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Descripti
 void VulkanDynamicRHI::EndRenderPass()
 {
     RHI::Submit([this] {
-        check(CurrentRenderPass);
+        check(CurrentRenderPass.IsValid());
         Ref<VulkanCmdBuffer> CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
 
         CurrentRenderPass->End(CmdBuffer);

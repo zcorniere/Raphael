@@ -14,6 +14,7 @@ class RHIResource;
 namespace VulkanRHI
 {
 
+class RenderPassManager;
 class VulkanRenderPass;
 class VulkanDevice;
 
@@ -82,7 +83,8 @@ private:
     Array<Ref<VulkanViewport>> Viewports;
     WeakRef<VulkanViewport> DrawingViewport;
 
-    Ref<VulkanRenderPass> CurrentRenderPass;
+    RenderPassManager* RPassManager = nullptr;
+    WeakRef<VulkanRenderPass> CurrentRenderPass;
 
     VulkanShaderCompiler ShaderCompiler;
 };

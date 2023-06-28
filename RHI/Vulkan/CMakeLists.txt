@@ -4,8 +4,12 @@ add_subdirectory(External/)
 
 option(ENABLE_VULKAN_DEBUGGING "" ON)
 
-file(GLOB VULKAN_RENDERER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/VulkanRHI/*.cxx
-     ${CMAKE_CURRENT_SOURCE_DIR}/src/VulkanRHI/Resources/*.cxx
+file(
+    GLOB
+    VULKAN_RENDERER_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/VulkanRHI/*.cxx
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/VulkanRHI/Resources/*.cxx
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/VulkanRHI/RenderPass/*.cxx
 )
 
 add_library(${PROJECT_NAME} STATIC ${VULKAN_RENDERER_FILES})
@@ -42,11 +46,7 @@ if(ENABLE_VULKAN_DEBUGGING)
     target_compile_definitions(${PROJECT_NAME} PUBLIC VULKAN_DEBUGGING_ENABLED=1)
 endif()
 
-build_tests(
-    ${PROJECT_NAME}
-    tests/ShaderCompiler.cxx
-)
+build_tests(${PROJECT_NAME} tests/ShaderCompiler.cxx)
 # Give the tests access to the RHI headers
 target_include_directories(${PROJECT_NAME}_Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries(${PROJECT_NAME}_Test PRIVATE Vulkan::Headers)
-

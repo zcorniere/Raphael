@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Misc/EnumFlags.hxx"
+#include <glm/gtx/hash.hpp>
 
 /// @brief The max amount of render target that may used used simultaneously
 constexpr unsigned MaxRenderTargets = 8;
@@ -60,6 +61,7 @@ class RHIGraphicsPipeline;
 struct RHIRenderPassDescription {
     struct RenderingTargetInfo {
         EImageFormat Format;
+        bool operator==(const RenderingTargetInfo&) const = default;
     };
 
     Array<RenderingTargetInfo> ColorTarget;
@@ -67,4 +69,29 @@ struct RHIRenderPassDescription {
     std::optional<RenderingTargetInfo> DepthTarget;
 
     glm::uvec2 RenderPassSize;
+
+    bool operator==(const RHIRenderPassDescription&) const = default;
 };
+
+namespace std
+{
+
+template <>
+struct hash<RHIRenderPassDescription> {
+    inline size_t operator()(const RHIRenderPassDescription& Desc) const
+    {
+        size_t Result = std::hash<glm::uvec2>{}(Desc.RenderPassSize);
+        for (const RHIRenderPassDescription::RenderingTargetInfo& Target: Desc.ColorTarget) {
+            ::Raphael::HashCombine(Result, Target.Format);
+        }
+        for (const RHIRenderPassDescription::RenderingTargetInfo& Target: Desc.ResolveTarget) {
+            ::Raphael::HashCombine(Result, Target.Format);
+        }
+        if (Desc.DepthTarget) {
+            ::Raphael::HashCombine(Result, Desc.DepthTarget->Format);
+        }
+        return Result;
+    }
+};
+
+}    // namespace std
