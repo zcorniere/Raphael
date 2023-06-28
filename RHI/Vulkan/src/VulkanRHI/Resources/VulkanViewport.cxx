@@ -37,6 +37,7 @@ void VulkanViewport::RT_EndDrawViewport()
     check(!CmdBuffer->HasEnded() && !CmdBuffer->IsInsideRenderPass());
 
     this->Present(CmdBuffer, Device->GraphicsQueue, Device->PresentQueue);
+    GetVulkanDynamicRHI()->RT_SetDrawingViewport(nullptr);
 }
 
 void VulkanViewport::SetName(std::string_view InName)

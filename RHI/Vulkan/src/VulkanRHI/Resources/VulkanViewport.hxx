@@ -54,6 +54,8 @@ private:
 
     int32 AcquiredImageIndex;
     Ref<Semaphore> AcquiredSemaphore;
+
+    friend class VulkanDynamicRHI;
 };
 
 }    // namespace VulkanRHI

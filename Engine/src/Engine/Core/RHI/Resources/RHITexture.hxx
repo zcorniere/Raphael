@@ -25,6 +25,8 @@ struct RHITextureCreateDesc {
     uint8 NumMips = 1;
     uint8 NumSamples = 1;
 
+    glm::vec4 ClearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+
     bool operator==(const RHITextureCreateDesc&) const = default;
 };
 

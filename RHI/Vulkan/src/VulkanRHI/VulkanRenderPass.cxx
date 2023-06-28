@@ -42,11 +42,35 @@ VulkanRenderPass::~VulkanRenderPass()
     }
 }
 
-void VulkanRenderPass::Begin(Ref<VulkanCmdBuffer>& CmdBuffer)
+void VulkanRenderPass::Begin(Ref<VulkanCmdBuffer>& CmdBuffer, const VkRect2D RenderArea)
 {
+    Array<VkClearValue> ClearValues;
+    for (const Ref<VulkanTexture>& Texture: ColorTarget) {
+        const glm::vec4& Color = Texture->GetDescription().ClearColor;
+        VkClearValue& Value = ClearValues.Emplace();
+        Value.color = {Color.r, Color.g, Color.b, Color.a};
+    }
+    if (DepthTarget) {
+        VkClearValue& Value = ClearValues.Emplace();
+        Value.depthStencil = {DepthTarget->GetDescription().ClearColor.x};
+    }
+
+    VkRenderPassBeginInfo BeginInfo{
+        .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+        .renderPass = RenderPass,
+        .framebuffer = FrameBuffer,
+        .renderArea = RenderArea,
+        .clearValueCount = ClearValues.Size(),
+        .pClearValues = ClearValues.Raw(),
+    };
+    VulkanAPI::vkCmdBeginRenderPass(CmdBuffer->GetHandle(), &BeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+    bHasBegun = true;
 }
 void VulkanRenderPass::End(Ref<VulkanCmdBuffer>& CmdBuffer)
 {
+    check(bHasBegun);
+    VulkanAPI::vkCmdEndRenderPass(CmdBuffer->GetHandle());
+    bHasBegun = false;
 }
 
 static VkImageLayout GetLayout(ETextureCreateFlags Flags)

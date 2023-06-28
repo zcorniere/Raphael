@@ -24,7 +24,7 @@ public:
     VulkanRenderPass(Ref<VulkanDevice>& InDevice, const RHIRenderPassDescription& InDescription);
     ~VulkanRenderPass();
 
-    void Begin(Ref<VulkanCmdBuffer>& CmdBuffer);
+    void Begin(Ref<VulkanCmdBuffer>& CmdBuffer, const VkRect2D RenderArea);
     void End(Ref<VulkanCmdBuffer>& CmdBuffer);
 
     VkRenderPass GetRenderPass() const
@@ -52,6 +52,7 @@ private:
                                                  ETextureCreateFlags Flags);
 
 private:
+    bool bHasBegun = false;
     Ref<VulkanDevice> Device;
 
     Array<Ref<VulkanTexture>> ColorTarget;

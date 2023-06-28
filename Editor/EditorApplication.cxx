@@ -50,22 +50,6 @@ bool EditorApplication::OnEngineInitialization()
     // Create a shader to test the reflection
     RHI::CreateShader("DefaultTriangle.vert", true);
     RHI::CreateShader("DefaultTriangle.frag", true);
-
-    RHIRenderPassDescription Description{
-        .ColorTarget =
-            {
-                {
-                    .Format = EImageFormat::R8G8B8A8_SRGB,
-                },
-            },
-        .DepthTarget = std::make_optional<RHIRenderPassDescription::RenderingTargetInfo>({
-            .Format = EImageFormat::D32_SFLOAT,
-        }),
-        .RenderPassSize = Viewport->GetSize(),
-    };
-    RHI::BeginRenderPass(Description);
-    RHI::EndRenderPass();
-
     return true;
 }
 
@@ -105,6 +89,22 @@ void EditorApplication::Tick(const float DeltaTime)
     }
 
     Viewport->BeginDrawViewport();
+
+    RHIRenderPassDescription Description{
+        .ColorTarget =
+            {
+                {
+                    .Format = EImageFormat::R8G8B8A8_SRGB,
+                },
+            },
+        .DepthTarget = std::make_optional<RHIRenderPassDescription::RenderingTargetInfo>({
+            .Format = EImageFormat::D32_SFLOAT,
+        }),
+        .RenderPassSize = Viewport->GetSize(),
+    };
+    RHI::BeginRenderPass(Description);
+    RHI::EndRenderPass();
+
     Viewport->EndDrawViewport();
 }
 

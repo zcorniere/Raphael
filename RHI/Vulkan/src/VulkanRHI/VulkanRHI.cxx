@@ -81,6 +81,7 @@ void VulkanDynamicRHI::Shutdown()
 {
     Device->WaitUntilIdle();
 
+    CurrentRenderPass = nullptr;
     Viewports.Clear();
 
     Device->Destroy();
