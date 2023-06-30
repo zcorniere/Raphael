@@ -97,7 +97,7 @@ void EditorApplication::Tick(const float DeltaTime)
                     .Format = EImageFormat::R8G8B8A8_SRGB,
                 },
             },
-        .DepthTarget = std::make_optional<RHIRenderPassDescription::RenderingTargetInfo>({
+        .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
             .Format = EImageFormat::D32_SFLOAT,
         }),
         .RenderPassSize = Viewport->GetSize(),

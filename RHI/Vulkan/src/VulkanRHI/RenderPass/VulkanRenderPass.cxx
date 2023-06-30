@@ -217,7 +217,7 @@ VkAttachmentDescription
 VulkanRenderPass::GetAttachmentDescription(const RHIRenderPassDescription::RenderingTargetInfo& Target,
                                            ETextureCreateFlags Flags) const
 {
-    VkAttachmentDescription Description{
+    VkAttachmentDescription AttachmentDescription{
         .format = ImageFormatToFormat(Target.Format),
         .samples = VK_SAMPLE_COUNT_1_BIT,
         .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
@@ -227,7 +227,7 @@ VulkanRenderPass::GetAttachmentDescription(const RHIRenderPassDescription::Rende
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
         .finalLayout = GetLayout(Flags),
     };
-    return Description;
+    return AttachmentDescription;
 }
 
 Array<VkAttachmentDescription>
