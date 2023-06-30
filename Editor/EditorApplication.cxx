@@ -101,6 +101,7 @@ void EditorApplication::Tick(const float DeltaTime)
             .Format = EImageFormat::D32_SFLOAT,
         }),
         .RenderPassSize = Viewport->GetSize(),
+        .Name = "Simple path",
     };
     RHI::BeginRenderPass(Description);
     RHI::EndRenderPass();

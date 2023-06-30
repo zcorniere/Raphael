@@ -42,6 +42,8 @@ void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Descripti
         CurrentRenderPass = RPassManager->Get(Description);
         check(CurrentRenderPass);
 
+        CurrentRenderPass->SetName(Description.Name);
+
         Ref<VulkanCmdBuffer> CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
         CurrentRenderPass->Begin(CmdBuffer, {
                                                 .offset = {0, 0},

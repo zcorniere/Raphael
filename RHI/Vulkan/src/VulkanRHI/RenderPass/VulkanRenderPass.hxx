@@ -36,6 +36,8 @@ public:
         return FrameBuffer;
     }
 
+    void SetName(std::string_view InName) override;
+
 private:
     VkFramebuffer CreateFrameBuffer();
     Array<VkImageView> GetFramebufferAttachment(const Array<Ref<VulkanTexture>>& SourceTextures);

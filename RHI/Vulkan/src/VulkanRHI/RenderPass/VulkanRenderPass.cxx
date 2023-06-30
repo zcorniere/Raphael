@@ -4,6 +4,7 @@
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
+#include "VulkanRenderPass.hxx"
 
 namespace VulkanRHI
 {
@@ -89,6 +90,27 @@ static VkImageLayout GetLayout(ETextureCreateFlags Flags)
     return VK_IMAGE_LAYOUT_UNDEFINED;
 }
 
+void VulkanRenderPass::SetName(std::string_view InName)
+{
+    RObject::SetName(InName);
+
+    if (FrameBuffer) {
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_FRAMEBUFFER, FrameBuffer, "{:s} [Framebuffer]", GetName());
+    }
+    if (RenderPass) {
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_RENDER_PASS, RenderPass, "{:s} [Renderpass]", GetName());
+    }
+    for (unsigned i = 0; i < ColorTarget.Size(); i++) {
+        ColorTarget[i]->SetName(std::format("{:s} [Color Target {}]", InName, i));
+    }
+    for (unsigned i = 0; i < ResolveTarget.Size(); i++) {
+        ResolveTarget[i]->SetName(std::format("{:s} [Resolve Target {}]", InName, i));
+    }
+    if (DepthTarget) {
+        DepthTarget->SetName(std::format("{:s} [Depth Target]", InName));
+    }
+}
+
 VkFramebuffer VulkanRenderPass::CreateFrameBuffer()
 {
     Array<VkImageView> Attachments(GetFramebufferAttachment(ColorTarget));
@@ -156,6 +178,7 @@ VkRenderPass VulkanRenderPass::CreateRenderPass()
         .pDependencies = &Dependency,
     };
     VK_CHECK_RESULT(VulkanAPI::vkCreateRenderPass(Device->GetHandle(), &RenderPassInfo, nullptr, &RenderPass));
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_RENDER_PASS, RenderPass, "%s [Renderpass]", GetName());
     return RenderPass;
 }
 

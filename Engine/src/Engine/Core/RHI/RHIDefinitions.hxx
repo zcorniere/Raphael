@@ -69,6 +69,7 @@ struct RHIRenderPassDescription {
     std::optional<RenderingTargetInfo> DepthTarget;
 
     glm::uvec2 RenderPassSize;
+    std::string Name;
 
     bool operator==(const RHIRenderPassDescription&) const = default;
 };
