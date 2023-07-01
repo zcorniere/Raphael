@@ -21,7 +21,8 @@ private:
     };
 
 public:
-    VulkanRenderPass(Ref<VulkanDevice>& InDevice, const RHIRenderPassDescription& InDescription);
+    VulkanRenderPass(Ref<VulkanDevice>& InDevice, const RHIRenderPassDescription& InDescription,
+                     VkRenderPass ExternalPass = VK_NULL_HANDLE);
     ~VulkanRenderPass();
 
     void Begin(Ref<VulkanCmdBuffer>& CmdBuffer, const VkRect2D RenderArea);

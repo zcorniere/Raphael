@@ -79,7 +79,7 @@ namespace std
 
 template <>
 struct hash<RHIRenderPassDescription> {
-    inline size_t operator()(const RHIRenderPassDescription& Desc) const
+    size_t operator()(const RHIRenderPassDescription& Desc) const
     {
         size_t Result = std::hash<glm::uvec2>{}(Desc.RenderPassSize);
         for (const RHIRenderPassDescription::RenderingTargetInfo& Target: Desc.ColorTarget) {

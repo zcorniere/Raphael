@@ -9,10 +9,13 @@
 namespace VulkanRHI
 {
 
-VulkanRenderPass::VulkanRenderPass(Ref<VulkanDevice>& InDevice, const RHIRenderPassDescription& InDescription)
-    : Device(InDevice), Description(InDescription), RenderPass(VK_NULL_HANDLE), FrameBuffer(VK_NULL_HANDLE)
+VulkanRenderPass::VulkanRenderPass(Ref<VulkanDevice>& InDevice, const RHIRenderPassDescription& InDescription,
+                                   VkRenderPass ExternalPass)
+    : Device(InDevice), Description(InDescription), RenderPass(ExternalPass), FrameBuffer(VK_NULL_HANDLE)
 {
-    CreateRenderPass();
+    if (!RenderPass) {
+        CreateRenderPass();
+    }
 
     ColorTarget.Reserve(InDescription.ColorTarget.Size());
     for (const RHIRenderPassDescription::RenderingTargetInfo& Info: InDescription.ColorTarget) {
@@ -34,10 +37,6 @@ VulkanRenderPass::VulkanRenderPass(Ref<VulkanDevice>& InDevice, const RHIRenderP
 
 VulkanRenderPass::~VulkanRenderPass()
 {
-    if (RenderPass) {
-        VulkanAPI::vkDestroyRenderPass(Device->GetHandle(), RenderPass, nullptr);
-    }
-
     if (FrameBuffer) {
         VulkanAPI::vkDestroyFramebuffer(Device->GetHandle(), FrameBuffer, nullptr);
     }

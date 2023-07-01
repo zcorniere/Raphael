@@ -9,6 +9,14 @@ class VulkanDevice;
 
 class RenderPassManager
 {
+private:
+    struct RenderPassDescriptionHashWithoutSize {
+        size_t operator()(const RHIRenderPassDescription& Desc) const;
+    };
+    struct RenderPassDescriptionEqualWithoutSize {
+        size_t operator()(const RHIRenderPassDescription& A, const RHIRenderPassDescription& B) const;
+    };
+
 public:
     RenderPassManager(Ref<VulkanDevice>& InDevice);
     ~RenderPassManager();
@@ -19,6 +27,9 @@ public:
 
 public:
     Ref<VulkanDevice> Device;
+    std::unordered_map<RHIRenderPassDescription, VkRenderPass, RenderPassDescriptionHashWithoutSize,
+                       RenderPassDescriptionEqualWithoutSize>
+        RenderPassStorage;
     std::unordered_map<RHIRenderPassDescription, Ref<VulkanRenderPass>> StorageMap;
 };
 
