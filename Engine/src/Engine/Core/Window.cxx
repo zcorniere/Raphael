@@ -49,14 +49,14 @@ void Window::Initialize(const WindowDefinition InDefinition, const Ref<Window>& 
     if (!Definition.HasOsWindowBorder) {
         WindowStyle |= SDL_WINDOW_BORDERLESS;
         if (!Definition.AppearsInTaskbar) {
-            WindowStyle |= SDL_WINDOW_SKIP_TASKBAR;
+            WindowStyle |= SDL_WINDOW_UTILITY;
         }
     }
     if (Definition.HasSizingFrame) {
         WindowStyle |= SDL_WINDOW_RESIZABLE;
     }
 
-    p_HWnd = SDL_CreateWindow(Definition.Title.c_str(), X, Y, Width, Height, WindowStyle);
+    p_HWnd = SDL_CreateWindowWithPosition(Definition.Title.c_str(), X, Y, Width, Height, WindowStyle);
     if (!p_HWnd) {
         LOG(LogWindow, Fatal, "Failed To create the SDL Window");
         Utils::RequestExit(1);
