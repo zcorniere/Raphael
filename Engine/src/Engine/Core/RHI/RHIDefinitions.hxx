@@ -68,7 +68,8 @@ struct RHIRenderPassDescription {
     Array<RenderingTargetInfo> ResolveTarget;
     std::optional<RenderingTargetInfo> DepthTarget;
 
-    glm::uvec2 RenderPassSize;
+    glm::ivec2 Offset;
+    glm::uvec2 Size;
     std::string Name;
 
     bool operator==(const RHIRenderPassDescription&) const = default;
@@ -81,7 +82,9 @@ template <>
 struct hash<RHIRenderPassDescription> {
     size_t operator()(const RHIRenderPassDescription& Desc) const
     {
-        size_t Result = std::hash<glm::uvec2>{}(Desc.RenderPassSize);
+        size_t Result = 0;
+        ::Raphael::HashCombine(Result, Desc.Offset);
+        ::Raphael::HashCombine(Result, Desc.Size);
         for (const RHIRenderPassDescription::RenderingTargetInfo& Target: Desc.ColorTarget) {
             ::Raphael::HashCombine(Result, Target.Format);
         }

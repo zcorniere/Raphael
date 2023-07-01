@@ -14,6 +14,7 @@ namespace VulkanRHI
 // RHI Operation default function
 void VulkanDynamicRHI::BeginFrame()
 {
+    GetDevice()->CommandManager->PrepareForNewActiveCommandBuffer();
 }
 
 void VulkanDynamicRHI::EndFrame()
@@ -33,7 +34,6 @@ void VulkanDynamicRHI::EndFrame()
 
 void VulkanDynamicRHI::NextFrame()
 {
-    GetDevice()->CommandManager->PrepareForNewActiveCommandBuffer();
 }
 
 void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Description)
@@ -46,11 +46,15 @@ void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Descripti
 
         Ref<VulkanCmdBuffer> CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
         CurrentRenderPass->Begin(CmdBuffer, {
-                                                .offset = {0, 0},
+                                                .offset =
+                                                    {
+                                                        .x = Description.Offset.x,
+                                                        .y = Description.Offset.y,
+                                                    },
                                                 .extent =
                                                     {
-                                                        .width = Description.RenderPassSize.x,
-                                                        .height = Description.RenderPassSize.y,
+                                                        .width = Description.Size.x,
+                                                        .height = Description.Size.y,
                                                     },
                                             });
     });

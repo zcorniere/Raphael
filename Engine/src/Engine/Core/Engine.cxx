@@ -52,12 +52,12 @@ unsigned Engine::Run()
     float dt = 0.0f;
     while (!App->ShouldExit()) {
         auto startTime = std::chrono::high_resolution_clock::now();
-        RHI::NextFrame();
         RHI::BeginFrame();
 
         App->Tick(dt);
 
         RHI::EndFrame();
+        RHI::NextFrame();
 
         auto stopTime = std::chrono::high_resolution_clock::now();
         dt = std::chrono::duration<float>(stopTime - startTime).count();

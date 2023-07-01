@@ -121,8 +121,8 @@ VkFramebuffer VulkanRenderPass::CreateFrameBuffer()
         .renderPass = GetRenderPass(),
         .attachmentCount = Attachments.Size(),
         .pAttachments = Attachments.Raw(),
-        .width = Description.RenderPassSize.x,
-        .height = Description.RenderPassSize.y,
+        .width = Description.Size.x,
+        .height = Description.Size.y,
         .layers = 1,
     };
     VK_CHECK_RESULT(VulkanAPI::vkCreateFramebuffer(Device->GetHandle(), &CreateInfo, nullptr, &FrameBuffer));
@@ -249,7 +249,7 @@ VulkanRenderPass::CreateFramebufferTextures(const RHIRenderPassDescription::Rend
         .Flags = Flags,
         .Dimension = EImageDimension::Texture2D,
         .Format = TargetInfo.Format,
-        .Extent = Description.RenderPassSize,
+        .Extent = Description.Size,
     };
     return RHI::CreateTexture(TextureCreate);
 }

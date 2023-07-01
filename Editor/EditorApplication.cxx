@@ -64,7 +64,7 @@ void EditorApplication::Tick(const float DeltaTime)
         .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
             .Format = EImageFormat::D32_SFLOAT,
         }),
-        .RenderPassSize = MainViewport->GetSize(),
+        .Size = MainViewport->GetSize(),
         .Name = "Simple path",
     };
     RHI::BeginRenderPass(Description);
