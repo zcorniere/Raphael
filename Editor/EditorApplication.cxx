@@ -14,17 +14,7 @@ EditorApplication::~EditorApplication()
 
 bool EditorApplication::OnEngineInitialization()
 {
-    WindowDefinition WindowDef{
-        .AppearsInTaskbar = true,
-        .Title = "Raphael Engine",
-    };
-    Windows.push_back(Ref<Window>::CreateNamed("Main Window"));
-    Windows[0]->Initialize(WindowDef, nullptr);
-    Windows[0]->Show();
-    Windows[0]->Maximize();
-
-    Viewport = RHI::CreateViewport((void*)Windows[0]->GetHandle(), glm::uvec2{500u, 500u});
-    Viewport->SetName("Main viewport");
+    BaseApplication::OnEngineInitialization();
 
 #if 0
     struct FrameData {
@@ -55,40 +45,14 @@ bool EditorApplication::OnEngineInitialization()
 
 void EditorApplication::OnEngineDestruction()
 {
-    Viewport = nullptr;
-
-    for (Ref<Window>& Win: Windows) {
-        Win->Destroy();
-    }
-    Windows.clear();
-}
-
-void EditorApplication::ProcessEvent(SDL_Event SDLEvent)
-{
-    Ref<Window> EventWindow = FindEventWindow(SDLEvent);
-    if (!EventWindow) {
-        return;
-    }
-
-    switch (SDLEvent.type) {
-        case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-            bShouldExit = true;
-            break;
-        default:
-            break;
-    }
+    BaseApplication::OnEngineDestruction();
 }
 
 void EditorApplication::Tick(const float DeltaTime)
 {
-    (void)DeltaTime;
-    SDL_Event event;
-    // Process All event
-    while (SDL_PollEvent(&event)) {
-        ProcessEvent(event);
-    }
+    BaseApplication::Tick(DeltaTime);
 
-    Viewport->BeginDrawViewport();
+    MainViewport->BeginDrawViewport();
 
     RHIRenderPassDescription Description{
         .ColorTarget =
@@ -100,62 +64,11 @@ void EditorApplication::Tick(const float DeltaTime)
         .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
             .Format = EImageFormat::D32_SFLOAT,
         }),
-        .RenderPassSize = Viewport->GetSize(),
+        .RenderPassSize = MainViewport->GetSize(),
         .Name = "Simple path",
     };
     RHI::BeginRenderPass(Description);
     RHI::EndRenderPass();
 
-    Viewport->EndDrawViewport();
-}
-
-bool EditorApplication::ShouldExit() const
-{
-    return bShouldExit;
-}
-
-Ref<Window> EditorApplication::FindEventWindow(SDL_Event& Event)
-{
-    uint32 WindowID;
-
-    switch (Event.type) {
-        case SDL_EVENT_TEXT_INPUT:
-            WindowID = Event.text.windowID;
-            break;
-        case SDL_EVENT_TEXT_EDITING:
-            WindowID = Event.edit.windowID;
-            break;
-        case SDL_EVENT_KEY_DOWN:
-        case SDL_EVENT_KEY_UP:
-            WindowID = Event.key.windowID;
-            break;
-        case SDL_EVENT_MOUSE_MOTION:
-            WindowID = Event.motion.windowID;
-            break;
-        case SDL_EVENT_MOUSE_BUTTON_DOWN:
-        case SDL_EVENT_MOUSE_BUTTON_UP:
-            WindowID = Event.button.windowID;
-            break;
-        case SDL_EVENT_MOUSE_WHEEL:
-            WindowID = Event.wheel.windowID;
-            break;
-        case SDL_EVENT_WINDOW_MOUSE_ENTER:
-        case SDL_EVENT_WINDOW_MOUSE_LEAVE:
-        case SDL_EVENT_WINDOW_FOCUS_GAINED:
-        case SDL_EVENT_WINDOW_FOCUS_LOST:
-        case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-        case SDL_EVENT_WINDOW_TAKE_FOCUS:
-        case SDL_EVENT_WINDOW_HIT_TEST:
-            WindowID = Event.window.windowID;
-            break;
-        default:
-            return nullptr;
-    }
-
-    for (Ref<Window>& Window: Windows) {
-        if (SDL_GetWindowID(Window->GetHandle()) == WindowID) {
-            return Window;
-        }
-    }
-    return nullptr;
+    MainViewport->EndDrawViewport();
 }

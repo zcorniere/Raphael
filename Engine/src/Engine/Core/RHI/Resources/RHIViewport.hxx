@@ -18,10 +18,16 @@ public:
     ///
     /// Will be queued in the RHI command, and be executed later
     void EndDrawViewport();
+    
+    /// @brief The current viewport will be resized
+    ///
+    /// Will be queued in the RHI command, and be executed later
+    void ResizeViewport(uint32 Width, uint32 Height);
 
     virtual glm::uvec2 GetSize() const = 0;
 
 private:
     virtual void RT_BeginDrawViewport() = 0;
     virtual void RT_EndDrawViewport() = 0;
+    virtual void RT_ResizeViewport(uint32 Width, uint32 Height) = 0;
 };

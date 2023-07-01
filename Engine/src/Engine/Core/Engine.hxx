@@ -1,25 +1,7 @@
 #pragma once
 
+#include "Engine/Core/Application.hxx"
 #include "Engine/Threading/ThreadPool.hxx"
-
-class IApplication
-{
-public:
-    virtual ~IApplication()
-    {
-    }
-
-    /// Called when the Engine created
-    virtual bool OnEngineInitialization() = 0;
-    /// Called when the Engine is destroyed
-    virtual void OnEngineDestruction() = 0;
-
-    /// Called once per frame
-    /// @param DeltaTime the time elapsed since last frame
-    virtual void Tick(const float DeltaTime) = 0;
-    /// Determine if the application want the engine to exit
-    virtual bool ShouldExit() const = 0;
-};
 
 extern class Engine* GEngine;
 

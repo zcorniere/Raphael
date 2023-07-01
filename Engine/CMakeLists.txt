@@ -31,6 +31,7 @@ add_library(
     src/Engine/Core/UUID.cxx
     src/Engine/Core/RObject.cxx
     src/Engine/Core/Engine.cxx
+    src/Engine/Core/Application.cxx
     src/Engine/Core/FrameGraph/FrameGraph.cxx
     src/Engine/Core/FrameGraph/PassNode.cxx
     src/Engine/Core/FrameGraph/FrameGraphBuilder.cxx

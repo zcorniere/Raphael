@@ -13,3 +13,8 @@ void RHIViewport::EndDrawViewport()
 {
     RHI::Submit([instance = Ref(this)]() mutable { instance->RT_EndDrawViewport(); });
 }
+
+void RHIViewport::ResizeViewport(uint32 Width, uint32 Height)
+{
+    RHI::Submit([instance = Ref(this), Width, Height]() mutable { instance->RT_ResizeViewport(Width, Height); });
+}

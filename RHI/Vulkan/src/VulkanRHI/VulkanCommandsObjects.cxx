@@ -274,8 +274,6 @@ Ref<VulkanCmdBuffer> VulkanCommandBufferManager::FindAvailableCmdBuffer()
             CmdBuffer->State == VulkanCmdBuffer::EState::NeedReset) {
             CmdBuffer->Begin();
             return CmdBuffer;
-        } else {
-            check(CmdBuffer->State == VulkanCmdBuffer::EState::Submitted);
         }
     }
 

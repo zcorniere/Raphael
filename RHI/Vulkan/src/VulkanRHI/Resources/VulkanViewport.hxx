@@ -33,6 +33,7 @@ private:
     // Override from RHIViewport
     virtual void RT_BeginDrawViewport() override;
     virtual void RT_EndDrawViewport() override;
+    virtual void RT_ResizeViewport(uint32 Width, uint32 Height) override;
 
 private:
     void CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo);

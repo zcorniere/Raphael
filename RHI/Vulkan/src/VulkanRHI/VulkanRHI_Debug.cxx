@@ -64,7 +64,7 @@ static std::string_view GetMessageSeverity(const VkDebugUtilsMessageSeverityFlag
         verify((MsgSeverity & ~VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) == 0);
         return "Verbose";
     }
-    return "Unkowned";
+    return "Unknown";
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(

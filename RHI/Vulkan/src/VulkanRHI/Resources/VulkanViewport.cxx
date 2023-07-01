@@ -40,6 +40,12 @@ void VulkanViewport::RT_EndDrawViewport()
     GetVulkanDynamicRHI()->RT_SetDrawingViewport(nullptr);
 }
 
+void VulkanViewport::RT_ResizeViewport(uint32 Width, uint32 Height)
+{
+    Size.x = Width;
+    Size.y = Height;
+}
+
 void VulkanViewport::SetName(std::string_view InName)
 {
     RHIResource::SetName(InName);
