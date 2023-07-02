@@ -12,9 +12,7 @@
 #include <variant>
 #include <vector>
 
-#if !NO_PROFILING
-    #include <Engine/Misc/Profiler.hxx>
-#endif
+#include <Engine/Misc/Profiler.hxx>
 
 #include <Engine/Compilers/Compiler.hxx>
 #include <Engine/Core/RObject.hxx>

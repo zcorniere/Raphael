@@ -1,6 +1,6 @@
 project(RaphaelEditor)
 
-option(NO_PROFILING "Disable the profiling" ON)
+option(RPH_ENABLE_PROFILING "Enable the profiling" OFF)
 
 add_executable(${PROJECT_NAME} main.cxx EditorApplication.cxx)
 
@@ -23,13 +23,14 @@ target_compile_options(
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 set_target_properties(${PROJECT_NAME} PROPERTIES ENABLE_EXPORTS 1)
 
-if(NOT NO_PROFILING)
-    message(STATUS "Profiling is disabled")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC TRACY_ENABLE=1 NO_PROFILING=0)
+if(RPH_ENABLE_PROFILING)
+    message(STATUS "Profiling is enabled")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC RPH_ENABLE_PROFILING=1)
     target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
 else()
-    target_compile_definitions(${PROJECT_NAME} PUBLIC TRACY_ENABLE=0 NO_PROFILING=1)
-endif(NOT NO_PROFILING)
+    message(STATUS "Profiling is disabled")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC RPH_ENABLE_PROFILING=0)
+endif(RPH_ENABLE_PROFILING)
 
 if(SELECTED_RHI STREQUAL "Vulkan")
     target_link_libraries(${PROJECT_NAME} PRIVATE RaphaelRHIVulkan)

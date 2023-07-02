@@ -1,6 +1,6 @@
 #pragma once
 
-#if NO_PROFILING
+#if RPH_ENABLE_PROFILING == 1
     #include <tracy/Tracy.hpp>
 
     #define RPH_PROFILE_MARK_FRAME FrameMark;
