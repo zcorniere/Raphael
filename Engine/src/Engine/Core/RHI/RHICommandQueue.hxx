@@ -27,6 +27,7 @@ public:
     void EnqueueCommand(TFunction&& Function)
     {
         RenderCommandFn RenderCmd = [](void* ptr) {
+            RPH_PROFILE_FUNC();
             TFunction* pFunction = (TFunction*)ptr;
             (*pFunction)();
 

@@ -5,6 +5,8 @@
 
 bool BaseApplication::OnEngineInitialization()
 {
+    RPH_PROFILE_FUNC()
+
     WindowDefinition WindowDef{
         .AppearsInTaskbar = true,
         .Title = "Raphael Engine",
@@ -21,6 +23,8 @@ bool BaseApplication::OnEngineInitialization()
 
 void BaseApplication::OnEngineDestruction()
 {
+    RPH_PROFILE_FUNC()
+
     MainViewport = nullptr;
     MainWindow->Destroy();
 
@@ -52,6 +56,8 @@ Ref<Window> BaseApplication::CreateNewWindow(const std::string& Name)
 
 void BaseApplication::Tick(const float DeltaTime)
 {
+    RPH_PROFILE_FUNC()
+
     (void)DeltaTime;
 
     // Process All event

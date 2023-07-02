@@ -28,26 +28,36 @@ Ref<RHICommandQueue>& RHI::GetRHICommandQueue()
 /// RHI Fowarding
 void RHI::BeginFrame()
 {
+    RPH_PROFILE_FUNC()
+
     return RHI::Get<GenericRHI>()->BeginFrame();
 }
 
 void RHI::EndFrame()
 {
+    RPH_PROFILE_FUNC()
+
     return RHI::Get<GenericRHI>()->EndFrame();
 }
 
 void RHI::NextFrame()
 {
+    RPH_PROFILE_FUNC()
+
     return RHI::Get<GenericRHI>()->NextFrame();
 }
 
 void RHI::BeginRenderPass(const RHIRenderPassDescription& Description)
 {
+    RPH_PROFILE_FUNC()
+
     return RHI::Get<GenericRHI>()->BeginRenderPass(Description);
 }
 
 void RHI::EndRenderPass()
 {
+    RPH_PROFILE_FUNC()
+    
     return RHI::Get<GenericRHI>()->EndRenderPass();
 }
 

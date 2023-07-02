@@ -128,6 +128,8 @@ void VulkanShaderCompiler::SetOptimizationLevel(OptimizationLevel InLevel)
 
 Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile)
 {
+    RPH_PROFILE_FUNC()
+
     Ref<VulkanShader> ShaderUnit = nullptr;
     ShaderCompileResult Result{
         .Path = Path,
@@ -179,6 +181,8 @@ Ref<VulkanShader> VulkanShaderCompiler::CheckCache(ShaderCompileResult& Result)
 
 bool VulkanShaderCompiler::LoadShaderSourceFile(ShaderCompileResult& Result)
 {
+    RPH_PROFILE_FUNC()
+
     Result.Status = CompilationStatus::Loading;
 
     std::optional<RHIShaderType> ShaderType = Utils::GetShaderKind(Result.Path);
@@ -196,6 +200,8 @@ bool VulkanShaderCompiler::LoadShaderSourceFile(ShaderCompileResult& Result)
 
 bool VulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
 {
+    RPH_PROFILE_FUNC()
+
     shaderc::Compiler ShaderCompiler;
 
     shaderc::CompileOptions Options = Utils::GetCompileOption(Level);
@@ -248,6 +254,8 @@ static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resou
 
 bool VulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
 {
+    RPH_PROFILE_FUNC()
+
     Result.Status = CompilationStatus::Reflection;
     LOG(LogVulkanShaderCompiler, Info, "===========================");
     LOG(LogVulkanShaderCompiler, Info, " Vulkan Shader Reflection");

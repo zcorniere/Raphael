@@ -19,6 +19,8 @@ VulkanQueue::~VulkanQueue()
 
 void VulkanQueue::Submit(Ref<VulkanCmdBuffer>& CmdBuffer, uint32 NumSignaledSemaphores, VkSemaphore* SignalSemaphores)
 {
+    RPH_PROFILE_FUNC()
+
     check(CmdBuffer->HasEnded());
 
     Ref<Fence>& Fence = CmdBuffer->m_Fence;

@@ -14,6 +14,8 @@ EditorApplication::~EditorApplication()
 
 bool EditorApplication::OnEngineInitialization()
 {
+    RPH_PROFILE_FUNC()
+
     BaseApplication::OnEngineInitialization();
 
 #if 0
@@ -50,6 +52,8 @@ void EditorApplication::OnEngineDestruction()
 
 void EditorApplication::Tick(const float DeltaTime)
 {
+    RPH_PROFILE_FUNC()
+
     BaseApplication::Tick(DeltaTime);
 
     MainViewport->BeginDrawViewport();

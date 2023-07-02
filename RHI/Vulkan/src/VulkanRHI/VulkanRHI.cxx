@@ -15,6 +15,8 @@
 // RHI Creation Implementation
 Ref<GenericRHI> RHI::CreateRHI()
 {
+    RPH_PROFILE_FUNC()
+
     GDynamicRHI = Ref<VulkanRHI::VulkanDynamicRHI>::CreateNamed("Vulkan RHI");
     return GDynamicRHI;
 }
@@ -62,6 +64,8 @@ VkPhysicalDevice VulkanDynamicRHI::RHIGetVkPhysicalDevice() const
 
 void VulkanDynamicRHI::Init()
 {
+    RPH_PROFILE_FUNC()
+
     CreateInstance();
     SelectDevice();
 

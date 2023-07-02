@@ -59,6 +59,8 @@ unsigned Engine::Run()
         RHI::EndFrame();
         RHI::NextFrame();
 
+        RPH_PROFILE_MARK_FRAME;
+
         auto stopTime = std::chrono::high_resolution_clock::now();
         dt = std::chrono::duration<float>(stopTime - startTime).count();
     }

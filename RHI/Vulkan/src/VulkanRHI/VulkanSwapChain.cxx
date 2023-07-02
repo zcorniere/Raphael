@@ -230,6 +230,8 @@ void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo* RecreateInfo)
 
 VulkanSwapChain::Status VulkanSwapChain::Present(Ref<VulkanQueue>& PresentQueue, Ref<Semaphore>& RenderingComplete)
 {
+    RPH_PROFILE_FUNC()
+
     check(CurrentImageIndex != -1);
 
     VkSemaphore Semaphore = RenderingComplete->GetHandle();
@@ -269,6 +271,8 @@ void VulkanSwapChain::SetName(std::string_view InName)
 
 int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore>& OutSemaphore)
 {
+    RPH_PROFILE_FUNC()
+
     check(CurrentImageIndex == -1);
 
     uint32 ImageIndex = 0;

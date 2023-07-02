@@ -5,7 +5,7 @@ option(NO_PROFILING "Disable the profiling" ON)
 add_executable(${PROJECT_NAME} main.cxx EditorApplication.cxx)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelEngine)
-target_precompile_headers(${PROJECT_NAME} REUSE_FROM RaphaelEngine)
+target_precompile_headers(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/Engine/src/Engine/Raphael.hxx)
 target_compile_options(
     ${PROJECT_NAME}
     PRIVATE $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
@@ -25,8 +25,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES ENABLE_EXPORTS 1)
 
 if(NOT NO_PROFILING)
     message(STATUS "Profiling is disabled")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC TRACY_ENABLE=1)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC TRACY_ENABLE=1 NO_PROFILING=0)
     target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
+else()
+    target_compile_definitions(${PROJECT_NAME} PUBLIC TRACY_ENABLE=0 NO_PROFILING=1)
 endif(NOT NO_PROFILING)
 
 if(SELECTED_RHI STREQUAL "Vulkan")

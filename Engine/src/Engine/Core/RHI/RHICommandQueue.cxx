@@ -16,6 +16,8 @@ RHICommandQueue::~RHICommandQueue()
 
 void RHICommandQueue::Execute()
 {
+    RPH_PROFILE_FUNC()
+
     uint8* Buffer = m_CommandBuffer;
 
     for (uint32_t i = 0; i < m_CommandCount; i++) {
