@@ -75,7 +75,7 @@ bool BaseApplication::ShouldExit() const
 
 WindowEvent BaseApplication::ConvertWindowEvent(const SDL_Event& Event)
 {
-    uint32 WindowID;
+    uint32 WindowID = -1;
 
     WindowEvent ConvertedEvent{
         .Type = WindowEvent::EventType::Unknown,
