@@ -75,6 +75,43 @@ struct RHIRenderPassDescription {
     bool operator==(const RHIRenderPassDescription&) const = default;
 };
 
+class ResourceArray : public RObject
+{
+public:
+    /// @return A pointer to the resource data.
+    virtual const void* GetResourceData() const = 0;
+
+    /// @return size of resource data allocation
+    virtual uint32 GetResourceDataSize() const = 0;
+
+    /// Called after the RHI has copied the resource data, and no longer needs the CPU's copy.
+    virtual void Discard() = 0;
+};
+
+template <typename ElementType>
+class TResourceArray : public Array<ElementType>, public ResourceArray
+{
+public:
+    const void* GetResourceData() const
+    {
+        return this->Raw();
+    }
+
+    uint32 GetResourceDataSize() const
+    {
+        checkMsg(this->Size() > UINT32_MAX / sizeof(ElementType),
+                 "Resource data size too large for uint32, will overflow. Calculate with larger data type or "
+                 "use fewer elements. sizeof(ElementType): {:d}",
+                 sizeof(ElementType));
+        return this->Size() * sizeof(ElementType);
+    }
+
+    void Discard()
+    {
+        this->Empty();
+    }
+};
+
 namespace std
 {
 

@@ -1,6 +1,7 @@
 #include "VulkanRHI/VulkanMemoryManager.hxx"
 
 #include "Engine/Misc/Utils.hxx"
+#include "VulkanMemoryManager.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
@@ -9,6 +10,14 @@ DECLARE_LOGGER_CATEGORY(Core, LogVulkanMemoryAllocator, Info);
 
 namespace VulkanRHI
 {
+
+void VulkanMemoryAllocation::SetName(std::string_view InName)
+{
+    RObject::SetName(InName);
+    if (Allocation && !InName.empty()) {
+        vmaSetAllocationName(ManagerHandle.GetAllocator(), Allocation, InName.data());
+    }
+}
 
 void* VulkanMemoryAllocation::Map(VkDeviceSize InSize, VkDeviceSize Offset)
 {
@@ -119,7 +128,9 @@ Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(const VkMemoryRequirement
     }
     VmaAllocationCreateInfo CreateInfo = GetCreateInfo(MemUsage, Mappable);
     Ref<VulkanMemoryAllocation> Alloc = Ref<VulkanMemoryAllocation>::Create(*this);
-    VK_CHECK_RESULT(vmaAllocateMemory(Allocator, &MemoryRequirement, &CreateInfo, &(Alloc->GetHandle()), nullptr));
+    VK_CHECK_RESULT(
+        vmaAllocateMemory(Allocator, &MemoryRequirement, &CreateInfo, &(Alloc->GetHandle()), &Alloc->AllocationInfo));
+
     AllocationCount += 1;
     return Alloc;
 }

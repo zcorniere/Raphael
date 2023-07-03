@@ -47,6 +47,7 @@ void Engine::Destroy()
 
 unsigned Engine::Run()
 {
+    RPH_PROFILE_FUNC();
     checkNoReentry();
 
     float dt = 0.0f;

@@ -18,6 +18,8 @@ public:
     {
     }
 
+    void SetName(std::string_view InName) override;
+
     void* Map(VkDeviceSize InSize, VkDeviceSize Offset = 0);
     void Unmap();
 
@@ -55,12 +57,15 @@ public:
 
 private:
     VmaAllocation Allocation;
+    VmaAllocationInfo AllocationInfo;
 
     VkDeviceSize Size;
     void* MappedPointer = nullptr;
     VulkanMemoryManager& ManagerHandle;
     bool bCanBeMapped;
     bool bIsCoherent;
+
+    friend class VulkanMemoryManager;
 };
 
 class VulkanMemoryManager

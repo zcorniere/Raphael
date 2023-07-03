@@ -61,6 +61,9 @@ public:
     static Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize);
     /// Create a new RHI texture - through the current RHI
     static Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc);
+    /// Create a new RHI buffer - through the current RHI
+    static Ref<RHIBuffer> CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
+                                       Ref<ResourceArray>& InitialData);
     /// Create a new RHI shader - through the current RHI
     static Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile);
     /// Create a new RHI Pipeline - through the current RHI

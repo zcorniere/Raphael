@@ -72,6 +72,13 @@ public:
         return std::vector<T, Allocation>::clear();
     }
 
+    /// Same as Clear() but free the memory associated to the Array;
+    constexpr void Empty()
+    {
+        this->Clear();
+        this->Reserve(0);
+    }
+
     constexpr void Resize(const TSize NewSize)
     {
         return std::vector<T, Allocation>::resize(NewSize);

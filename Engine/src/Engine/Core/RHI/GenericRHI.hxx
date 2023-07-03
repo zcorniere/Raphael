@@ -46,6 +46,9 @@ public:
     virtual Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize) = 0;
     /// @copydoc RHI::CreateTexture
     virtual Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc) = 0;
+    /// @copydoc RHI::CreateBuffer
+    virtual Ref<RHIBuffer> CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
+                                        Ref<ResourceArray>& InitialData) = 0;
     /// @copydoc RHI::CreateShader
     virtual Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) = 0;
     /// @copydoc RHI::CreateGraphicsPipeline

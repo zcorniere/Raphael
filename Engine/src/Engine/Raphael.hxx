@@ -27,3 +27,5 @@
 #include <Engine/Containers/Array.hxx>
 
 static_assert(sizeof(void*) == 8);
+
+DECLARE_LOGGER_CATEGORY(Core, LogCore, Trace);

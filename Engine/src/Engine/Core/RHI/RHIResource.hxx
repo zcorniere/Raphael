@@ -5,6 +5,7 @@ enum class RHIResourceType : uint8 {
     None = 0,
 
     Texture,
+    Buffer,
     Shader,
     Viewport,
     GraphicsPipeline,
@@ -16,6 +17,7 @@ enum class RHIResourceType : uint8 {
 class RHIResource : public RObject
 {
 public:
+    RHIResource() = delete;
     RHIResource(RHIResourceType InResourceType): ResourceType(InResourceType)
     {
     }
@@ -28,6 +30,7 @@ protected:
     const RHIResourceType ResourceType;
 };
 
+#include "Engine/Core/RHI/Resources/RHIBuffer.hxx"
 #include "Engine/Core/RHI/Resources/RHIGraphicsPipeline.hxx"
 #include "Engine/Core/RHI/Resources/RHIShader.hxx"
 #include "Engine/Core/RHI/Resources/RHITexture.hxx"
