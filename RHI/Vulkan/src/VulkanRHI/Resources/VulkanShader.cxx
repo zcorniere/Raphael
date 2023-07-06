@@ -18,13 +18,13 @@ VulkanShader::ShaderHandle::~ShaderHandle()
 }
 
 VulkanShader::VulkanShader(RHIShaderType Type, const Array<uint32>& InSPIRVCode, const ReflectionData& InReflectionData)
-    : RHIShader(Type), SPIRVCode(InSPIRVCode), m_ReflectionData(InReflectionData), m_ShaderHandle(nullptr)
+    : RHIShader(Type), SPIRVCode(InSPIRVCode), m_ReflectionData(InReflectionData), Type(Type), m_ShaderHandle(nullptr)
 {
 }
 
 Ref<VulkanShader::ShaderHandle> VulkanShader::GetHandle(Ref<VulkanDevice> InDevice)
 {
-    if (m_ShaderHandle.IsValid()) {
+    if (m_ShaderHandle) {
         return Ref(m_ShaderHandle);
     }
     VkShaderModuleCreateInfo CreateInfo{
@@ -33,7 +33,7 @@ Ref<VulkanShader::ShaderHandle> VulkanShader::GetHandle(Ref<VulkanDevice> InDevi
         .pCode = SPIRVCode.Raw(),
     };
     m_ShaderHandle = Ref<ShaderHandle>::Create(InDevice, CreateInfo);
-    return Ref(m_ShaderHandle);
+    return m_ShaderHandle;
 }
 
 }    // namespace VulkanRHI

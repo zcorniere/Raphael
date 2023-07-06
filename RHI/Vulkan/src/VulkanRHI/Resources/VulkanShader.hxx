@@ -62,11 +62,18 @@ public:
 
     Ref<ShaderHandle> GetHandle(Ref<VulkanDevice> InDevice);
 
+    constexpr RHIShaderType GetShaderType() const
+    {
+        return Type;
+    }
+
 private:
     const Array<uint32> SPIRVCode;
     const ReflectionData m_ReflectionData;
 
-    WeakRef<ShaderHandle> m_ShaderHandle;
+    RHIShaderType Type;
+
+    Ref<ShaderHandle> m_ShaderHandle;
 
     friend class VulkanShaderCompiler;
 };
