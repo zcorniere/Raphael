@@ -14,8 +14,13 @@ namespace VulkanRHI
 void VulkanMemoryAllocation::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
-    if (Allocation && !InName.empty()) {
-        vmaSetAllocationName(ManagerHandle.GetAllocator(), Allocation, InName.data());
+    if (!InName.empty()) {
+        if (Allocation) {
+            vmaSetAllocationName(ManagerHandle.GetAllocator(), Allocation, InName.data());
+        }
+        if (AllocationInfo.deviceMemory) {
+            VULKAN_SET_DEBUG_NAME(ManagerHandle.Device, VK_OBJECT_TYPE_DEVICE_MEMORY, AllocationInfo.deviceMemory, "{}", InName);
+        }
     }
 }
 

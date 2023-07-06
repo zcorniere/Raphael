@@ -18,6 +18,8 @@ public:
                  Ref<ResourceArray> &InitialData);
     ~VulkanBuffer();
 
+    void SetName(std::string_view InName) override;
+
     inline VkBuffer GetHandle() const
     {
         return BufferHandle;

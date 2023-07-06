@@ -117,6 +117,9 @@ void VulkanTexture::SetName(std::string_view InName)
     if (View) {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, View, "{:s} [View]", InName);
     }
+    if (Allocation) {
+        Allocation->SetName(std::format("{:s} [Memory]", InName));
+    }
 }
 
 VkImageView VulkanTexture::GetImageView() const

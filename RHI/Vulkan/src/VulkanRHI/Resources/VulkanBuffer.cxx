@@ -66,6 +66,13 @@ VulkanBuffer::~VulkanBuffer()
     VulkanAPI::vkDestroyBuffer(Device->GetHandle(), BufferHandle, nullptr);
 }
 
+void VulkanBuffer::SetName(std::string_view InName)
+{
+    RObject::SetName(InName);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_BUFFER, BufferHandle, "{}", InName);
+    Memory->SetName(std::format("{} [Memory]", InName));
+}
+
 uint64 VulkanBuffer::GetCurrentSize() const
 {
     return Memory->GetSize() - Offset;
