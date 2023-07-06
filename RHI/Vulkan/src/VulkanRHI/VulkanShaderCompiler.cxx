@@ -247,8 +247,12 @@ static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resou
         OutResource.Name = resource.name;
         OutResource.Type = ElementType.value();
         OutResource.Location = Compiler.get_decoration(resource.id, spv::DecorationLocation);
-
-        LOG(LogVulkanShaderCompiler, Info, "- {}", OutResource);
+    }
+    std::sort(StageIO.begin(), StageIO.end(), [](const ShaderResource::StageIO& A, const ShaderResource::StageIO& B) {
+        return A.Location < B.Location;
+    });
+    for (const ShaderResource::StageIO& Resource: StageIO) {
+        LOG(LogVulkanShaderCompiler, Info, "- {}", Resource);
     }
     return true;
 }
@@ -279,15 +283,10 @@ bool VulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
     LOG(LogVulkanShaderCompiler, Info, "Push Constant Buffers:");
     for (const spirv_cross::Resource& resource: resources.push_constant_buffers) {
         const spirv_cross::SPIRType& Type = compiler.get_type(resource.base_type_id);
-        const uint32 bufferSize = compiler.get_declared_struct_size(Type);
-        uint32 bufferOffset = compiler.type_struct_member_offset(Type, 0);
-
-        if (!Result.Reflection.PushConstants.IsEmpty())
-            bufferOffset = Result.Reflection.PushConstants.Back().Offset + Result.Reflection.PushConstants.Back().Size;
 
         ShaderResource::PushConstantRange& Range = Result.Reflection.PushConstants.Emplace();
-        Range.Size = bufferSize - bufferOffset;
-        Range.Offset = bufferOffset;
+        Range.Size = compiler.get_declared_struct_size(Type);
+        Range.Offset = compiler.type_struct_member_offset(Type, 0);
 
         LOG(LogVulkanShaderCompiler, Info, "  {}", Range);
     }

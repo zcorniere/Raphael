@@ -14,6 +14,26 @@ std::filesystem::path GetCurrentFilePath()
     return File.parent_path();
 }
 
+static void CheckReflection(const VulkanRHI::VulkanShader::ReflectionData& ExpectedReflection,
+                            const VulkanRHI::VulkanShader::ReflectionData& GotReflection)
+{
+    REQUIRE(GotReflection.PushConstants.Size() == ExpectedReflection.PushConstants.Size());
+    for (unsigned i = 0; i < GotReflection.PushConstants.Size(); i++) {
+        CHECK(GotReflection.PushConstants[i] == ExpectedReflection.PushConstants[i]);
+    }
+
+    REQUIRE(GotReflection.StageInput.Size() == ExpectedReflection.StageInput.Size());
+    for (unsigned i = 0; i < GotReflection.StageInput.Size(); i++) {
+        CHECK(GotReflection.StageInput[i] == ExpectedReflection.StageInput[i]);
+    }
+
+    REQUIRE(GotReflection.StageOutput.Size() == ExpectedReflection.StageOutput.Size());
+    for (unsigned i = 0; i < GotReflection.StageOutput.Size(); i++) {
+        CHECK(GotReflection.StageOutput[i] == ExpectedReflection.StageOutput[i]);
+    }
+    CHECK(GotReflection == ExpectedReflection);
+}
+
 TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
 {
     using namespace VulkanRHI;
@@ -31,6 +51,8 @@ TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
 
         CHECK(ShaderResult == CachedResult);
     }
+
+    CHECK(ShaderResult->GetShaderType() == RHIShaderType::Vertex);
 
     const VulkanShader::ReflectionData ExpectedReflection{
         .StageInput =
@@ -58,22 +80,77 @@ TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
     };
     const VulkanShader::ReflectionData& GotReflection = ShaderResult->GetReflectionData();
 
-    REQUIRE(GotReflection.PushConstants.Size() == ExpectedReflection.PushConstants.Size());
-    for (unsigned i = 0; i < GotReflection.PushConstants.Size(); i++) {
-        CHECK(GotReflection.PushConstants[i] == ExpectedReflection.PushConstants[i]);
-    }
+    CheckReflection(ExpectedReflection, GotReflection);
 
-    REQUIRE(GotReflection.StageInput.Size() == ExpectedReflection.StageInput.Size());
-    for (unsigned i = 0; i < GotReflection.StageInput.Size(); i++) {
-        CHECK(GotReflection.StageInput[i] == ExpectedReflection.StageInput[i]);
-    }
+    ::Log::Shutdown();
+}
 
-    REQUIRE(GotReflection.StageOutput.Size() == ExpectedReflection.StageOutput.Size());
-    for (unsigned i = 0; i < GotReflection.StageOutput.Size(); i++) {
-        CHECK(GotReflection.StageOutput[i] == ExpectedReflection.StageOutput[i]);
-    }
+TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
+{
+    using namespace VulkanRHI;
+    ::Log::Init();
 
-    CHECK(GotReflection == ExpectedReflection);
+    std::filesystem::path SimpleShaderPath = GetCurrentFilePath() / "test_shaders/TestComplex.frag";
+    VulkanShaderCompiler Compiler;
+
+    Ref<VulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
+    REQUIRE(ShaderResult);
+
+    CHECK(ShaderResult->GetShaderType() == RHIShaderType::Pixel);
+
+    const VulkanShader::ReflectionData ExpectedReflection{
+        .StageInput =
+            {
+                {
+                    .Name = "fragPosition",
+                    .Type = EVertexElementType::Float3,
+                    .Location = 0,
+                },
+                {
+                    .Name = "fragNormal",
+                    .Type = EVertexElementType::Float3,
+                    .Location = 1,
+                },
+                {
+                    .Name = "fragTextCoords",
+                    .Type = EVertexElementType::Float2,
+                    .Location = 2,
+                },
+                {
+                    .Name = "fragColor",
+                    .Type = EVertexElementType::Float3,
+                    .Location = 3,
+                },
+                {
+                    .Name = "fragTangent",
+                    .Type = EVertexElementType::Float4,
+                    .Location = 4,
+                },
+                {
+                    .Name = "materialIndex",
+                    .Type = EVertexElementType::Uint1,
+                    .Location = 5,
+                },
+            },
+        .StageOutput =
+            {
+                {
+                    .Name = "outColor",
+                    .Type = EVertexElementType::Float4,
+                    .Location = 0,
+                },
+            },
+        .PushConstants =
+            {
+                {
+                    .Offset = 64,
+                    .Size = 92,
+                },
+            },
+    };
+    const VulkanShader::ReflectionData& GotReflection = ShaderResult->GetReflectionData();
+
+    CheckReflection(ExpectedReflection, GotReflection);
 
     ::Log::Shutdown();
 }
