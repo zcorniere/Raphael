@@ -190,6 +190,7 @@ bool VulkanShaderCompiler::LoadShaderSourceFile(ShaderCompileResult& Result)
         LOG(LogVulkanShaderCompiler, Error, "Can't recognise the shader type ! {}", Result.Path.filename().string());
         return false;
     }
+    Result.ShaderType = ShaderType.value();
     Result.SourceCode = ::Utils::readFile(Result.Path);
     if (Result.SourceCode.empty()) {
         LOG(LogVulkanShaderCompiler, Error, "Shader file not found ! \"{}\"", Result.Path.string().c_str());
@@ -258,7 +259,7 @@ bool VulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
 
     Result.Status = CompilationStatus::Reflection;
     LOG(LogVulkanShaderCompiler, Info, "===========================");
-    LOG(LogVulkanShaderCompiler, Info, " Vulkan Shader Reflection");
+    LOG(LogVulkanShaderCompiler, Info, " Vulkan Shader Reflection - {}", magic_enum::enum_name(Result.ShaderType));
     LOG(LogVulkanShaderCompiler, Info, " {} ", Result.Path.string());
     LOG(LogVulkanShaderCompiler, Info, "===========================");
 
@@ -277,9 +278,9 @@ bool VulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
 
     LOG(LogVulkanShaderCompiler, Info, "Push Constant Buffers:");
     for (const spirv_cross::Resource& resource: resources.push_constant_buffers) {
-        auto bufferType = compiler.get_type(resource.base_type_id);
-        auto bufferSize = (uint32_t)compiler.get_declared_struct_size(bufferType);
-        uint32_t bufferOffset = 0;
+        const spirv_cross::SPIRType& Type = compiler.get_type(resource.base_type_id);
+        const uint32 bufferSize = compiler.get_declared_struct_size(Type);
+        uint32 bufferOffset = compiler.type_struct_member_offset(Type, 0);
 
         if (!Result.Reflection.PushConstants.IsEmpty())
             bufferOffset = Result.Reflection.PushConstants.Back().Offset + Result.Reflection.PushConstants.Back().Size;
@@ -288,7 +289,6 @@ bool VulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
         Range.Size = bufferSize - bufferOffset;
         Range.Offset = bufferOffset;
 
-        LogVulkanShaderCompiler::log<cpplogger::Level::Info>("  {}", Range);
         LOG(LogVulkanShaderCompiler, Info, "  {}", Range);
     }
     return true;
