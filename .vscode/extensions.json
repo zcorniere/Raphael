@@ -3,6 +3,7 @@
         "editorconfig.editorconfig",
         "cheshirekow.cmake-format",
         "twxs.cmake",
-        "ms-vscode.cmake-tools"
+        "ms-vscode.cmake-tools",
+        "llvm-vs-code-extensions.vscode-clangd"
     ]
 }
