@@ -222,23 +222,23 @@ public:
 
     T* operator->()
     {
-        check(m_ObjPtr);
+        checkSlow(IsValid());
         return m_ObjPtr;
     }
     const T* operator->() const
     {
-        check(m_ObjPtr);
+        checkSlow(IsValid());
         return m_ObjPtr;
     }
 
     T& operator*()
     {
-        check(m_ObjPtr);
+        checkSlow(IsValid());
         return *m_ObjPtr;
     }
     const T& operator*() const
     {
-        check(m_ObjPtr);
+        checkSlow(IsValid());
         return *m_ObjPtr;
     }
 
@@ -274,6 +274,11 @@ public:
             return false;
 
         return *m_ObjPtr == *other.m_ObjPtr;
+    }
+
+    bool IsValid() const
+    {
+        return m_ObjPtr ? RObjectUtils::IsLive(m_ObjPtr) : false;
     }
 
 private:
