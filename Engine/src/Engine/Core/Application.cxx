@@ -18,6 +18,17 @@ bool BaseApplication::OnEngineInitialization()
 
     MainViewport = RHI::CreateViewport((void*)MainWindow->GetHandle(), glm::uvec2{500u, 500u});
     MainViewport->SetName("Main viewport");
+
+    // RHI::CreateGraphicsPipeline(RHIGraphicsPipelineInitializer{
+    //     .VertexShader = "DefaultTriangle.vert",
+    //     .PixelShader = "DefaultTriangle.frag",
+    //     .Rasterizer =
+    //         {
+    //             .PolygonMode = EPolygonMode::Fill,
+    //             .CullMode = ECullMode::Back,
+    //             .FrontFaceCulling = EFrontFace::Clockwise,
+    //         },
+    // });
     return true;
 }
 

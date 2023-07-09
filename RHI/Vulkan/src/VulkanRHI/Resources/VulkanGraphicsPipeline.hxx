@@ -87,6 +87,8 @@ public:
     VulkanGraphicsPipeline(Ref<VulkanDevice>& InDevice, const GraphicsPipelineDescription& Description);
     ~VulkanGraphicsPipeline();
 
+    void SetName(std::string_view Name) override;
+
     bool Create(bool bForceRecompileShaders = false);
     void Bind(VkCommandBuffer CmdBuffer)
     {

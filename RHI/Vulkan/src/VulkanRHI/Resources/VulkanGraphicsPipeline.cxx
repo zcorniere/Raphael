@@ -57,6 +57,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(Ref<VulkanDevice>& InDevice,
                                                const GraphicsPipelineDescription& Description)
     : Device(InDevice), Desc(Description)
 {
+    Create(false);
 }
 
 VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
@@ -69,6 +70,17 @@ VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
     }
 }
 
+void VulkanGraphicsPipeline::SetName(std::string_view Name)
+{
+    RObject::SetName(Name);
+    if (VulkanPipeline) {
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE, VulkanPipeline, "{}", Name);
+    }
+    if (PipelineLayout) {
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE_LAYOUT, PipelineLayout, "{} [Pipeline Layout]", Name);
+    }
+}
+
 bool VulkanGraphicsPipeline::Create(bool bForceRecompileShaders)
 {
     Shaders[0] = RHI::CreateShader(Desc.VertexShader, bForceRecompileShaders);
@@ -76,10 +88,22 @@ bool VulkanGraphicsPipeline::Create(bool bForceRecompileShaders)
 
     CreatePipelineLayout();
 
+    Array<VkPipelineShaderStageCreateInfo> ShaderStage;
+    for (Ref<VulkanShader>& Shader: Shaders) {
+        Ref<VulkanShader::ShaderHandle> Handle = Shader->GetHandle(Device);
+        ShaderStage.Add(VkPipelineShaderStageCreateInfo{
+            .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+            .stage = ConvertToVulkanType(Shader->GetShaderType()),
+            .pName = "main",
+        });
+    }
+
     VkGraphicsPipelineCreateInfo PipelineCreateInfo{
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
+        .stageCount = ShaderStage.Size(),
+        .pStages = ShaderStage.Raw(),
         .layout = PipelineLayout,
     };
 
@@ -88,28 +112,31 @@ bool VulkanGraphicsPipeline::Create(bool bForceRecompileShaders)
     return false;
 }
 
-static VkPushConstantRange GetConstantRangeFromShader(Ref<VulkanShader>& Shader, const VkShaderStageFlags ShaderStage)
+static VkPushConstantRange GetConstantRangeFromShader(Array<VkPushConstantRange>& OutPushRanges,
+                                                      Ref<VulkanShader>& InShader, const VkShaderStageFlags ShaderStage)
 {
     VkPushConstantRange Range{
         .stageFlags = ShaderStage,
         .offset = 0,
         .size = 0,
     };
-    for (const ShaderResource::PushConstantRange& PushConstant: Shader->GetReflectionData().PushConstants) {
+    for (const ShaderResource::PushConstantRange& PushConstant: InShader->GetReflectionData().PushConstants) {
         if (Range.offset < PushConstant.Offset) {
             Range.offset = PushConstant.Offset;
             Range.size = PushConstant.Size;
         }
+    }
+    if (Range.size != 0) {
+        OutPushRanges.Add(Range);
     }
     return Range;
 }
 
 bool VulkanGraphicsPipeline::CreatePipelineLayout()
 {
-    Array<VkPushConstantRange> PushRanges{
-        GetConstantRangeFromShader(Shaders[0], VK_SHADER_STAGE_VERTEX_BIT),
-        GetConstantRangeFromShader(Shaders[1], VK_SHADER_STAGE_FRAGMENT_BIT),
-    };
+    Array<VkPushConstantRange> PushRanges;
+    GetConstantRangeFromShader(PushRanges, Shaders[0], VK_SHADER_STAGE_VERTEX_BIT);
+    GetConstantRangeFromShader(PushRanges, Shaders[1], VK_SHADER_STAGE_FRAGMENT_BIT);
 
     // TODO: Shader descriptor set reflection
     Array<VkDescriptorSetLayout> SetLayout;

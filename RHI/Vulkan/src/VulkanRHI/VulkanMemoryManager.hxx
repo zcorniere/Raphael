@@ -84,12 +84,12 @@ public:
     uint64 GetTotalMemory(bool bGPUOnly) const;
     void PrintMemInfo() const;
 
-private:
-    VmaAllocator GetAllocator()
+    VmaAllocator GetAllocator() const
     {
         return Allocator;
     }
 
+private:
     VmaAllocationCreateInfo GetCreateInfo(VmaMemoryUsage MemUsage, bool Mappable);
 
 private:

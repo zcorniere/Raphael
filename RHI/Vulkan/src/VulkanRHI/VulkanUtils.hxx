@@ -140,6 +140,20 @@ FORCEINLINE VkPolygonMode ConvertToVulkanType(EPolygonMode Mode)
     checkNoEntry();
 }
 
+/// Convert the ShaderType to VK_SHADER_STAGE*
+FORCEINLINE VkShaderStageFlagBits ConvertToVulkanType(RHIShaderType Type)
+{
+    switch (Type) {
+        case RHIShaderType::Vertex:
+            return VK_SHADER_STAGE_VERTEX_BIT;
+        case RHIShaderType::Pixel:
+            return VK_SHADER_STAGE_FRAGMENT_BIT;
+        case RHIShaderType::Compute:
+            return VK_SHADER_STAGE_COMPUTE_BIT;
+    }
+    checkNoEntry();
+}
+
 /// Convert the Cull mode to VK_CULL_*
 FORCEINLINE VkCullModeFlags ConvertToVulkanType(ECullMode Mode)
 {
