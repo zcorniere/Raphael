@@ -1,5 +1,7 @@
 #include "VulkanRHI/VulkanUtils.hxx"
 
+#include "VulkanRHI/VulkanDevice.hxx"
+#include "VulkanRHI/VulkanMemoryManager.hxx"
 #include "VulkanRHI/VulkanRHI.hxx"
 
 #include <magic_enum.hpp>
@@ -21,6 +23,12 @@ void VulkanCheckResult(VkResult Result, const char* VulkanFunction, const std::s
             break;
     }
 
+    if (bDumpMemory) {
+        char* String = nullptr;
+        vmaBuildStatsString(GetVulkanDynamicRHI()->GetDevice()->GetMemoryManager()->GetAllocator(), &String, VK_TRUE);
+        LOG(LogVulkanRHI, Fatal, "VMA DUMP : \n{}", String);
+        vmaFreeStatsString(GetVulkanDynamicRHI()->GetDevice()->GetMemoryManager()->GetAllocator(), String);
+    }
     // TODO: Do something with bDumpMemory
     (void)bDumpMemory;
 
