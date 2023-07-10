@@ -27,7 +27,7 @@ public:
     }
 
     // Getters
-    [[nodiscard]] constexpr auto Size() const -> std::make_unsigned<TSize>::type
+    [[nodiscard]] constexpr auto Size() const -> typename std::make_unsigned<TSize>::type
     {
         return std::vector<T, Allocation>::size();
     }

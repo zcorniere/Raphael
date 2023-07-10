@@ -10,76 +10,79 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glm EXCLUDE_FROM_ALL)
 # sdl
 set(SDL_TEST_ENABLED_BY_DEFAULT
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_OPENGL
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_OPENGLES
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_OSS
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_ALSA
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_ALSA_SHARED
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_JACK
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_JACK_SHARED
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_PIPEWIRE
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_PIPEWIRE_SHARED
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_PULSEAUDIO
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_PULSEAUDIO_SHARED
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_FILE
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_FILESYSTEM
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_ATOMIC
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_RENDER
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
 )
 set(SDL_SHARED
     OFF
-    CACHE BOOL ""
+    CACHE BOOL "" FORCE
+)
+set(SDL_STATIC
+    ON
+    CACHE BOOL "" FORCE
 )
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SDL EXCLUDE_FROM_ALL)
 
-#xdgpp
+# xdgpp
 add_library(xdgpp INTERFACE EXCLUDE_FROM_ALL)
 target_include_directories(xdgpp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/xdgpp)
 target_compile_features(xdgpp INTERFACE cxx_std_17)
-

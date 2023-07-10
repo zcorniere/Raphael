@@ -48,7 +48,7 @@ void VulkanRenderPass::Begin(Ref<VulkanCmdBuffer>& CmdBuffer, const VkRect2D Ren
     for (const Ref<VulkanTexture>& Texture: ColorTarget) {
         const glm::vec4& Color = Texture->GetDescription().ClearColor;
         VkClearValue& Value = ClearValues.Emplace();
-        Value.color = {Color.r, Color.g, Color.b, Color.a};
+        Value.color = {{Color.r, Color.g, Color.b, Color.a}};
     }
     if (DepthTarget) {
         VkClearValue& Value = ClearValues.Emplace();
