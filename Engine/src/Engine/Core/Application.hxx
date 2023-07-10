@@ -30,24 +30,21 @@ public:
     {
     }
 
-    bool OnEngineInitialization() override;
-    void OnEngineDestruction() override;
+    virtual bool OnEngineInitialization() override;
+    virtual void OnEngineDestruction() override;
 
-    void Tick(const float DeltaTime) override;
-    bool ShouldExit() const override;
+    virtual void Tick(const float DeltaTime) override;
+    virtual bool ShouldExit() const override;
 
     virtual void ProcessEvent(const WindowEvent& Event);
 
 protected:
     Ref<Window> CreateNewWindow(const std::string& Name = "");
 
-private:
-    WindowEvent ConvertWindowEvent(const SDL_Event& Event);
-
 protected:
     bool bShouldExit = false;
 
     WeakRef<Window> MainWindow;
-    Array<Ref<Window>> Windows;
     Ref<RHIViewport> MainViewport;
+    Array<Ref<Window>> Windows;
 };

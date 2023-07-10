@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL3/SDL.h>
+struct SDL_Window;
 
 /// @brief Define a Window
 struct WindowDefinition {
@@ -98,7 +98,7 @@ public:
     void SetText(const std::string_view Text);
     void DrawAttention(bool bStop = false);
 
-    SDL_Window* GetHandle();
+    SDL_Window* GetHandle() const;
 
     const WindowDefinition& GetDefinition() const
     {

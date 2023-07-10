@@ -3,6 +3,8 @@
 #include "Engine/Misc/MiscDefines.hxx"
 #include "Engine/Misc/Utils.hxx"
 
+#include <SDL3/SDL.h>
+
 DECLARE_LOGGER_CATEGORY(Core, LogWindow, Info);
 
 bool GSDLInitialized = false;
@@ -185,7 +187,7 @@ void Window::DrawAttention(bool bStop)
     }
 }
 
-SDL_Window* Window::GetHandle()
+SDL_Window* Window::GetHandle() const
 {
     return p_HWnd;
 }

@@ -3,6 +3,10 @@
 #include "Application.hxx"
 #include "Engine/Core/RHI/RHI.hxx"
 
+#include <SDL_events.h>
+
+static WindowEvent ConvertWindowEvent(const SDL_Event& Event, const Array<Ref<Window>>& Windows);
+
 bool BaseApplication::OnEngineInitialization()
 {
     RPH_PROFILE_FUNC()
@@ -74,7 +78,7 @@ void BaseApplication::Tick(const float DeltaTime)
     // Process All event
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        WindowEvent ConvertedEvent = ConvertWindowEvent(event);
+        WindowEvent ConvertedEvent = ConvertWindowEvent(event, Windows);
         ProcessEvent(ConvertedEvent);
     }
 }
@@ -84,7 +88,7 @@ bool BaseApplication::ShouldExit() const
     return bShouldExit;
 }
 
-WindowEvent BaseApplication::ConvertWindowEvent(const SDL_Event& Event)
+static WindowEvent ConvertWindowEvent(const SDL_Event& Event, const Array<Ref<Window>>& Windows)
 {
     uint32 WindowID = -1;
 
@@ -139,7 +143,7 @@ WindowEvent BaseApplication::ConvertWindowEvent(const SDL_Event& Event)
             break;
     }
 
-    for (Ref<Window>& Window: Windows) {
+    for (const Ref<Window>& Window: Windows) {
         if (SDL_GetWindowID(Window->GetHandle()) == WindowID) {
             ConvertedEvent.SourceWindow = Window;
             break;
