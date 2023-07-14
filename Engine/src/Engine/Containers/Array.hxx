@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts>
 #include <vector>
 
 constexpr static inline auto InvalidVectorIndex = -1;
@@ -9,6 +10,9 @@ template <typename T, typename Allocation = Raphael::Allocator<T>, typename TSiz
 requires std::is_signed_v<TSize>
 class Array : private std::vector<T, Allocation>
 {
+public:
+    using Type = T;
+
 public:
     Array(): std::vector<T, Allocation>()
     {
@@ -72,6 +76,16 @@ public:
         return std::vector<T, Allocation>::clear();
     }
 
+    template <typename Function>
+    requires std::invocable<Function, T&>
+    void Clear(Function&& Func)
+    {
+        for (TSize i = 0; i < Size(); i++) {
+            Func((*this)[i]);
+        }
+        return this->Clear();
+    }
+
     /// Same as Clear() but free the memory associated to the Array;
     constexpr void Empty()
     {
@@ -125,6 +139,10 @@ public:
             }
         }
         return InvalidVectorIndex;
+    }
+    [[nodiscard]] bool Contains(const T& Item) const
+    {
+        return Find(Item) != InvalidVectorIndex;
     }
 
     void Append(const Array& Source)

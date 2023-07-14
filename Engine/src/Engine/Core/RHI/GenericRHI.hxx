@@ -7,7 +7,7 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogGenericRHI, Info);
 
-class GenericRHI : public RObject
+class GenericRHI
 {
 public:
     virtual ~GenericRHI()

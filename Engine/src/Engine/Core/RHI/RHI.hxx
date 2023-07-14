@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Compilers/Compiler.hxx"
 #include "Engine/Core/RHI/RHICommandQueue.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
 
@@ -11,7 +12,7 @@ enum class RHIInterfaceType {
 };
 
 class GenericRHI;
-extern Ref<GenericRHI> GDynamicRHI;
+extern GenericRHI* GDynamicRHI;
 
 /// Wrapper static arround the RHI function
 class RHI
@@ -20,16 +21,16 @@ public:
     /// @brief Return the current RHI
     /// @tparam TRHI The type of the RHI, default is GenericRHI
     template <typename TRHI = GenericRHI>
-    static Ref<TRHI> Get()
+    FORCEINLINE static TRHI* Get()
     {
         check(GDynamicRHI);
-        return GDynamicRHI.As<TRHI>();
+        return dynamic_cast<TRHI*>(GDynamicRHI);
     }
 
     /// @brief This function create RHI-agnostic object, like the command queue
     static void Init();
     /// @brief This function create the RHI, and must be implemented individualy by every RHI
-    static Ref<GenericRHI> CreateRHI();
+    static GenericRHI* CreateRHI();
 
     /// @brief Delete the current RHI
     static void DeleteRHI();
@@ -42,7 +43,7 @@ public:
     }
 
     /// @brief Return the command queue of the RHI
-    static Ref<RHICommandQueue>& GetRHICommandQueue();
+    static RHICommandQueue* GetRHICommandQueue();
 
     /// -------------- RHI Operations --------------
 

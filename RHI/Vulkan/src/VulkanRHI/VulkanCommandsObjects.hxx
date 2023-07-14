@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Misc/NamedClass.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 
 #include "VulkanRHI/VulkanSynchronization.hxx"
@@ -13,7 +14,7 @@ class VulkanCommandContext;
 class VulkanCommandBufferPool;
 class VulkanCommandBufferManager;
 
-class VulkanCmdBuffer : public RObject
+class VulkanCmdBuffer : public NamedClass
 {
 public:
     enum class EState : uint8 {
@@ -28,8 +29,10 @@ public:
 
 public:
     VulkanCmdBuffer() = delete;
-    VulkanCmdBuffer(Ref<VulkanDevice> InDevice, WeakRef<VulkanCommandBufferPool> InCommandPool);
+    VulkanCmdBuffer(VulkanDevice* InDevice, VulkanCommandBufferPool* InCommandPool);
     ~VulkanCmdBuffer();
+
+    virtual void SetName(std::string_view InName) override;
 
     void Begin();
     void End();
@@ -44,7 +47,7 @@ public:
         return m_CommandBufferHandle;
     }
 
-    inline WeakRef<VulkanCommandBufferPool> GetOwner() const
+    inline VulkanCommandBufferPool* GetOwner() const
     {
         return m_OwnerPool;
     }
@@ -89,8 +92,8 @@ public:
     EState State;
 
 private:
-    Ref<VulkanDevice> m_Device;
-    WeakRef<VulkanCommandBufferPool> m_OwnerPool;
+    VulkanDevice* m_Device;
+    VulkanCommandBufferPool* m_OwnerPool;
 
     Ref<Fence> m_Fence;
     Array<VkPipelineStageFlags> WaitFlags;
@@ -103,29 +106,31 @@ private:
     friend class VulkanQueue;
 };
 
-class VulkanCommandBufferPool : public RObject
+class VulkanCommandBufferPool : public NamedClass
 {
 public:
     VulkanCommandBufferPool() = delete;
-    VulkanCommandBufferPool(Ref<VulkanDevice> InDevice, VulkanCommandBufferManager* InManager);
+    VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanCommandBufferManager* InManager);
     ~VulkanCommandBufferPool();
 
+    virtual void SetName(std::string_view InName) override;
+
     void Initialize(uint32 QueueFamilyIndex);
-    [[nodiscard]] Ref<VulkanCmdBuffer> CreateCmdBuffer();
+    [[nodiscard]] VulkanCmdBuffer* CreateCmdBuffer();
 
     VkCommandPool GetHandle() const
     {
         return m_Handle;
     }
 
-    void RefreshFenceStatus(Ref<VulkanCmdBuffer>& SkipCmdBuffer);
+    void RefreshFenceStatus(VulkanCmdBuffer* SkipCmdBuffer);
 
 private:
     VkCommandPool m_Handle;
-    Array<Ref<VulkanCmdBuffer>> m_CmdBuffers;
-    Array<Ref<VulkanCmdBuffer>> m_FreeCmdBuffers;
+    Array<VulkanCmdBuffer*> m_CmdBuffers;
+    Array<VulkanCmdBuffer*> m_FreeCmdBuffers;
 
-    Ref<VulkanDevice> m_Device;
+    VulkanDevice* m_Device;
     VulkanCommandBufferManager* p_Manager;
 
     friend class VulkanCommandBufferManager;
@@ -134,20 +139,20 @@ private:
 class VulkanCommandBufferManager
 {
 public:
-    VulkanCommandBufferManager(Ref<VulkanDevice> InDevice, Ref<VulkanQueue> InQueue);
+    VulkanCommandBufferManager(VulkanDevice* InDevice, VulkanQueue* InQueue);
     ~VulkanCommandBufferManager();
 
     void Init();
     void Shutdown();
 
     // Update the fences of all cmd buffers except SkipCmdBuffer
-    void RefreshFenceStatus(Ref<VulkanCmdBuffer> SkipCmdBuffer = nullptr)
+    void RefreshFenceStatus(VulkanCmdBuffer* SkipCmdBuffer = nullptr)
     {
         Pool->RefreshFenceStatus(SkipCmdBuffer);
     }
 
-    Ref<VulkanCmdBuffer>& GetActiveCmdBuffer();
-    Ref<VulkanCmdBuffer>& GetUploadCmdBuffer();
+    VulkanCmdBuffer* GetActiveCmdBuffer();
+    VulkanCmdBuffer* GetUploadCmdBuffer();
 
     void PrepareForNewActiveCommandBuffer();
 
@@ -157,15 +162,15 @@ public:
     void SubmitActiveCmdBufferFormPresent(Ref<Semaphore> SignalSemaphore = nullptr);
 
 private:
-    Ref<VulkanCmdBuffer> FindAvailableCmdBuffer();
+    VulkanCmdBuffer* FindAvailableCmdBuffer();
 
 private:
-    Ref<VulkanDevice> Device;
-    Ref<VulkanQueue> Queue;
+    VulkanDevice* Device;
+    VulkanQueue* Queue;
 
-    Ref<VulkanCommandBufferPool> Pool;
-    Ref<VulkanCmdBuffer> ActiveCmdBuffer;
-    Ref<VulkanCmdBuffer> UploadCmdBuffer;
+    VulkanCommandBufferPool* Pool;
+    VulkanCmdBuffer* ActiveCmdBuffer;
+    VulkanCmdBuffer* UploadCmdBuffer;
 };
 
 }    // namespace VulkanRHI

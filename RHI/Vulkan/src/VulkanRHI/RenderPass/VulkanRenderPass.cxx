@@ -9,7 +9,7 @@
 namespace VulkanRHI
 {
 
-VulkanRenderPass::VulkanRenderPass(Ref<VulkanDevice>& InDevice, const RHIRenderPassDescription& InDescription,
+VulkanRenderPass::VulkanRenderPass(VulkanDevice* InDevice, const RHIRenderPassDescription& InDescription,
                                    VkRenderPass ExternalPass)
     : Device(InDevice), Description(InDescription), RenderPass(ExternalPass), FrameBuffer(VK_NULL_HANDLE)
 {
@@ -42,7 +42,7 @@ VulkanRenderPass::~VulkanRenderPass()
     }
 }
 
-void VulkanRenderPass::Begin(Ref<VulkanCmdBuffer>& CmdBuffer, const VkRect2D RenderArea)
+void VulkanRenderPass::Begin(VulkanCmdBuffer* CmdBuffer, const VkRect2D RenderArea)
 {
     Array<VkClearValue> ClearValues;
     for (const Ref<VulkanTexture>& Texture: ColorTarget) {
@@ -66,7 +66,7 @@ void VulkanRenderPass::Begin(Ref<VulkanCmdBuffer>& CmdBuffer, const VkRect2D Ren
     VulkanAPI::vkCmdBeginRenderPass(CmdBuffer->GetHandle(), &BeginInfo, VK_SUBPASS_CONTENTS_INLINE);
     bHasBegun = true;
 }
-void VulkanRenderPass::End(Ref<VulkanCmdBuffer>& CmdBuffer)
+void VulkanRenderPass::End(VulkanCmdBuffer* CmdBuffer)
 {
     check(bHasBegun);
     VulkanAPI::vkCmdEndRenderPass(CmdBuffer->GetHandle());
@@ -91,7 +91,7 @@ static VkImageLayout GetLayout(ETextureCreateFlags Flags)
 
 void VulkanRenderPass::SetName(std::string_view InName)
 {
-    RObject::SetName(InName);
+    NamedClassWithTypeName::SetName(InName);
 
     if (FrameBuffer) {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_FRAMEBUFFER, FrameBuffer, "{:s} [Framebuffer]", GetName());

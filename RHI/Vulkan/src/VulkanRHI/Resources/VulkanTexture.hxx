@@ -14,10 +14,14 @@ class VulkanMemoryAllocation;
 class VulkanTexture : public RHITexture
 {
 public:
-    VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateDesc& InDesc);
+    VulkanTexture(VulkanDevice* InDevice, const RHITextureCreateDesc& InDesc);
     virtual ~VulkanTexture();
 
-    void SetName(std::string_view InName) override;
+    virtual void SetName(std::string_view InName) override;
+    virtual std::string_view GetTypeName_Internal() const override
+    {
+        return type_name<VulkanTexture>();
+    }
 
     VkImageView GetImageView() const;
     VkImageViewType GetViewType() const;
@@ -25,8 +29,8 @@ public:
 
 private:
     RHITextureCreateDesc Description;
-    Ref<VulkanDevice> Device;
-    Ref<VulkanMemoryAllocation> Allocation;
+    VulkanDevice* Device;
+    VulkanMemoryAllocation* Allocation;
     VkMemoryRequirements MemoryRequirements;
     VkImage Image;
     VkImageLayout Layout;
@@ -38,9 +42,9 @@ struct VulkanTextureView {
     {
     }
 
-    void Create(Ref<VulkanDevice>& Device, VkImage InImage, VkImageViewType ViewType, VkImageAspectFlags AspectFlags,
+    void Create(VulkanDevice* Device, VkImage InImage, VkImageViewType ViewType, VkImageAspectFlags AspectFlags,
                 VkFormat Format, uint32 FirstMip, uint32 NumMips);
-    void Destroy(Ref<VulkanDevice>& Device);
+    void Destroy(VulkanDevice* Device);
 
     VkImageView View;
     VkImage Image;

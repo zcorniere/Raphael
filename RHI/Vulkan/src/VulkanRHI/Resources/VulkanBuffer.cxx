@@ -3,7 +3,6 @@
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanMemoryManager.hxx"
 
-
 namespace VulkanRHI
 {
 
@@ -25,7 +24,7 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage, bool bZ
     return OutUsage;
 }
 
-VulkanBuffer::VulkanBuffer(Ref<VulkanDevice>& InDevice, const uint32 InSize, const EBufferUsageFlags InUsage,
+VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const uint32 InSize, const EBufferUsageFlags InUsage,
                            const uint32 InStride, Ref<ResourceArray>& InitialData)
     : Device(InDevice), Offset(0), Stride(InStride)
 {
@@ -68,9 +67,9 @@ VulkanBuffer::~VulkanBuffer()
 
 void VulkanBuffer::SetName(std::string_view InName)
 {
-    RObject::SetName(InName);
-    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_BUFFER, BufferHandle, "{}", InName);
-    Memory->SetName(std::format("{} [Memory]", InName));
+    NamedClassWithTypeName::SetName(InName);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_BUFFER, BufferHandle, "[Buffer] {:s}", InName);
+    Memory->SetName(InName);
 }
 
 uint64 VulkanBuffer::GetCurrentSize() const

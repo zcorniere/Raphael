@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Misc/MiscDefines.hxx"
+#include "Engine/Misc/NamedClass.hxx"
 
 #include <magic_enum.hpp>
 
@@ -19,7 +20,7 @@ enum class EBoxReturnType {
 };
 
 /// @brief Interface that represent a manually loaded shared library
-class IExternalModule : public RObject
+class IExternalModule : public RObject, public NamedClassWithTypeName<IExternalModule>
 {
 public:
     IExternalModule() = delete;

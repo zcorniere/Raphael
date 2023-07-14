@@ -1,5 +1,6 @@
 #include "VulkanRHI/VulkanDevice.hxx"
 
+#include "Engine/Misc/NamedClass.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 #include "VulkanRHI/VulkanMemoryManager.hxx"
@@ -10,6 +11,7 @@
 
 #include "Engine/Misc/Utils.hxx"
 #include "Engine/Platforms/PlatformMisc.hxx"
+#include "vulkan/vulkan_core.h"
 
 static constexpr const char* VulkanVendorIDToString(std::uint32_t vendorID)
 {
@@ -70,6 +72,17 @@ VulkanDevice::~VulkanDevice()
         WaitUntilIdle();
         Destroy();
         Device = VK_NULL_HANDLE;
+    }
+}
+
+void VulkanDevice::SetName(std::string_view InName)
+{
+    NamedClassWithTypeName::SetName(InName);
+    if (Device) {
+        VULKAN_SET_DEBUG_NAME(this, VK_OBJECT_TYPE_DEVICE, Device, "[Device] {:s}", InName);
+    }
+    if (Gpu) {
+        VULKAN_SET_DEBUG_NAME(this, VK_OBJECT_TYPE_PHYSICAL_DEVICE, Gpu, "[Physical Device] {:s}", InName);
     }
 }
 
@@ -185,17 +198,20 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
     }
     VK_CHECK_RESULT_EXPANDED(Result);
 
-    GraphicsQueue = Ref<VulkanQueue>::CreateNamed("Graphics Queue", this, GraphicsQueueFamilyIndex);
+    GraphicsQueue = new VulkanQueue(this, GraphicsQueueFamilyIndex);
+    GraphicsQueue->SetName("Graphics Queue");
 
     if (ComputeQueueFamilyIndex == -1) {
         ComputeQueueFamilyIndex = GraphicsQueueFamilyIndex;
     }
-    ComputeQueue = Ref<VulkanQueue>::CreateNamed("Compute Queue", this, ComputeQueueFamilyIndex);
+    ComputeQueue = new VulkanQueue(this, ComputeQueueFamilyIndex);
+    ComputeQueue->SetName("Compute Queue");
 
     if (TransferQueueFamilyIndex == -1) {
         TransferQueueFamilyIndex = ComputeQueueFamilyIndex;
     }
-    TransferQueue = Ref<VulkanQueue>::CreateNamed("Transfer Queue", this, TransferQueueFamilyIndex);
+    TransferQueue = new VulkanQueue(this, TransferQueueFamilyIndex);
+    TransferQueue->SetName("Transfer Queue");
 
     LOG(LogVulkanRHI, Info, "Using {} device layers{}", DeviceLayers.Size(), DeviceLayers.Size() ? ":" : ".");
     for (const char* Layer: DeviceLayers) {
@@ -208,7 +224,7 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
     }
 }
 
-static bool DoesQueueSupportPresent(VkSurfaceKHR Surface, VkPhysicalDevice PhysicalDevice, Ref<VulkanQueue>& Queue)
+static bool DoesQueueSupportPresent(VkSurfaceKHR Surface, VkPhysicalDevice PhysicalDevice, VulkanQueue* Queue)
 {
     VkBool32 bSupportsPresent = VK_FALSE;
     const uint32 FamilyIndex = Queue->GetFamilyIndex();
@@ -258,9 +274,16 @@ void VulkanDevice::Destroy()
     delete MemoryAllocator;
     MemoryAllocator = nullptr;
 
+    delete GraphicsQueue;
     GraphicsQueue = nullptr;
+
+    delete ComputeQueue;
     ComputeQueue = nullptr;
+
+    delete TransferQueue;
     TransferQueue = nullptr;
+
+    // Present Queue is not allocated, so no delete
     PresentQueue = nullptr;
 
     VulkanAPI::vkDestroyDevice(Device, nullptr);

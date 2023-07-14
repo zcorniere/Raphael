@@ -13,13 +13,14 @@ namespace VulkanRHI
 
 void VulkanMemoryAllocation::SetName(std::string_view InName)
 {
-    RObject::SetName(InName);
+    NamedClassWithTypeName::SetName(InName);
     if (!InName.empty()) {
         if (Allocation) {
             vmaSetAllocationName(ManagerHandle.GetAllocator(), Allocation, InName.data());
         }
         if (AllocationInfo.deviceMemory) {
-            VULKAN_SET_DEBUG_NAME(ManagerHandle.Device, VK_OBJECT_TYPE_DEVICE_MEMORY, AllocationInfo.deviceMemory, "{}", InName);
+            VULKAN_SET_DEBUG_NAME(ManagerHandle.Device, VK_OBJECT_TYPE_DEVICE_MEMORY, AllocationInfo.deviceMemory,
+                                  "[Memory] {}", InName);
         }
     }
 }
@@ -83,12 +84,12 @@ VulkanMemoryManager::~VulkanMemoryManager()
 {
 }
 
-void VulkanMemoryManager::Init(Ref<VulkanDevice> InDevice)
+void VulkanMemoryManager::Init(VulkanDevice* InDevice)
 {
     check(InDevice);
     Device = InDevice;
 
-    Ref<VulkanDynamicRHI> RHI = GetVulkanDynamicRHI();
+    VulkanDynamicRHI* RHI = GetVulkanDynamicRHI();
 
     VulkanAPI::vkGetPhysicalDeviceMemoryProperties(Device->GetPhysicalHandle(), &MemoryProperties);
 
@@ -119,20 +120,19 @@ void VulkanMemoryManager::Init(Ref<VulkanDevice> InDevice)
 
 void VulkanMemoryManager::Shutdown()
 {
-
     checkMsg(AllocationCount == 0, "Some memory allocation are still in flight !");
     vmaDestroyAllocator(Allocator);
     Allocator = VK_NULL_HANDLE;
 }
 
-Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(const VkMemoryRequirements& MemoryRequirement,
-                                                       VmaMemoryUsage MemUsage, bool Mappable)
+VulkanMemoryAllocation* VulkanMemoryManager::Alloc(const VkMemoryRequirements& MemoryRequirement,
+                                                   VmaMemoryUsage MemUsage, bool Mappable)
 {
     if (MemUsage == VMA_MEMORY_USAGE_GPU_ONLY) {
         checkMsg(!Mappable, "GPU only memory can't be mapped !");
     }
     VmaAllocationCreateInfo CreateInfo = GetCreateInfo(MemUsage, Mappable);
-    Ref<VulkanMemoryAllocation> Alloc = Ref<VulkanMemoryAllocation>::Create(*this);
+    VulkanMemoryAllocation* Alloc = new VulkanMemoryAllocation(*this);
     VK_CHECK_RESULT(
         vmaAllocateMemory(Allocator, &MemoryRequirement, &CreateInfo, &(Alloc->GetHandle()), &Alloc->AllocationInfo));
 
@@ -140,12 +140,13 @@ Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(const VkMemoryRequirement
     return Alloc;
 }
 
-void VulkanMemoryManager::Free(Ref<VulkanMemoryAllocation>& Allocation)
+void VulkanMemoryManager::Free(VulkanMemoryAllocation* Allocation)
 {
     // Allocator should be removed after this call
-    check(Allocation->GetRefCount() == 1);
+    // check(Allocation->GetRefCount() == 1);
 
     vmaFreeMemory(Allocator, Allocation->GetHandle());
+    delete Allocation;
     AllocationCount -= 1;
 }
 

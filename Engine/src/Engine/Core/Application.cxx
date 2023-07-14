@@ -2,10 +2,11 @@
 
 #include "Application.hxx"
 #include "Engine/Core/RHI/RHI.hxx"
+#include "Engine/Core/Window.hxx"
 
 #include <SDL_events.h>
 
-static WindowEvent ConvertWindowEvent(const SDL_Event& Event, const Array<Ref<Window>>& Windows);
+static WindowEvent ConvertWindowEvent(const SDL_Event& Event, const Array<Window*>& Windows);
 
 bool BaseApplication::OnEngineInitialization()
 {
@@ -15,7 +16,8 @@ bool BaseApplication::OnEngineInitialization()
         .AppearsInTaskbar = true,
         .Title = "Raphael Engine",
     };
-    MainWindow = Windows.Emplace(Ref<Window>::CreateNamed("Main Window"));
+    MainWindow = Windows.Emplace(new Window);
+    MainWindow->SetName("Main Window");
     MainWindow->Initialize(WindowDef, nullptr);
     MainWindow->Show();
     MainWindow->Maximize();
@@ -43,7 +45,7 @@ void BaseApplication::OnEngineDestruction()
     MainViewport = nullptr;
     MainWindow->Destroy();
 
-    Windows.Clear();
+    Windows.Clear([](Window*& Item) { delete Item; });
 }
 
 void BaseApplication::ProcessEvent(const WindowEvent& Event)
@@ -64,9 +66,11 @@ void BaseApplication::ProcessEvent(const WindowEvent& Event)
     }
 }
 
-Ref<Window> BaseApplication::CreateNewWindow(const std::string& Name)
+Window* BaseApplication::CreateNewWindow(const std::string& Name)
 {
-    return Windows.Emplace(Ref<Window>::CreateNamed(Name));
+    Window* NewWindow = Windows.Emplace(new Window);
+    NewWindow->SetName(Name);
+    return NewWindow;
 }
 
 void BaseApplication::Tick(const float DeltaTime)
@@ -88,7 +92,7 @@ bool BaseApplication::ShouldExit() const
     return bShouldExit;
 }
 
-static WindowEvent ConvertWindowEvent(const SDL_Event& Event, const Array<Ref<Window>>& Windows)
+static WindowEvent ConvertWindowEvent(const SDL_Event& Event, const Array<Window*>& Windows)
 {
     uint32 WindowID = -1;
 
@@ -143,7 +147,7 @@ static WindowEvent ConvertWindowEvent(const SDL_Event& Event, const Array<Ref<Wi
             break;
     }
 
-    for (const Ref<Window>& Window: Windows) {
+    for (Window* const Window: Windows) {
         if (SDL_GetWindowID(Window->GetHandle()) == WindowID) {
             ConvertedEvent.SourceWindow = Window;
             break;

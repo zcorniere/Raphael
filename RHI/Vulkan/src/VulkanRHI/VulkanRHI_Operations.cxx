@@ -44,7 +44,7 @@ void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Descripti
 
         CurrentRenderPass->SetName(Description.Name);
 
-        Ref<VulkanCmdBuffer> CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
+        VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
         CurrentRenderPass->Begin(CmdBuffer, {
                                                 .offset =
                                                     {
@@ -64,7 +64,7 @@ void VulkanDynamicRHI::EndRenderPass()
 {
     RHI::Submit([this] {
         check(CurrentRenderPass.IsValid());
-        Ref<VulkanCmdBuffer> CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
+        VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
 
         CurrentRenderPass->End(CmdBuffer);
     });

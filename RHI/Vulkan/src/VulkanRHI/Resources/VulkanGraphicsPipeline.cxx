@@ -53,8 +53,7 @@ void VulkanRHI::GraphicsPipelineDescription::RenderTargets::AttachmentDesc::Writ
     OutState.finalLayout = FinalLayout;
 }
 
-VulkanGraphicsPipeline::VulkanGraphicsPipeline(Ref<VulkanDevice>& InDevice,
-                                               const GraphicsPipelineDescription& Description)
+VulkanGraphicsPipeline::VulkanGraphicsPipeline(VulkanDevice* InDevice, const GraphicsPipelineDescription& Description)
     : Device(InDevice), Desc(Description)
 {
     Create(false);
@@ -72,12 +71,12 @@ VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
 
 void VulkanGraphicsPipeline::SetName(std::string_view Name)
 {
-    RObject::SetName(Name);
+    NamedClassWithTypeName::SetName(Name);
     if (VulkanPipeline) {
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE, VulkanPipeline, "{}", Name);
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE, VulkanPipeline, "[Pipeline] {}", Name);
     }
     if (PipelineLayout) {
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE_LAYOUT, PipelineLayout, "{} [Pipeline Layout]", Name);
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE_LAYOUT, PipelineLayout, "[Pipeline Layout] {}", Name);
     }
 }
 
@@ -106,7 +105,6 @@ bool VulkanGraphicsPipeline::Create(bool bForceRecompileShaders)
         .pStages = ShaderStage.Raw(),
         .layout = PipelineLayout,
     };
-
     VK_CHECK_RESULT(VulkanAPI::vkCreateGraphicsPipelines(Device->GetHandle(), nullptr, 1, &PipelineCreateInfo, nullptr,
                                                          &VulkanPipeline));
     return false;

@@ -1,8 +1,11 @@
 #pragma once
 
-#include <atomic>
+#include "Engine/Compilers/Compiler.hxx"
+#include "Engine/Misc/Assertions.hxx"
+#include "Engine/Misc/NamedClass.hxx"
 
-#include <Engine/Misc/Assertions.hxx>
+#include <atomic>
+#include <concepts>
 
 template <typename T>
 class Ref;
@@ -28,48 +31,12 @@ bool AreThereAnyLiveObject(bool bPrintObjects = true);
 
 }    // namespace RObjectUtils
 
-/// Custom RefCounting class
+/// Custom Ref Counting class
 class RObject
 {
 public:
     virtual ~RObject()
     {
-    }
-
-    /// Give the RObject a debug name
-    virtual void SetName(std::string_view InName)
-    {
-        m_Name = InName;
-    }
-
-    /// Set the typename of the RObject (should NOT be called by the user)
-    void SetTypeName(std::string_view InTypeName)
-    {
-        // Should not be called multiple time
-        check(m_TypeName.empty());
-        m_TypeName = InTypeName;
-    }
-
-    /// Return the typename
-    const std::string& GetTypeName() const
-    {
-        return m_TypeName;
-    }
-
-    /// Return the debug name of the object
-    const std::string& GetName() const
-    {
-        return m_Name;
-    }
-
-    /// Return a string representing the RObject
-    virtual std::string ToString() const
-    {
-        if (GetName().empty()) {
-            return std::format("(<{:s}> {:p})", GetTypeName(), (void*)this);
-        } else {
-            return std::format("(\"{:s}\" <{:s}> {:p})", GetName(), GetTypeName(), (void*)this);
-        }
     }
 
     /// Increment the ref count of the RObject
@@ -94,8 +61,6 @@ public:
     }
 
 private:
-    std::string m_Name;
-    std::string m_TypeName;
     mutable std::atomic<std::uint32_t> m_RefCount = 0;
 };
 
@@ -108,9 +73,12 @@ public:
     /// @brief Create a new RObject and give it is name
     /// @return the new RObject
     template <typename... Args>
+    requires std::derived_from<T, NamedClass>
     static Ref<T> CreateNamed(std::string_view Name, Args&&... args)
     {
-        return CreateInternal(Name, std::forward<Args>(args)...);
+        Ref<T> NewObject = CreateInternal(std::forward<Args>(args)...);
+        NewObject->SetName(Name);
+        return NewObject;
     }
 
     /// @brief Create a new RObject
@@ -118,19 +86,15 @@ public:
     template <typename... Args>
     static Ref<T> Create(Args&&... args)
     {
-        return CreateInternal("", std::forward<Args>(args)...);
+        return CreateInternal(std::forward<Args>(args)...);
     }
 
 private:
     template <typename... Args>
-    static Ref<T> CreateInternal(std::string_view Name, Args&&... args)
+    requires std::derived_from<T, RObject>
+    static Ref<T> CreateInternal(Args&&... args)
     {
         T* ObjectPtr = new T(std::forward<Args>(args)...);
-        ObjectPtr->SetTypeName(type_name<T>());
-        ObjectPtr->SetName(Name);
-
-        LOG(RObjectUtils::LogRObject, Trace, "Creating RObject {:s}", ObjectPtr->ToString());
-
         return Ref<T>(ObjectPtr);
     }
 
@@ -304,8 +268,6 @@ private:
 
         if (m_ObjPtr->GetRefCount() > 0)
             return;
-
-        LOG(RObjectUtils::LogRObject, Trace, "Deleting RObject {:s}", m_ObjPtr->ToString());
 
         delete m_ObjPtr;
         RObjectUtils::RemoveFromLiveReferences(m_ObjPtr);

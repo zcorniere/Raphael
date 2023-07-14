@@ -6,8 +6,7 @@
 namespace VulkanRHI
 {
 
-VulkanShader::ShaderHandle::ShaderHandle(Ref<VulkanDevice>& InDevice, const VkShaderModuleCreateInfo& Info)
-    : Device(InDevice)
+VulkanShader::ShaderHandle::ShaderHandle(VulkanDevice* InDevice, const VkShaderModuleCreateInfo& Info): Device(InDevice)
 {
     VK_CHECK_RESULT(VulkanAPI::vkCreateShaderModule(Device->GetHandle(), &Info, nullptr, &Handle));
 }
@@ -18,11 +17,11 @@ VulkanShader::ShaderHandle::~ShaderHandle()
 }
 
 VulkanShader::VulkanShader(RHIShaderType Type, const Array<uint32>& InSPIRVCode, const ReflectionData& InReflectionData)
-    : RHIShader(Type), SPIRVCode(InSPIRVCode), m_ReflectionData(InReflectionData), Type(Type), m_ShaderHandle(nullptr)
+    : RHIShader(Type), SPIRVCode(InSPIRVCode), m_ReflectionData(InReflectionData), m_ShaderHandle(nullptr)
 {
 }
 
-Ref<VulkanShader::ShaderHandle> VulkanShader::GetHandle(Ref<VulkanDevice> InDevice)
+Ref<VulkanShader::ShaderHandle> VulkanShader::GetHandle(VulkanDevice* InDevice)
 {
     if (m_ShaderHandle) {
         return Ref(m_ShaderHandle);

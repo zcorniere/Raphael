@@ -1,13 +1,16 @@
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 
+#include "Engine/Misc/NamedClass.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanQueue.hxx"
+#include "magic_enum.hpp"
+#include "vulkan/vulkan_core.h"
 
 namespace VulkanRHI
 {
 
 /// ------------------- VulkanCmdBuffer -------------------
-VulkanCmdBuffer::VulkanCmdBuffer(Ref<VulkanDevice> InDevice, WeakRef<VulkanCommandBufferPool> InCommandPool)
+VulkanCmdBuffer::VulkanCmdBuffer(VulkanDevice* InDevice, VulkanCommandBufferPool* InCommandPool)
     : State(EState::NotAllocated), m_Device(InDevice), m_OwnerPool(InCommandPool)
 {
     Allocate();
@@ -28,6 +31,13 @@ VulkanCmdBuffer::~VulkanCmdBuffer()
     if (State != EState::NotAllocated) {
         Free();
     }
+}
+
+void VulkanCmdBuffer::SetName(std::string_view InName)
+{
+    NamedClass::SetName(InName);
+    VULKAN_SET_DEBUG_NAME(m_Device, VK_OBJECT_TYPE_COMMAND_BUFFER, m_CommandBufferHandle, "[Command Buffer] {:s}",
+                          InName);
 }
 
 void VulkanCmdBuffer::Begin()
@@ -70,7 +80,7 @@ void VulkanCmdBuffer::EndRenderPass()
 
 void VulkanCmdBuffer::AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore>& InSemaphore)
 {
-    // TODO: check if InSemaphore is not already inside WaitSemaphore (std::vector does not have find() / contains())
+    check(!WaitSemaphore.Contains(InSemaphore));
     WaitFlags.Add(InWaitFlags);
     WaitSemaphore.Add(InSemaphore);
 }
@@ -118,7 +128,7 @@ void VulkanCmdBuffer::RefreshFenceStatus()
 
 /// ------------------- VulkanCommandBufferPool -------------------
 
-VulkanCommandBufferPool::VulkanCommandBufferPool(Ref<VulkanDevice> InDevice, VulkanCommandBufferManager* InManager)
+VulkanCommandBufferPool::VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanCommandBufferManager* InManager)
     : m_Handle(VK_NULL_HANDLE), m_Device(InDevice), p_Manager(InManager)
 {
 }
@@ -132,6 +142,12 @@ VulkanCommandBufferPool ::~VulkanCommandBufferPool()
     m_Handle = VK_NULL_HANDLE;
 }
 
+void VulkanCommandBufferPool::SetName(std::string_view InName)
+{
+    NamedClass::SetName(InName);
+    VULKAN_SET_DEBUG_NAME(m_Device, VK_OBJECT_TYPE_COMMAND_BUFFER, m_Handle, "[CommandBufferPool] {:s}", InName);
+}
+
 void VulkanCommandBufferPool::Initialize(uint32 QueueFamilyIndex)
 {
     VkCommandPoolCreateInfo CmdPoolInfo{
@@ -142,11 +158,11 @@ void VulkanCommandBufferPool::Initialize(uint32 QueueFamilyIndex)
     VK_CHECK_RESULT(VulkanAPI::vkCreateCommandPool(m_Device->GetHandle(), &CmdPoolInfo, nullptr, &m_Handle));
 }
 
-Ref<VulkanCmdBuffer> VulkanCommandBufferPool::CreateCmdBuffer()
+VulkanCmdBuffer* VulkanCommandBufferPool::CreateCmdBuffer()
 {
     // Find already allocated buffer ...
     for (int32 i = m_FreeCmdBuffers.Size() - 1; i >= 0; --i) {
-        Ref<VulkanCmdBuffer> CmdBuffer = m_FreeCmdBuffers[i];
+        VulkanCmdBuffer* CmdBuffer = m_FreeCmdBuffers[i];
 
         m_FreeCmdBuffers.Pop();
         // ... grab some memory ...
@@ -159,14 +175,14 @@ Ref<VulkanCmdBuffer> VulkanCommandBufferPool::CreateCmdBuffer()
     }
 
     // No buffer are available, create a new one. It already has memory
-    Ref<VulkanCmdBuffer> NewCmdBuffer = Ref<VulkanCmdBuffer>::Create(m_Device, this);
+    VulkanCmdBuffer* NewCmdBuffer = new VulkanCmdBuffer(m_Device, this);
     m_CmdBuffers.Add(NewCmdBuffer);
     return NewCmdBuffer;
 }
 
-void VulkanCommandBufferPool::RefreshFenceStatus(Ref<VulkanCmdBuffer>& SkipCmdBuffer)
+void VulkanCommandBufferPool::RefreshFenceStatus(VulkanCmdBuffer* SkipCmdBuffer)
 {
-    for (Ref<VulkanCmdBuffer>& CmdBuffer: m_CmdBuffers) {
+    for (VulkanCmdBuffer* CmdBuffer: m_CmdBuffers) {
         if (CmdBuffer == SkipCmdBuffer)
             continue;
         CmdBuffer->RefreshFenceStatus();
@@ -175,10 +191,10 @@ void VulkanCommandBufferPool::RefreshFenceStatus(Ref<VulkanCmdBuffer>& SkipCmdBu
 
 /// ------------------- VulkanCommandBufferManager -------------------
 
-VulkanCommandBufferManager::VulkanCommandBufferManager(Ref<VulkanDevice> InDevice, Ref<VulkanQueue> InQueue)
+VulkanCommandBufferManager::VulkanCommandBufferManager(VulkanDevice* InDevice, VulkanQueue* InQueue)
     : Device(InDevice), Queue(InQueue)
 {
-    Pool = Ref<VulkanCommandBufferPool>::Create(Device, this);
+    Pool = new VulkanCommandBufferPool(Device, this);
     Pool->Initialize(Queue->GetFamilyIndex());
 
     ActiveCmdBuffer = Pool->CreateCmdBuffer();
@@ -196,14 +212,14 @@ void VulkanCommandBufferManager::Shutdown()
 {
 }
 
-Ref<VulkanCmdBuffer>& VulkanCommandBufferManager::GetActiveCmdBuffer()
+VulkanCmdBuffer* VulkanCommandBufferManager::GetActiveCmdBuffer()
 {
     if (UploadCmdBuffer) {
         SubmitUploadCmdBuffer();
     }
     return ActiveCmdBuffer;
 }
-Ref<VulkanCmdBuffer>& VulkanCommandBufferManager::GetUploadCmdBuffer()
+VulkanCmdBuffer* VulkanCommandBufferManager::GetUploadCmdBuffer()
 {
     if (!UploadCmdBuffer) {
         UploadCmdBuffer = FindAvailableCmdBuffer();
@@ -264,10 +280,10 @@ void VulkanCommandBufferManager::SubmitActiveCmdBufferFormPresent(Ref<Semaphore>
     }
 }
 
-Ref<VulkanCmdBuffer> VulkanCommandBufferManager::FindAvailableCmdBuffer()
+VulkanCmdBuffer* VulkanCommandBufferManager::FindAvailableCmdBuffer()
 {
     for (uint32 Index = 0; Index < Pool->m_CmdBuffers.Size(); Index++) {
-        Ref<VulkanCmdBuffer>& CmdBuffer = Pool->m_CmdBuffers[Index];
+        VulkanCmdBuffer* CmdBuffer = Pool->m_CmdBuffers[Index];
         CmdBuffer->RefreshFenceStatus();
 
         if (CmdBuffer->State == VulkanCmdBuffer::EState::ReadyForBegin ||
@@ -277,7 +293,7 @@ Ref<VulkanCmdBuffer> VulkanCommandBufferManager::FindAvailableCmdBuffer()
         }
     }
 
-    Ref<VulkanCmdBuffer> NewBuffer = Pool->CreateCmdBuffer();
+    VulkanCmdBuffer* NewBuffer = Pool->CreateCmdBuffer();
     NewBuffer->Begin();
     return NewBuffer;
 }

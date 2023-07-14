@@ -29,7 +29,7 @@ Window::~Window()
 {
 }
 
-void Window::Initialize(const WindowDefinition InDefinition, const Ref<Window>& InParent)
+void Window::Initialize(const WindowDefinition InDefinition, const Window* InParent)
 {
     Definition = InDefinition;
     p_ParentWindow = InParent;
@@ -72,7 +72,7 @@ void Window::Initialize(const WindowDefinition InDefinition, const Ref<Window>& 
     }
 }
 
-const Ref<Window>& Window::GetParent() const
+const Window* Window::GetParent() const
 {
     return p_ParentWindow;
 }

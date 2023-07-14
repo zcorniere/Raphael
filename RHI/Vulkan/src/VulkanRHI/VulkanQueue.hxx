@@ -8,11 +8,13 @@ namespace VulkanRHI
 class VulkanCmdBuffer;
 class VulkanDevice;
 
-class VulkanQueue : public RObject
+class VulkanQueue final : public NamedClassWithTypeName<VulkanQueue>
 {
 public:
-    VulkanQueue(Ref<VulkanDevice> InDevice, std::uint32_t InFamilyIndex);
+    VulkanQueue(VulkanDevice* InDevice, std::uint32_t InFamilyIndex);
     ~VulkanQueue();
+
+    void SetName(std::string_view InName) override;
 
     inline std::uint32_t GetFamilyIndex() const
     {
@@ -29,21 +31,18 @@ public:
         return Queue;
     }
 
-    void Submit(Ref<VulkanCmdBuffer>& CmdBuffer, uint32 NumSignaledSemaphores = 0,
-                VkSemaphore* SignalSemaphores = nullptr);
+    void Submit(VulkanCmdBuffer* CmdBuffer, uint32 NumSignaledSemaphores = 0, VkSemaphore* SignalSemaphores = nullptr);
 
-    void Submit(Ref<VulkanCmdBuffer>& CmdBuffer, VkSemaphore SignalSemaphores)
+    void Submit(VulkanCmdBuffer* CmdBuffer, VkSemaphore SignalSemaphores)
     {
         return Submit(CmdBuffer, 1, &SignalSemaphores);
     }
-
-    void SetName(std::string_view InName) override;
 
 private:
     VkQueue Queue;
     std::uint32_t FamilyIndex;
     std::uint32_t QueueIndex;
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
 };
 
 }    // namespace VulkanRHI

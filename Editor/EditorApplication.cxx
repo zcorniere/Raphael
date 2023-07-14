@@ -1,6 +1,8 @@
 #include "EditorApplication.hxx"
 
-#include <Engine/Core/FrameGraph/FrameGraph.hxx>
+// #include <Engine/Core/FrameGraph/FrameGraph.hxx>
+
+#include <Engine/Core/RHI/RHI.hxx>
 
 DECLARE_LOGGER_CATEGORY(Core, LogApplication, Warning)
 

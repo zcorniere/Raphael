@@ -13,11 +13,11 @@
 #include "VulkanRHI/VulkanUtils.hxx"
 
 // RHI Creation Implementation
-Ref<GenericRHI> RHI::CreateRHI()
+GenericRHI* RHI::CreateRHI()
 {
     RPH_PROFILE_FUNC()
 
-    GDynamicRHI = Ref<VulkanRHI::VulkanDynamicRHI>::CreateNamed("Vulkan RHI");
+    GDynamicRHI = new VulkanRHI::VulkanDynamicRHI;
     return GDynamicRHI;
 }
 //
@@ -29,8 +29,6 @@ namespace VulkanRHI
 
 VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr)
 {
-    SetName("VulkanRHI");
-
     LOG(LogVulkanRHI, Info, "Built with Vulkan header version {}.{}.{}",
         VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
         VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
@@ -92,6 +90,7 @@ void VulkanDynamicRHI::Shutdown()
     Viewports.Clear();
 
     Device->Destroy();
+    delete Device;
     Device = nullptr;
 
 #if VULKAN_DEBUGGING_ENABLED
@@ -101,7 +100,7 @@ void VulkanDynamicRHI::Shutdown()
     VulkanAPI::vkDestroyInstance(m_Instance, nullptr);
 }
 
-Ref<VulkanDevice>& VulkanDynamicRHI::GetDevice()
+VulkanDevice* VulkanDynamicRHI::GetDevice()
 {
     return Device;
 }
@@ -208,17 +207,17 @@ void VulkanDynamicRHI::SelectDevice()
     checkMsg(GpuCount >= 1, "Couldn't enumerate physical devices!");
 
     struct DeviceInfo {
-        Ref<VulkanDevice> Device;
+        VulkanDevice* Device;
         std::uint32_t DeviceIndex;
     };
-    Array<Ref<VulkanDevice>> Devices;
+    Array<VulkanDevice*> Devices;
     Array<DeviceInfo> DiscreteDevice;
     Array<DeviceInfo> IntegratedDevice;
 
     LOG(LogVulkanRHI, Info, "Found {} device(s)", GpuCount);
     for (std::uint32_t Index = 0; Index < GpuCount; Index++) {
         LOG(LogVulkanRHI, Info, "Device {}:", Index);
-        Ref<VulkanDevice> NewDevice = Ref<VulkanDevice>::Create(PhysicalDevices[Index]);
+        VulkanDevice* NewDevice = new VulkanDevice(PhysicalDevices[Index]);
         Devices.Add(NewDevice);
 
         const bool bIsDiscrete = (NewDevice->GetDeviceProperties().deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
@@ -247,6 +246,11 @@ void VulkanDynamicRHI::SelectDevice()
 
     LOG(LogVulkanRHI, Info, "Chosen device index: {}", DeviceIndex);
     Device->SetName("Main Vulkan Device");
+
+    Devices.Clear([this](VulkanDevice* DiscardedDevice) {
+        if (Device != DiscardedDevice)
+            delete DiscardedDevice;
+    });
 }
 
 }    // namespace VulkanRHI

@@ -1,6 +1,6 @@
 #pragma once
 
-/// The type of THI resource
+/// The type of RHI resource
 enum class RHIResourceType : uint8 {
     None = 0,
 
@@ -13,8 +13,8 @@ enum class RHIResourceType : uint8 {
     MAX_VALUE,
 };
 
-/// Represent and abstract abore RHI ressources
-class RHIResource : public RObject
+/// Represent and abstract type above RHI ressources
+class RHIResource : public RObject, public NamedClassWithTypeName<RHIResource>
 {
 public:
     RHIResource() = delete;

@@ -84,10 +84,14 @@ class VulkanShader;
 class VulkanGraphicsPipeline : public RHIGraphicsPipeline
 {
 public:
-    VulkanGraphicsPipeline(Ref<VulkanDevice>& InDevice, const GraphicsPipelineDescription& Description);
+    VulkanGraphicsPipeline(VulkanDevice* InDevice, const GraphicsPipelineDescription& Description);
     ~VulkanGraphicsPipeline();
 
-    void SetName(std::string_view Name) override;
+    virtual void SetName(std::string_view Name) override;
+    virtual std::string_view GetTypeName_Internal() const override
+    {
+        return type_name<VulkanGraphicsPipeline>();
+    }
 
     bool Create(bool bForceRecompileShaders = false);
     void Bind(VkCommandBuffer CmdBuffer)
@@ -104,7 +108,7 @@ private:
     bool CreatePipelineLayout();
 
 private:
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
     GraphicsPipelineDescription Desc;
 
     Ref<VulkanShader> Shaders[2];

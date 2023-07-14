@@ -59,7 +59,7 @@ public:
         return m_Instance;
     }
 
-    Ref<VulkanDevice>& GetDevice();
+    VulkanDevice* GetDevice();
 
 private:
     void CreateInstance();
@@ -80,7 +80,7 @@ private:
 
 private:
     VkInstance m_Instance;
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
 
     Array<Ref<VulkanViewport>> Viewports;
     WeakRef<VulkanViewport> DrawingViewport;
@@ -93,7 +93,7 @@ private:
 
 }    // namespace VulkanRHI
 
-FORCEINLINE Ref<VulkanRHI::VulkanDynamicRHI> GetVulkanDynamicRHI()
+FORCEINLINE VulkanRHI::VulkanDynamicRHI* GetVulkanDynamicRHI()
 {
     checkMsg(GDynamicRHI, "Tried to fetch RHI too early");
     check(GDynamicRHI->GetInterfaceType() == RHIInterfaceType::Vulkan);

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Misc/NamedClass.hxx"
+#include "vulkan/vulkan_core.h"
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
@@ -21,11 +23,13 @@ class VulkanCmdBuffer;
 class VulkanMemoryManager;
 class VulkanCommandBufferManager;
 
-class VulkanDevice : public RObject
+class VulkanDevice final : public NamedClassWithTypeName<VulkanDevice>
 {
 public:
     VulkanDevice(VkPhysicalDevice Gpu);
     ~VulkanDevice();
+
+    virtual void SetName(std::string_view InName) override final;
 
     void InitPhysicalDevice();
     void CreateDeviceAndQueue(const Array<const char*>& DeviceLayers, const Array<const char*>& DeviceExtensions);
@@ -75,17 +79,17 @@ public:
     VulkanCommandBufferManager* GetCommandManager();
 
 public:
-    Ref<VulkanQueue> GraphicsQueue;
-    Ref<VulkanQueue> ComputeQueue;
-    Ref<VulkanQueue> TransferQueue;
-    Ref<VulkanQueue> PresentQueue;
+    VulkanQueue* GraphicsQueue = nullptr;
+    VulkanQueue* ComputeQueue = nullptr;
+    VulkanQueue* TransferQueue = nullptr;
+    VulkanQueue* PresentQueue = nullptr;
 
 private:
-    VulkanMemoryManager* MemoryAllocator;
-    VulkanCommandBufferManager* CommandManager;
+    VulkanMemoryManager* MemoryAllocator = nullptr;
+    VulkanCommandBufferManager* CommandManager = nullptr;
 
-    VkDevice Device;
-    VkPhysicalDevice Gpu;
+    VkDevice Device = VK_NULL_HANDLE;
+    VkPhysicalDevice Gpu = VK_NULL_HANDLE;
     VkPhysicalDeviceProperties GpuProps;
 
     VkPhysicalDeviceFeatures PhysicalFeatures;

@@ -10,6 +10,11 @@ public:
     LinuxExternalModule(std::string_view ModulePath);
     virtual ~LinuxExternalModule();
 
+    virtual std::string_view GetTypeName_Internal() const override
+    {
+        return type_name<LinuxExternalModule>();
+    }
+
 private:
     virtual void* GetSymbol_Internal(std::string_view SymbolName) const override;
 

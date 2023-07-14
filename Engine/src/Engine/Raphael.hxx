@@ -21,6 +21,7 @@
 #include <Engine/Misc/Hash.hxx>
 #include <Engine/Misc/Memory.hxx>
 #include <Engine/Misc/MiscDefines.hxx>
+#include <Engine/Misc/NamedClass.hxx>
 
 #include <Engine/Platforms/Platform.hxx>
 

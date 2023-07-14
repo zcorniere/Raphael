@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Misc/NamedClass.hxx"
 struct SDL_Window;
 
 /// @brief Define a Window
@@ -46,7 +47,7 @@ struct WindowDefinition {
 /// window->Initialize(WindowDef);
 /// window->Show();
 /// @endcode
-class Window : public RObject
+class Window final : public NamedClass
 {
 public:
     /// Make sure the SDL is initialized or do it if it is not
@@ -61,10 +62,10 @@ public:
     /// @brief Open the window
     /// @param InDefinition The definition of the window
     /// @param InParent (optional) The parent window of this window
-    void Initialize(const WindowDefinition InDefinition, const Ref<Window>& InParent = nullptr);
+    void Initialize(const WindowDefinition InDefinition, const Window* InParent = nullptr);
 
     /// Return the parent window, or nullptr
-    const Ref<Window>& GetParent() const;
+    const Window* GetParent() const;
 
     /// Reshape the window
     void ReshapeWindow(int32 X, int32 Y, int32 Width, int32 Height);
@@ -113,5 +114,5 @@ private:
     SDL_Window* p_HWnd;
 
     bool bIsVisible;
-    Ref<Window> p_ParentWindow;
+    const Window* p_ParentWindow;
 };

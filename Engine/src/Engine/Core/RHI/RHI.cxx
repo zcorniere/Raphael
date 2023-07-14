@@ -3,23 +3,26 @@
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "RHI.hxx"
 
-static Ref<RHICommandQueue> s_CommandQueue = nullptr;
+static RHICommandQueue* s_CommandQueue = nullptr;
 
-Ref<GenericRHI> GDynamicRHI = nullptr;
+GenericRHI* GDynamicRHI = nullptr;
 
 void RHI::Init()
 {
-    s_CommandQueue = Ref<RHICommandQueue>::Create();
+    s_CommandQueue = new RHICommandQueue;
 }
 
 void RHI::DeleteRHI()
 {
     GDynamicRHI->Shutdown();
+
+    delete s_CommandQueue;
     s_CommandQueue = nullptr;
+    delete GDynamicRHI;
     GDynamicRHI = nullptr;
 }
 
-Ref<RHICommandQueue>& RHI::GetRHICommandQueue()
+RHICommandQueue* RHI::GetRHICommandQueue()
 {
     check(s_CommandQueue);
     return s_CommandQueue;

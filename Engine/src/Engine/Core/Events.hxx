@@ -18,7 +18,7 @@ struct WindowEvent {
         Minimize,
     } Type;
 
-    Ref<Window> SourceWindow;
+    Window* SourceWindow;
 
     union Event {
         EventClose Close;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Misc/NamedClass.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 
 namespace VulkanRHI
@@ -28,11 +29,13 @@ private:
     std::vector<VkImageMemoryBarrier> ImageBarrier;
 };
 
-class Semaphore : public RObject
+class Semaphore : public RObject, public NamedClassWithTypeName<Semaphore>
 {
 public:
-    Semaphore(Ref<VulkanDevice>& InDevice);
+    Semaphore(VulkanDevice* InDevice);
     virtual ~Semaphore();
+
+    virtual void SetName(std::string_view InName) override;
 
     inline VkSemaphore GetHandle() const
     {
@@ -40,11 +43,11 @@ public:
     }
 
 private:
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
     VkSemaphore SemaphoreHandle;
 };
 
-class Fence : public RObject
+class Fence : public RObject, public NamedClassWithTypeName<Semaphore>
 {
 protected:
     enum class State {
@@ -56,8 +59,10 @@ protected:
     };
 
 public:
-    Fence(Ref<VulkanDevice> InDevice, bool bCreateSignaled);
+    Fence(VulkanDevice* InDevice, bool bCreateSignaled);
     ~Fence();
+
+    virtual void SetName(std::string_view InName) override;
 
     inline VkFence GetHandle() const
     {
@@ -76,7 +81,7 @@ private:
     bool CheckFenceStatus();
 
 private:
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
     VkFence Handle;
     State State;
 };

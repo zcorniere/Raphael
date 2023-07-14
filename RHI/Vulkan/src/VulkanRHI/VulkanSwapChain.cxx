@@ -12,7 +12,7 @@ DECLARE_LOGGER_CATEGORY(Core, LogVulkanSwapchain, Info);
 namespace VulkanRHI
 {
 
-VulkanSwapChain::SupportDetails VulkanSwapChain::SupportDetails::QuerySwapChainSupport(const Ref<VulkanDevice>& Device,
+VulkanSwapChain::SupportDetails VulkanSwapChain::SupportDetails::QuerySwapChainSupport(const VulkanDevice* Device,
                                                                                        const VkSurfaceKHR& Surface)
 {
     VulkanSwapChain::SupportDetails Details;
@@ -119,9 +119,9 @@ VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const glm::uvec2& s
     }
 }
 
-VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice>& InDevice, void* WindowHandle,
-                                 glm::uvec2 Size, uint32 InDesiredNumBackBuffers, Array<VkImage>& OutImages,
-                                 bool LockToVSync, VulkanSwapChainRecreateInfo* RecreateInfo)
+VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, void* WindowHandle, glm::uvec2 Size,
+                                 uint32 InDesiredNumBackBuffers, Array<VkImage>& OutImages, bool LockToVSync,
+                                 VulkanSwapChainRecreateInfo* RecreateInfo)
     : Device(InDevice),
       CurrentImageIndex(-1),
       SemaphoreIndex(0),
@@ -213,6 +213,14 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice>& InDev
     }
 }
 
+VulkanSwapChain::~VulkanSwapChain()
+{
+    if (Surface || SwapChain) {
+        VulkanSwapChainRecreateInfo Info;
+        Destroy(&Info);
+    }
+}
+
 void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo* RecreateInfo)
 {
     if (RecreateInfo) {
@@ -228,7 +236,7 @@ void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo* RecreateInfo)
     ImageInUseFence.Clear();
 }
 
-VulkanSwapChain::Status VulkanSwapChain::Present(Ref<VulkanQueue>& PresentQueue, Ref<Semaphore>& RenderingComplete)
+VulkanSwapChain::Status VulkanSwapChain::Present(VulkanQueue* PresentQueue, Ref<Semaphore>& RenderingComplete)
 {
     RPH_PROFILE_FUNC()
 
@@ -265,7 +273,7 @@ VulkanSwapChain::Status VulkanSwapChain::Present(Ref<VulkanQueue>& PresentQueue,
 
 void VulkanSwapChain::SetName(std::string_view InName)
 {
-    RObject::SetName(InName);
+    NamedClassWithTypeName::SetName(InName);
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SWAPCHAIN_KHR, SwapChain, "Swapchain - \"{:s}\"", InName);
 }
 

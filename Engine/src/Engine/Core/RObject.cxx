@@ -38,8 +38,9 @@ bool AreThereAnyLiveObject(bool bPrintObjects)
 
     if (bPrintObjects) {
         for (RObject* ObjectPtr: s_LiveReferences) {
-            LOG(LogRObject, Trace, "RObject<{}> ({:p}) have {} references", ObjectPtr->GetName(), (void*)ObjectPtr,
-                ObjectPtr->GetRefCount());
+            NamedClass* NamedClassPtr = dynamic_cast<NamedClass*>(ObjectPtr);
+            LOG(LogRObject, Trace, "RObject<{}> ({:p}) have {} references",
+                (NamedClassPtr) ? NamedClassPtr->GetName() : "?", (void*)ObjectPtr, ObjectPtr->GetRefCount());
         }
     }
     return s_LiveReferences.size() > 0;

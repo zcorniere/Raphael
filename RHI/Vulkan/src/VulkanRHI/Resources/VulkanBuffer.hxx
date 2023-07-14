@@ -4,7 +4,6 @@
 
 #include "VulkanRHI/VulkanLoader.hxx"
 
-
 namespace VulkanRHI
 {
 
@@ -14,11 +13,15 @@ class VulkanMemoryAllocation;
 class VulkanBuffer : public RHIBuffer
 {
 public:
-    VulkanBuffer(Ref<VulkanDevice>& InDevice, const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
-                 Ref<ResourceArray> &InitialData);
+    VulkanBuffer(VulkanDevice* InDevice, const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
+                 Ref<ResourceArray>& InitialData);
     ~VulkanBuffer();
 
-    void SetName(std::string_view InName) override;
+    virtual void SetName(std::string_view InName) override;
+    virtual std::string_view GetTypeName_Internal() const override
+    {
+        return type_name<VulkanBuffer>();
+    }
 
     inline VkBuffer GetHandle() const
     {
@@ -44,11 +47,11 @@ public:
     }
 
 private:
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
 
     VkMemoryRequirements MemoryRequirements;
     VkBuffer BufferHandle;
-    Ref<VulkanMemoryAllocation> Memory;
+    VulkanMemoryAllocation* Memory;
 
     uint32 Offset;
     uint32 Stride;

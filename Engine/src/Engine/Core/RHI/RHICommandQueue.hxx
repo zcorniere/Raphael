@@ -11,7 +11,7 @@
 /// // Flush the queue and execute the function
 /// Queue.Execute();
 /// @endcode
-class RHICommandQueue : public RObject
+class RHICommandQueue final : public NamedClassWithTypeName<RHICommandQueue>
 {
 public:
     constexpr static auto AllocatedSize = 10 * 1024 * 1024;    // 10mb buffer

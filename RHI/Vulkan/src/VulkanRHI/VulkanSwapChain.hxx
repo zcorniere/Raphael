@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Misc/NamedClass.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 
 namespace VulkanRHI
@@ -16,7 +17,7 @@ struct VulkanSwapChainRecreateInfo {
     VkSurfaceKHR Surface = VK_NULL_HANDLE;
 };
 
-class VulkanSwapChain : public RObject
+class VulkanSwapChain final : public NamedClassWithTypeName<VulkanSwapChain>
 {
 public:
     enum class Status {
@@ -31,7 +32,7 @@ private:
     {
     public:
         /// Gather swapchain support information
-        static SupportDetails QuerySwapChainSupport(const Ref<VulkanDevice>& device, const VkSurfaceKHR& surface);
+        static SupportDetails QuerySwapChainSupport(const VulkanDevice* Device, const VkSurfaceKHR& surface);
 
     public:
         /// Choose a fitting format
@@ -51,13 +52,16 @@ private:
     };
 
 public:
-    VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice>& InDevice, void* WindowHandle, glm::uvec2 Size,
+    VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, void* WindowHandle, glm::uvec2 Size,
                     uint32 InOutDesiredNumBackBuffers, Array<VkImage>& OutImages, bool LockToVSync,
                     VulkanSwapChainRecreateInfo* RecreateInfo);
+    ~VulkanSwapChain();
+
+    virtual void SetName(std::string_view InName) override;
 
     void Destroy(VulkanSwapChainRecreateInfo* RecreateInfo);
 
-    Status Present(Ref<VulkanQueue>& PresentQueue, Ref<Semaphore>& RenderingComplete);
+    Status Present(VulkanQueue* PresentQueue, Ref<Semaphore>& RenderingComplete);
 
     VkFormat GetFormat() const
     {
@@ -74,13 +78,11 @@ public:
         return LockToVSync;
     }
 
-    void SetName(std::string_view InName) override;
-
 private:
     int32 AcquireImageIndex(Ref<Semaphore>& OutSemaphore);
 
 private:
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
     int32 CurrentImageIndex;
     int32 SemaphoreIndex;
 

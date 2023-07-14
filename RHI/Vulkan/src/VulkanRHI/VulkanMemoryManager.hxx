@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Misc/NamedClass.hxx"
 #include <vk_mem_alloc.h>
 
 namespace VulkanRHI
@@ -9,7 +10,7 @@ class VulkanDevice;
 
 class VulkanMemoryManager;
 
-class VulkanMemoryAllocation : public RObject
+class VulkanMemoryAllocation final : public NamedClassWithTypeName<VulkanMemoryAllocation>
 {
 public:
     VulkanMemoryAllocation() = delete;
@@ -18,7 +19,7 @@ public:
     {
     }
 
-    void SetName(std::string_view InName) override;
+    virtual void SetName(std::string_view InName) override;
 
     void* Map(VkDeviceSize InSize, VkDeviceSize Offset = 0);
     void Unmap();
@@ -74,12 +75,12 @@ public:
     VulkanMemoryManager();
     ~VulkanMemoryManager();
 
-    void Init(Ref<VulkanDevice> InDevice);
+    void Init(VulkanDevice* InDevice);
     void Shutdown();
 
-    Ref<VulkanMemoryAllocation> Alloc(const VkMemoryRequirements& MemoryRequirement, VmaMemoryUsage MemUsage,
-                                      bool Mappable);
-    void Free(Ref<VulkanMemoryAllocation>& Allocation);
+    VulkanMemoryAllocation* Alloc(const VkMemoryRequirements& MemoryRequirement, VmaMemoryUsage MemUsage,
+                                  bool Mappable);
+    void Free(VulkanMemoryAllocation* Allocation);
 
     uint64 GetTotalMemory(bool bGPUOnly) const;
     void PrintMemInfo() const;
@@ -93,7 +94,7 @@ private:
     VmaAllocationCreateInfo GetCreateInfo(VmaMemoryUsage MemUsage, bool Mappable);
 
 private:
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
     VmaAllocator Allocator;
 
     VkPhysicalDeviceMemoryProperties MemoryProperties;

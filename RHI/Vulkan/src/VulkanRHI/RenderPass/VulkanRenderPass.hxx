@@ -2,6 +2,7 @@
 
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
 
+#include "Engine/Misc/NamedClass.hxx"
 #include "VulkanRHI/Resources/VulkanTexture.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 
@@ -11,7 +12,7 @@ namespace VulkanRHI
 class VulkanDevice;
 class VulkanCmdBuffer;
 
-class VulkanRenderPass : public RObject
+class VulkanRenderPass : public RObject, public NamedClassWithTypeName<VulkanRenderPass>
 {
 private:
     struct AttachmentRefs {
@@ -21,12 +22,12 @@ private:
     };
 
 public:
-    VulkanRenderPass(Ref<VulkanDevice>& InDevice, const RHIRenderPassDescription& InDescription,
+    VulkanRenderPass(VulkanDevice* InDevice, const RHIRenderPassDescription& InDescription,
                      VkRenderPass ExternalPass = VK_NULL_HANDLE);
     ~VulkanRenderPass();
 
-    void Begin(Ref<VulkanCmdBuffer>& CmdBuffer, const VkRect2D RenderArea);
-    void End(Ref<VulkanCmdBuffer>& CmdBuffer);
+    void Begin(VulkanCmdBuffer* CmdBuffer, const VkRect2D RenderArea);
+    void End(VulkanCmdBuffer* CmdBuffer);
 
     VkRenderPass GetRenderPass() const
     {
@@ -37,7 +38,7 @@ public:
         return FrameBuffer;
     }
 
-    void SetName(std::string_view InName) override;
+    virtual void SetName(std::string_view InName) override;
 
 private:
     VkFramebuffer CreateFrameBuffer();
@@ -56,7 +57,7 @@ private:
 
 private:
     bool bHasBegun = false;
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
 
     Array<Ref<VulkanTexture>> ColorTarget;
     Array<Ref<VulkanTexture>> ResolveTarget;

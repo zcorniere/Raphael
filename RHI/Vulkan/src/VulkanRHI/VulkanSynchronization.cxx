@@ -1,7 +1,10 @@
 #include "VulkanRHI/VulkanSynchronization.hxx"
+#include "Engine/Misc/NamedClass.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 
 #include "VulkanRHI/VulkanUtils.hxx"
+#include "vulkan/vulkan_core.h"
+#include <string_view>
 
 namespace
 {
@@ -208,7 +211,7 @@ void Barrier::Execute(VkCommandBuffer CmdBuffer)
     }
 }
 
-Semaphore::Semaphore(Ref<VulkanDevice>& InDevice): Device(InDevice), SemaphoreHandle(VK_NULL_HANDLE)
+Semaphore::Semaphore(VulkanDevice* InDevice): Device(InDevice), SemaphoreHandle(VK_NULL_HANDLE)
 {
     VkSemaphoreCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
@@ -224,7 +227,13 @@ Semaphore::~Semaphore()
     SemaphoreHandle = VK_NULL_HANDLE;
 }
 
-Fence::Fence(Ref<VulkanDevice> InDevice, bool bCreateSignaled)
+void Semaphore::SetName(std::string_view InName)
+{
+    NamedClassWithTypeName::SetName(InName);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SEMAPHORE, SemaphoreHandle, "[Semaphore] {:s}", InName);
+}
+
+Fence::Fence(VulkanDevice* InDevice, bool bCreateSignaled)
     : Device(InDevice), State(bCreateSignaled ? Fence::State::Signaled : Fence::State::NotReady)
 {
     VkFenceCreateInfo Info{
@@ -240,6 +249,12 @@ Fence::Fence(Ref<VulkanDevice> InDevice, bool bCreateSignaled)
 Fence::~Fence()
 {
     VulkanAPI::vkDestroyFence(Device->GetHandle(), Handle, nullptr);
+}
+
+void Fence::SetName(std::string_view InName)
+{
+    NamedClassWithTypeName::SetName(InName);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_FENCE, Handle, "[Fence] {:s}", InName);
 }
 
 void Fence::Reset()

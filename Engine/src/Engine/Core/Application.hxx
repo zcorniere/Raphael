@@ -39,12 +39,13 @@ public:
     virtual void ProcessEvent(const WindowEvent& Event);
 
 protected:
-    Ref<Window> CreateNewWindow(const std::string& Name = "");
+    Window* CreateNewWindow(const std::string& Name = "");
 
 protected:
     bool bShouldExit = false;
 
-    WeakRef<Window> MainWindow;
+    Window* MainWindow;
     Ref<RHIViewport> MainViewport;
-    Array<Ref<Window>> Windows;
+
+    Array<Window*> Windows;
 };

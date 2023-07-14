@@ -7,7 +7,7 @@
 namespace VulkanRHI
 {
 
-VulkanQueue::VulkanQueue(Ref<VulkanDevice> InDevice, std::uint32_t InFamilyIndex)
+VulkanQueue::VulkanQueue(VulkanDevice* InDevice, std::uint32_t InFamilyIndex)
     : Queue(VK_NULL_HANDLE), FamilyIndex(InFamilyIndex), QueueIndex(0), Device(InDevice)
 {
     VulkanAPI::vkGetDeviceQueue(Device->GetHandle(), FamilyIndex, QueueIndex, &Queue);
@@ -17,7 +17,13 @@ VulkanQueue::~VulkanQueue()
 {
 }
 
-void VulkanQueue::Submit(Ref<VulkanCmdBuffer>& CmdBuffer, uint32 NumSignaledSemaphores, VkSemaphore* SignalSemaphores)
+void VulkanQueue::SetName(std::string_view InName)
+{
+    NamedClassWithTypeName::SetName(InName);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_QUEUE, Queue, "[Queue] {:s}", InName);
+}
+
+void VulkanQueue::Submit(VulkanCmdBuffer* CmdBuffer, uint32 NumSignaledSemaphores, VkSemaphore* SignalSemaphores)
 {
     RPH_PROFILE_FUNC()
 
@@ -52,12 +58,6 @@ void VulkanQueue::Submit(Ref<VulkanCmdBuffer>& CmdBuffer, uint32 NumSignaledSema
 
     CmdBuffer->State = VulkanCmdBuffer::EState::Submitted;
     CmdBuffer->WaitSemaphore.Clear();
-}
-
-void VulkanQueue::SetName(std::string_view InName)
-{
-    RObject::SetName(InName);
-    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_QUEUE, Queue, "{}", InName);
 }
 
 }    // namespace VulkanRHI

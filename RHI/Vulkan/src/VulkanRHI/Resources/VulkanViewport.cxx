@@ -10,7 +10,7 @@
 namespace VulkanRHI
 {
 
-VulkanViewport::VulkanViewport(Ref<VulkanDevice> InDevice, void* InWindowHandle, glm::uvec2 InSize)
+VulkanViewport::VulkanViewport(VulkanDevice* InDevice, void* InWindowHandle, glm::uvec2 InSize)
     : Device(InDevice), WindowHandle(InWindowHandle), Size(InSize), AcquiredImageIndex(-1)
 {
     CreateSwapchain(nullptr);
@@ -33,7 +33,7 @@ void VulkanViewport::RT_BeginDrawViewport()
 }
 void VulkanViewport::RT_EndDrawViewport()
 {
-    Ref<VulkanCmdBuffer> CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
+    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
     check(!CmdBuffer->HasEnded() && !CmdBuffer->IsInsideRenderPass());
 
     this->Present(CmdBuffer, Device->GraphicsQueue, Device->PresentQueue);
@@ -48,8 +48,7 @@ void VulkanViewport::RT_ResizeViewport(uint32 Width, uint32 Height)
 
 void VulkanViewport::SetName(std::string_view InName)
 {
-    RHIResource::SetName(InName);
-
+    NamedClassWithTypeName::SetName(InName);
     if (!SwapChain)
         return;
 
@@ -60,15 +59,15 @@ void VulkanViewport::SetName(std::string_view InName)
 
     for (unsigned i = 0; i < BackBufferImages.Size(); i++) {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SEMAPHORE, RenderingDoneSemaphores[i]->GetHandle(),
-                              "Swapchain \"{:s}\" - Semaphore Rendering done({})", InName, i);
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, TexturesViews[i].Image, "Swapchain \"{:s}\" - Image ({})",
+                              "[Swapchain] \"{:s}\" - Semaphore Rendering done({})", InName, i);
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, TexturesViews[i].Image, "[Swapchain] \"{:s}\" - Image ({})",
                               InName, i);
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, TexturesViews[i].View,
-                              "Swapchain \"{:s}\" - Image View ({})", InName, i);
+                              "[Swapchain] \"{:s}\" - Image View ({})", InName, i);
     }
 }
 
-bool VulkanViewport::Present(Ref<VulkanCmdBuffer>& CmdBuffer, Ref<VulkanQueue>& Queue, Ref<VulkanQueue>& PresentQueue)
+bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, VulkanQueue* PresentQueue)
 {
     check(CmdBuffer->IsOutsideRenderPass());
 
@@ -112,17 +111,17 @@ void VulkanViewport::RecreateSwapchain(void* NewNativeWindow)
 
 void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
 {
-    Ref<VulkanDynamicRHI> RHI = GetVulkanDynamicRHI();
+    VulkanDynamicRHI* RHI = GetVulkanDynamicRHI();
 
-    SwapChain = Ref<VulkanSwapChain>::Create(RHI->GetInstance(), Device, WindowHandle, Size, 0, BackBufferImages, true,
-                                             RecreateInfo);
+    SwapChain =
+        new VulkanSwapChain(RHI->GetInstance(), Device, WindowHandle, Size, 0, BackBufferImages, true, RecreateInfo);
 
     RenderingDoneSemaphores.Resize(BackBufferImages.Size());
     for (unsigned i = 0; i < BackBufferImages.Size(); i++) {
         RenderingDoneSemaphores[i] = Ref<Semaphore>::Create(Device);
     }
 
-    Ref<VulkanCmdBuffer>& CmdBuffer = Device->GetCommandManager()->GetUploadCmdBuffer();
+    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetUploadCmdBuffer();
     verify(CmdBuffer->IsOutsideRenderPass());
 
     VkClearColorValue ClearColor;
@@ -173,7 +172,7 @@ bool VulkanViewport::TryAcquireImageIndex()
     return false;
 }
 
-bool VulkanViewport::TryPresenting(Ref<VulkanQueue>& PresentQueue)
+bool VulkanViewport::TryPresenting(VulkanQueue* PresentQueue)
 {
     int32 AttemptsPending = 4;
     VulkanSwapChain::Status Status = SwapChain->Present(PresentQueue, RenderingDoneSemaphores[AcquiredImageIndex]);
