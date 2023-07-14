@@ -81,9 +81,10 @@ void VulkanDevice::SetName(std::string_view InName)
     if (Device) {
         VULKAN_SET_DEBUG_NAME(this, VK_OBJECT_TYPE_DEVICE, Device, "[Device] {:s}", InName);
     }
-    if (Gpu) {
-        VULKAN_SET_DEBUG_NAME(this, VK_OBJECT_TYPE_PHYSICAL_DEVICE, Gpu, "[Physical Device] {:s}", InName);
-    }
+    // commented because of a crash
+    // if (Gpu) {
+    //     VULKAN_SET_DEBUG_NAME(this, VK_OBJECT_TYPE_PHYSICAL_DEVICE, Gpu, "[Physical Device] {:s}", InName);
+    // }
 }
 
 void VulkanDevice::InitPhysicalDevice()

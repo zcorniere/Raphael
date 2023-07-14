@@ -14,7 +14,7 @@ class VulkanCommandContext;
 class VulkanCommandBufferPool;
 class VulkanCommandBufferManager;
 
-class VulkanCmdBuffer : public NamedClass
+class VulkanCmdBuffer final : public NamedClass
 {
 public:
     enum class EState : uint8 {
@@ -106,7 +106,7 @@ private:
     friend class VulkanQueue;
 };
 
-class VulkanCommandBufferPool : public NamedClass
+class VulkanCommandBufferPool final : public NamedClass
 {
 public:
     VulkanCommandBufferPool() = delete;

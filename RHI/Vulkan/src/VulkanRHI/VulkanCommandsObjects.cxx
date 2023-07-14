@@ -135,8 +135,8 @@ VulkanCommandBufferPool::VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanC
 
 VulkanCommandBufferPool ::~VulkanCommandBufferPool()
 {
-    m_CmdBuffers.Clear();
-    m_FreeCmdBuffers.Clear();
+    m_CmdBuffers.Clear([](VulkanCmdBuffer* Buffer) { delete Buffer; });
+    m_FreeCmdBuffers.Clear([](VulkanCmdBuffer* Buffer) { delete Buffer; });
 
     VulkanAPI::vkDestroyCommandPool(m_Device->GetHandle(), m_Handle, nullptr);
     m_Handle = VK_NULL_HANDLE;
@@ -202,6 +202,7 @@ VulkanCommandBufferManager::VulkanCommandBufferManager(VulkanDevice* InDevice, V
 }
 VulkanCommandBufferManager ::~VulkanCommandBufferManager()
 {
+    delete Pool;
 }
 
 void VulkanCommandBufferManager::Init()
