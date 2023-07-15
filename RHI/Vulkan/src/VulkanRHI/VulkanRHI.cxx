@@ -89,7 +89,6 @@ void VulkanDynamicRHI::Shutdown()
     Device->WaitUntilIdle();
 
     delete RPassManager;
-    Viewports.Clear();
 
     Device->Destroy();
     Device = nullptr;

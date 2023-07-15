@@ -82,7 +82,6 @@ private:
     VkInstance m_Instance;
     Ref<VulkanDevice> Device;
 
-    Array<Ref<VulkanViewport>> Viewports;
     WeakRef<VulkanViewport> DrawingViewport;
 
     RenderPassManager* RPassManager = nullptr;
