@@ -270,17 +270,18 @@ bool VulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
     spirv_cross::Compiler compiler(Result.CompiledCode.Raw(), Result.CompiledCode.Size());
     spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
-    LOG(LogVulkanShaderCompiler, Info, "Stage input:");
+    LOG(LogVulkanShaderCompiler, Info, "Stage input:{}", resources.stage_inputs.empty() ? " None" : "");
     if (!GetStageReflection(resources.stage_inputs, compiler, Result.Reflection.StageInput)) {
         return false;
     }
 
-    LOG(LogVulkanShaderCompiler, Info, "Stage output:");
+    LOG(LogVulkanShaderCompiler, Info, "Stage output:{}", resources.stage_outputs.empty() ? " None" : "");
     if (!GetStageReflection(resources.stage_outputs, compiler, Result.Reflection.StageOutput)) {
         return false;
     }
 
-    LOG(LogVulkanShaderCompiler, Info, "Push Constant Buffers:");
+    LOG(LogVulkanShaderCompiler, Info, "Push Constant Buffers:{}",
+        resources.push_constant_buffers.empty() ? " None" : "");
     for (const spirv_cross::Resource& resource: resources.push_constant_buffers) {
         const spirv_cross::SPIRType& Type = compiler.get_type(resource.base_type_id);
 
