@@ -4,6 +4,8 @@
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "Engine/Core/RHI/RHI.hxx"
 
+#include "Engine/Platforms/PlatformMisc.hxx"
+
 Engine* GEngine = nullptr;
 
 Engine::Engine(const int ac, const char* const* const av)
@@ -17,7 +19,7 @@ Engine::~Engine()
 {
     // Make sure no RObjects are left undestroyed
     // Not strictly necessary, but this precaution don't hurt ¯\_(ツ)_/¯
-    check(RObjectUtils::AreThereAnyLiveObject() == false);
+    // check(RObjectUtils::AreThereAnyLiveObject() == false);
 
     Log::Shutdown();
 }
@@ -43,6 +45,7 @@ void Engine::Destroy()
     App->OnEngineDestruction();
     m_ThreadPool.Stop();
     RHI::DeleteRHI();
+    PlatformMisc::ShutdownPlatformMisc();
 }
 
 unsigned Engine::Run()

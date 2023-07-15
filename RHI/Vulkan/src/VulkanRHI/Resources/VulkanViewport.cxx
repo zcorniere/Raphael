@@ -13,11 +13,14 @@ namespace VulkanRHI
 VulkanViewport::VulkanViewport(VulkanDevice* InDevice, void* InWindowHandle, glm::uvec2 InSize)
     : Device(InDevice), WindowHandle(InWindowHandle), Size(InSize), AcquiredImageIndex(-1)
 {
+    GetVulkanDynamicRHI()->Viewports.Add(this);
     CreateSwapchain(nullptr);
 }
 
 VulkanViewport::~VulkanViewport()
 {
+    GetVulkanDynamicRHI()->Viewports.Remove(this);
+
     DeleteSwapchain(nullptr);
 
     for (VulkanTextureView& View: TexturesViews) {
@@ -79,8 +82,7 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
     CmdBuffer->End();
     if (LIKELY(bSuccesfullyAquiredImage)) {
         CmdBuffer->AddWaitSemaphore(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, AcquiredSemaphore);
-        Ref<Semaphore> SignalSemaphore =
-            (AcquiredImageIndex >= 0) ? RenderingDoneSemaphores[AcquiredImageIndex] : nullptr;
+        Semaphore* SignalSemaphore = (AcquiredImageIndex >= 0) ? RenderingDoneSemaphores[AcquiredImageIndex] : nullptr;
         Device->GetCommandManager()->SubmitActiveCmdBufferFormPresent(SignalSemaphore);
     } else {
         LOG(LogVulkanRHI, Trace, "AcquireNextImage() failed due to outdated swapchain, recreating");
@@ -118,7 +120,7 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
 
     RenderingDoneSemaphores.Resize(BackBufferImages.Size());
     for (unsigned i = 0; i < BackBufferImages.Size(); i++) {
-        RenderingDoneSemaphores[i] = Ref<Semaphore>::Create(Device);
+        RenderingDoneSemaphores[i] = new Semaphore(Device);
     }
 
     VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetUploadCmdBuffer();
@@ -153,6 +155,8 @@ void VulkanViewport::DeleteSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
         TexturesViews[Index].Destroy(Device);
         BackBufferImages[Index] = VK_NULL_HANDLE;
     }
+
+    RenderingDoneSemaphores.Clear([](Semaphore* Sem) { delete Sem; });
 
     SwapChain->Destroy(RecreateInfo);
     SwapChain = nullptr;

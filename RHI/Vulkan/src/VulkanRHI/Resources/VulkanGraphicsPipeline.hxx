@@ -80,8 +80,7 @@ struct GraphicsPipelineDescription {
 class VulkanDevice;
 class VulkanShader;
 
-
-class VulkanGraphicsPipeline : public RHIGraphicsPipeline
+class VulkanGraphicsPipeline final : public RHIGraphicsPipeline
 {
 public:
     VulkanGraphicsPipeline(VulkanDevice* InDevice, const GraphicsPipelineDescription& Description);
@@ -111,7 +110,8 @@ private:
     VulkanDevice* Device;
     GraphicsPipelineDescription Desc;
 
-    Ref<VulkanShader> Shaders[2];
+    TRefCountPtr<VulkanShader> VertexShader;
+    TRefCountPtr<VulkanShader> PixelShader;
 
     VkPipelineLayout PipelineLayout;
     VkPipeline VulkanPipeline;

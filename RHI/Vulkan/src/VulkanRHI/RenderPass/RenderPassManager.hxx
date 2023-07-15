@@ -23,14 +23,14 @@ public:
 
     void Clear();
 
-    WeakRef<VulkanRenderPass> Get(const RHIRenderPassDescription& Description);
+    TRefCountPtr<VulkanRenderPass> Get(const RHIRenderPassDescription& Description);
 
 public:
     VulkanDevice* Device;
     std::unordered_map<RHIRenderPassDescription, VkRenderPass, RenderPassDescriptionHashWithoutSize,
                        RenderPassDescriptionEqualWithoutSize>
         RenderPassStorage;
-    std::unordered_map<RHIRenderPassDescription, Ref<VulkanRenderPass>> StorageMap;
+    std::unordered_map<RHIRenderPassDescription, TRefCountPtr<VulkanRenderPass>> StorageMap;
 };
 
 }    // namespace VulkanRHI

@@ -53,13 +53,13 @@ private:
 
     Array<VkImage> BackBufferImages;
     Array<VulkanTextureView> TexturesViews;
-    Array<Ref<Semaphore>> RenderingDoneSemaphores;
+    Array<Semaphore*> RenderingDoneSemaphores;
 
     void* WindowHandle;
     glm::uvec2 Size;
 
     int32 AcquiredImageIndex;
-    Ref<Semaphore> AcquiredSemaphore;
+    Semaphore* AcquiredSemaphore;
 
     friend class VulkanDynamicRHI;
 };

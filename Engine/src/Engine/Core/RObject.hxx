@@ -32,7 +32,7 @@ bool AreThereAnyLiveObject(bool bPrintObjects = true);
 }    // namespace RObjectUtils
 
 /// Custom Ref Counting class
-class RObject
+class [[deprecated("RObjects are deprecated, please use a combination of NameClass and RefCounted class")]] RObject
 {
 public:
     virtual ~RObject()
@@ -67,7 +67,7 @@ private:
 /// @brief Hold a reference to a RObject
 /// @tparam T The type contained by the Ref (MUST BE A ROBJECT)
 template <typename T>
-class Ref
+class [[deprecated]] Ref
 {
 public:
     /// @brief Create a new RObject and give it is name
@@ -285,7 +285,7 @@ private:
 };
 
 template <typename T>
-class WeakRef
+class [[deprecated]] WeakRef
 {
 public:
     WeakRef() = default;

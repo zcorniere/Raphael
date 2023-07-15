@@ -2,7 +2,6 @@
 
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
 
-#include "Engine/Misc/NamedClass.hxx"
 #include "VulkanRHI/Resources/VulkanTexture.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 
@@ -12,7 +11,7 @@ namespace VulkanRHI
 class VulkanDevice;
 class VulkanCmdBuffer;
 
-class VulkanRenderPass : public RObject, public NamedClassWithTypeName<VulkanRenderPass>
+class VulkanRenderPass : public RefCounted, public NamedClassWithTypeName<VulkanRenderPass>
 {
 private:
     struct AttachmentRefs {
@@ -42,7 +41,7 @@ public:
 
 private:
     VkFramebuffer CreateFrameBuffer();
-    Array<VkImageView> GetFramebufferAttachment(const Array<Ref<VulkanTexture>>& SourceTextures);
+    Array<VkImageView> GetFramebufferAttachment(const Array<VulkanTexture*>& SourceTextures);
 
     VkRenderPass CreateRenderPass();
     AttachmentRefs FillAttachmentReference(const Array<VkAttachmentDescription>& Targets);
@@ -52,16 +51,16 @@ private:
     GetAttachmentDescriptions(const Array<RHIRenderPassDescription::RenderingTargetInfo>& Targets,
                               ETextureCreateFlags Flags);
 
-    Ref<VulkanTexture> CreateFramebufferTextures(const RHIRenderPassDescription::RenderingTargetInfo& TargetInfo,
-                                                 ETextureCreateFlags Flags);
+    VulkanTexture* CreateFramebufferTextures(const RHIRenderPassDescription::RenderingTargetInfo& TargetInfo,
+                                             ETextureCreateFlags Flags);
 
 private:
     bool bHasBegun = false;
     VulkanDevice* Device;
 
-    Array<Ref<VulkanTexture>> ColorTarget;
-    Array<Ref<VulkanTexture>> ResolveTarget;
-    Ref<VulkanTexture> DepthTarget;
+    Array<VulkanTexture*> ColorTarget;
+    Array<VulkanTexture*> ResolveTarget;
+    VulkanTexture* DepthTarget;
 
     RHIRenderPassDescription Description;
     VkRenderPass RenderPass;

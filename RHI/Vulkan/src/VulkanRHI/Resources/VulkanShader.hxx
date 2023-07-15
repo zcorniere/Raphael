@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Core/RHI/RHIDefinitions.hxx"
 #include "Engine/Core/RHI/Resources/RHIShader.hxx"
 
 #include "VulkanRHI/VulkanLoader.hxx"
@@ -28,7 +29,7 @@ namespace ShaderResource
 
 }    // namespace ShaderResource
 
-class VulkanShader : public RHIShader
+class VulkanShader final : public RHIShader
 {
 public:
     struct ReflectionData {
@@ -39,7 +40,7 @@ public:
         bool operator==(const ReflectionData&) const = default;
     };
 
-    class ShaderHandle : public RObject
+    class ShaderHandle
     {
     public:
         ShaderHandle() = delete;
@@ -54,19 +55,20 @@ public:
 
 public:
     VulkanShader(RHIShaderType Type, const Array<uint32>& InSPRIVCode, const ReflectionData& InReflectionData);
+    ~VulkanShader();
 
     const ReflectionData& GetReflectionData() const
     {
         return m_ReflectionData;
     }
 
-    Ref<ShaderHandle> GetHandle(VulkanDevice* InDevice);
+    ShaderHandle* GetHandle(VulkanDevice* InDevice);
 
 private:
     const Array<uint32> SPIRVCode;
     const ReflectionData m_ReflectionData;
 
-    Ref<ShaderHandle> m_ShaderHandle;
+    ShaderHandle* m_ShaderHandle;
 
     friend class VulkanShaderCompiler;
 };

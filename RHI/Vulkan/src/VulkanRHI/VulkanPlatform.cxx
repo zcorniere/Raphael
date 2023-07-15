@@ -24,7 +24,7 @@ VK_ENTRYPOINTS_DEBUG_UTILS(DEFINE_VK_ENTRYPOINTS)
 
 #undef DEFINE_VK_ENTRYPOINTS
 
-static Ref<IExternalModule> s_VulkanModuleHandle = nullptr;
+static TRefCountPtr<IExternalModule> s_VulkanModuleHandle = nullptr;
 
 #if defined(PLATFORM_WINDOWS)
 static constexpr auto VulkanLibraryName = "vulkan-1.dll";

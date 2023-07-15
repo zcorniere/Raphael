@@ -63,7 +63,7 @@ EBoxReturnType LinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::
 
 // ------------------ Linux External Module --------------------------
 
-static std::unordered_map<std::string, WeakRef<LinuxExternalModule>> s_ModuleStorage;
+static std::unordered_map<std::string, TRefCountPtr<LinuxExternalModule>> s_ModuleStorage;
 
 LinuxExternalModule::LinuxExternalModule(std::string_view ModulePath): IExternalModule(ModulePath)
 {
@@ -80,17 +80,23 @@ void* LinuxExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
     return dlsym(ModuleHandle, SymbolName.data());
 }
 
-Ref<IExternalModule> LinuxMisc::LoadExternalModule(const std::string& ModuleName)
+void LinuxMisc::ShutdownPlatformMisc()
+{
+    s_ModuleStorage.clear();
+}
+
+TRefCountPtr<IExternalModule> LinuxMisc::LoadExternalModule(const std::string& ModuleName)
 {
     auto Iter = s_ModuleStorage.find(ModuleName);
 
     if (Iter == s_ModuleStorage.end() || !Iter->second.IsValid()) {
-        Ref<LinuxExternalModule> Module = Ref<LinuxExternalModule>::CreateNamed(ModuleName, ModuleName);
+        LinuxExternalModule* Module = new LinuxExternalModule(ModuleName);
+        Module->SetName(ModuleName);
         s_ModuleStorage[ModuleName] = Module;
         return Module;
     }
 
-    return Ref(Iter->second);
+    return TRefCountPtr<IExternalModule>(Iter->second);
 }
 
 std::filesystem::path LinuxMisc::GetConfigPath()

@@ -1,6 +1,7 @@
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 
 #include "Engine/Misc/Utils.hxx"
+#include "VulkanRHI/Resources/VulkanShader.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 #include "VulkanRHI/VulkanRHI.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
@@ -126,11 +127,11 @@ void VulkanShaderCompiler::SetOptimizationLevel(OptimizationLevel InLevel)
     Level = InLevel;
 }
 
-Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile)
+VulkanShader* VulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile)
 {
     RPH_PROFILE_FUNC()
 
-    Ref<VulkanShader> ShaderUnit = nullptr;
+    VulkanShader* ShaderUnit = nullptr;
     ShaderCompileResult Result{
         .Path = Path,
     };
@@ -158,23 +159,24 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
         return nullptr;
     }
 
-    ShaderUnit = Ref<VulkanShader>::CreateNamed(Path.filename().string(), Result.ShaderType, Result.CompiledCode,
-                                                Result.Reflection);
+    const std::string ShaderName = Path.filename().string();
+    ShaderUnit = new VulkanShader(Result.ShaderType, Result.CompiledCode, Result.Reflection);
+    ShaderUnit->SetName(ShaderName);
     Result.Status = CompilationStatus::Done;
     {
         std::unique_lock Lock(m_ShaderCacheMutex);
-        m_ShaderCache[Path.filename().string()] = ShaderUnit;
+        m_ShaderCache[ShaderName] = ShaderUnit;
     }
     return ShaderUnit;
 }
 
-Ref<VulkanShader> VulkanShaderCompiler::CheckCache(ShaderCompileResult& Result)
+VulkanShader* VulkanShaderCompiler::CheckCache(ShaderCompileResult& Result)
 {
     Result.Status = CompilationStatus::CheckCache;
     std::unique_lock Lock(m_ShaderCacheMutex);
     auto Iter = m_ShaderCache.find(Result.Path.filename().string());
     if (Iter != m_ShaderCache.end()) {
-        return Ref(Iter->second);
+        return Iter->second;
     }
     return nullptr;
 }

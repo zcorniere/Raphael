@@ -37,10 +37,10 @@ public:
     void Begin();
     void End();
 
-    void BeginRenderPass(/* Argument */);
+    void BeginRenderPass(const VkRenderPassBeginInfo& RenderPassBeginInfo);
     void EndRenderPass();
 
-    void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore>& InSemaphore);
+    void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Semaphore* InSemaphore);
 
     inline VkCommandBuffer GetHandle() const
     {
@@ -95,9 +95,9 @@ private:
     VulkanDevice* m_Device;
     VulkanCommandBufferPool* m_OwnerPool;
 
-    Ref<Fence> m_Fence;
+    Fence* m_Fence;
     Array<VkPipelineStageFlags> WaitFlags;
-    Array<Ref<Semaphore>> WaitSemaphore;
+    Array<Semaphore*> WaitSemaphore;
 
     VkCommandBuffer m_CommandBufferHandle;
 
@@ -156,10 +156,10 @@ public:
 
     void PrepareForNewActiveCommandBuffer();
 
-    void SubmitUploadCmdBuffer(Ref<Semaphore> SignalSemaphore = nullptr);
+    void SubmitUploadCmdBuffer(Semaphore* SignalSemaphore = nullptr);
 
-    void SubmitActiveCmdBuffer(Ref<Semaphore> SignalSemaphore = nullptr);
-    void SubmitActiveCmdBufferFormPresent(Ref<Semaphore> SignalSemaphore = nullptr);
+    void SubmitActiveCmdBuffer(Semaphore* SignalSemaphore = nullptr);
+    void SubmitActiveCmdBufferFormPresent(Semaphore* SignalSemaphore = nullptr);
 
 private:
     VulkanCmdBuffer* FindAvailableCmdBuffer();

@@ -15,7 +15,7 @@ VulkanCmdBuffer::VulkanCmdBuffer(VulkanDevice* InDevice, VulkanCommandBufferPool
 {
     Allocate();
 
-    m_Fence = Ref<Fence>::Create(m_Device, false);
+    m_Fence = new Fence(m_Device, false);
 }
 
 VulkanCmdBuffer::~VulkanCmdBuffer()
@@ -66,10 +66,12 @@ void VulkanCmdBuffer::End()
     State = EState::HasEnded;
 }
 
-void VulkanCmdBuffer::BeginRenderPass(/* Argument */)
+void VulkanCmdBuffer::BeginRenderPass(const VkRenderPassBeginInfo& RenderPassBeginInfo)
 {
-    checkNoEntry();
+    State = EState::IsInsideRenderPass;
+    VulkanAPI::vkCmdBeginRenderPass(m_CommandBufferHandle, &RenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
+
 void VulkanCmdBuffer::EndRenderPass()
 {
     checkMsg(IsInsideRenderPass(), "Can't EndRenderPass as we're NOT inside one! CmdBuffer {:p} State={:d}",
@@ -78,7 +80,7 @@ void VulkanCmdBuffer::EndRenderPass()
     State = EState::IsInsideBegin;
 }
 
-void VulkanCmdBuffer::AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore>& InSemaphore)
+void VulkanCmdBuffer::AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Semaphore* InSemaphore)
 {
     check(!WaitSemaphore.Contains(InSemaphore));
     WaitFlags.Add(InWaitFlags);
@@ -135,8 +137,8 @@ VulkanCommandBufferPool::VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanC
 
 VulkanCommandBufferPool ::~VulkanCommandBufferPool()
 {
-    m_CmdBuffers.Clear([](VulkanCmdBuffer* Buffer) { delete Buffer; });
-    m_FreeCmdBuffers.Clear([](VulkanCmdBuffer* Buffer) { delete Buffer; });
+    m_CmdBuffers.Clear(true);
+    m_FreeCmdBuffers.Clear(true);
 
     VulkanAPI::vkDestroyCommandPool(m_Device->GetHandle(), m_Handle, nullptr);
     m_Handle = VK_NULL_HANDLE;
@@ -233,7 +235,7 @@ void VulkanCommandBufferManager::PrepareForNewActiveCommandBuffer()
     ActiveCmdBuffer = FindAvailableCmdBuffer();
 }
 
-void VulkanCommandBufferManager::SubmitUploadCmdBuffer(Ref<Semaphore> SignalSemaphore)
+void VulkanCommandBufferManager::SubmitUploadCmdBuffer(Semaphore* SignalSemaphore)
 {
     check(UploadCmdBuffer);
 
@@ -251,7 +253,7 @@ void VulkanCommandBufferManager::SubmitUploadCmdBuffer(Ref<Semaphore> SignalSema
     UploadCmdBuffer = nullptr;
 }
 
-void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Ref<Semaphore> SignalSemaphore)
+void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Semaphore* SignalSemaphore)
 {
     check(ActiveCmdBuffer);
 
@@ -272,7 +274,7 @@ void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Ref<Semaphore> SignalSema
     ActiveCmdBuffer = nullptr;
 }
 
-void VulkanCommandBufferManager::SubmitActiveCmdBufferFormPresent(Ref<Semaphore> SignalSemaphore)
+void VulkanCommandBufferManager::SubmitActiveCmdBufferFormPresent(Semaphore* SignalSemaphore)
 {
     if (SignalSemaphore) {
         Queue->Submit(ActiveCmdBuffer, SignalSemaphore->GetHandle());

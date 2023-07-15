@@ -14,7 +14,7 @@ enum class RHIResourceType : uint8 {
 };
 
 /// Represent and abstract type above RHI ressources
-class RHIResource : public RObject, public NamedClassWithTypeName<RHIResource>
+class RHIResource : public RefCounted, public NamedClassWithTypeName<RHIResource>
 {
 public:
     RHIResource() = delete;
@@ -26,9 +26,29 @@ public:
     {
     }
 
+private:
+    // RefCounted interface
+    void Destroy() const override
+    {
+        delete this;
+    }
+
 protected:
+    mutable std::atomic<uint32> m_RefCount = 1;
     const RHIResourceType ResourceType;
 };
+
+class RHIBuffer;
+class RHITexture;
+class RHIShader;
+class RHIViewport;
+class RHIGraphicsPipeline;
+
+using RHIBufferRef = TRefCountPtr<RHIBuffer>;
+using RHITextureRef = TRefCountPtr<RHITexture>;
+using RHIShaderRef = TRefCountPtr<RHIShader>;
+using RHIViewportRef = TRefCountPtr<RHIViewport>;
+using RHIGraphicsPipelineRef = TRefCountPtr<RHIGraphicsPipeline>;
 
 #include "Engine/Core/RHI/Resources/RHIBuffer.hxx"
 #include "Engine/Core/RHI/Resources/RHIGraphicsPipeline.hxx"

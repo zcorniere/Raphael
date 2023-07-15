@@ -29,7 +29,7 @@ void VulkanQueue::Submit(VulkanCmdBuffer* CmdBuffer, uint32 NumSignaledSemaphore
 
     check(CmdBuffer->HasEnded());
 
-    Ref<Fence>& Fence = CmdBuffer->m_Fence;
+    Fence* Fence = CmdBuffer->m_Fence;
     check(!Fence->IsSignaled());
 
     const VkCommandBuffer CmdBuffers[] = {
@@ -47,7 +47,7 @@ void VulkanQueue::Submit(VulkanCmdBuffer* CmdBuffer, uint32 NumSignaledSemaphore
     Array<VkSemaphore> WaitSemaphores;
     if (!CmdBuffer->WaitSemaphore.IsEmpty()) {
         WaitSemaphores.Reserve(CmdBuffer->WaitSemaphore.Size());
-        for (Ref<Semaphore>& Semaphore: CmdBuffer->WaitSemaphore) {
+        for (Semaphore* Semaphore: CmdBuffer->WaitSemaphore) {
             WaitSemaphores.Add(Semaphore->GetHandle());
         }
         SubmitInfo.waitSemaphoreCount = CmdBuffer->WaitSemaphore.Size();

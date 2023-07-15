@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <type_traits>
 #include <vector>
 
 constexpr static inline auto InvalidVectorIndex = -1;
@@ -76,6 +77,16 @@ public:
         return std::vector<T, Allocation>::clear();
     }
 
+    void Clear(bool DeletePointer)
+    requires std::is_pointer_v<T>
+    {
+        return this->Clear([DeletePointer](T& Pointer) {
+            if (DeletePointer) {
+                delete Pointer;
+            }
+        });
+    }
+
     template <typename Function>
     requires std::invocable<Function, T&>
     void Clear(Function&& Func)
@@ -117,6 +128,14 @@ public:
     {
         std::vector<T, Allocation>::push_back(std::forward<T>(Value));
         return Back();
+    }
+    constexpr bool Remove(const T& Value)
+    {
+        TSize Index = Find(Value);
+        if (Index == InvalidVectorIndex)
+            return false;
+        std::vector<T, Allocation>::erase(begin() + Index);
+        return true;
     }
     constexpr T Pop()
     {
@@ -160,7 +179,7 @@ public:
     {
         return std::vector<T, Allocation>::begin();
     }
-    constexpr const auto begin() const
+    constexpr auto begin() const
     {
         return std::vector<T, Allocation>::begin();
     }
@@ -169,7 +188,7 @@ public:
     {
         return std::vector<T, Allocation>::end();
     }
-    constexpr const auto end() const
+    constexpr auto end() const
     {
         return std::vector<T, Allocation>::end();
     }

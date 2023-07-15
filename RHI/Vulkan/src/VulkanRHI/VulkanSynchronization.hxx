@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Misc/NamedClass.hxx"
+#include "Engine/Misc/RefCounted.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 
 namespace VulkanRHI
@@ -29,7 +30,7 @@ private:
     std::vector<VkImageMemoryBarrier> ImageBarrier;
 };
 
-class Semaphore : public RObject, public NamedClassWithTypeName<Semaphore>
+class Semaphore : public RefCounted, public NamedClassWithTypeName<Semaphore>
 {
 public:
     Semaphore(VulkanDevice* InDevice);
@@ -47,7 +48,7 @@ private:
     VkSemaphore SemaphoreHandle;
 };
 
-class Fence : public RObject, public NamedClassWithTypeName<Semaphore>
+class Fence : public RefCounted, public NamedClassWithTypeName<Semaphore>
 {
 protected:
     enum class State {

@@ -68,28 +68,28 @@ void RHI::EndRenderPass()
 //  -------------------- RHI Create resources --------------------
 //
 
-Ref<RHIViewport> RHI::CreateViewport(void* InWindowHandle, glm::uvec2 InSize)
+RHIViewportRef RHI::CreateViewport(void* InWindowHandle, glm::uvec2 InSize)
 {
     return RHI::Get<GenericRHI>()->CreateViewport(InWindowHandle, InSize);
 }
 
-Ref<RHITexture> RHI::CreateTexture(const RHITextureCreateDesc InDesc)
+RHITextureRef RHI::CreateTexture(const RHITextureCreateDesc InDesc)
 {
     return RHI::Get<GenericRHI>()->CreateTexture(InDesc);
 }
 
-Ref<RHIBuffer> RHI::CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
-                                 Ref<ResourceArray>& InitialData)
+RHIBufferRef RHI::CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
+                               ResourceArray* InitialData)
 {
     return RHI::Get<GenericRHI>()->CreateBuffer(InSize, InUsage, InStride, InitialData);
 }
 
-Ref<RHIShader> RHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)
+RHIShaderRef RHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)
 {
     return RHI::Get<GenericRHI>()->CreateShader(Path, bForceCompile);
 }
 
-Ref<RHIGraphicsPipeline> RHI::CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config)
+RHIGraphicsPipelineRef RHI::CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config)
 {
     return RHI::Get<GenericRHI>()->CreateGraphicsPipeline(Config);
 }

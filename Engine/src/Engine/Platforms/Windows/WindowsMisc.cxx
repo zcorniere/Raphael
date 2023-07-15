@@ -38,7 +38,7 @@ EBoxReturnType WindowsMisc::DisplayMessageBox(EBoxMessageType MsgType, const std
 
 // ------------------ Windows External Module --------------------------
 
-static std::unordered_map<std::string, WeakRef<WindowsExternalModule>> s_ModuleStorage;
+static std::unordered_map<std::string, TRefCountPtr<IExternalModule>> s_ModuleStorage;
 
 WindowsExternalModule::WindowsExternalModule(std::string_view ModulePath): IExternalModule(ModulePath)
 {
@@ -55,12 +55,13 @@ void* WindowsExternalModule::GetSymbol_Internal(std::string_view SymbolName) con
     return ::GetProcAddress(ModuleHandle, SymbolName.data());
 }
 
-Ref<IExternalModule> WindowsMisc::LoadExternalModule(const std::string& ModuleName)
+TRefCountPtr<IExternalModule> WindowsMisc::LoadExternalModule(const std::string& ModuleName)
 {
     auto Iter = s_ModuleStorage.find(ModuleName);
 
     if (Iter == s_ModuleStorage.end() || !Iter->second.IsValid()) {
-        Ref<WindowsExternalModule> Module = Ref<WindowsExternalModule>::Create(ModuleName);
+        WindowsExternalModule* Module = new WindowsExternalModule(ModuleName);
+        Module->SetName(ModuleName);
         s_ModuleStorage[ModuleName] = Module;
         return Module;
     }

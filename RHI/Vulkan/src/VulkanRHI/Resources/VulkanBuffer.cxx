@@ -25,7 +25,7 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage, bool bZ
 }
 
 VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const uint32 InSize, const EBufferUsageFlags InUsage,
-                           const uint32 InStride, Ref<ResourceArray>& InitialData)
+                           const uint32 InStride, ResourceArray* InitialData)
     : Device(InDevice), Offset(0), Stride(InStride)
 {
     const bool bZeroSize = (InSize == 0);
@@ -54,7 +54,7 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const uint32 InSize, const EB
         std::memcpy(Data, InitialData->GetResourceData(), CopyDataSize);
         Memory->FlushMappedMemory(CopyDataSize, 0);
         Memory->Unmap();
-        InitialData->Discard();
+        InitialData->Release();
     }
 }
 

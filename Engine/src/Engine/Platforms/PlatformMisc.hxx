@@ -20,7 +20,7 @@ enum class EBoxReturnType {
 };
 
 /// @brief Interface that represent a manually loaded shared library
-class IExternalModule : public RObject, public NamedClassWithTypeName<IExternalModule>
+class IExternalModule : public RefCounted, public NamedClassWithTypeName<IExternalModule>
 {
 public:
     IExternalModule() = delete;
@@ -44,6 +44,11 @@ public:
         return (T)GetSymbol_Internal(SymbolName);
     }
 
+    virtual void Destroy() const override
+    {
+        delete this;
+    }
+
 private:
     virtual void* GetSymbol_Internal(std::string_view SymbolName) const = 0;
 };
@@ -54,6 +59,11 @@ DECLARE_LOGGER_CATEGORY(Core, LogPlatformMisc, Info);
 class GenericMisc
 {
 public:
+    /// Indicate that the engine is closing, and the PlatformMisc implementation should free/release all memory
+    static void ShutdownPlatformMisc()
+    {
+    }
+
     /// @brief Display a simple message box
     /// @param Type The type of the message box (@see EBoxMessageType)
     /// @param Title The Title of the message box
@@ -70,7 +80,7 @@ public:
     /// If the same library is loaded multiple times, the return will be cached
     /// @param ModuleName The name of the module to load
     /// @return The loaded module
-    static Ref<IExternalModule> LoadExternalModule(std::string_view ModuleName);
+    static TRefCountPtr<IExternalModule> LoadExternalModule(std::string_view ModuleName);
 
     /// @brief Platform agnostic way to look for a config file
     /// @return Return the platform standard path to look for the config

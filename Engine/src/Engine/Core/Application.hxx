@@ -45,7 +45,7 @@ protected:
     bool bShouldExit = false;
 
     Window* MainWindow;
-    Ref<RHIViewport> MainViewport;
+    RHIViewport* MainViewport;
 
     Array<Window*> Windows;
 };

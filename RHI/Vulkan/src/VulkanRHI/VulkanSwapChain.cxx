@@ -201,14 +201,14 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, 
 
     ImageAcquiredSemaphore.Resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
-        ImageAcquiredSemaphore[BufferIndex] = Ref<Semaphore>::Create(Device);
+        ImageAcquiredSemaphore[BufferIndex] = new Semaphore(Device);
         ImageAcquiredSemaphore[BufferIndex]->SetName(
             std::format("Swapchain Semaphore Image Acquired [{}]", BufferIndex));
     }
 
     ImageInUseFence.Resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
-        ImageInUseFence[BufferIndex] = Ref<Fence>::Create(Device, false);
+        ImageInUseFence[BufferIndex] = new Fence(Device, false);
         ImageInUseFence[BufferIndex]->SetName(std::format("Swapchain Fence Image In Use [{}]", BufferIndex));
     }
 }
@@ -236,7 +236,7 @@ void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo* RecreateInfo)
     ImageInUseFence.Clear();
 }
 
-VulkanSwapChain::Status VulkanSwapChain::Present(VulkanQueue* PresentQueue, Ref<Semaphore>& RenderingComplete)
+VulkanSwapChain::Status VulkanSwapChain::Present(VulkanQueue* PresentQueue, Semaphore*& RenderingComplete)
 {
     RPH_PROFILE_FUNC()
 
@@ -277,7 +277,7 @@ void VulkanSwapChain::SetName(std::string_view InName)
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SWAPCHAIN_KHR, SwapChain, "Swapchain - \"{:s}\"", InName);
 }
 
-int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore>& OutSemaphore)
+int32 VulkanSwapChain::AcquireImageIndex(Semaphore*& OutSemaphore)
 {
     RPH_PROFILE_FUNC()
 
@@ -287,7 +287,7 @@ int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore>& OutSemaphore)
     const int32 PrevSemaphoreIndex = SemaphoreIndex;
     SemaphoreIndex = (SemaphoreIndex + 1) % ImageAcquiredSemaphore.Size();
 
-    Ref<Fence> AcquiredFence = ImageInUseFence[SemaphoreIndex];
+    Fence* AcquiredFence = ImageInUseFence[SemaphoreIndex];
     AcquiredFence->Reset();
 
     VkResult Result = VulkanAPI::vkAcquireNextImageKHR(Device->GetHandle(), SwapChain, UINT64_MAX,

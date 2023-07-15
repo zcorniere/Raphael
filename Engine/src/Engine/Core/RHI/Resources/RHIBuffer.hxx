@@ -6,19 +6,6 @@
 
 #include <glm/vec3.hpp>
 
-enum class EBufferUsageFlags {
-    None = 0,
-
-    SourceCopy = BIT(0),
-    DestinationCopy = BIT(1),
-
-    DrawIndirect = BIT(2),
-
-    VertexBuffer = BIT(3),
-    IndexBuffer = BIT(4),
-    StructuredBuffer = BIT(5),
-};
-
 /// @brief Represent a Texture used by the RHI
 class RHIBuffer : public RHIResource
 {

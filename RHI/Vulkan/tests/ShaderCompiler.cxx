@@ -42,12 +42,12 @@ TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
     std::filesystem::path SimpleShaderPath = GetCurrentFilePath() / "test_shaders/SimpleShader.vert";
     VulkanShaderCompiler Compiler;
 
-    Ref<VulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
+    VulkanShader* ShaderResult = Compiler.Get(SimpleShaderPath);
     REQUIRE(ShaderResult);
 
     SECTION("Test shader Cache")
     {
-        Ref<VulkanShader> CachedResult = Compiler.Get(SimpleShaderPath);
+        VulkanShader* CachedResult = Compiler.Get(SimpleShaderPath);
 
         CHECK(ShaderResult == CachedResult);
     }
@@ -93,7 +93,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
     std::filesystem::path SimpleShaderPath = GetCurrentFilePath() / "test_shaders/TestComplex.frag";
     VulkanShaderCompiler Compiler;
 
-    Ref<VulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
+    VulkanShader* ShaderResult = Compiler.Get(SimpleShaderPath);
     REQUIRE(ShaderResult);
 
     CHECK(ShaderResult->GetShaderType() == RHIShaderType::Pixel);

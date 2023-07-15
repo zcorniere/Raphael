@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/RHI/RHIResource.hxx"
+#include <Engine/Core/RHI/RHIDefinitions.hxx>
 
 /// @brief The type of the shader
 enum class RHIShaderType : uint8 {

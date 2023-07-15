@@ -52,7 +52,7 @@ void RenderPassManager::Clear()
     RenderPassStorage.clear();
 }
 
-WeakRef<VulkanRenderPass> RenderPassManager::Get(const RHIRenderPassDescription& Description)
+TRefCountPtr<VulkanRenderPass> RenderPassManager::Get(const RHIRenderPassDescription& Description)
 {
     // Find an already created RenderPass
     auto RenderPassIter = StorageMap.find(Description);
@@ -68,7 +68,7 @@ WeakRef<VulkanRenderPass> RenderPassManager::Get(const RHIRenderPassDescription&
     }
 
     // Create the render pass
-    Ref<VulkanRenderPass> Pass = Ref<VulkanRenderPass>::Create(Device, Description, RenderPass);
+    TRefCountPtr<VulkanRenderPass> Pass = new VulkanRenderPass(Device, Description, RenderPass);
 
     // If no VkRenderPass was found earlier, store the new one
     if (!RenderPass) {

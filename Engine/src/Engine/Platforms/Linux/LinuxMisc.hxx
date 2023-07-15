@@ -26,12 +26,15 @@ private:
 class LinuxMisc : public GenericMisc
 {
 public:
+    /// @copydoc GenericMisc::ShutdownPlatformMisc
+    static void ShutdownPlatformMisc();
+
     /// @copydoc GenericMisc::DisplayMessageBox
     static EBoxReturnType DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
                                             const std::string_view Caption);
 
     /// @copydoc GenericMisc::LoadExternalModule
-    static Ref<IExternalModule> LoadExternalModule(const std::string& ModuleName);
+    static TRefCountPtr<IExternalModule> LoadExternalModule(const std::string& ModuleName);
 
     /// @brief Return the XDG_CONFIG path
     /// @return

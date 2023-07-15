@@ -63,14 +63,14 @@ void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Descripti
 void VulkanDynamicRHI::EndRenderPass()
 {
     RHI::Submit([this] {
-        check(CurrentRenderPass.IsValid());
         VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
 
         CurrentRenderPass->End(CmdBuffer);
+        CurrentRenderPass = nullptr;
     });
 }
 
-void VulkanDynamicRHI::RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport)
+void VulkanDynamicRHI::RT_SetDrawingViewport(VulkanViewport* Viewport)
 {
     // TODO: check if Viewport is inside Viewports (wtf no find in std::vector ?)
     // TODO: check if we are really on the renderthread once such thing exists
@@ -81,32 +81,31 @@ void VulkanDynamicRHI::RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport)
 //  -------------------- RHI Create resources --------------------
 //
 
-Ref<RHIViewport> VulkanDynamicRHI::CreateViewport(void* InWindowHandle, glm::uvec2 InSize)
+RHIViewportRef VulkanDynamicRHI::CreateViewport(void* InWindowHandle, glm::uvec2 InSize)
 {
-    return Viewports.Add(Ref<VulkanViewport>::Create(GetDevice(), InWindowHandle, InSize));
+    return new VulkanViewport(GetDevice(), InWindowHandle, InSize);
 }
 
-Ref<RHITexture> VulkanDynamicRHI::CreateTexture(const RHITextureCreateDesc InDesc)
+RHITextureRef VulkanDynamicRHI::CreateTexture(const RHITextureCreateDesc InDesc)
 {
-    return Ref<VulkanTexture>::Create(GetDevice(), InDesc);
+    return new VulkanTexture(GetDevice(), InDesc);
 }
 
-Ref<RHIBuffer> VulkanDynamicRHI::CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage,
-                                              const uint32 InStride, Ref<ResourceArray>& InitialData)
+RHIBufferRef VulkanDynamicRHI::CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
+                                            ResourceArray* InitialData)
 {
-    return Ref<VulkanBuffer>::Create(GetDevice(), InSize, InUsage, InStride, InitialData);
+    return new VulkanBuffer(GetDevice(), InSize, InUsage, InStride, InitialData);
 }
 
-Ref<RHIShader> VulkanDynamicRHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)
+RHIShaderRef VulkanDynamicRHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)
 {
     std::filesystem::path RefPath = DataLocationFinder::GetShaderPath();
-    Ref<VulkanShader> Shader = ShaderCompiler.Get(RefPath / Path, bForceCompile);
+    VulkanShader* Shader = ShaderCompiler.Get(RefPath / Path, bForceCompile);
     check(Shader);
     return Shader;
 }
 
-Ref<RHIGraphicsPipeline>
-VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config)
+RHIGraphicsPipelineRef VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config)
 {
     GraphicsPipelineDescription Desc;
     Desc.VertexShader = Config.VertexShader;
@@ -115,6 +114,6 @@ VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineIni
     Desc.Rasterizer.FrontFaceCulling = ConvertToVulkanType(Config.Rasterizer.FrontFaceCulling);
     Desc.Rasterizer.PolygonMode = ConvertToVulkanType(Config.Rasterizer.PolygonMode);
 
-    return Ref<VulkanGraphicsPipeline>::Create(Device, Desc);
+    return new VulkanGraphicsPipeline(Device, Desc);
 }
 }    // namespace VulkanRHI

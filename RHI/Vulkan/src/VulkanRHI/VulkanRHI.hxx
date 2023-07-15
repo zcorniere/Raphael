@@ -29,12 +29,12 @@ public:
     virtual void BeginRenderPass(const RHIRenderPassDescription& Description) override;
     virtual void EndRenderPass() override;
 
-    virtual Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize) override;
-    virtual Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc) override;
-    virtual Ref<RHIBuffer> CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
-                                        Ref<ResourceArray>& InitialData) override;
-    virtual Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) override;
-    virtual Ref<RHIGraphicsPipeline> CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config) override;
+    virtual RHIViewportRef CreateViewport(void* InWindowHandle, glm::uvec2 InSize) override;
+    virtual RHITextureRef CreateTexture(const RHITextureCreateDesc InDesc) override;
+    virtual RHIBufferRef CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
+                                      ResourceArray* InitialData) override;
+    virtual RHIShaderRef CreateShader(const std::filesystem::path Path, bool bForceCompile) override;
+    virtual RHIGraphicsPipelineRef CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config) override;
 
 public:
     VulkanDynamicRHI();
@@ -76,17 +76,17 @@ private:
 
 private:
     friend class VulkanViewport;
-    void RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport);
+    void RT_SetDrawingViewport(VulkanViewport* Viewport);
 
 private:
     VkInstance m_Instance;
     VulkanDevice* Device;
 
-    Array<Ref<VulkanViewport>> Viewports;
-    WeakRef<VulkanViewport> DrawingViewport;
+    Array<VulkanViewport*> Viewports;
+    TRefCountPtr<VulkanViewport> DrawingViewport;
 
     RenderPassManager* RPassManager = nullptr;
-    WeakRef<VulkanRenderPass> CurrentRenderPass;
+    TRefCountPtr<VulkanRenderPass> CurrentRenderPass;
 
     VulkanShaderCompiler ShaderCompiler;
 };

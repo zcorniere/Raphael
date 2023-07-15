@@ -80,22 +80,28 @@ void VulkanGraphicsPipeline::SetName(std::string_view Name)
     }
 }
 
+static void PipelineShaderStage(VulkanDevice* Device, Array<VkPipelineShaderStageCreateInfo>& OutShaderStage,
+                                TRefCountPtr<VulkanShader>& Shader)
+{
+    VkPipelineShaderStageCreateInfo CreateInfo{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        .stage = ConvertToVulkanType(Shader->GetShaderType()),
+        .module = Shader->GetHandle(Device)->Handle,
+        .pName = "main",
+    };
+    OutShaderStage.Add(CreateInfo);
+}
+
 bool VulkanGraphicsPipeline::Create(bool bForceRecompileShaders)
 {
-    Shaders[0] = RHI::CreateShader(Desc.VertexShader, bForceRecompileShaders);
-    Shaders[1] = RHI::CreateShader(Desc.PixelShader, bForceRecompileShaders);
+    VertexShader = TRefCountPtr<VulkanShader>(RHI::CreateShader(Desc.VertexShader, bForceRecompileShaders));
+    PixelShader = TRefCountPtr<VulkanShader>(RHI::CreateShader(Desc.PixelShader, bForceRecompileShaders));
 
     CreatePipelineLayout();
 
     Array<VkPipelineShaderStageCreateInfo> ShaderStage;
-    for (Ref<VulkanShader>& Shader: Shaders) {
-        Ref<VulkanShader::ShaderHandle> Handle = Shader->GetHandle(Device);
-        ShaderStage.Add(VkPipelineShaderStageCreateInfo{
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-            .stage = ConvertToVulkanType(Shader->GetShaderType()),
-            .pName = "main",
-        });
-    }
+    PipelineShaderStage(Device, ShaderStage, VertexShader);
+    PipelineShaderStage(Device, ShaderStage, PixelShader);
 
     VkGraphicsPipelineCreateInfo PipelineCreateInfo{
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -110,8 +116,8 @@ bool VulkanGraphicsPipeline::Create(bool bForceRecompileShaders)
     return false;
 }
 
-static VkPushConstantRange GetConstantRangeFromShader(Array<VkPushConstantRange>& OutPushRanges,
-                                                      Ref<VulkanShader>& InShader, const VkShaderStageFlags ShaderStage)
+static VkPushConstantRange GetConstantRangeFromShader(Array<VkPushConstantRange>& OutPushRanges, VulkanShader* InShader,
+                                                      const VkShaderStageFlags ShaderStage)
 {
     VkPushConstantRange Range{
         .stageFlags = ShaderStage,
@@ -133,8 +139,8 @@ static VkPushConstantRange GetConstantRangeFromShader(Array<VkPushConstantRange>
 bool VulkanGraphicsPipeline::CreatePipelineLayout()
 {
     Array<VkPushConstantRange> PushRanges;
-    GetConstantRangeFromShader(PushRanges, Shaders[0], VK_SHADER_STAGE_VERTEX_BIT);
-    GetConstantRangeFromShader(PushRanges, Shaders[1], VK_SHADER_STAGE_FRAGMENT_BIT);
+    GetConstantRangeFromShader(PushRanges, VertexShader.GetReference(), VK_SHADER_STAGE_VERTEX_BIT);
+    GetConstantRangeFromShader(PushRanges, PixelShader.GetReference(), VK_SHADER_STAGE_FRAGMENT_BIT);
 
     // TODO: Shader descriptor set reflection
     Array<VkDescriptorSetLayout> SetLayout;

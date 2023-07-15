@@ -1,5 +1,6 @@
 #include "VulkanRHI/RenderPass/VulkanRenderPass.hxx"
 
+#include "Engine/Core/RHI/Resources/RHITexture.hxx"
 #include "VulkanRHI/Resources/VulkanTexture.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
@@ -37,6 +38,10 @@ VulkanRenderPass::VulkanRenderPass(VulkanDevice* InDevice, const RHIRenderPassDe
 
 VulkanRenderPass::~VulkanRenderPass()
 {
+    ColorTarget.Clear(true);
+    ResolveTarget.Clear(true);
+    if (DepthTarget)
+        delete DepthTarget;
     if (FrameBuffer) {
         VulkanAPI::vkDestroyFramebuffer(Device->GetHandle(), FrameBuffer, nullptr);
     }
@@ -45,7 +50,7 @@ VulkanRenderPass::~VulkanRenderPass()
 void VulkanRenderPass::Begin(VulkanCmdBuffer* CmdBuffer, const VkRect2D RenderArea)
 {
     Array<VkClearValue> ClearValues;
-    for (const Ref<VulkanTexture>& Texture: ColorTarget) {
+    for (const VulkanTexture* Texture: ColorTarget) {
         const glm::vec4& Color = Texture->GetDescription().ClearColor;
         VkClearValue& Value = ClearValues.Emplace();
         Value.color = {{Color.r, Color.g, Color.b, Color.a}};
@@ -63,13 +68,13 @@ void VulkanRenderPass::Begin(VulkanCmdBuffer* CmdBuffer, const VkRect2D RenderAr
         .clearValueCount = ClearValues.Size(),
         .pClearValues = ClearValues.Raw(),
     };
-    VulkanAPI::vkCmdBeginRenderPass(CmdBuffer->GetHandle(), &BeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+    CmdBuffer->BeginRenderPass(BeginInfo);
     bHasBegun = true;
 }
 void VulkanRenderPass::End(VulkanCmdBuffer* CmdBuffer)
 {
     check(bHasBegun);
-    VulkanAPI::vkCmdEndRenderPass(CmdBuffer->GetHandle());
+    CmdBuffer->EndRenderPass();
     bHasBegun = false;
 }
 
@@ -130,11 +135,11 @@ VkFramebuffer VulkanRenderPass::CreateFrameBuffer()
     return FrameBuffer;
 }
 
-Array<VkImageView> VulkanRenderPass::GetFramebufferAttachment(const Array<Ref<VulkanTexture>>& SourceTextures)
+Array<VkImageView> VulkanRenderPass::GetFramebufferAttachment(const Array<VulkanTexture*>& SourceTextures)
 {
     Array<VkImageView> ImageView;
     ImageView.Reserve(SourceTextures.Size());
-    for (const Ref<VulkanTexture>& Texture: SourceTextures) {
+    for (const VulkanTexture* Texture: SourceTextures) {
         ImageView.Add(Texture->GetImageView());
     }
     return ImageView;
@@ -241,7 +246,8 @@ VulkanRenderPass::GetAttachmentDescriptions(const Array<RHIRenderPassDescription
 
     return AttachmentDescription;
 }
-Ref<VulkanTexture>
+
+VulkanTexture*
 VulkanRenderPass::CreateFramebufferTextures(const RHIRenderPassDescription::RenderingTargetInfo& TargetInfo,
                                             ETextureCreateFlags Flags)
 {
@@ -251,6 +257,7 @@ VulkanRenderPass::CreateFramebufferTextures(const RHIRenderPassDescription::Rend
         .Format = TargetInfo.Format,
         .Extent = Description.Size,
     };
-    return RHI::CreateTexture(TextureCreate);
+    VulkanTexture* Texture = new VulkanTexture(Device, TextureCreate);
+    return Texture;
 }
 }    // namespace VulkanRHI

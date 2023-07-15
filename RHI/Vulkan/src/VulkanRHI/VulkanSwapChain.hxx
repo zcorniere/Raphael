@@ -61,7 +61,7 @@ public:
 
     void Destroy(VulkanSwapChainRecreateInfo* RecreateInfo);
 
-    Status Present(VulkanQueue* PresentQueue, Ref<Semaphore>& RenderingComplete);
+    Status Present(VulkanQueue* PresentQueue, Semaphore*& RenderingComplete);
 
     VkFormat GetFormat() const
     {
@@ -79,7 +79,7 @@ public:
     }
 
 private:
-    int32 AcquireImageIndex(Ref<Semaphore>& OutSemaphore);
+    int32 AcquireImageIndex(Semaphore*& OutSemaphore);
 
 private:
     VulkanDevice* Device;
@@ -95,8 +95,8 @@ private:
     VkSurfaceKHR Surface;
     VkInstance Instance;
 
-    Array<Ref<Semaphore>> ImageAcquiredSemaphore;
-    Array<Ref<Fence>> ImageInUseFence;
+    Array<Semaphore*> ImageAcquiredSemaphore;
+    Array<Fence*> ImageInUseFence;
 
     friend class VulkanViewport;
 };

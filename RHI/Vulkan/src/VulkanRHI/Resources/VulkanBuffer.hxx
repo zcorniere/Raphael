@@ -10,11 +10,11 @@ namespace VulkanRHI
 class VulkanDevice;
 class VulkanMemoryAllocation;
 
-class VulkanBuffer : public RHIBuffer
+class VulkanBuffer final : public RHIBuffer
 {
 public:
     VulkanBuffer(VulkanDevice* InDevice, const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
-                 Ref<ResourceArray>& InitialData);
+                 ResourceArray* InitialData);
     ~VulkanBuffer();
 
     virtual void SetName(std::string_view InName) override;

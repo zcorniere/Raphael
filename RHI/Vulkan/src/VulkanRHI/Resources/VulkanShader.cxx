@@ -21,17 +21,24 @@ VulkanShader::VulkanShader(RHIShaderType Type, const Array<uint32>& InSPIRVCode,
 {
 }
 
-Ref<VulkanShader::ShaderHandle> VulkanShader::GetHandle(VulkanDevice* InDevice)
+VulkanShader::~VulkanShader()
 {
     if (m_ShaderHandle) {
-        return Ref(m_ShaderHandle);
+        delete m_ShaderHandle;
+    }
+}
+
+VulkanShader::ShaderHandle* VulkanShader::GetHandle(VulkanDevice* InDevice)
+{
+    if (m_ShaderHandle) {
+        return m_ShaderHandle;
     }
     VkShaderModuleCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
         .codeSize = SPIRVCode.Size() * sizeof(uint32),
         .pCode = SPIRVCode.Raw(),
     };
-    m_ShaderHandle = Ref<ShaderHandle>::Create(InDevice, CreateInfo);
+    m_ShaderHandle = new ShaderHandle(InDevice, CreateInfo);
     return m_ShaderHandle;
 }
 

@@ -11,7 +11,7 @@ namespace VulkanRHI
 class VulkanDevice;
 class VulkanMemoryAllocation;
 
-class VulkanTexture : public RHITexture
+class VulkanTexture final : public RHITexture
 {
 public:
     VulkanTexture(VulkanDevice* InDevice, const RHITextureCreateDesc& InDesc);

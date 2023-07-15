@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Misc/EnumFlags.hxx"
+#include "Engine/Misc/RefCounted.hxx"
 #include <glm/gtx/hash.hpp>
 
 /// @brief The max amount of render target that may used used simultaneously
@@ -55,8 +56,57 @@ enum class EFrontFace {
     Clockwise,
 };
 
-class RHITexture;
-class RHIGraphicsPipeline;
+enum class EBufferUsageFlags {
+    None = 0,
+
+    SourceCopy = BIT(0),
+    DestinationCopy = BIT(1),
+
+    DrawIndirect = BIT(2),
+
+    VertexBuffer = BIT(3),
+    IndexBuffer = BIT(4),
+    StructuredBuffer = BIT(5),
+};
+
+/// @brief What the texture will be used for
+enum class ETextureCreateFlags {
+    None = 0,
+    RenderTargetable = BIT(0),
+    ResolveTargetable = BIT(1),
+    DepthStencilTargetable = BIT(2),
+};
+
+/// @brief Describe the texture to be created
+struct RHITextureCreateDesc {
+    ETextureCreateFlags Flags = ETextureCreateFlags::None;
+    EImageDimension Dimension = EImageDimension::Texture2D;
+    EImageFormat Format = EImageFormat::R8G8B8A8_SRGB;
+
+    glm::uvec2 Extent = {1, 1};
+    uint32 Depth = 1;
+    uint8 NumMips = 1;
+    uint8 NumSamples = 1;
+
+    glm::vec4 ClearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+
+    std::string Name;
+
+    bool operator==(const RHITextureCreateDesc&) const = default;
+};
+
+struct RHIGraphicsPipelineInitializer {
+
+    std::string VertexShader;
+    std::string PixelShader;
+
+    struct RasterizerDesc {
+        EPolygonMode PolygonMode;
+        ECullMode CullMode;
+        EFrontFace FrontFaceCulling;
+    };
+    RasterizerDesc Rasterizer;
+};
 
 struct RHIRenderPassDescription {
     struct RenderingTargetInfo {
@@ -75,7 +125,7 @@ struct RHIRenderPassDescription {
     bool operator==(const RHIRenderPassDescription&) const = default;
 };
 
-class ResourceArray : public RObject
+class ResourceArray : public RefCounted
 {
 public:
     /// @return A pointer to the resource data.
@@ -83,32 +133,24 @@ public:
 
     /// @return size of resource data allocation
     virtual uint32 GetResourceDataSize() const = 0;
-
-    /// Called after the RHI has copied the resource data, and no longer needs the CPU's copy.
-    virtual void Discard() = 0;
 };
 
 template <typename ElementType>
-class TResourceArray : public Array<ElementType>, public ResourceArray
+class TResourceArray final : public Array<ElementType>, public ResourceArray
 {
 public:
-    const void* GetResourceData() const
+    const void* GetResourceData() const override
     {
         return this->Raw();
     }
 
-    uint32 GetResourceDataSize() const
+    uint32 GetResourceDataSize() const override
     {
         checkMsg(this->Size() > UINT32_MAX / sizeof(ElementType),
                  "Resource data size too large for uint32, will overflow. Calculate with larger data type or "
                  "use fewer elements. sizeof(ElementType): {:d}",
                  sizeof(ElementType));
         return this->Size() * sizeof(ElementType);
-    }
-
-    void Discard()
-    {
-        this->Empty();
     }
 };
 

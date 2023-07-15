@@ -2,6 +2,7 @@
 
 #include "Engine/Compilers/Compiler.hxx"
 #include "Engine/Core/RHI/RHICommandQueue.hxx"
+#include "Engine/Core/RHI/RHIDefinitions.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
 
 DECLARE_LOGGER_CATEGORY(Core, LogGenericRHI, Info);
@@ -59,14 +60,14 @@ public:
     static void EndRenderPass();
 
     /// Create a new RHI viewport - through the current RHI
-    static Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize);
+    static RHIViewportRef CreateViewport(void* InWindowHandle, glm::uvec2 InSize);
     /// Create a new RHI texture - through the current RHI
-    static Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc);
+    static RHITextureRef CreateTexture(const RHITextureCreateDesc InDesc);
     /// Create a new RHI buffer - through the current RHI
-    static Ref<RHIBuffer> CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
-                                       Ref<ResourceArray>& InitialData);
+    static RHIBufferRef CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
+                                     ResourceArray* InitialData);
     /// Create a new RHI shader - through the current RHI
-    static Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile);
+    static RHIShaderRef CreateShader(const std::filesystem::path Path, bool bForceCompile);
     /// Create a new RHI Pipeline - through the current RHI
-    static Ref<RHIGraphicsPipeline> CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config);
+    static RHIGraphicsPipelineRef CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config);
 };
