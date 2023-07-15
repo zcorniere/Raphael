@@ -31,6 +31,8 @@ public:
     VulkanCmdBuffer(Ref<VulkanDevice> InDevice, WeakRef<VulkanCommandBufferPool> InCommandPool);
     ~VulkanCmdBuffer();
 
+    virtual void SetName(std::string_view InName) override;
+
     void Begin();
     void End();
 

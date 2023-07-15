@@ -30,6 +30,13 @@ VulkanCmdBuffer::~VulkanCmdBuffer()
     }
 }
 
+void VulkanCmdBuffer::SetName(std::string_view InName)
+{
+    RObject::SetName(InName);
+    VULKAN_SET_DEBUG_NAME(m_Device, VK_OBJECT_TYPE_COMMAND_BUFFER, m_CommandBufferHandle, "[Command Buffer] {:s}",
+                          InName);
+}
+
 void VulkanCmdBuffer::Begin()
 {
     if (State == EState::NeedReset) {
