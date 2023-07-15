@@ -39,7 +39,7 @@ bool EditorApplication::OnEngineInitialization()
     Graph.Execute();
 #endif
 
-    // Create a shader to test the reflection
+    // Create some shaders to test the reflection
     RHI::CreateShader("DefaultTriangle.vert", true);
     RHI::CreateShader("DefaultTriangle.frag", true);
     return true;
@@ -55,6 +55,8 @@ void EditorApplication::Tick(const float DeltaTime)
     RPH_PROFILE_FUNC()
 
     BaseApplication::Tick(DeltaTime);
+
+    MainWindow->SetText(std::to_string(1.0f / DeltaTime));
 
     MainViewport->BeginDrawViewport();
 
