@@ -72,11 +72,29 @@ public:
         return std::vector<T, Allocation>::clear();
     }
 
+    template <typename Function>
+    requires std::invocable<Function, T&>
+    void Clear(Function&& Func)
+    {
+        for (TSize i = 0; i < Size(); i++) {
+            Func((*this)[i]);
+        }
+        return this->Clear();
+    }
+
     /// Same as Clear() but free the memory associated to the Array;
     constexpr void Empty()
     {
         this->Clear();
         this->Reserve(0);
+    }
+    constexpr bool Remove(const T& Value)
+    {
+        TSize Index = Find(Value);
+        if (Index == InvalidVectorIndex)
+            return false;
+        std::vector<T, Allocation>::erase(begin() + Index);
+        return true;
     }
 
     constexpr void Resize(const TSize NewSize)
