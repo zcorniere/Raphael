@@ -56,10 +56,12 @@ void VulkanCmdBuffer::End()
     State = EState::HasEnded;
 }
 
-void VulkanCmdBuffer::BeginRenderPass(/* Argument */)
+void VulkanCmdBuffer::BeginRenderPass(const VkRenderPassBeginInfo& RenderPassBeginInfo)
 {
-    checkNoEntry();
+    State = EState::IsInsideRenderPass;
+    VulkanAPI::vkCmdBeginRenderPass(m_CommandBufferHandle, &RenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
+
 void VulkanCmdBuffer::EndRenderPass()
 {
     checkMsg(IsInsideRenderPass(), "Can't EndRenderPass as we're NOT inside one! CmdBuffer {:p} State={:d}",

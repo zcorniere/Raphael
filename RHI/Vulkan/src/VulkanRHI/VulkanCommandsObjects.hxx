@@ -34,7 +34,7 @@ public:
     void Begin();
     void End();
 
-    void BeginRenderPass(/* Argument */);
+    void BeginRenderPass(const VkRenderPassBeginInfo& RenderPassBeginInfo);
     void EndRenderPass();
 
     void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore>& InSemaphore);

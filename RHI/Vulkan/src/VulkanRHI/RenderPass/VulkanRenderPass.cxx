@@ -63,13 +63,13 @@ void VulkanRenderPass::Begin(Ref<VulkanCmdBuffer>& CmdBuffer, const VkRect2D Ren
         .clearValueCount = ClearValues.Size(),
         .pClearValues = ClearValues.Raw(),
     };
-    VulkanAPI::vkCmdBeginRenderPass(CmdBuffer->GetHandle(), &BeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+    CmdBuffer->BeginRenderPass(BeginInfo);
     bHasBegun = true;
 }
 void VulkanRenderPass::End(Ref<VulkanCmdBuffer>& CmdBuffer)
 {
     check(bHasBegun);
-    VulkanAPI::vkCmdEndRenderPass(CmdBuffer->GetHandle());
+    CmdBuffer->EndRenderPass();
     bHasBegun = false;
 }
 
