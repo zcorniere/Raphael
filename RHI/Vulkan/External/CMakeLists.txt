@@ -11,7 +11,7 @@ set(VMA_STATIC_VULKAN_FUNCTIONS
     CACHE BOOL ""  FORCE
 )
 set(VMA_DYNAMIC_VULKAN_FUNCTIONS
-    ON
+    OFF
     CACHE BOOL "" FORCE
 )
 set(VMA_PATH ${CMAKE_CURRENT_SOURCE_DIR}/VulkanMemoryAllocator)
@@ -20,8 +20,8 @@ set_source_files_properties(${VMA_PATH}/include/vk_mem_alloc.h PROPERTIES LANGUA
 target_compile_definitions(
     VulkanMemoryAllocator
     PRIVATE VMA_IMPLEMENTATION
-    PRIVATE VMA_STATIC_VULKAN_FUNCTIONS=0
-    PRIVATE VMA_DYNAMIC_VULKAN_FUNCTIONS=1
+    PUBLIC VMA_STATIC_VULKAN_FUNCTIONS=0
+    PUBLIC VMA_DYNAMIC_VULKAN_FUNCTIONS=1
 )
 target_include_directories(VulkanMemoryAllocator PUBLIC ${VMA_PATH}/include)
 set_target_properties(VulkanMemoryAllocator PROPERTIES LINKER_LANGUAGE CXX)
