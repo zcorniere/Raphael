@@ -38,7 +38,7 @@ VulkanRenderPass::VulkanRenderPass(VulkanDevice* InDevice, const RHIRenderPassDe
 VulkanRenderPass::~VulkanRenderPass()
 {
     if (FrameBuffer) {
-        VulkanAPI::vkDestroyFramebuffer(Device->GetHandle(), FrameBuffer, nullptr);
+        VulkanAPI::vkDestroyFramebuffer(Device->GetHandle(), FrameBuffer, VULKAN_CPU_ALLOCATOR);
     }
 }
 
@@ -125,7 +125,8 @@ VkFramebuffer VulkanRenderPass::CreateFrameBuffer()
         .height = Description.Size.y,
         .layers = 1,
     };
-    VK_CHECK_RESULT(VulkanAPI::vkCreateFramebuffer(Device->GetHandle(), &CreateInfo, nullptr, &FrameBuffer));
+    VK_CHECK_RESULT(
+        VulkanAPI::vkCreateFramebuffer(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &FrameBuffer));
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_FRAMEBUFFER, FrameBuffer, "%s [Framebuffer]", GetName());
     return FrameBuffer;
 }
@@ -176,7 +177,8 @@ VkRenderPass VulkanRenderPass::CreateRenderPass()
         .dependencyCount = 1,
         .pDependencies = &Dependency,
     };
-    VK_CHECK_RESULT(VulkanAPI::vkCreateRenderPass(Device->GetHandle(), &RenderPassInfo, nullptr, &RenderPass));
+    VK_CHECK_RESULT(
+        VulkanAPI::vkCreateRenderPass(Device->GetHandle(), &RenderPassInfo, VULKAN_CPU_ALLOCATOR, &RenderPass));
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_RENDER_PASS, RenderPass, "%s [Renderpass]", GetName());
     return RenderPass;
 }

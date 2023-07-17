@@ -213,13 +213,14 @@ Semaphore::Semaphore(VulkanDevice* InDevice): Device(InDevice), SemaphoreHandle(
     VkSemaphoreCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
     };
-    VK_CHECK_RESULT(VulkanAPI::vkCreateSemaphore(Device->GetHandle(), &CreateInfo, nullptr, &SemaphoreHandle));
+    VK_CHECK_RESULT(
+        VulkanAPI::vkCreateSemaphore(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &SemaphoreHandle));
 }
 
 Semaphore::~Semaphore()
 {
     if (SemaphoreHandle) {
-        VulkanAPI::vkDestroySemaphore(Device->GetHandle(), SemaphoreHandle, nullptr);
+        VulkanAPI::vkDestroySemaphore(Device->GetHandle(), SemaphoreHandle, VULKAN_CPU_ALLOCATOR);
     }
     SemaphoreHandle = VK_NULL_HANDLE;
 }
@@ -234,12 +235,12 @@ Fence::Fence(VulkanDevice* InDevice, bool bCreateSignaled)
     if (bCreateSignaled) {
         Info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
     }
-    VK_CHECK_RESULT(VulkanAPI::vkCreateFence(Device->GetHandle(), &Info, nullptr, &Handle));
+    VK_CHECK_RESULT(VulkanAPI::vkCreateFence(Device->GetHandle(), &Info, VULKAN_CPU_ALLOCATOR, &Handle));
 }
 
 Fence::~Fence()
 {
-    VulkanAPI::vkDestroyFence(Device->GetHandle(), Handle, nullptr);
+    VulkanAPI::vkDestroyFence(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR);
 }
 
 void Fence::Reset()

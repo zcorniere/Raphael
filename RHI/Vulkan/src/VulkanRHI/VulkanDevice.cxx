@@ -188,7 +188,7 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
     DeviceInfo.queueCreateInfoCount = QueueFamilyInfos.Size();
     DeviceInfo.pQueueCreateInfos = QueueFamilyInfos.Raw();
 
-    VkResult Result = VulkanAPI::vkCreateDevice(Gpu, &DeviceInfo, nullptr, &Device);
+    VkResult Result = VulkanAPI::vkCreateDevice(Gpu, &DeviceInfo, VULKAN_CPU_ALLOCATOR, &Device);
     if (Result == VK_ERROR_INITIALIZATION_FAILED) {
         LOG(LogVulkanRHI, Fatal, "Vulkan failed to create device!");
         Utils::RequestExit(1);
@@ -279,7 +279,7 @@ void VulkanDevice::Destroy()
     // Present Queue is a copy
     PresentQueue = nullptr;
 
-    VulkanAPI::vkDestroyDevice(Device, nullptr);
+    VulkanAPI::vkDestroyDevice(Device, VULKAN_CPU_ALLOCATOR);
     Device = VK_NULL_HANDLE;
 }
 

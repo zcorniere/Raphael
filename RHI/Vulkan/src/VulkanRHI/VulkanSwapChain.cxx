@@ -175,16 +175,16 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, 
         VK_TYPE_TO_STRING(VkColorSpaceKHR, CreateInfo.imageColorSpace), static_cast<uint32>(CreateInfo.minImageCount));
 
     VK_CHECK_RESULT_EXPANDED(
-        VulkanAPI::vkCreateSwapchainKHR(Device->GetHandle(), &CreateInfo, nullptr, &SwapChain));
+        VulkanAPI::vkCreateSwapchainKHR(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &SwapChain));
 
     ImageFormat = SurfaceFormat.format;
     if (RecreateInfo) {
         if (RecreateInfo->SwapChain != VK_NULL_HANDLE) {
-            VulkanAPI::vkDestroySwapchainKHR(Device->GetHandle(), RecreateInfo->SwapChain, nullptr);
+            VulkanAPI::vkDestroySwapchainKHR(Device->GetHandle(), RecreateInfo->SwapChain, VULKAN_CPU_ALLOCATOR);
             RecreateInfo->SwapChain = VK_NULL_HANDLE;
         }
         if (RecreateInfo->Surface != VK_NULL_HANDLE) {
-            VulkanAPI::vkDestroySurfaceKHR(Instance, RecreateInfo->Surface, nullptr);
+            VulkanAPI::vkDestroySurfaceKHR(Instance, RecreateInfo->Surface, VULKAN_CPU_ALLOCATOR);
             RecreateInfo->Surface = VK_NULL_HANDLE;
         }
     }
@@ -219,8 +219,8 @@ void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo* RecreateInfo)
         RecreateInfo->SwapChain = SwapChain;
         RecreateInfo->Surface = Surface;
     } else {
-        VulkanAPI::vkDestroySwapchainKHR(Device->GetHandle(), SwapChain, nullptr);
-        VulkanAPI::vkDestroySurfaceKHR(Instance, Surface, nullptr);
+        VulkanAPI::vkDestroySwapchainKHR(Device->GetHandle(), SwapChain, VULKAN_CPU_ALLOCATOR);
+        VulkanAPI::vkDestroySurfaceKHR(Instance, Surface, VULKAN_CPU_ALLOCATOR);
     }
     Surface = VK_NULL_HANDLE;
     SwapChain = VK_NULL_HANDLE;

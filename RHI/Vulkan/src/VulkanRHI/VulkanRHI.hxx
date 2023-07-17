@@ -18,6 +18,12 @@ class RenderPassManager;
 class VulkanRenderPass;
 class VulkanDevice;
 
+extern VkAllocationCallbacks GAllocationCallbacks;
+static FORCEINLINE const VkAllocationCallbacks* GetMemoryAllocator()
+{
+    return &GAllocationCallbacks;
+}
+
 /// @brief Vulkan RHI implementation for Raphael
 class VulkanDynamicRHI : public GenericRHI
 {
@@ -101,3 +107,9 @@ FORCEINLINE Ref<VulkanRHI::VulkanDynamicRHI> GetVulkanDynamicRHI()
     check(GDynamicRHI->GetInterfaceType() == RHIInterfaceType::Vulkan);
     return RHI::Get<VulkanRHI::VulkanDynamicRHI>();
 }
+
+#if VULKAN_CUSTOM_CPU_ALLOCATOR == 1
+    #define VULKAN_CPU_ALLOCATOR ::VulkanRHI::GetMemoryAllocator()
+#else
+    #define VULKAN_CPU_ALLOCATOR nullptr
+#endif

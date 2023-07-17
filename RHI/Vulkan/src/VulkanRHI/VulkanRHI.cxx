@@ -99,7 +99,7 @@ void VulkanDynamicRHI::Shutdown()
     RemoveDebugLayerCallback();
 #endif
 
-    VulkanAPI::vkDestroyInstance(m_Instance, nullptr);
+    VulkanAPI::vkDestroyInstance(m_Instance, VULKAN_CPU_ALLOCATOR);
 }
 
 void VulkanDynamicRHI::CreateInstance()
@@ -135,7 +135,7 @@ void VulkanDynamicRHI::CreateInstance()
     InstInfo.ppEnabledLayerNames = ValidationLayers.Raw();
 #endif
 
-    VkResult Result = VulkanAPI::vkCreateInstance(&InstInfo, nullptr, &m_Instance);
+    VkResult Result = VulkanAPI::vkCreateInstance(&InstInfo, VULKAN_CPU_ALLOCATOR, &m_Instance);
 
     if (Result == VK_ERROR_INCOMPATIBLE_DRIVER) {
         PlatformMisc::DisplayMessageBox(

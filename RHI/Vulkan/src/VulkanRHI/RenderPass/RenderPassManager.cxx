@@ -47,7 +47,7 @@ void RenderPassManager::Clear()
     StorageMap.clear();
 
     for (auto& [_, VulkanPass]: RenderPassStorage) {
-        VulkanAPI::vkDestroyRenderPass(Device->GetHandle(), VulkanPass, nullptr);
+        VulkanAPI::vkDestroyRenderPass(Device->GetHandle(), VulkanPass, VULKAN_CPU_ALLOCATOR);
     }
     RenderPassStorage.clear();
 }

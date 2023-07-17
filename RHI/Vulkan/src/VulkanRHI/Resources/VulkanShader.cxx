@@ -8,12 +8,12 @@ namespace VulkanRHI
 
 VulkanShader::ShaderHandle::ShaderHandle(VulkanDevice* InDevice, const VkShaderModuleCreateInfo& Info): Device(InDevice)
 {
-    VK_CHECK_RESULT(VulkanAPI::vkCreateShaderModule(Device->GetHandle(), &Info, nullptr, &Handle));
+    VK_CHECK_RESULT(VulkanAPI::vkCreateShaderModule(Device->GetHandle(), &Info, VULKAN_CPU_ALLOCATOR, &Handle));
 }
 
 VulkanShader::ShaderHandle::~ShaderHandle()
 {
-    VulkanAPI::vkDestroyShaderModule(Device->GetHandle(), Handle, nullptr);
+    VulkanAPI::vkDestroyShaderModule(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR);
 }
 
 VulkanShader::VulkanShader(RHIShaderType Type, const Array<uint32>& InSPIRVCode, const ReflectionData& InReflectionData)

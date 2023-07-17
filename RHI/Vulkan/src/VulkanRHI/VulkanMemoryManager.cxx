@@ -103,6 +103,7 @@ VulkanMemoryManager::VulkanMemoryManager(VulkanDevice* InDevice)
     VmaAllocatorCreateInfo CreateInfo{
         .physicalDevice = RHI->RHIGetVkPhysicalDevice(),
         .device = Device->GetHandle(),
+        .pAllocationCallbacks = VULKAN_CPU_ALLOCATOR,
         .pVulkanFunctions = &Functions,
         .instance = RHI->GetInstance(),
         .vulkanApiVersion = RHI_VULKAN_VERSION,

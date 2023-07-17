@@ -62,10 +62,10 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(VulkanDevice* InDevice, const Gra
 VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
 {
     if (VulkanPipeline) {
-        VulkanAPI::vkDestroyPipeline(Device->GetHandle(), VulkanPipeline, nullptr);
+        VulkanAPI::vkDestroyPipeline(Device->GetHandle(), VulkanPipeline, VULKAN_CPU_ALLOCATOR);
     }
     if (PipelineLayout) {
-        VulkanAPI::vkDestroyPipelineLayout(Device->GetHandle(), PipelineLayout, nullptr);
+        VulkanAPI::vkDestroyPipelineLayout(Device->GetHandle(), PipelineLayout, VULKAN_CPU_ALLOCATOR);
     }
 }
 
@@ -106,8 +106,8 @@ bool VulkanGraphicsPipeline::Create(bool bForceRecompileShaders)
         .layout = PipelineLayout,
     };
 
-    VK_CHECK_RESULT(VulkanAPI::vkCreateGraphicsPipelines(Device->GetHandle(), nullptr, 1, &PipelineCreateInfo, nullptr,
-                                                         &VulkanPipeline));
+    VK_CHECK_RESULT(VulkanAPI::vkCreateGraphicsPipelines(Device->GetHandle(), nullptr, 1, &PipelineCreateInfo,
+                                                         VULKAN_CPU_ALLOCATOR, &VulkanPipeline));
     return false;
 }
 
@@ -148,7 +148,8 @@ bool VulkanGraphicsPipeline::CreatePipelineLayout()
         .pushConstantRangeCount = PushRanges.Size(),
         .pPushConstantRanges = PushRanges.Raw(),
     };
-    VK_CHECK_RESULT(VulkanAPI::vkCreatePipelineLayout(Device->GetHandle(), &CreateInfo, nullptr, &PipelineLayout));
+    VK_CHECK_RESULT(
+        VulkanAPI::vkCreatePipelineLayout(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &PipelineLayout));
     return true;
 }
 

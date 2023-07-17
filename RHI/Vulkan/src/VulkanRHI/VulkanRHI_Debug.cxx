@@ -143,14 +143,15 @@ void VulkanDynamicRHI::SetupDebugLayerCallback()
                        VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
         .pfnUserCallback = VulkanDebugUtilsMessengerCallback,
     };
-    VkResult Result = VulkanAPI::vkCreateDebugUtilsMessengerEXT(m_Instance, &CreateInfo, nullptr, &Messenger);
+    VkResult Result =
+        VulkanAPI::vkCreateDebugUtilsMessengerEXT(m_Instance, &CreateInfo, VULKAN_CPU_ALLOCATOR, &Messenger);
     verify(Result == VK_SUCCESS);
 }
 
 void VulkanDynamicRHI::RemoveDebugLayerCallback()
 {
     if (Messenger != VK_NULL_HANDLE) {
-        VulkanAPI::vkDestroyDebugUtilsMessengerEXT(m_Instance, Messenger, nullptr);
+        VulkanAPI::vkDestroyDebugUtilsMessengerEXT(m_Instance, Messenger, VULKAN_CPU_ALLOCATOR);
     }
 }
 

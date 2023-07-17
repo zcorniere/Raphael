@@ -89,7 +89,7 @@ VulkanTexture::VulkanTexture(VulkanDevice* InDevice, const RHITextureCreateDesc&
             break;
     }
 
-    VK_CHECK_RESULT(VulkanAPI::vkCreateImage(Device->GetHandle(), &ImageCreateInfo, nullptr, &Image));
+    VK_CHECK_RESULT(VulkanAPI::vkCreateImage(Device->GetHandle(), &ImageCreateInfo, VULKAN_CPU_ALLOCATOR, &Image));
     VulkanAPI::vkGetImageMemoryRequirements(Device->GetHandle(), Image, &MemoryRequirements);
 
     Allocation = Device->GetMemoryManager()->Alloc(MemoryRequirements, VMA_MEMORY_USAGE_GPU_ONLY, false);
@@ -101,11 +101,11 @@ VulkanTexture::VulkanTexture(VulkanDevice* InDevice, const RHITextureCreateDesc&
 VulkanTexture::~VulkanTexture()
 {
     if (View) {
-        VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, nullptr);
+        VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, VULKAN_CPU_ALLOCATOR);
     }
     Device->GetMemoryManager()->Free(Allocation);
     Allocation = nullptr;
-    VulkanAPI::vkDestroyImage(Device->GetHandle(), Image, nullptr);
+    VulkanAPI::vkDestroyImage(Device->GetHandle(), Image, VULKAN_CPU_ALLOCATOR);
 }
 
 void VulkanTexture::SetName(std::string_view InName)
@@ -141,7 +141,7 @@ VkImageView VulkanTexture::GetImageView() const
             },
         .subresourceRange = Barrier::MakeSubresourceRange(TextureCreateFlagToVkImageAspectFlags(Description.Flags)),
     };
-    VK_CHECK_RESULT(VulkanAPI::vkCreateImageView(Device->GetHandle(), &CreateInfo, nullptr, &View));
+    VK_CHECK_RESULT(VulkanAPI::vkCreateImageView(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &View));
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, View, "{:s} [View]", GetName());
     return View;
 }
@@ -176,7 +176,7 @@ void VulkanTextureView::Create(VulkanDevice* Device, VkImage InImage, VkImageVie
             },
     };
 
-    VK_CHECK_RESULT(VulkanAPI::vkCreateImageView(Device->GetHandle(), &ViewInfo, nullptr, &View));
+    VK_CHECK_RESULT(VulkanAPI::vkCreateImageView(Device->GetHandle(), &ViewInfo, VULKAN_CPU_ALLOCATOR, &View));
 
     Image = InImage;
 }
@@ -184,7 +184,7 @@ void VulkanTextureView::Create(VulkanDevice* Device, VkImage InImage, VkImageVie
 void VulkanTextureView::Destroy(VulkanDevice* Device)
 {
     if (View) {
-        VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, nullptr);
+        VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, VULKAN_CPU_ALLOCATOR);
         Image = VK_NULL_HANDLE;
         View = VK_NULL_HANDLE;
     }

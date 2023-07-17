@@ -137,7 +137,7 @@ VulkanCommandBufferPool ::~VulkanCommandBufferPool()
     m_CmdBuffers.Clear();
     m_FreeCmdBuffers.Clear();
 
-    VulkanAPI::vkDestroyCommandPool(m_Device->GetHandle(), m_Handle, nullptr);
+    VulkanAPI::vkDestroyCommandPool(m_Device->GetHandle(), m_Handle, VULKAN_CPU_ALLOCATOR);
     m_Handle = VK_NULL_HANDLE;
 }
 
@@ -148,7 +148,8 @@ void VulkanCommandBufferPool::Initialize(uint32 QueueFamilyIndex)
         .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
         .queueFamilyIndex = QueueFamilyIndex,
     };
-    VK_CHECK_RESULT(VulkanAPI::vkCreateCommandPool(m_Device->GetHandle(), &CmdPoolInfo, nullptr, &m_Handle));
+    VK_CHECK_RESULT(
+        VulkanAPI::vkCreateCommandPool(m_Device->GetHandle(), &CmdPoolInfo, VULKAN_CPU_ALLOCATOR, &m_Handle));
 }
 
 Ref<VulkanCmdBuffer> VulkanCommandBufferPool::CreateCmdBuffer()

@@ -42,7 +42,7 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const uint32 InSize, const EB
         .size = InSize,
         .usage = BufferUsageFlags,
     };
-    VK_CHECK_RESULT(VulkanAPI::vkCreateBuffer(Device->GetHandle(), &CreateInfo, nullptr, &BufferHandle));
+    VK_CHECK_RESULT(VulkanAPI::vkCreateBuffer(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &BufferHandle));
 
     VulkanAPI::vkGetBufferMemoryRequirements(Device->GetHandle(), BufferHandle, &MemoryRequirements);
     Memory = Device->GetMemoryManager()->Alloc(MemoryRequirements, VMA_MEMORY_USAGE_GPU_ONLY, false);
@@ -63,7 +63,7 @@ VulkanBuffer::~VulkanBuffer()
 {
     Device->GetMemoryManager()->Free(Memory);
 
-    VulkanAPI::vkDestroyBuffer(Device->GetHandle(), BufferHandle, nullptr);
+    VulkanAPI::vkDestroyBuffer(Device->GetHandle(), BufferHandle, VULKAN_CPU_ALLOCATOR);
 }
 
 void VulkanBuffer::SetName(std::string_view InName)
