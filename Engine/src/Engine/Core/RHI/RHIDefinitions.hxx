@@ -92,12 +92,12 @@ template <typename ElementType>
 class TResourceArray : public Array<ElementType>, public ResourceArray
 {
 public:
-    const void* GetResourceData() const
+    const void* GetResourceData() const override
     {
         return this->Raw();
     }
 
-    uint32 GetResourceDataSize() const
+    uint32 GetResourceDataSize() const override
     {
         checkMsg(this->Size() > UINT32_MAX / sizeof(ElementType),
                  "Resource data size too large for uint32, will overflow. Calculate with larger data type or "
@@ -106,7 +106,7 @@ public:
         return this->Size() * sizeof(ElementType);
     }
 
-    void Discard()
+    void Discard() override
     {
         this->Empty();
     }

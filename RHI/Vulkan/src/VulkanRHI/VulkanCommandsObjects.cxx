@@ -42,8 +42,8 @@ void VulkanCmdBuffer::Begin()
     if (State == EState::NeedReset) {
         VulkanAPI::vkResetCommandBuffer(m_CommandBufferHandle, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
     } else {
-        checkMsg(State == EState::ReadyForBegin, "Can't Begin as we're NOT ready! CmdBuffer {:p} State={:d}",
-                 (void*)m_CommandBufferHandle, (int32)State);
+        checkMsg(State == EState::ReadyForBegin, "Can't Begin as we're NOT ready! CmdBuffer {:p} State={:s}",
+                 (void*)m_CommandBufferHandle, magic_enum::enum_name(State));
     }
     State = EState::IsInsideBegin;
 
@@ -56,8 +56,8 @@ void VulkanCmdBuffer::Begin()
 
 void VulkanCmdBuffer::End()
 {
-    checkMsg(IsOutsideRenderPass(), "Can't End as we're inside a render pass! CmdBuffer {:p} State={:d}",
-             (void*)m_CommandBufferHandle, (int32)State);
+    checkMsg(IsOutsideRenderPass(), "Can't End as we're inside a render pass! CmdBuffer {:p} State={:s}",
+             (void*)m_CommandBufferHandle, magic_enum::enum_name(State));
 
     VK_CHECK_RESULT(VulkanAPI::vkEndCommandBuffer(m_CommandBufferHandle));
     State = EState::HasEnded;
@@ -71,8 +71,8 @@ void VulkanCmdBuffer::BeginRenderPass(const VkRenderPassBeginInfo& RenderPassBeg
 
 void VulkanCmdBuffer::EndRenderPass()
 {
-    checkMsg(IsInsideRenderPass(), "Can't EndRenderPass as we're NOT inside one! CmdBuffer {:p} State={:d}",
-             (void*)m_CommandBufferHandle, (int32)State);
+    checkMsg(IsInsideRenderPass(), "Can't EndRenderPass as we're NOT inside one! CmdBuffer {:p} State={:s}",
+             (void*)m_CommandBufferHandle, magic_enum::enum_name(State));
     VulkanAPI::vkCmdEndRenderPass(m_CommandBufferHandle);
     State = EState::IsInsideBegin;
 }
@@ -173,7 +173,7 @@ Ref<VulkanCmdBuffer> VulkanCommandBufferPool::CreateCmdBuffer()
     return NewCmdBuffer;
 }
 
-void VulkanCommandBufferPool::RefreshFenceStatus(Ref<VulkanCmdBuffer>& SkipCmdBuffer)
+void VulkanCommandBufferPool::RefreshFenceStatus(const Ref<VulkanCmdBuffer>& SkipCmdBuffer)
 {
     for (Ref<VulkanCmdBuffer>& CmdBuffer: m_CmdBuffers) {
         if (CmdBuffer == SkipCmdBuffer)

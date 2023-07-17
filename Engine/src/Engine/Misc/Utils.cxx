@@ -52,7 +52,6 @@ std::string BytesToString(uint64 bytes)
 [[noreturn]] void RequestExit(int Status)
 {
     std::exit(Status);
-    Compiler::Unreachable();
 }
 
 }    // namespace Utils

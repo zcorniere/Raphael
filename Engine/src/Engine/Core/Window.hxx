@@ -28,7 +28,7 @@ struct WindowDefinition {
     /// The title of the window
     std::string Title = __FILE__;
     /// Should the resive preserve aspect ratio
-    bool ShouldPreserveAspectRatio;
+    bool ShouldPreserveAspectRatio = true;
 };
 
 /// @class Window
@@ -61,7 +61,7 @@ public:
     /// @brief Open the window
     /// @param InDefinition The definition of the window
     /// @param InParent (optional) The parent window of this window
-    void Initialize(const WindowDefinition InDefinition, const Ref<Window>& InParent = nullptr);
+    void Initialize(const WindowDefinition& InDefinition, const Ref<Window>& InParent = nullptr);
 
     /// Return the parent window, or nullptr
     const Ref<Window>& GetParent() const;

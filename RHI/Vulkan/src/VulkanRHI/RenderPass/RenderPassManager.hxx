@@ -18,7 +18,7 @@ private:
     };
 
 public:
-    RenderPassManager(Ref<VulkanDevice>& InDevice);
+    explicit RenderPassManager(Ref<VulkanDevice>& InDevice);
     ~RenderPassManager();
 
     void Clear();

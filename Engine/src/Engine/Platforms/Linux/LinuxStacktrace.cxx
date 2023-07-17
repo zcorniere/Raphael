@@ -8,6 +8,7 @@ StacktraceContent LinuxStacktrace::GetStackTraceFromReturnAddress(void* returnAd
 {
     StacktraceContent trace;
     trace.Depth = backtrace(reinterpret_cast<void**>(trace.StackTrace), trace.MaxDepth);
+    trace.CurrentDepth = trace.Depth;
 
     if (returnAddress != nullptr) {
         for (std::uint32_t i = 0; i < trace.Depth; ++i) {

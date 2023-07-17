@@ -60,7 +60,7 @@ public:
     /// Create a new RHI viewport - through the current RHI
     static Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize);
     /// Create a new RHI texture - through the current RHI
-    static Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc);
+    static Ref<RHITexture> CreateTexture(const RHITextureCreateDesc& InDesc);
     /// Create a new RHI buffer - through the current RHI
     static Ref<RHIBuffer> CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
                                        Ref<ResourceArray>& InitialData);

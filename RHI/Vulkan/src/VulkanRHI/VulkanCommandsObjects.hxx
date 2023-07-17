@@ -120,7 +120,7 @@ public:
         return m_Handle;
     }
 
-    void RefreshFenceStatus(Ref<VulkanCmdBuffer>& SkipCmdBuffer);
+    void RefreshFenceStatus(const Ref<VulkanCmdBuffer>& SkipCmdBuffer);
 
 private:
     VkCommandPool m_Handle;

@@ -18,7 +18,7 @@ class RHIResource : public RObject
 {
 public:
     RHIResource() = delete;
-    RHIResource(RHIResourceType InResourceType): ResourceType(InResourceType)
+    explicit RHIResource(RHIResourceType InResourceType): ResourceType(InResourceType)
     {
     }
 

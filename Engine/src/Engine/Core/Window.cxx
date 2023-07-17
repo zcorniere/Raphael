@@ -21,7 +21,7 @@ bool Window::EnsureSDLInit()
     return true;
 }
 
-Window::Window(): p_HWnd(nullptr), bIsVisible(false), p_ParentWindow(nullptr)
+Window::Window(): Definition(), p_HWnd(nullptr), bIsVisible(false), p_ParentWindow(nullptr)
 {
 }
 
@@ -29,7 +29,7 @@ Window::~Window()
 {
 }
 
-void Window::Initialize(const WindowDefinition InDefinition, const Ref<Window>& InParent)
+void Window::Initialize(const WindowDefinition& InDefinition, const Ref<Window>& InParent)
 {
     Definition = InDefinition;
     p_ParentWindow = InParent;
@@ -102,7 +102,6 @@ void Window::BringToFront(bool bForce)
 void Window::Destroy()
 {
     if (p_HWnd) {
-
         LOG(LogWindow, Info, "Destroying SDL Window '{:p}'", (void*)p_HWnd);
         SDL_DestroyWindow(p_HWnd);
         p_HWnd = nullptr;
@@ -207,6 +206,7 @@ bool Window::InitializeSDL()
         if (strcmp("No message system available", ErrorMessage) != 0) {
             LOG(LogWindow, Warning, "Could not initialize SDL: {}", ErrorMessage);
         }
+        return false;
     }
 
     SDL_version CompileTimeSDLVersion;

@@ -70,7 +70,7 @@ Ref<RHIViewport> RHI::CreateViewport(void* InWindowHandle, glm::uvec2 InSize)
     return RHI::Get<GenericRHI>()->CreateViewport(InWindowHandle, InSize);
 }
 
-Ref<RHITexture> RHI::CreateTexture(const RHITextureCreateDesc InDesc)
+Ref<RHITexture> RHI::CreateTexture(const RHITextureCreateDesc& InDesc)
 {
     return RHI::Get<GenericRHI>()->CreateTexture(InDesc);
 }

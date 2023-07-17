@@ -7,7 +7,7 @@ class LinuxExternalModule : public IExternalModule
 {
 public:
     /// @copydoc IExternalModule::IExternalModule
-    LinuxExternalModule(std::string_view ModulePath);
+    explicit LinuxExternalModule(std::string_view ModulePath);
     virtual ~LinuxExternalModule();
 
 private:

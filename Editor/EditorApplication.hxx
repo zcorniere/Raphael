@@ -14,7 +14,4 @@ public:
     void OnEngineDestruction() override;
 
     void Tick(const float DeltaTime) override;
-
-private:
-    std::vector<Ref<Window>> Windows;
 };

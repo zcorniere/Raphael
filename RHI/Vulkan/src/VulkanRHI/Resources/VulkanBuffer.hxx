@@ -51,7 +51,6 @@ private:
     Ref<VulkanMemoryAllocation> Memory;
 
     uint32 Offset;
-    uint32 Stride;
     VkBufferUsageFlags BufferUsageFlags;
 };
 

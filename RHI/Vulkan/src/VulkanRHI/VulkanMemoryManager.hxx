@@ -13,10 +13,7 @@ class VulkanMemoryAllocation : public RObject
 {
 public:
     VulkanMemoryAllocation() = delete;
-    VulkanMemoryAllocation(VulkanMemoryManager& InManager)
-        : Size(0), MappedPointer(nullptr), ManagerHandle(InManager), bCanBeMapped(false), bIsCoherent(false)
-    {
-    }
+    explicit VulkanMemoryAllocation(VulkanMemoryManager& InManager);
 
     void SetName(std::string_view InName) override;
 

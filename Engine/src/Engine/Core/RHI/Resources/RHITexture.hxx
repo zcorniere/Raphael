@@ -36,7 +36,7 @@ struct RHITextureCreateDesc {
 class RHITexture : public RHIResource
 {
 public:
-    RHITexture(const RHITextureCreateDesc& InDesc): RHIResource(RHIResourceType::Texture), Description(InDesc)
+    explicit RHITexture(const RHITextureCreateDesc& InDesc): RHIResource(RHIResourceType::Texture), Description(InDesc)
     {
     }
     virtual ~RHITexture()

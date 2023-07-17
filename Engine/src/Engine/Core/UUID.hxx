@@ -12,7 +12,7 @@ class UUID
 {
 public:
     UUID();
-    UUID(uint64 uuid);
+    explicit UUID(uint64 uuid);
     UUID(const UUID& other);
     virtual ~UUID()
     {

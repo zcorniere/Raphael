@@ -27,12 +27,12 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage, bool bZ
 
 VulkanBuffer::VulkanBuffer(Ref<VulkanDevice>& InDevice, const uint32 InSize, const EBufferUsageFlags InUsage,
                            const uint32 InStride, Ref<ResourceArray>& InitialData)
-    : Device(InDevice), Offset(0), Stride(InStride)
+    : RHIBuffer(InUsage, InSize, InStride),
+      Device(InDevice),
+      Offset(0),
+      BufferUsageFlags(ConvertToVulkanType(InUsage, InSize == 0))
 {
-    const bool bZeroSize = (InSize == 0);
-    BufferUsageFlags = ConvertToVulkanType(InUsage, bZeroSize);
-
-    if (bZeroSize) {
+    if (InSize == 0) {
         return;
     }
 

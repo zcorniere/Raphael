@@ -45,7 +45,7 @@ public:
     /// @copydoc RHI::CreateViewport
     virtual Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize) = 0;
     /// @copydoc RHI::CreateTexture
-    virtual Ref<RHITexture> CreateTexture(const RHITextureCreateDesc InDesc) = 0;
+    virtual Ref<RHITexture> CreateTexture(const RHITextureCreateDesc& InDesc) = 0;
     /// @copydoc RHI::CreateBuffer
     virtual Ref<RHIBuffer> CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
                                         Ref<ResourceArray>& InitialData) = 0;

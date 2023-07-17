@@ -19,11 +19,11 @@ enum class EBufferUsageFlags {
     StructuredBuffer = BIT(5),
 };
 
-/// @brief Represent a Texture used by the RHI
+/// @brief Represent a Buffer used by the RHI
 class RHIBuffer : public RHIResource
 {
 public:
-    RHIBuffer(): RHIResource(RHIResourceType::Buffer)
+    RHIBuffer(): RHIResource(RHIResourceType::Buffer), Size(0), Stride(0), Usage(EBufferUsageFlags::None)
     {
     }
 

@@ -107,7 +107,7 @@ Array<const char*> VulkanDynamicRHI::GetSupportedInstanceLayers()
     AvailableLayers.Resize(PropertiesCount);
     VulkanAPI::vkEnumerateInstanceLayerProperties(&PropertiesCount, AvailableLayers.Raw());
 
-    for (VkLayerProperties& Properties: AvailableLayers) {
+    for (const VkLayerProperties& Properties: AvailableLayers) {
         for (const char* ExpectedLayer: ExpectedValidationLayers) {
             if (std::strcmp(ExpectedLayer, Properties.layerName) == 0) {
                 FoundLayers.Add(ExpectedLayer);

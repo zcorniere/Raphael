@@ -86,7 +86,7 @@ Ref<RHIViewport> VulkanDynamicRHI::CreateViewport(void* InWindowHandle, glm::uve
     return Ref<VulkanViewport>::Create(GetDevice(), InWindowHandle, InSize);
 }
 
-Ref<RHITexture> VulkanDynamicRHI::CreateTexture(const RHITextureCreateDesc InDesc)
+Ref<RHITexture> VulkanDynamicRHI::CreateTexture(const RHITextureCreateDesc& InDesc)
 {
     return Ref<VulkanTexture>::Create(GetDevice(), InDesc);
 }

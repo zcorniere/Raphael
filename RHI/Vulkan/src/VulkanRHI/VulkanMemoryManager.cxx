@@ -11,6 +11,17 @@ DECLARE_LOGGER_CATEGORY(Core, LogVulkanMemoryAllocator, Info);
 namespace VulkanRHI
 {
 
+VulkanMemoryAllocation::VulkanMemoryAllocation(VulkanMemoryManager& InManager)
+    : Allocation(VK_NULL_HANDLE),
+      AllocationInfo(),
+      Size(0),
+      MappedPointer(nullptr),
+      ManagerHandle(InManager),
+      bCanBeMapped(false),
+      bIsCoherent(false)
+{
+}
+
 void VulkanMemoryAllocation::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
@@ -75,7 +86,7 @@ void VulkanMemoryAllocation::BindImage(VkImage Image)
 /// VulkanMemoryManager
 ////////////////////////////////////////////////////////////////////
 
-VulkanMemoryManager::VulkanMemoryManager(): Allocator(VK_NULL_HANDLE), AllocationCount(0)
+VulkanMemoryManager::VulkanMemoryManager(): Allocator(VK_NULL_HANDLE), MemoryProperties(), AllocationCount(0)
 {
 }
 

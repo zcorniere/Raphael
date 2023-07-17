@@ -14,7 +14,7 @@ enum class RHIShaderType : uint8 {
 class RHIShader : public RHIResource
 {
 public:
-    RHIShader(RHIShaderType Type): RHIResource(RHIResourceType::Shader), ShaderType(Type)
+    explicit RHIShader(RHIShaderType Type): RHIResource(RHIResourceType::Shader), ShaderType(Type)
     {
     }
 
