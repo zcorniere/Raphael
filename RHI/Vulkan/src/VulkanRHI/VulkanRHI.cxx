@@ -69,15 +69,16 @@ void VulkanDynamicRHI::Init()
     CreateInstance();
     SelectDevice();
 
+    Device->InitPhysicalDevice();
+    Device->SetName("Main Vulkan Device");
+
+    RPassManager = new RenderPassManager(Device);
+
 #if VULKAN_DEBUGGING_ENABLED
     ShaderCompiler.SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::None);
 #else
     ShaderCompiler.SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::Performance);
 #endif
-
-    Device->InitPhysicalDevice();
-
-    RPassManager = new RenderPassManager(Device);
 }
 
 void VulkanDynamicRHI::PostInit()
@@ -91,6 +92,7 @@ void VulkanDynamicRHI::Shutdown()
     delete RPassManager;
 
     Device->Destroy();
+    delete Device;
     Device = nullptr;
 
 #if VULKAN_DEBUGGING_ENABLED
@@ -98,11 +100,6 @@ void VulkanDynamicRHI::Shutdown()
 #endif
 
     VulkanAPI::vkDestroyInstance(m_Instance, nullptr);
-}
-
-Ref<VulkanDevice>& VulkanDynamicRHI::GetDevice()
-{
-    return Device;
 }
 
 void VulkanDynamicRHI::CreateInstance()
@@ -207,17 +204,17 @@ void VulkanDynamicRHI::SelectDevice()
     checkMsg(GpuCount >= 1, "Couldn't enumerate physical devices!");
 
     struct DeviceInfo {
-        Ref<VulkanDevice> Device;
+        VulkanDevice* Device;
         std::uint32_t DeviceIndex;
     };
-    Array<Ref<VulkanDevice>> Devices;
+    Array<VulkanDevice*> Devices;
     Array<DeviceInfo> DiscreteDevice;
     Array<DeviceInfo> IntegratedDevice;
 
     LOG(LogVulkanRHI, Info, "Found {} device(s)", GpuCount);
     for (std::uint32_t Index = 0; Index < GpuCount; Index++) {
         LOG(LogVulkanRHI, Info, "Device {}:", Index);
-        Ref<VulkanDevice> NewDevice = Ref<VulkanDevice>::Create(PhysicalDevices[Index]);
+        VulkanDevice* NewDevice = new VulkanDevice(PhysicalDevices[Index]);
         Devices.Add(NewDevice);
 
         const bool bIsDiscrete = (NewDevice->GetDeviceProperties().deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
@@ -239,13 +236,17 @@ void VulkanDynamicRHI::SelectDevice()
     if (DiscreteDevice.Size() > 0) {
         Device = DiscreteDevice[0].Device;
         DeviceIndex = DiscreteDevice[0].DeviceIndex;
+    } else if (IntegratedDevice.Size() > 0) {
+        Device = IntegratedDevice[0].Device;
+        DeviceIndex = IntegratedDevice[0].DeviceIndex;
     } else {
         LOG(LogVulkanRHI, Info, "Cannot find compatible Vulkan device");
         return;
     }
+    Devices.Remove(Device);
+    Devices.Clear(true);
 
     LOG(LogVulkanRHI, Info, "Chosen device index: {}", DeviceIndex);
-    Device->SetName("Main Vulkan Device");
 }
 
 }    // namespace VulkanRHI

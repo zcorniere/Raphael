@@ -84,7 +84,7 @@ class VulkanShader;
 class VulkanGraphicsPipeline : public RHIGraphicsPipeline
 {
 public:
-    VulkanGraphicsPipeline(Ref<VulkanDevice>& InDevice, const GraphicsPipelineDescription& Description);
+    VulkanGraphicsPipeline(VulkanDevice* InDevice, const GraphicsPipelineDescription& Description);
     ~VulkanGraphicsPipeline();
 
     void SetName(std::string_view Name) override;
@@ -104,7 +104,7 @@ private:
     bool CreatePipelineLayout();
 
 private:
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
     GraphicsPipelineDescription Desc;
 
     Ref<VulkanShader> Shaders[2];

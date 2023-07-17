@@ -25,7 +25,7 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage, bool bZ
     return OutUsage;
 }
 
-VulkanBuffer::VulkanBuffer(Ref<VulkanDevice>& InDevice, const uint32 InSize, const EBufferUsageFlags InUsage,
+VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const uint32 InSize, const EBufferUsageFlags InUsage,
                            const uint32 InStride, Ref<ResourceArray>& InitialData)
     : RHIBuffer(InUsage, InSize, InStride),
       Device(InDevice),

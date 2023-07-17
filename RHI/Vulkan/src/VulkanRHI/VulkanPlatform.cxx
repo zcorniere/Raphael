@@ -138,7 +138,7 @@ void VulkanPlatform::GetInstanceExtensions(Array<const char*>& OutExtensions)
 #endif
 }
 
-void VulkanPlatform::GetDeviceExtensions([[maybe_unused]] Ref<VulkanDevice> Device,
+void VulkanPlatform::GetDeviceExtensions([[maybe_unused]] VulkanDevice* Device,
                                          [[maybe_unused]] Array<const char*>& OutExtensions)
 {
 }

@@ -14,8 +14,8 @@ class VulkanMemoryAllocation;
 class VulkanBuffer : public RHIBuffer
 {
 public:
-    VulkanBuffer(Ref<VulkanDevice>& InDevice, const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
-                 Ref<ResourceArray> &InitialData);
+    VulkanBuffer(VulkanDevice* InDevice, const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
+                 Ref<ResourceArray>& InitialData);
     ~VulkanBuffer();
 
     void SetName(std::string_view InName) override;
@@ -44,7 +44,7 @@ public:
     }
 
 private:
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
 
     VkMemoryRequirements MemoryRequirements;
     VkBuffer BufferHandle;

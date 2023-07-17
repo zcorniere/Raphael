@@ -7,7 +7,7 @@ namespace VulkanRHI
 {
 
 /// ------------------- VulkanCmdBuffer -------------------
-VulkanCmdBuffer::VulkanCmdBuffer(Ref<VulkanDevice> InDevice, WeakRef<VulkanCommandBufferPool> InCommandPool)
+VulkanCmdBuffer::VulkanCmdBuffer(VulkanDevice* InDevice, WeakRef<VulkanCommandBufferPool> InCommandPool)
     : State(EState::NotAllocated), m_Device(InDevice), m_OwnerPool(InCommandPool)
 {
     Allocate();
@@ -127,7 +127,7 @@ void VulkanCmdBuffer::RefreshFenceStatus()
 
 /// ------------------- VulkanCommandBufferPool -------------------
 
-VulkanCommandBufferPool::VulkanCommandBufferPool(Ref<VulkanDevice> InDevice, VulkanCommandBufferManager* InManager)
+VulkanCommandBufferPool::VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanCommandBufferManager* InManager)
     : m_Handle(VK_NULL_HANDLE), m_Device(InDevice), p_Manager(InManager)
 {
 }
@@ -184,7 +184,7 @@ void VulkanCommandBufferPool::RefreshFenceStatus(const Ref<VulkanCmdBuffer>& Ski
 
 /// ------------------- VulkanCommandBufferManager -------------------
 
-VulkanCommandBufferManager::VulkanCommandBufferManager(Ref<VulkanDevice> InDevice, Ref<VulkanQueue> InQueue)
+VulkanCommandBufferManager::VulkanCommandBufferManager(VulkanDevice* InDevice, VulkanQueue* InQueue)
     : Device(InDevice), Queue(InQueue)
 {
     Pool = Ref<VulkanCommandBufferPool>::Create(Device, this);
@@ -194,14 +194,6 @@ VulkanCommandBufferManager::VulkanCommandBufferManager(Ref<VulkanDevice> InDevic
     UploadCmdBuffer = nullptr;
 }
 VulkanCommandBufferManager ::~VulkanCommandBufferManager()
-{
-}
-
-void VulkanCommandBufferManager::Init()
-{
-    ActiveCmdBuffer->Begin();
-}
-void VulkanCommandBufferManager::Shutdown()
 {
 }
 

@@ -9,7 +9,7 @@
 namespace VulkanRHI
 {
 
-VulkanRenderPass::VulkanRenderPass(Ref<VulkanDevice>& InDevice, const RHIRenderPassDescription& InDescription,
+VulkanRenderPass::VulkanRenderPass(VulkanDevice* InDevice, const RHIRenderPassDescription& InDescription,
                                    VkRenderPass ExternalPass)
     : Device(InDevice), Description(InDescription), RenderPass(ExternalPass), FrameBuffer(VK_NULL_HANDLE)
 {

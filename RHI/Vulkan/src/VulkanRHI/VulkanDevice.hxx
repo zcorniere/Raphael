@@ -21,11 +21,13 @@ class VulkanCmdBuffer;
 class VulkanMemoryManager;
 class VulkanCommandBufferManager;
 
-class VulkanDevice : public RObject
+class VulkanDevice : public NamedClass
 {
 public:
     explicit VulkanDevice(VkPhysicalDevice Gpu);
     ~VulkanDevice();
+
+    virtual void SetName(std::string_view InName) override final;
 
     void InitPhysicalDevice();
     void CreateDeviceAndQueue(const Array<const char*>& DeviceLayers, const Array<const char*>& DeviceExtensions);
@@ -40,6 +42,7 @@ public:
     {
         VkDebugUtilsObjectNameInfoEXT NameInfo{
             .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+            .pNext = nullptr,
             .objectType = Type,
             .objectHandle = (uint64)Handle,
             .pObjectName = Name.data(),
@@ -75,10 +78,10 @@ public:
     VulkanCommandBufferManager* GetCommandManager();
 
 public:
-    Ref<VulkanQueue> GraphicsQueue;
-    Ref<VulkanQueue> ComputeQueue;
-    Ref<VulkanQueue> TransferQueue;
-    Ref<VulkanQueue> PresentQueue;
+    VulkanQueue* GraphicsQueue;
+    VulkanQueue* ComputeQueue;
+    VulkanQueue* TransferQueue;
+    VulkanQueue* PresentQueue;
 
 private:
     VulkanMemoryManager* MemoryAllocator;

@@ -82,6 +82,15 @@ public:
         return this->Clear();
     }
 
+    void Clear(bool DeletePointer)
+    requires std::is_pointer_v<T>
+    {
+        return this->Clear([DeletePointer](T Item) {
+            if (DeletePointer)
+                delete Item;
+        });
+    }
+
     /// Same as Clear() but free the memory associated to the Array;
     constexpr void Empty()
     {
@@ -160,7 +169,7 @@ public:
     {
         return std::vector<T, Allocation>::begin();
     }
-    constexpr const auto begin() const
+    constexpr auto begin() const
     {
         return std::vector<T, Allocation>::begin();
     }
@@ -169,7 +178,7 @@ public:
     {
         return std::vector<T, Allocation>::end();
     }
-    constexpr const auto end() const
+    constexpr auto end() const
     {
         return std::vector<T, Allocation>::end();
     }

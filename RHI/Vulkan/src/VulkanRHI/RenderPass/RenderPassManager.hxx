@@ -18,7 +18,7 @@ private:
     };
 
 public:
-    explicit RenderPassManager(Ref<VulkanDevice>& InDevice);
+    explicit RenderPassManager(VulkanDevice* InDevice);
     ~RenderPassManager();
 
     void Clear();
@@ -26,7 +26,7 @@ public:
     WeakRef<VulkanRenderPass> Get(const RHIRenderPassDescription& Description);
 
 public:
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
     std::unordered_map<RHIRenderPassDescription, VkRenderPass, RenderPassDescriptionHashWithoutSize,
                        RenderPassDescriptionEqualWithoutSize>
         RenderPassStorage;

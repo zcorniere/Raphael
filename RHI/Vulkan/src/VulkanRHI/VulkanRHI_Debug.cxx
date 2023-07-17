@@ -84,7 +84,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
         }
     }
 
-    LOG_V(LogVulkanRHI, VulkanMessageSeverityToLogLevel(MsgSeverity), "[{}:{}({})] {}{}", Severity,
+    LOG_V(LogVulkanRHI, VulkanMessageSeverityToLogLevel(MsgSeverity), "[{:s}:{:s}({:d})] {:s}{:s}", Severity,
           VulkanMessageType(messageType), pCallbackData->messageIdNumber, pCallbackData->pMessage, Objects);
 
     if (Platform::isDebuggerPresent()) {

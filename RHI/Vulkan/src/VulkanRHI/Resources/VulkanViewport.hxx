@@ -17,7 +17,7 @@ struct VulkanSwapChainRecreateInfo;
 class VulkanViewport : public RHIViewport
 {
 public:
-    VulkanViewport(Ref<VulkanDevice> InDevice, void* InWindowHandle, glm::uvec2 InSize);
+    VulkanViewport(VulkanDevice* InDevice, void* InWindowHandle, glm::uvec2 InSize);
     ~VulkanViewport();
 
     virtual glm::uvec2 GetSize() const override
@@ -26,7 +26,7 @@ public:
     }
 
     void SetName(std::string_view InName) override;
-    bool Present(Ref<VulkanCmdBuffer>& CmdBuffer, Ref<VulkanQueue>& Queue, Ref<VulkanQueue>& PresentQueue);
+    bool Present(Ref<VulkanCmdBuffer>& CmdBuffer, VulkanQueue* Queue, VulkanQueue* PresentQueue);
     void RecreateSwapchain(void* NewNativeWindow);
 
 private:
@@ -40,10 +40,10 @@ private:
     void DeleteSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo);
     bool TryAcquireImageIndex();
 
-    bool TryPresenting(Ref<VulkanQueue>& PresentQueue);
+    bool TryPresenting(VulkanQueue* PresentQueue);
 
 private:
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
     Ref<VulkanSwapChain> SwapChain;
 
     Array<VkImage> BackBufferImages;

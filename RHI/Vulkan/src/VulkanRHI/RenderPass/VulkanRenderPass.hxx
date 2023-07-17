@@ -21,7 +21,7 @@ private:
     };
 
 public:
-    VulkanRenderPass(Ref<VulkanDevice>& InDevice, const RHIRenderPassDescription& InDescription,
+    VulkanRenderPass(VulkanDevice* InDevice, const RHIRenderPassDescription& InDescription,
                      VkRenderPass ExternalPass = VK_NULL_HANDLE);
     ~VulkanRenderPass();
 
@@ -56,7 +56,7 @@ private:
 
 private:
     bool bHasBegun = false;
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
 
     Array<Ref<VulkanTexture>> ColorTarget;
     Array<Ref<VulkanTexture>> ResolveTarget;

@@ -59,7 +59,10 @@ public:
         return m_Instance;
     }
 
-    Ref<VulkanDevice>& GetDevice();
+    VulkanDevice* GetDevice()
+    {
+        return Device;
+    }
 
 private:
     void CreateInstance();
@@ -80,7 +83,7 @@ private:
 
 private:
     VkInstance m_Instance;
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
 
     WeakRef<VulkanViewport> DrawingViewport;
 

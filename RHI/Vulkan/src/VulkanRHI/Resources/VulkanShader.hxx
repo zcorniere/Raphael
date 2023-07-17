@@ -43,13 +43,13 @@ public:
     {
     public:
         ShaderHandle() = delete;
-        ShaderHandle(Ref<VulkanDevice>& InDevice, const VkShaderModuleCreateInfo& Info);
+        ShaderHandle(VulkanDevice* InDevice, const VkShaderModuleCreateInfo& Info);
         ~ShaderHandle();
 
         VkShaderModule Handle;
 
     private:
-        Ref<VulkanDevice> Device;
+        VulkanDevice* Device;
     };
 
 public:
@@ -60,7 +60,7 @@ public:
         return m_ReflectionData;
     }
 
-    Ref<ShaderHandle> GetHandle(Ref<VulkanDevice> InDevice);
+    Ref<ShaderHandle> GetHandle(VulkanDevice* InDevice);
 
     constexpr RHIShaderType GetShaderType() const
     {

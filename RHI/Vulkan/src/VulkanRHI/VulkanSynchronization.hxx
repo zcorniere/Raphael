@@ -31,7 +31,7 @@ private:
 class Semaphore : public RObject
 {
 public:
-    Semaphore(Ref<VulkanDevice>& InDevice);
+    Semaphore(VulkanDevice* InDevice);
     virtual ~Semaphore();
 
     inline VkSemaphore GetHandle() const
@@ -40,7 +40,7 @@ public:
     }
 
 private:
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
     VkSemaphore SemaphoreHandle;
 };
 
@@ -56,7 +56,7 @@ protected:
     };
 
 public:
-    Fence(Ref<VulkanDevice> InDevice, bool bCreateSignaled);
+    Fence(VulkanDevice* InDevice, bool bCreateSignaled);
     ~Fence();
 
     inline VkFence GetHandle() const
@@ -76,7 +76,7 @@ private:
     bool CheckFenceStatus();
 
 private:
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
     VkFence Handle;
     State State;
 };

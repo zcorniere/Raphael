@@ -8,10 +8,10 @@ namespace VulkanRHI
 class VulkanCmdBuffer;
 class VulkanDevice;
 
-class VulkanQueue : public RObject
+class VulkanQueue : public NamedClass
 {
 public:
-    VulkanQueue(Ref<VulkanDevice> InDevice, std::uint32_t InFamilyIndex);
+    VulkanQueue(VulkanDevice* InDevice, std::uint32_t InFamilyIndex);
     ~VulkanQueue();
 
     inline std::uint32_t GetFamilyIndex() const
@@ -40,10 +40,11 @@ public:
     void SetName(std::string_view InName) override;
 
 private:
+    VulkanDevice* Device;
+
     VkQueue Queue;
     std::uint32_t FamilyIndex;
     std::uint32_t QueueIndex;
-    Ref<VulkanDevice> Device;
 };
 
 }    // namespace VulkanRHI

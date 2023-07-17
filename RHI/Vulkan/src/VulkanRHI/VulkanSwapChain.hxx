@@ -31,7 +31,7 @@ private:
     {
     public:
         /// Gather swapchain support information
-        static SupportDetails QuerySwapChainSupport(const Ref<VulkanDevice>& device, const VkSurfaceKHR& surface);
+        static SupportDetails QuerySwapChainSupport(const VulkanDevice* Device, const VkSurfaceKHR& Surface);
 
     public:
         /// Choose a fitting format
@@ -39,7 +39,7 @@ private:
         /// Choose a presentation mode
         VkPresentModeKHR ChooseSwapPresentMode(bool LockToVSync) const noexcept;
         /// Check if the size if supported
-        VkExtent2D ChooseSwapExtent(const glm::uvec2& size) const noexcept;
+        VkExtent2D ChooseSwapExtent(const glm::uvec2& Size) const noexcept;
 
     public:
         /// surface capability
@@ -51,13 +51,13 @@ private:
     };
 
 public:
-    VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice>& InDevice, void* WindowHandle, glm::uvec2 Size,
+    VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, void* WindowHandle, glm::uvec2 Size,
                     uint32 InOutDesiredNumBackBuffers, Array<VkImage>& OutImages, bool LockToVSync,
                     VulkanSwapChainRecreateInfo* RecreateInfo);
 
     void Destroy(VulkanSwapChainRecreateInfo* RecreateInfo);
 
-    Status Present(Ref<VulkanQueue>& PresentQueue, Ref<Semaphore>& RenderingComplete);
+    Status Present(VulkanQueue* PresentQueue, Ref<Semaphore>& RenderingComplete);
 
     VkFormat GetFormat() const
     {
@@ -80,7 +80,7 @@ private:
     int32 AcquireImageIndex(Ref<Semaphore>& OutSemaphore);
 
 private:
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
     int32 CurrentImageIndex;
     int32 SemaphoreIndex;
 

@@ -53,8 +53,7 @@ void VulkanRHI::GraphicsPipelineDescription::RenderTargets::AttachmentDesc::Writ
     OutState.finalLayout = FinalLayout;
 }
 
-VulkanGraphicsPipeline::VulkanGraphicsPipeline(Ref<VulkanDevice>& InDevice,
-                                               const GraphicsPipelineDescription& Description)
+VulkanGraphicsPipeline::VulkanGraphicsPipeline(VulkanDevice* InDevice, const GraphicsPipelineDescription& Description)
     : Device(InDevice), Desc(Description)
 {
     Create(false);

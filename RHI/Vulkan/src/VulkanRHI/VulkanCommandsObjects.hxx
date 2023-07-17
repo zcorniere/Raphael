@@ -28,7 +28,7 @@ public:
 
 public:
     VulkanCmdBuffer() = delete;
-    VulkanCmdBuffer(Ref<VulkanDevice> InDevice, WeakRef<VulkanCommandBufferPool> InCommandPool);
+    VulkanCmdBuffer(VulkanDevice* InDevice, WeakRef<VulkanCommandBufferPool> InCommandPool);
     ~VulkanCmdBuffer();
 
     virtual void SetName(std::string_view InName) override;
@@ -91,7 +91,7 @@ public:
     EState State;
 
 private:
-    Ref<VulkanDevice> m_Device;
+    VulkanDevice* m_Device;
     WeakRef<VulkanCommandBufferPool> m_OwnerPool;
 
     Ref<Fence> m_Fence;
@@ -109,7 +109,7 @@ class VulkanCommandBufferPool : public RObject
 {
 public:
     VulkanCommandBufferPool() = delete;
-    VulkanCommandBufferPool(Ref<VulkanDevice> InDevice, VulkanCommandBufferManager* InManager);
+    VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanCommandBufferManager* InManager);
     ~VulkanCommandBufferPool();
 
     void Initialize(uint32 QueueFamilyIndex);
@@ -127,7 +127,7 @@ private:
     Array<Ref<VulkanCmdBuffer>> m_CmdBuffers;
     Array<Ref<VulkanCmdBuffer>> m_FreeCmdBuffers;
 
-    Ref<VulkanDevice> m_Device;
+    VulkanDevice* m_Device;
     VulkanCommandBufferManager* p_Manager;
 
     friend class VulkanCommandBufferManager;
@@ -136,11 +136,8 @@ private:
 class VulkanCommandBufferManager
 {
 public:
-    VulkanCommandBufferManager(Ref<VulkanDevice> InDevice, Ref<VulkanQueue> InQueue);
+    VulkanCommandBufferManager(VulkanDevice* InDevice, VulkanQueue* InQueue);
     ~VulkanCommandBufferManager();
-
-    void Init();
-    void Shutdown();
 
     // Update the fences of all cmd buffers except SkipCmdBuffer
     void RefreshFenceStatus(Ref<VulkanCmdBuffer> SkipCmdBuffer = nullptr)
@@ -162,8 +159,8 @@ private:
     Ref<VulkanCmdBuffer> FindAvailableCmdBuffer();
 
 private:
-    Ref<VulkanDevice> Device;
-    Ref<VulkanQueue> Queue;
+    VulkanDevice* Device;
+    VulkanQueue* Queue;
 
     Ref<VulkanCommandBufferPool> Pool;
     Ref<VulkanCmdBuffer> ActiveCmdBuffer;

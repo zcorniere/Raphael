@@ -7,8 +7,8 @@
 namespace VulkanRHI
 {
 
-VulkanQueue::VulkanQueue(Ref<VulkanDevice> InDevice, std::uint32_t InFamilyIndex)
-    : Queue(VK_NULL_HANDLE), FamilyIndex(InFamilyIndex), QueueIndex(0), Device(InDevice)
+VulkanQueue::VulkanQueue(VulkanDevice* InDevice, std::uint32_t InFamilyIndex)
+    : Device(InDevice), Queue(VK_NULL_HANDLE), FamilyIndex(InFamilyIndex), QueueIndex(0)
 {
     VulkanAPI::vkGetDeviceQueue(Device->GetHandle(), FamilyIndex, QueueIndex, &Queue);
 }
@@ -56,7 +56,7 @@ void VulkanQueue::Submit(Ref<VulkanCmdBuffer>& CmdBuffer, uint32 NumSignaledSema
 
 void VulkanQueue::SetName(std::string_view InName)
 {
-    RObject::SetName(InName);
+    NamedClass::SetName(InName);
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_QUEUE, Queue, "{}", InName);
 }
 

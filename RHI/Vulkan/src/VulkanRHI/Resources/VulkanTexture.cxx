@@ -8,10 +8,10 @@
 namespace VulkanRHI
 {
 
-VulkanTexture::VulkanTexture(Ref<VulkanDevice> InDevice, const RHITextureCreateDesc& InDesc)
+VulkanTexture::VulkanTexture(VulkanDevice* InDevice, const RHITextureCreateDesc& InDesc)
     : RHITexture(InDesc),
-      Description(InDesc),
       Device(InDevice),
+      Description(InDesc),
       Allocation(nullptr),
       Image(VK_NULL_HANDLE),
       Layout(VK_IMAGE_LAYOUT_UNDEFINED),
@@ -158,7 +158,7 @@ VkImageLayout VulkanTexture::GetLayout() const
 
 //////////////////// VulkanTextureView ////////////////////
 
-void VulkanTextureView::Create(Ref<VulkanDevice>& Device, VkImage InImage, VkImageViewType ViewType,
+void VulkanTextureView::Create(VulkanDevice* Device, VkImage InImage, VkImageViewType ViewType,
                                VkImageAspectFlags AspectFlags, VkFormat Format, uint32 FirstMip, uint32 NumMips)
 {
     VkImageViewCreateInfo ViewInfo{
@@ -181,7 +181,7 @@ void VulkanTextureView::Create(Ref<VulkanDevice>& Device, VkImage InImage, VkIma
     Image = InImage;
 }
 
-void VulkanTextureView::Destroy(Ref<VulkanDevice>& Device)
+void VulkanTextureView::Destroy(VulkanDevice* Device)
 {
     if (View) {
         VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, nullptr);

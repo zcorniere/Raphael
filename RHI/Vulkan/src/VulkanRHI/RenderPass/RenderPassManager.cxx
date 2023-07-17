@@ -28,7 +28,7 @@ size_t RenderPassManager::RenderPassDescriptionEqualWithoutSize::operator()(cons
     return A.ColorTarget == B.ColorTarget && A.ResolveTarget == B.ResolveTarget && A.DepthTarget == B.DepthTarget;
 }
 
-RenderPassManager::RenderPassManager(Ref<VulkanDevice>& InDevice): Device(InDevice)
+RenderPassManager::RenderPassManager(VulkanDevice* InDevice): Device(InDevice)
 {
 }
 

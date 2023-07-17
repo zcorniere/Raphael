@@ -68,11 +68,8 @@ private:
 class VulkanMemoryManager
 {
 public:
-    VulkanMemoryManager();
+    explicit VulkanMemoryManager(VulkanDevice* InDevice);
     ~VulkanMemoryManager();
-
-    void Init(Ref<VulkanDevice> InDevice);
-    void Shutdown();
 
     Ref<VulkanMemoryAllocation> Alloc(const VkMemoryRequirements& MemoryRequirement, VmaMemoryUsage MemUsage,
                                       bool Mappable);
@@ -90,7 +87,7 @@ private:
     VmaAllocationCreateInfo GetCreateInfo(VmaMemoryUsage MemUsage, bool Mappable);
 
 private:
-    Ref<VulkanDevice> Device;
+    VulkanDevice* Device;
     VmaAllocator Allocator;
 
     VkPhysicalDeviceMemoryProperties MemoryProperties;

@@ -18,7 +18,7 @@ public:
     static void GetInstanceExtensions(Array<const char*>& OutExtensions);
     static void GetInstanceLayers(Array<const char*>& OutLayers);
 
-    static void GetDeviceExtensions(Ref<VulkanDevice> Device, Array<const char*>& OutExtensions);
+    static void GetDeviceExtensions(VulkanDevice* Device, Array<const char*>& OutExtensions);
     static void GetDeviceLayers(Array<const char*>& OutLayers);
 
     static void CreateSurface(void* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface);

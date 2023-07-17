@@ -10,7 +10,7 @@
 namespace VulkanRHI
 {
 
-VulkanViewport::VulkanViewport(Ref<VulkanDevice> InDevice, void* InWindowHandle, glm::uvec2 InSize)
+VulkanViewport::VulkanViewport(VulkanDevice* InDevice, void* InWindowHandle, glm::uvec2 InSize)
     : Device(InDevice), WindowHandle(InWindowHandle), Size(InSize), AcquiredImageIndex(-1)
 {
     CreateSwapchain(nullptr);
@@ -68,7 +68,7 @@ void VulkanViewport::SetName(std::string_view InName)
     }
 }
 
-bool VulkanViewport::Present(Ref<VulkanCmdBuffer>& CmdBuffer, Ref<VulkanQueue>& Queue, Ref<VulkanQueue>& PresentQueue)
+bool VulkanViewport::Present(Ref<VulkanCmdBuffer>& CmdBuffer, VulkanQueue* Queue, VulkanQueue* PresentQueue)
 {
     check(CmdBuffer->IsOutsideRenderPass());
 
@@ -173,7 +173,7 @@ bool VulkanViewport::TryAcquireImageIndex()
     return false;
 }
 
-bool VulkanViewport::TryPresenting(Ref<VulkanQueue>& PresentQueue)
+bool VulkanViewport::TryPresenting(VulkanQueue* PresentQueue)
 {
     int32 AttemptsPending = 4;
     VulkanSwapChain::Status Status = SwapChain->Present(PresentQueue, RenderingDoneSemaphores[AcquiredImageIndex]);

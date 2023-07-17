@@ -86,18 +86,10 @@ void VulkanMemoryAllocation::BindImage(VkImage Image)
 /// VulkanMemoryManager
 ////////////////////////////////////////////////////////////////////
 
-VulkanMemoryManager::VulkanMemoryManager(): Allocator(VK_NULL_HANDLE), MemoryProperties(), AllocationCount(0)
+VulkanMemoryManager::VulkanMemoryManager(VulkanDevice* InDevice)
+    : Device(InDevice), Allocator(VK_NULL_HANDLE), MemoryProperties(), AllocationCount(0)
 {
-}
-
-VulkanMemoryManager::~VulkanMemoryManager()
-{
-}
-
-void VulkanMemoryManager::Init(Ref<VulkanDevice> InDevice)
-{
-    check(InDevice);
-    Device = InDevice;
+    check(Device);
 
     Ref<VulkanDynamicRHI> RHI = GetVulkanDynamicRHI();
 
@@ -119,9 +111,8 @@ void VulkanMemoryManager::Init(Ref<VulkanDevice> InDevice)
     PrintMemInfo();
 }
 
-void VulkanMemoryManager::Shutdown()
+VulkanMemoryManager::~VulkanMemoryManager()
 {
-
     checkMsg(AllocationCount == 0, "Some memory allocation are still in flight !");
     vmaDestroyAllocator(Allocator);
     Allocator = VK_NULL_HANDLE;

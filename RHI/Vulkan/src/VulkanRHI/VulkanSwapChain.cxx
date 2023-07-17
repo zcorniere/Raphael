@@ -12,7 +12,7 @@ DECLARE_LOGGER_CATEGORY(Core, LogVulkanSwapchain, Info);
 namespace VulkanRHI
 {
 
-VulkanSwapChain::SupportDetails VulkanSwapChain::SupportDetails::QuerySwapChainSupport(const Ref<VulkanDevice>& Device,
+VulkanSwapChain::SupportDetails VulkanSwapChain::SupportDetails::QuerySwapChainSupport(const VulkanDevice* Device,
                                                                                        const VkSurfaceKHR& Surface)
 {
     VulkanSwapChain::SupportDetails Details;
@@ -119,9 +119,9 @@ VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const glm::uvec2& s
     }
 }
 
-VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, Ref<VulkanDevice>& InDevice, void* WindowHandle,
-                                 glm::uvec2 Size, uint32 InDesiredNumBackBuffers, Array<VkImage>& OutImages,
-                                 bool LockToVSync, VulkanSwapChainRecreateInfo* RecreateInfo)
+VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, void* WindowHandle, glm::uvec2 Size,
+                                 uint32 InDesiredNumBackBuffers, Array<VkImage>& OutImages, bool LockToVSync,
+                                 VulkanSwapChainRecreateInfo* RecreateInfo)
     : Device(InDevice),
       CurrentImageIndex(-1),
       SemaphoreIndex(0),
@@ -228,7 +228,7 @@ void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo* RecreateInfo)
     ImageInUseFence.Clear();
 }
 
-VulkanSwapChain::Status VulkanSwapChain::Present(Ref<VulkanQueue>& PresentQueue, Ref<Semaphore>& RenderingComplete)
+VulkanSwapChain::Status VulkanSwapChain::Present(VulkanQueue* PresentQueue, Ref<Semaphore>& RenderingComplete)
 {
     RPH_PROFILE_FUNC()
 

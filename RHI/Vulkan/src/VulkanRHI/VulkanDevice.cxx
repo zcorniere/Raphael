@@ -73,6 +73,17 @@ VulkanDevice::~VulkanDevice()
     }
 }
 
+void VulkanDevice::SetName(std::string_view InName)
+{
+    NamedClass::SetName(InName);
+    if (Device) {
+        VULKAN_SET_DEBUG_NAME(this, VK_OBJECT_TYPE_DEVICE, Device, "[Device] {:s}", InName);
+        if (Gpu) {
+            VULKAN_SET_DEBUG_NAME(this, VK_OBJECT_TYPE_PHYSICAL_DEVICE, Gpu, "[Physical Device] {:s}", InName);
+        }
+    }
+}
+
 void VulkanDevice::InitPhysicalDevice()
 {
     std::uint32_t QueueCount = 0;
@@ -90,8 +101,7 @@ void VulkanDevice::InitPhysicalDevice()
     VulkanPlatform::GetDeviceExtensions(this, DeviceExtensions);
     CreateDeviceAndQueue({}, DeviceExtensions);
 
-    MemoryAllocator = new VulkanMemoryManager();
-    MemoryAllocator->Init(this);
+    MemoryAllocator = new VulkanMemoryManager(this);
 
     CommandManager = new VulkanCommandBufferManager(this, GraphicsQueue);
 }
@@ -185,17 +195,20 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
     }
     VK_CHECK_RESULT_EXPANDED(Result);
 
-    GraphicsQueue = Ref<VulkanQueue>::CreateNamed("Graphics Queue", this, GraphicsQueueFamilyIndex);
+    GraphicsQueue = new VulkanQueue(this, GraphicsQueueFamilyIndex);
+    GraphicsQueue->SetName("Graphics Queue");
 
     if (ComputeQueueFamilyIndex == -1) {
         ComputeQueueFamilyIndex = GraphicsQueueFamilyIndex;
     }
-    ComputeQueue = Ref<VulkanQueue>::CreateNamed("Compute Queue", this, ComputeQueueFamilyIndex);
+    ComputeQueue = new VulkanQueue(this, ComputeQueueFamilyIndex);
+    ComputeQueue->SetName("Compute Queue");
 
     if (TransferQueueFamilyIndex == -1) {
         TransferQueueFamilyIndex = ComputeQueueFamilyIndex;
     }
-    TransferQueue = Ref<VulkanQueue>::CreateNamed("Transfer Queue", this, TransferQueueFamilyIndex);
+    TransferQueue = new VulkanQueue(this, TransferQueueFamilyIndex);
+    TransferQueue->SetName("Transfer Queue");
 
     LOG(LogVulkanRHI, Info, "Using {} device layers{}", DeviceLayers.Size(), DeviceLayers.Size() ? ":" : ".");
     for (const char* Layer: DeviceLayers) {
@@ -208,7 +221,7 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
     }
 }
 
-static bool DoesQueueSupportPresent(VkSurfaceKHR Surface, VkPhysicalDevice PhysicalDevice, Ref<VulkanQueue>& Queue)
+static bool DoesQueueSupportPresent(VkSurfaceKHR Surface, VkPhysicalDevice PhysicalDevice, VulkanQueue* Queue)
 {
     VkBool32 bSupportsPresent = VK_FALSE;
     const uint32 FamilyIndex = Queue->GetFamilyIndex();
@@ -250,17 +263,20 @@ void VulkanDevice::Destroy()
 {
     WaitUntilIdle();
 
-    CommandManager->Shutdown();
     delete CommandManager;
     CommandManager = nullptr;
 
-    MemoryAllocator->Shutdown();
     delete MemoryAllocator;
     MemoryAllocator = nullptr;
 
+    delete GraphicsQueue;
     GraphicsQueue = nullptr;
+    delete ComputeQueue;
     ComputeQueue = nullptr;
+    delete TransferQueue;
     TransferQueue = nullptr;
+
+    // Present Queue is a copy
     PresentQueue = nullptr;
 
     VulkanAPI::vkDestroyDevice(Device, nullptr);

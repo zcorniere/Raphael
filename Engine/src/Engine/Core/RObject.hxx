@@ -28,18 +28,33 @@ bool AreThereAnyLiveObject(bool bPrintObjects = true);
 
 }    // namespace RObjectUtils
 
-/// Custom RefCounting class
-class RObject
+class NamedClass
+{
+public:
+    virtual ~NamedClass() = default;
+
+    /// Give the object a debug name
+    virtual void SetName(std::string_view InName)
+    {
+        m_Name = InName;
+    }
+
+    /// Return the debug name of the object
+    const std::string& GetName() const
+    {
+        return m_Name;
+    }
+
+private:
+    std::string m_Name;
+};
+
+/// Custom Ref Counting class
+class RObject : public NamedClass
 {
 public:
     virtual ~RObject()
     {
-    }
-
-    /// Give the RObject a debug name
-    virtual void SetName(std::string_view InName)
-    {
-        m_Name = InName;
     }
 
     /// Set the typename of the RObject (should NOT be called by the user)
@@ -54,12 +69,6 @@ public:
     const std::string& GetTypeName() const
     {
         return m_TypeName;
-    }
-
-    /// Return the debug name of the object
-    const std::string& GetName() const
-    {
-        return m_Name;
     }
 
     /// Return a string representing the RObject
@@ -94,7 +103,6 @@ public:
     }
 
 private:
-    std::string m_Name;
     std::string m_TypeName;
     mutable std::atomic<std::uint32_t> m_RefCount = 0;
 };
