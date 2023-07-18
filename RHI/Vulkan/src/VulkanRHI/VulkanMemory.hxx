@@ -2,6 +2,9 @@
 
 #include "VulkanRHI/VulkanLoader.hxx"
 
+#if VULKAN_CUSTOM_CPU_ALLOCATOR == 1
+
+
 class VulkanCPUMemoryManager
 {
 public:
@@ -17,5 +20,8 @@ public:
 public:
     VulkanCPUMemoryManager();
 
+public:
     std::unordered_map<void*, size_t> PointerStorageMap;
 };
+
+#endif

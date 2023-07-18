@@ -4,6 +4,9 @@ namespace VulkanRHI
 {
 VkAllocationCallbacks GAllocationCallbacks;
 }
+
+#if VULKAN_CUSTOM_CPU_ALLOCATOR == 1
+
 static VulkanCPUMemoryManager GVulkanCPUMemMgr;
 
 VulkanCPUMemoryManager::VulkanCPUMemoryManager()
@@ -73,3 +76,5 @@ void VulkanCPUMemoryManager::InternalFreeNotification(void* UserData, size_t Siz
     (void)AllocationType;
     (void)AllocScope;
 }
+
+#endif
