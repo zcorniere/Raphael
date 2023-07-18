@@ -76,7 +76,7 @@ public:
     requires std::invocable<Function, T&>
     void Clear(Function&& Func)
     {
-        for (TSize i = 0; i < Size(); i++) {
+        for (TSize i = 0; i < TSize(Size()); i++) {
             Func((*this)[i]);
         }
         return this->Clear();
@@ -146,7 +146,7 @@ public:
     }
     [[nodiscard]] TSize Find(const T& Item) const
     {
-        for (TSize i = 0; i < Size(); i++) {
+        for (TSize i = 0; i < TSize(Size()); i++) {
             if (Item == (*this)[i]) {
                 return i;
             }
