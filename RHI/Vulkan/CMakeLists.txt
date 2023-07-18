@@ -14,7 +14,7 @@ file(
 
 add_library(${PROJECT_NAME} STATIC ${VULKAN_RENDERER_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_precompile_headers(${PROJECT_NAME} REUSE_FROM RaphaelEngine)
+target_precompile_headers(${PROJECT_NAME} PRIVATE src/VulkanRHI/VulkanRHI.pch.hxx)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 target_link_libraries(
     ${PROJECT_NAME}
