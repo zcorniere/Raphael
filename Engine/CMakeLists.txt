@@ -41,7 +41,8 @@ add_library(
     src/Engine/Core/RHI/RHI.cxx
     src/Engine/Core/RHI/RHICommandQueue.cxx
     src/Engine/Core/RHI/Resources/RHIResources.cxx
-    src/Engine/Misc/Memory.cxx
+    src/Engine/Core/Memory/Memory.cxx
+    src/Engine/Core/Memory/MiMalloc.cxx
     src/Engine/Misc/DataLocation.cxx
     src/Engine/Misc/Utils.cxx
     src/Engine/Misc/Assertions.cxx
@@ -51,7 +52,14 @@ add_library(
     ${COMPILER_SOURCE_FILE}
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
-target_link_libraries(${PROJECT_NAME} PUBLIC cpplogger magic_enum glm SDL3-static)
+target_link_libraries(
+    ${PROJECT_NAME}
+    PUBLIC cpplogger
+           magic_enum
+           glm
+           SDL3-static
+           mimalloc-static
+)
 
 target_compile_options(
     ${PROJECT_NAME}
@@ -75,7 +83,4 @@ if(UNIX)
     target_link_libraries(${PROJECT_NAME} PUBLIC xdgpp)
 endif()
 
-build_tests(
-    ${PROJECT_NAME}
-    tests/Containers/Array.cxx
-)
+build_tests(${PROJECT_NAME} tests/Containers/Array.cxx)

@@ -86,3 +86,21 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SDL EXCLUDE_FROM_ALL)
 add_library(xdgpp INTERFACE EXCLUDE_FROM_ALL)
 target_include_directories(xdgpp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/xdgpp)
 target_compile_features(xdgpp INTERFACE cxx_std_17)
+
+set(MI_OVERRIDE
+    OFF
+    CACHE BOOL "" FORCE
+)
+set(MI_BUILD_TESTS
+    OFF
+    CACHE INTERNAL "" FORCE
+)
+set(MI_BUILD_OBJECT
+    OFF
+    CACHE INTERNAL "" FORCE
+)
+set(MI_BUILD_SHARED
+    OFF
+    CACHE INTERNAL "" FORCE
+)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/mimalloc)

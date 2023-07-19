@@ -1,9 +1,35 @@
 #pragma once
 
+struct Memory {
+    static void* Malloc(uint32 Size, uint32 Alignment = 0);
+    static void* Realloc(void* Original, uint32 Size, uint32 Alignment = 0);
+
+    static void Free(void* Ptr);
+
+    static bool GetAllocationSize(void* Ptr, uint32& OutSize);
+    static const char* GetAllocatorName();
+};
+
+/// Allocator Interface
+class Malloc
+{
+public:
+    virtual void* Alloc(uint32 Size, uint32 Alignment = 0) = 0;
+    virtual void* Realloc(void* Original, uint32 Size, uint32 Alignment = 0) = 0;
+
+    virtual void Free(void* Ptr) = 0;
+
+    virtual bool GetAllocationSize(void* Ptr, uint32& OutSize) = 0;
+    virtual const char* GetAllocatorName() const
+    {
+        return "?";
+    }
+};
+
 namespace Raphael
 {
 
-/// @brief Malloc-based allocator
+/// @brief STL-complient allocator
 /// @tparam T The type of the allocated memory
 template <typename T>
 class Allocator
@@ -30,7 +56,7 @@ public:
         if (Size > std::numeric_limits<std::size_t>::max() / sizeof(T))
             throw std::bad_array_new_length();
 
-        if (T* p = static_cast<T*>(std::malloc(Size * sizeof(T)))) {
+        if (T* p = static_cast<T*>(Memory::Malloc(Size * sizeof(T)))) {
             return p;
         }
 
@@ -44,7 +70,7 @@ public:
     {
         (void)n;
         if (pPointer)
-            std::free(pPointer);
+            Memory::Free(pPointer);
     }
 };
 

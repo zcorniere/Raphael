@@ -1,6 +1,10 @@
 #include "Engine/Platforms/Linux/LinuxMisc.hxx"
 
 #include "Engine/Core/Window.hxx"
+
+#include "Engine/Core/Memory/MiMalloc.hxx"
+#include "Engine/Misc/Utils.hxx"
+
 #include <SDL3/SDL.h>
 #include <dlfcn.h>
 #include <xdg.hpp>
@@ -78,6 +82,21 @@ LinuxExternalModule::~LinuxExternalModule()
 void* LinuxExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
 {
     return dlsym(ModuleHandle, SymbolName.data());
+}
+
+Malloc* LinuxMisc::BaseAllocator()
+{
+    // This function gets executed very early, way before main() (because global constructors will allocate memory).
+    // This makes it an ideal place for a root privilege check.
+    if (geteuid() == 0) {
+        fprintf(stderr, "Refusing to run with the root privileges.\n");
+        Utils::RequestExit(true);
+        return nullptr;
+    }
+
+    void* Ptr = std::malloc(sizeof(MiMalloc));
+    new (Ptr) MiMalloc;
+    return reinterpret_cast<MiMalloc*>(Ptr);
 }
 
 Ref<IExternalModule> LinuxMisc::LoadExternalModule(const std::string& ModuleName)

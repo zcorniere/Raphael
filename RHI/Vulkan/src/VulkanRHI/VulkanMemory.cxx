@@ -1,5 +1,7 @@
 #include "VulkanRHI/VulkanMemory.hxx"
 
+#include "Engine/Core/Memory/Memory.hxx"
+
 namespace VulkanRHI
 {
 VkAllocationCallbacks GAllocationCallbacks;
@@ -8,6 +10,7 @@ VkAllocationCallbacks GAllocationCallbacks;
 #if VULKAN_CUSTOM_CPU_ALLOCATOR == 1
 
 static VulkanCPUMemoryManager GVulkanCPUMemMgr;
+static std::recursive_mutex GVulkanCPUMemMutex;
 
 VulkanCPUMemoryManager::VulkanCPUMemoryManager()
 {
@@ -25,36 +28,27 @@ void* VulkanCPUMemoryManager::Alloc(void* UserData, size_t Size, size_t Alignmen
 {
     (void)UserData;
     (void)AllocScope;
-    void* Data = std::aligned_alloc(Size, Alignment);
-    GVulkanCPUMemMgr.PointerStorageMap[Data] = Size;
+
+    std::scoped_lock Lock(GVulkanCPUMemMutex);
+    void* Data = Memory::Malloc(Size, Alignment);
     return Data;
 }
 
 void VulkanCPUMemoryManager::Free(void* UserData, void* Mem)
 {
     (void)UserData;
-    GVulkanCPUMemMgr.PointerStorageMap.erase(UserData);
-    std::free(Mem);
+    std::scoped_lock Lock(GVulkanCPUMemMutex);
+
+    Memory::Free(Mem);
 }
 
 void* VulkanCPUMemoryManager::Realloc(void* UserData, void* Original, size_t Size, size_t Alignment,
                                       VkSystemAllocationScope AllocScope)
 {
     (void)UserData;
+    (void)AllocScope;
 
-    void* Data = nullptr;
-    if (Size > 0) {
-        Alloc(UserData, Size, Alignment, AllocScope);
-    }
-
-    if (Original) {
-        if (Data) {
-            check(GVulkanCPUMemMgr.PointerStorageMap.contains(Original));
-            std::memcpy(Data, Original, GVulkanCPUMemMgr.PointerStorageMap.at(Original));
-        }
-        Free(UserData, Original);
-    }
-    return Data;
+    return Memory::Realloc(Original, Size, Alignment);
 }
 
 void VulkanCPUMemoryManager::InternalAllocationNotification(void* UserData, size_t Size,

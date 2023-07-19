@@ -19,9 +19,6 @@ public:
 
 public:
     VulkanCPUMemoryManager();
-
-public:
-    std::unordered_map<void*, size_t> PointerStorageMap;
 };
 
 #endif

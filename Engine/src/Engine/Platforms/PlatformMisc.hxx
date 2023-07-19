@@ -65,6 +65,11 @@ public:
         return EBoxReturnType::Ok;
     }
 
+    static Malloc* BaseAllocator()
+    {
+        checkNoEntry();
+    }
+
     /// @brief Platform independed function to load shared library
     /// If the same library is loaded multiple times, the return will be cached
     /// @param ModuleName The name of the module to load

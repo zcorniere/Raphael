@@ -1,5 +1,7 @@
 #include "Engine/Platforms/Windows/WindowsMisc.hxx"
 
+#include "Engine/Core/Memory/MiMalloc.hxx"
+
 #include <libloaderapi.h>
 #include <shlobj_core.h>
 #include <winuser.h>
@@ -53,6 +55,13 @@ WindowsExternalModule::~WindowsExternalModule()
 void* WindowsExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
 {
     return ::GetProcAddress(ModuleHandle, SymbolName.data());
+}
+
+Malloc* WindowsMisc::BaseAllocator()
+{
+    void* Ptr = std::malloc(sizeof(MiMalloc));
+    new (Ptr) MiMalloc;
+    return reinterpret_cast<MiMalloc*>(Ptr);
 }
 
 Ref<IExternalModule> WindowsMisc::LoadExternalModule(const std::string& ModuleName)

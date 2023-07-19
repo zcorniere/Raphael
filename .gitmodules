@@ -37,3 +37,6 @@
 [submodule "External/Catch2"]
 	path = External/Catch2
 	url = https://github.com/catchorg/Catch2.git
+[submodule "Engine/External/mimalloc"]
+	path = Engine/External/mimalloc
+	url = https://github.com/microsoft/mimalloc.git
