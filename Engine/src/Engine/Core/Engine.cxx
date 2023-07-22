@@ -4,6 +4,8 @@
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "Engine/Core/RHI/RHI.hxx"
 
+uint64 GFrameCounter = 0;
+
 Engine* GEngine = nullptr;
 
 Engine::Engine(const int ac, const char* const* const av)
@@ -64,6 +66,8 @@ unsigned Engine::Run()
 
         auto stopTime = std::chrono::high_resolution_clock::now();
         dt = std::chrono::duration<float>(stopTime - startTime).count();
+
+        GFrameCounter += 1;
     }
     return 0;
 }
