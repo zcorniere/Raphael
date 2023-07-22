@@ -34,6 +34,8 @@ public:
     Semaphore(VulkanDevice* InDevice);
     virtual ~Semaphore();
 
+    virtual void SetName(std::string_view InName) override final;
+
     inline VkSemaphore GetHandle() const
     {
         return SemaphoreHandle;
@@ -58,6 +60,8 @@ protected:
 public:
     Fence(VulkanDevice* InDevice, bool bCreateSignaled);
     ~Fence();
+
+    virtual void SetName(std::string_view InName) override final;
 
     inline VkFence GetHandle() const
     {

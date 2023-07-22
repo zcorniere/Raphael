@@ -225,6 +225,12 @@ Semaphore::~Semaphore()
     SemaphoreHandle = VK_NULL_HANDLE;
 }
 
+void Semaphore::SetName(std::string_view InName)
+{
+    RObject::SetName(InName);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SEMAPHORE, SemaphoreHandle, "[Semaphore] {:s}", InName);
+}
+
 Fence::Fence(VulkanDevice* InDevice, bool bCreateSignaled)
     : Device(InDevice), State(bCreateSignaled ? Fence::State::Signaled : Fence::State::NotReady)
 {
@@ -241,6 +247,12 @@ Fence::Fence(VulkanDevice* InDevice, bool bCreateSignaled)
 Fence::~Fence()
 {
     VulkanAPI::vkDestroyFence(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR);
+}
+
+void Fence::SetName(std::string_view InName)
+{
+    RObject::SetName(InName);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_FENCE, Handle, "[Fence] {:s}", InName);
 }
 
 void Fence::Reset()

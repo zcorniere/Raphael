@@ -67,9 +67,7 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice InGpu)
 VulkanDevice::~VulkanDevice()
 {
     if (Device != VK_NULL_HANDLE) {
-        WaitUntilIdle();
         Destroy();
-        Device = VK_NULL_HANDLE;
     }
 }
 
@@ -101,9 +99,9 @@ void VulkanDevice::InitPhysicalDevice()
     VulkanPlatform::GetDeviceExtensions(this, DeviceExtensions);
     CreateDeviceAndQueue({}, DeviceExtensions);
 
-    MemoryAllocator = new VulkanMemoryManager(this);
+    MemoryAllocator = std::make_unique<VulkanMemoryManager>(this);
 
-    CommandManager = new VulkanCommandBufferManager(this, GraphicsQueue);
+    CommandManager = std::make_unique<VulkanCommandBufferManager>(this, GraphicsQueue.get());
 }
 
 void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
@@ -195,19 +193,19 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
     }
     VK_CHECK_RESULT_EXPANDED(Result);
 
-    GraphicsQueue = new VulkanQueue(this, GraphicsQueueFamilyIndex);
+    GraphicsQueue = std::make_unique<VulkanQueue>(this, GraphicsQueueFamilyIndex);
     GraphicsQueue->SetName("Graphics Queue");
 
     if (ComputeQueueFamilyIndex == -1) {
         ComputeQueueFamilyIndex = GraphicsQueueFamilyIndex;
     }
-    ComputeQueue = new VulkanQueue(this, ComputeQueueFamilyIndex);
+    ComputeQueue = std::make_unique<VulkanQueue>(this, ComputeQueueFamilyIndex);
     ComputeQueue->SetName("Compute Queue");
 
     if (TransferQueueFamilyIndex == -1) {
         TransferQueueFamilyIndex = ComputeQueueFamilyIndex;
     }
-    TransferQueue = new VulkanQueue(this, TransferQueueFamilyIndex);
+    TransferQueue = std::make_unique<VulkanQueue>(this, TransferQueueFamilyIndex);
     TransferQueue->SetName("Transfer Queue");
 
     LOG(LogVulkanRHI, Info, "Using {} device layers{}", DeviceLayers.Size(), DeviceLayers.Size() ? ":" : ".");
@@ -236,7 +234,7 @@ static bool DoesQueueSupportPresent(VkSurfaceKHR Surface, VkPhysicalDevice Physi
 void VulkanDevice::SetupPresentQueue(VkSurfaceKHR Surface)
 {
     if (!PresentQueue) {
-        bool bGfx = DoesQueueSupportPresent(Surface, Gpu, GraphicsQueue);
+        bool bGfx = DoesQueueSupportPresent(Surface, Gpu, GraphicsQueue.get());
         if (!bGfx) {
             PlatformMisc::DisplayMessageBox(
                 EBoxMessageType::Ok, "Cannot find a compatible Vulkan device that supports surface presentation.\n\n",
@@ -244,16 +242,16 @@ void VulkanDevice::SetupPresentQueue(VkSurfaceKHR Surface)
             Utils::RequestExit(1);
         }
 
-        bool bCompute = DoesQueueSupportPresent(Surface, Gpu, ComputeQueue);
+        bool bCompute = DoesQueueSupportPresent(Surface, Gpu, ComputeQueue.get());
         if (TransferQueue->GetFamilyIndex() != GraphicsQueue->GetFamilyIndex() &&
             TransferQueue->GetFamilyIndex() != ComputeQueue->GetFamilyIndex()) {
-            DoesQueueSupportPresent(Surface, Gpu, TransferQueue);
+            DoesQueueSupportPresent(Surface, Gpu, TransferQueue.get());
         }
 
         if (ComputeQueue->GetFamilyIndex() != GraphicsQueue->GetFamilyIndex() && bCompute) {
-            PresentQueue = ComputeQueue;
+            PresentQueue = ComputeQueue.get();
         } else {
-            PresentQueue = GraphicsQueue;
+            PresentQueue = GraphicsQueue.get();
         }
         LOG(LogVulkanRHI, Info, "Using {} as the present Queue", PresentQueue->GetName());
     }
@@ -263,36 +261,26 @@ void VulkanDevice::Destroy()
 {
     WaitUntilIdle();
 
-    delete CommandManager;
     CommandManager = nullptr;
-
-    delete MemoryAllocator;
     MemoryAllocator = nullptr;
 
-    delete GraphicsQueue;
     GraphicsQueue = nullptr;
-    delete ComputeQueue;
     ComputeQueue = nullptr;
-    delete TransferQueue;
     TransferQueue = nullptr;
 
     // Present Queue is a copy
     PresentQueue = nullptr;
 
-    VulkanAPI::vkDestroyDevice(Device, VULKAN_CPU_ALLOCATOR);
-    Device = VK_NULL_HANDLE;
+    if (Device) {
+        VulkanAPI::vkDestroyDevice(Device, VULKAN_CPU_ALLOCATOR);
+        Device = VK_NULL_HANDLE;
+    }
 }
 
 void VulkanDevice::WaitUntilIdle()
 {
     VK_CHECK_RESULT(VulkanAPI::vkDeviceWaitIdle(Device));
     CommandManager->RefreshFenceStatus();
-}
-
-VulkanCommandBufferManager* VulkanDevice::GetCommandManager()
-{
-    check(CommandManager);
-    return CommandManager;
 }
 
 }    // namespace VulkanRHI

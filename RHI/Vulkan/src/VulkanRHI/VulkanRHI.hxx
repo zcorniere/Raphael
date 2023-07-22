@@ -67,7 +67,7 @@ public:
 
     VulkanDevice* GetDevice()
     {
-        return Device;
+        return Device.get();
     }
 
 private:
@@ -89,11 +89,11 @@ private:
 
 private:
     VkInstance m_Instance;
-    VulkanDevice* Device;
+    std::unique_ptr<VulkanDevice> Device;
 
     WeakRef<VulkanViewport> DrawingViewport;
 
-    RenderPassManager* RPassManager = nullptr;
+    std::unique_ptr<RenderPassManager> RPassManager;
     WeakRef<VulkanRenderPass> CurrentRenderPass;
 
     VulkanShaderCompiler ShaderCompiler;

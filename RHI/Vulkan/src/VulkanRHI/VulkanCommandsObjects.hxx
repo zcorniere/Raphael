@@ -112,6 +112,8 @@ public:
     VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanCommandBufferManager* InManager);
     ~VulkanCommandBufferPool();
 
+    virtual void SetName(std::string_view InName) override final;
+
     void Initialize(uint32 QueueFamilyIndex);
     [[nodiscard]] Ref<VulkanCmdBuffer> CreateCmdBuffer();
 

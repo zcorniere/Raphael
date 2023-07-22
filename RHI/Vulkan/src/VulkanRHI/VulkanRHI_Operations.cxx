@@ -115,6 +115,6 @@ VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineIni
     Desc.Rasterizer.FrontFaceCulling = ConvertToVulkanType(Config.Rasterizer.FrontFaceCulling);
     Desc.Rasterizer.PolygonMode = ConvertToVulkanType(Config.Rasterizer.PolygonMode);
 
-    return Ref<VulkanGraphicsPipeline>::Create(Device, Desc);
+    return Ref<VulkanGraphicsPipeline>::Create(Device.get(), Desc);
 }
 }    // namespace VulkanRHI

@@ -36,7 +36,7 @@ void VulkanViewport::RT_EndDrawViewport()
     Ref<VulkanCmdBuffer> CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
     check(!CmdBuffer->HasEnded() && !CmdBuffer->IsInsideRenderPass());
 
-    this->Present(CmdBuffer, Device->GraphicsQueue, Device->PresentQueue);
+    this->Present(CmdBuffer, Device->GraphicsQueue.get(), Device->PresentQueue);
     GetVulkanDynamicRHI()->RT_SetDrawingViewport(nullptr);
 }
 

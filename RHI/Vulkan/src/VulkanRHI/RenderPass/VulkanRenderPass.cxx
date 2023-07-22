@@ -100,13 +100,13 @@ void VulkanRenderPass::SetName(std::string_view InName)
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_RENDER_PASS, RenderPass, "{:s} [Renderpass]", GetName());
     }
     for (unsigned i = 0; i < ColorTarget.Size(); i++) {
-        ColorTarget[i]->SetName(std::format("{:s} [Color Target {}]", InName, i));
+        ColorTarget[i]->SetName(std::format("[Color Target {}] {:s}", i, InName));
     }
     for (unsigned i = 0; i < ResolveTarget.Size(); i++) {
-        ResolveTarget[i]->SetName(std::format("{:s} [Resolve Target {}]", InName, i));
+        ResolveTarget[i]->SetName(std::format("[Resolve Target {}] {:s}", i, InName));
     }
     if (DepthTarget) {
-        DepthTarget->SetName(std::format("{:s} [Depth Target]", InName));
+        DepthTarget->SetName(std::format("[Depth Target] {:s}", InName));
     }
 }
 

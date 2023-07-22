@@ -30,9 +30,7 @@ public:
     virtual void SetName(std::string_view InName) override final;
 
     void InitPhysicalDevice();
-    void CreateDeviceAndQueue(const Array<const char*>& DeviceLayers, const Array<const char*>& DeviceExtensions);
     void SetupPresentQueue(VkSurfaceKHR Surface);
-    void Destroy();
 
     void WaitUntilIdle();
 
@@ -45,7 +43,7 @@ public:
             .pNext = nullptr,
             .objectType = Type,
             .objectHandle = (uint64)Handle,
-            .pObjectName = Name.data(),
+            .pObjectName = (Name.empty()) ? (nullptr) : (Name.data()),
         };
 
         VK_CHECK_RESULT(VulkanAPI::vkSetDebugUtilsObjectNameEXT(Device, &NameInfo));
@@ -72,20 +70,29 @@ public:
     }
     inline VulkanMemoryManager* GetMemoryManager()
     {
-        return MemoryAllocator;
+        check(MemoryAllocator);
+        return MemoryAllocator.get();
     }
 
-    VulkanCommandBufferManager* GetCommandManager();
+    inline VulkanCommandBufferManager* GetCommandManager()
+    {
+        check(CommandManager);
+        return CommandManager.get();
+    }
+
+private:
+    void Destroy();
+    void CreateDeviceAndQueue(const Array<const char*>& DeviceLayers, const Array<const char*>& DeviceExtensions);
 
 public:
-    VulkanQueue* GraphicsQueue;
-    VulkanQueue* ComputeQueue;
-    VulkanQueue* TransferQueue;
+    std::unique_ptr<VulkanQueue> GraphicsQueue;
+    std::unique_ptr<VulkanQueue> ComputeQueue;
+    std::unique_ptr<VulkanQueue> TransferQueue;
     VulkanQueue* PresentQueue;
 
 private:
-    VulkanMemoryManager* MemoryAllocator;
-    VulkanCommandBufferManager* CommandManager;
+    std::unique_ptr<VulkanMemoryManager> MemoryAllocator;
+    std::unique_ptr<VulkanCommandBufferManager> CommandManager;
 
     VkDevice Device;
     VkPhysicalDevice Gpu;

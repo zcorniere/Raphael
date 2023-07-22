@@ -72,7 +72,7 @@ void VulkanDynamicRHI::Init()
     Device->InitPhysicalDevice();
     Device->SetName("Main Vulkan Device");
 
-    RPassManager = new RenderPassManager(Device);
+    RPassManager = std::make_unique<RenderPassManager>(Device.get());
 
 #if VULKAN_DEBUGGING_ENABLED
     ShaderCompiler.SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::None);
@@ -87,12 +87,11 @@ void VulkanDynamicRHI::PostInit()
 
 void VulkanDynamicRHI::Shutdown()
 {
-    Device->WaitUntilIdle();
+    if (Device) {
+        Device->WaitUntilIdle();
+    }
+    RPassManager = nullptr;
 
-    delete RPassManager;
-
-    Device->Destroy();
-    delete Device;
     Device = nullptr;
 
 #if VULKAN_DEBUGGING_ENABLED
@@ -234,16 +233,16 @@ void VulkanDynamicRHI::SelectDevice()
     DiscreteDevice.Append(IntegratedDevice);
 
     if (DiscreteDevice.Size() > 0) {
-        Device = DiscreteDevice[0].Device;
+        Device.reset(DiscreteDevice[0].Device);
         DeviceIndex = DiscreteDevice[0].DeviceIndex;
     } else if (IntegratedDevice.Size() > 0) {
-        Device = IntegratedDevice[0].Device;
+        Device.reset(IntegratedDevice[0].Device);
         DeviceIndex = IntegratedDevice[0].DeviceIndex;
     } else {
         LOG(LogVulkanRHI, Info, "Cannot find compatible Vulkan device");
         return;
     }
-    Devices.Remove(Device);
+    Devices.Remove(Device.get());
     Devices.Clear(true);
 
     LOG(LogVulkanRHI, Info, "Chosen device index: {}", DeviceIndex);
