@@ -1,15 +1,26 @@
 #include "EditorApplication.hxx"
 
 #include <Engine/Core/FrameGraph/FrameGraph.hxx>
+#include <Engine/Core/Log.hxx>
 
-DECLARE_LOGGER_CATEGORY(Core, LogApplication, Warning)
+#include <cpplogger/sinks/StdoutSink.hpp>
+
+DECLARE_LOGGER_CATEGORY(Editor, LogApplication, Warning)
+
+static cpplogger::Logger* s_EditorLogger = nullptr;
 
 EditorApplication::EditorApplication()
 {
+    check(s_EditorLogger == nullptr);
+    s_EditorLogger = new cpplogger::Logger("Editor");
+
+    s_EditorLogger->addSink<cpplogger::StdoutSink, Log::Formatter>(stdout);
 }
 
 EditorApplication::~EditorApplication()
 {
+    delete s_EditorLogger;
+    s_EditorLogger = nullptr;
 }
 
 bool EditorApplication::OnEngineInitialization()

@@ -1,5 +1,6 @@
-#include "Engine/Core/Log.hxx"
 #include "Engine/Raphael.hxx"
+
+#include "Engine/Core/Log.hxx"
 
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 
