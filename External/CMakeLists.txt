@@ -1,3 +1,5 @@
+set(CMAKE_FOLDER  "Raphael/External")
+
 # tracy
 set(TRACY_ENABLE
     ON
@@ -16,6 +18,7 @@ if (BUILD_TESTING)
 
     include(CTest)
     include(Catch)
+	
+	set(CMAKE_FOLDER  "")
     add_custom_target(tests)
-    
 endif(BUILD_TESTING)

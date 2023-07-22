@@ -1,4 +1,5 @@
 project(RaphaelEngine)
+set(CMAKE_FOLDER  "Raphael/Engine")
 
 add_subdirectory(External/)
 

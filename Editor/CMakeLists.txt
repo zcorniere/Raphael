@@ -1,4 +1,6 @@
 project(RaphaelEditor)
+set(CMAKE_FOLDER  "Raphael/Editor")
+
 
 option(RPH_ENABLE_PROFILING "Enable the profiling" OFF)
 
@@ -22,6 +24,10 @@ target_compile_options(
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 set_target_properties(${PROJECT_NAME} PROPERTIES ENABLE_EXPORTS 1)
+
+if (MSVC)
+	set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+endif()
 
 if(RPH_ENABLE_PROFILING)
     message(STATUS "Profiling is enabled")

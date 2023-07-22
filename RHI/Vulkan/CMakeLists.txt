@@ -1,4 +1,5 @@
 project(RaphaelRHIVulkan)
+set(CMAKE_FOLDER  "Raphael/RHI/Vulkan")
 
 add_subdirectory(External/)
 

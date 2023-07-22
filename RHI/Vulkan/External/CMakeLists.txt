@@ -1,3 +1,5 @@
+set(CMAKE_FOLDER  "Raphael/RHI/Vulkan/External")
+
 # Vulkan Header
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Vulkan-Headers EXCLUDE_FROM_ALL)
 

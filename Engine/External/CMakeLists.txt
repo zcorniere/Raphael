@@ -1,3 +1,5 @@
+set(CMAKE_FOLDER  "Raphael/Engine/External")
+
 # logger
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/logger-cpp EXCLUDE_FROM_ALL)
 
