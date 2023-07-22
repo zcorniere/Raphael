@@ -57,6 +57,7 @@ public:
     /// Mark a branch as unreachable
     [[noreturn]] FORCEINLINE static void Unreachable()
     {
+        std::abort();
     }
 
     /// Try to demangle the function name given as argument
