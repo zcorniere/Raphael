@@ -10,9 +10,6 @@
 [submodule "External/VulkanMemoryAllocator"]
 	path = RHI/Vulkan/External/VulkanMemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-[submodule "External/SDL"]
-	path = Engine/External/SDL
-	url = https://github.com/libsdl-org/SDL.git
 [submodule "External/Vulkan-Headers"]
 	path = RHI/Vulkan/External/Vulkan-Headers
 	url = https://github.com/KhronosGroup/Vulkan-Headers
@@ -40,3 +37,6 @@
 [submodule "Engine/External/mimalloc"]
 	path = Engine/External/mimalloc
 	url = https://github.com/microsoft/mimalloc.git
+[submodule "Engine/External/glfw"]
+	path = Engine/External/glfw
+	url = https://github.com/glfw/glfw.git

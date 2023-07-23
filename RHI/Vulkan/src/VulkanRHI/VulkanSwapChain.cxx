@@ -219,7 +219,7 @@ void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo* RecreateInfo)
         RecreateInfo->Surface = Surface;
     } else {
         VulkanAPI::vkDestroySwapchainKHR(Device->GetHandle(), SwapChain, VULKAN_CPU_ALLOCATOR);
-        VulkanAPI::vkDestroySurfaceKHR(Instance, Surface, nullptr);
+        VulkanAPI::vkDestroySurfaceKHR(Instance, Surface, VULKAN_CPU_ALLOCATOR);
     }
     Surface = VK_NULL_HANDLE;
     SwapChain = VK_NULL_HANDLE;

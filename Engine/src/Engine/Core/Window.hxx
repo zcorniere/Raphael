@@ -1,6 +1,8 @@
 #pragma once
 
-struct SDL_Window;
+#include "Engine/Core/Events/Events.hxx"
+
+struct GLFWwindow;
 
 /// @brief Define a Window
 struct WindowDefinition {
@@ -29,28 +31,18 @@ struct WindowDefinition {
     std::string Title = __FILE__;
     /// Should the resive preserve aspect ratio
     bool ShouldPreserveAspectRatio = true;
+
+    std::function<void(Event&)> EventCallback;
 };
 
 /// @class Window
 ///
-/// @brief A class allowing some abstaction over the SDL library
-///
-/// @code{.cpp}
-/// WindowDefinition WindowDef{
-///     .AppearsInTaskbar = true,
-///     .Title = "Raphael Engine",
-/// };
-/// // Declare and create a new window
-/// Ref<Window> window = Ref<Window>::Create();
-///
-/// window->Initialize(WindowDef);
-/// window->Show();
-/// @endcode
-class Window : public RObject
+/// @brief A class allowing some abstaction over the GLFW library
+class Window : public NamedClass
 {
 public:
-    /// Make sure the SDL is initialized or do it if it is not
-    static bool EnsureSDLInit();
+    /// Make sure GLFW is initialized or do it if it is not
+    static bool EnsureGLFWInit();
 
 public:
     /// Default ctor
@@ -61,10 +53,7 @@ public:
     /// @brief Open the window
     /// @param InDefinition The definition of the window
     /// @param InParent (optional) The parent window of this window
-    void Initialize(const WindowDefinition& InDefinition, const Ref<Window>& InParent = nullptr);
-
-    /// Return the parent window, or nullptr
-    const Ref<Window>& GetParent() const;
+    void Initialize(const WindowDefinition& InDefinition);
 
     /// Reshape the window
     void ReshapeWindow(int32 X, int32 Y, int32 Width, int32 Height);
@@ -96,22 +85,25 @@ public:
     int32 GetWindowTitleBarSize() const;
 
     void SetText(const std::string_view Text);
-    void DrawAttention(bool bStop = false);
+    void DrawAttention();
 
-    SDL_Window* GetHandle() const;
+    GLFWwindow* GetHandle() const;
 
     const WindowDefinition& GetDefinition() const
     {
         return Definition;
     }
 
+    void ProcessEvents();
+
 private:
-    static bool InitializeSDL();
+    static bool InitializeGLFW();
+
+    void SetupGLFWCallbacks();
 
 private:
     WindowDefinition Definition;
-    SDL_Window* p_HWnd;
+    GLFWwindow* p_Handle;
 
     bool bIsVisible;
-    Ref<Window> p_ParentWindow;
 };

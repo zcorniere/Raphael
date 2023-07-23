@@ -1,12 +1,21 @@
 project(RaphaelEngine)
 set(CMAKE_FOLDER  "Raphael/Engine")
 
-add_subdirectory(External/)
 
 set(SELECTED_RHI
-    "Vulkan"
-    CACHE STRING "Select the RHI to use"
+"Vulkan"
+CACHE STRING "Select the RHI to use"
 )
+
+add_library(RHI_Selector INTERFACE)
+if(SELECTED_RHI STREQUAL "Vulkan")
+target_link_libraries(RHI_Selector INTERFACE RaphaelRHIVulkan)
+target_compile_definitions(RHI_Selector INTERFACE RAPHAEL_SELECTED_RHI_VULKAN=1)
+else()
+message(FATAL_ERROR "${SELECTED_RHI} is not supported !")
+endif()
+
+add_subdirectory(External/)
 
 if(WIN32)
     file(GLOB PLATFORM_SOURCE_FILES src/Engine/Platforms/Windows/*.cxx)
@@ -58,8 +67,9 @@ target_link_libraries(
     PUBLIC cpplogger
            magic_enum
            glm
-           SDL3-static
+           glfw
            mimalloc-static
+           RHI_Selector
 )
 
 target_compile_options(

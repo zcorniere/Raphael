@@ -2,10 +2,12 @@
 
 #include "Application.hxx"
 #include "Engine/Core/RHI/RHI.hxx"
+#include "Engine/Core/RHI/Resources/RHIViewport.hxx"
+#include "Engine/Core/Window.hxx"
 
-#include <SDL_events.h>
+#include <GLFW/glfw3.h>
 
-static WindowEvent ConvertWindowEvent(const SDL_Event& Event, const Array<Ref<Window>>& Windows);
+DECLARE_LOGGER_CATEGORY(Core, LogBaseApplication, Info)
 
 bool BaseApplication::OnEngineInitialization()
 {
@@ -14,9 +16,11 @@ bool BaseApplication::OnEngineInitialization()
     WindowDefinition WindowDef{
         .AppearsInTaskbar = true,
         .Title = "Raphael Engine",
+        .EventCallback = [this](Event& event) { ProcessEvent(event); },
     };
-    MainWindow = Windows.Emplace(Ref<Window>::CreateNamed("Main Window"));
-    MainWindow->Initialize(WindowDef, nullptr);
+    MainWindow = std::make_unique<Window>();
+    MainWindow->SetName("Main Window");
+    MainWindow->Initialize(WindowDef);
     MainWindow->Show();
     MainWindow->Maximize();
 
@@ -42,31 +46,18 @@ void BaseApplication::OnEngineDestruction()
 
     MainViewport = nullptr;
     MainWindow->Destroy();
-
-    Windows.Clear();
 }
 
-void BaseApplication::ProcessEvent(const WindowEvent& Event)
+void BaseApplication::ProcessEvent(Event& Event)
 {
-    if (Event.SourceWindow != MainWindow)
-    {
-        return;
-    }
-    switch (Event.Type) {
-        case WindowEvent::EventType::Close:
-            bShouldExit = true;
-            break;
-            case WindowEvent::EventType::Resize:
-            MainViewport->ResizeViewport(Event.Event.Resize.Width, Event.Event.Resize.Height);
-            break;
-        default:
-            break;
-    }
-}
+    EventDispatcher dispatcher(Event);
+    dispatcher.Dispatch<WindowResizeEvent>([this](WindowResizeEvent& Event) { return OnWindowResize(Event); });
+    dispatcher.Dispatch<WindowMinimizeEvent>([this](WindowMinimizeEvent& Event) { return OnWindowMinimize(Event); });
+    dispatcher.Dispatch<WindowCloseEvent>([this](WindowCloseEvent& Event) { return OnWindowClose(Event); });
 
-Ref<Window> BaseApplication::CreateNewWindow(const std::string& Name)
-{
-    return Windows.Emplace(Ref<Window>::CreateNamed(Name));
+    if (!Event.Handled) {
+        LOG(LogBaseApplication, Trace, "Unhandled Event : {}", Event);
+    }
 }
 
 void BaseApplication::Tick(const float DeltaTime)
@@ -76,11 +67,7 @@ void BaseApplication::Tick(const float DeltaTime)
     (void)DeltaTime;
 
     // Process All event
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        WindowEvent ConvertedEvent = ConvertWindowEvent(event, Windows);
-        ProcessEvent(ConvertedEvent);
-    }
+    ProcessEvents();
 }
 
 bool BaseApplication::ShouldExit() const
@@ -88,66 +75,39 @@ bool BaseApplication::ShouldExit() const
     return bShouldExit;
 }
 
-static WindowEvent ConvertWindowEvent(const SDL_Event& Event, const Array<Ref<Window>>& Windows)
+bool BaseApplication::OnWindowResize(WindowResizeEvent& E)
 {
-    uint32 WindowID = -1;
-
-    WindowEvent ConvertedEvent{
-        .Type = WindowEvent::EventType::Unknown,
-        .SourceWindow = nullptr,
-    };
-
-    switch (Event.type) {
-        case SDL_EVENT_TEXT_INPUT:
-            WindowID = Event.text.windowID;
-            break;
-        case SDL_EVENT_TEXT_EDITING:
-            WindowID = Event.edit.windowID;
-            break;
-        case SDL_EVENT_KEY_DOWN:
-        case SDL_EVENT_KEY_UP:
-            WindowID = Event.key.windowID;
-            break;
-        case SDL_EVENT_MOUSE_MOTION:
-            WindowID = Event.motion.windowID;
-            break;
-        case SDL_EVENT_MOUSE_BUTTON_DOWN:
-        case SDL_EVENT_MOUSE_BUTTON_UP:
-            WindowID = Event.button.windowID;
-            break;
-        case SDL_EVENT_MOUSE_WHEEL:
-            WindowID = Event.wheel.windowID;
-            break;
-        case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-            WindowID = Event.window.windowID;
-            ConvertedEvent.Type = WindowEvent::EventType::Close;
-            ConvertedEvent.Event.Close = EventClose{};
-            break;
-        case SDL_EVENT_WINDOW_RESIZED:
-            WindowID = Event.window.windowID;
-            ConvertedEvent.Type = WindowEvent::EventType::Resize;
-            ConvertedEvent.Event.Resize = EventResize{
-                .Width = static_cast<uint32>(Event.window.data2),
-                .Height = static_cast<uint32>(Event.window.data1),
-            };
-            break;
-        case SDL_EVENT_WINDOW_MOUSE_ENTER:
-        case SDL_EVENT_WINDOW_MOUSE_LEAVE:
-        case SDL_EVENT_WINDOW_FOCUS_GAINED:
-        case SDL_EVENT_WINDOW_FOCUS_LOST:
-        case SDL_EVENT_WINDOW_TAKE_FOCUS:
-        case SDL_EVENT_WINDOW_HIT_TEST:
-            WindowID = Event.window.windowID;
-            break;
-        default:
-            break;
+    const uint32 width = E.GetWidth();
+    const uint32 height = E.GetHeight();
+    if (width == 0 || height == 0) {
+        return false;
     }
+    MainViewport->ResizeViewport(width, height);
+    return false;
+}
 
-    for (const Ref<Window>& Window: Windows) {
-        if (SDL_GetWindowID(Window->GetHandle()) == WindowID) {
-            ConvertedEvent.SourceWindow = Window;
-            break;
+bool BaseApplication::OnWindowMinimize(WindowMinimizeEvent& E)
+{
+    (void)E;
+    return false;
+}
+bool BaseApplication::OnWindowClose(WindowCloseEvent& E)
+{
+    (void)E;
+    bShouldExit = true;
+    return false;
+}
+
+void BaseApplication::ProcessEvents()
+{
+    MainWindow->ProcessEvents();
+
+    {
+        std::scoped_lock lock(m_EventQueueMutex);
+        // Process custom event queue
+        for (std::function<void()>& Func: m_EventQueue) {
+            Func();
         }
+        m_EventQueue.Clear();
     }
-    return ConvertedEvent;
 }

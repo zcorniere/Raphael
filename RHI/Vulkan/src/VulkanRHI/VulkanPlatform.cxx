@@ -8,8 +8,7 @@
 #include "Engine/Platforms/Platform.hxx"
 #include "Engine/Platforms/PlatformMisc.hxx"
 
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_vulkan.h>
+#include <GLFW/glfw3.h>
 
 namespace VulkanRHI
 {
@@ -117,25 +116,14 @@ void VulkanPlatform::FreeVulkanLibrary()
 
 void VulkanPlatform::GetInstanceExtensions(Array<const char*>& OutExtensions)
 {
-    Window::EnsureSDLInit();
+    Window::EnsureGLFWInit();
 
-#if defined(PLATFORM_WINDOWS)
-    OutExtensions.Add("VK_KHR_surface");
-    OutExtensions.Add("VK_KHR_win32_surface");
-#elif defined(PLATFORM_LINUX)
-    const char* SDLDriver = SDL_GetCurrentVideoDriver();
-    check(SDLDriver);
+    uint32 glfwExtensionCount = 0;
+    const char** glfwExtentsions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-    if (strcmp(SDLDriver, "x11") == 0) {
-        OutExtensions.Add("VK_KHR_xlib_surface");
-    } else if (strcmp(SDLDriver, "wayland") == 0) {
-        OutExtensions.Add("VK_KHR_wayland_surface");
-    } else {
-        checkNoEntry();
+    for (uint32 i = 0; i < glfwExtensionCount; i++) {
+        OutExtensions.Add(glfwExtentsions[i]);
     }
-#else
-    #error "Unsupported Platform"
-#endif
 }
 
 void VulkanPlatform::GetDeviceExtensions([[maybe_unused]] VulkanDevice* Device,
@@ -145,12 +133,8 @@ void VulkanPlatform::GetDeviceExtensions([[maybe_unused]] VulkanDevice* Device,
 
 void VulkanPlatform::CreateSurface(void* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface)
 {
-    Window::EnsureSDLInit();
+    Window::EnsureGLFWInit();
 
-    if (SDL_Vulkan_CreateSurface((SDL_Window*)WindowHandle, Instance, OutSurface) == SDL_FALSE) {
-        LOG(LogVulkanRHI, Fatal, "Error initializing SDL Vulkan Surface: {}", SDL_GetError());
-        checkNoEntry();
-    }
+    VK_CHECK_RESULT(glfwCreateWindowSurface(Instance, (GLFWwindow*)WindowHandle, VULKAN_CPU_ALLOCATOR, OutSurface));
 }
-
 }    // namespace VulkanRHI

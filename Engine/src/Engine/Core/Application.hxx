@@ -19,8 +19,8 @@ public:
     virtual bool ShouldExit() const = 0;
 };
 
-#include <Engine/Core/Events.hxx>
-#include <Engine/Core/RHI/RHIResource.hxx>
+#include <Engine/Core/Events/ApplicationEvent.hxx>
+#include <Engine/Core/RHI/Resources/RHIViewport.hxx>
 #include <Engine/Core/Window.hxx>
 
 class BaseApplication : public IApplication
@@ -36,15 +36,37 @@ public:
     virtual void Tick(const float DeltaTime) override;
     virtual bool ShouldExit() const override;
 
-    virtual void ProcessEvent(const WindowEvent& Event);
+    virtual void ProcessEvent(Event& Event);
 
-protected:
-    Ref<Window> CreateNewWindow(const std::string& Name = "");
+    /// Creates & Dispatches an event either immediately, or adds it to an event queue which will be proccessed at the
+    /// end of each frame
+    template <typename TEvent, bool DispatchImmediately = false, typename... TEventArgs>
+    void DispatchEvent(TEventArgs&&... args)
+    {
+        static_assert(std::is_assignable_v<Event, TEvent>);
+
+        std::shared_ptr<TEvent> event = std::make_shared<TEvent>(std::forward<TEventArgs>(args)...);
+        if constexpr (DispatchImmediately) {
+            ProcessEvent(*event);
+        } else {
+            std::scoped_lock<std::mutex> lock(m_EventQueueMutex);
+            m_EventQueue.Add([this, event]() { ProcessEvent(*event); });
+        }
+    }
+
+private:
+    void ProcessEvents();
+
+    virtual bool OnWindowResize(WindowResizeEvent& e);
+    virtual bool OnWindowMinimize(WindowMinimizeEvent& e);
+    virtual bool OnWindowClose(WindowCloseEvent& e);
 
 protected:
     bool bShouldExit = false;
 
-    WeakRef<Window> MainWindow;
+    std::unique_ptr<Window> MainWindow;
     Ref<RHIViewport> MainViewport;
-    Array<Ref<Window>> Windows;
+
+    std::mutex m_EventQueueMutex;
+    Array<std::function<void()>> m_EventQueue;
 };

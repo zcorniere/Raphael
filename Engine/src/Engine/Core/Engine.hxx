@@ -28,8 +28,9 @@ public:
             GEngine->Destroy();
         }
 
-        delete GEngine;
         delete Application;
+
+        delete GEngine;
 
         return Result;
     }

@@ -9,86 +9,12 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/magic_enum EXCLUDE_FROM_ALL)
 # glm
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glm EXCLUDE_FROM_ALL)
 
-# sdl
-set(SDL_TEST_ENABLED_BY_DEFAULT
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_OPENGL
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_OPENGLES
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_OSS
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_ALSA
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_ALSA_SHARED
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_JACK
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_JACK_SHARED
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_PIPEWIRE
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_PIPEWIRE_SHARED
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_PULSEAUDIO
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_PULSEAUDIO_SHARED
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_FILE
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_FILESYSTEM
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_ATOMIC
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_RENDER
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_SHARED
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(SDL_STATIC
-    ON
-    CACHE BOOL "" FORCE
-)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SDL EXCLUDE_FROM_ALL)
-
 # xdgpp
 add_library(xdgpp INTERFACE EXCLUDE_FROM_ALL)
 target_include_directories(xdgpp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/xdgpp)
 target_compile_features(xdgpp INTERFACE cxx_std_17)
 
+# mimalloc
 set(MI_OVERRIDE
     OFF
     CACHE BOOL "" FORCE
@@ -106,3 +32,11 @@ set(MI_BUILD_SHARED
     CACHE INTERNAL "" FORCE
 )
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/mimalloc)
+
+# glfw
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glfw EXCLUDE_FROM_ALL)
+if(SELECTED_RHI STREQUAL "Vulkan")
+    target_compile_definitions(glfw INTERFACE GLFW_INCLUDE_NONE GLFW_INCLUDE_VULKAN)
+endif()
+
+

@@ -1,5 +1,6 @@
 #include "EditorApplication.hxx"
 
+#include "Engine/Core/RHI/Resources/RHIViewport.hxx"
 #include <Engine/Core/FrameGraph/FrameGraph.hxx>
 #include <Engine/Core/Log.hxx>
 

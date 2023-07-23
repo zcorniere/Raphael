@@ -1,19 +1,20 @@
 #include "Engine/Core/Window.hxx"
 
+#include "Engine/Core/Events/ApplicationEvent.hxx"
+#include "Engine/Core/Events/KeyEvent.hxx"
+#include "Engine/Core/Events/MouseEvent.hxx"
 #include "Engine/Misc/MiscDefines.hxx"
 #include "Engine/Misc/Utils.hxx"
 
-#include <SDL3/SDL.h>
+#include <GLFW/glfw3.h>
 
 DECLARE_LOGGER_CATEGORY(Core, LogWindow, Info);
 
-bool GSDLInitialized = false;
+bool GGLFWInitialized = false;
 
-uint32 GWindowStyleSDL = SDL_WINDOW_VULKAN;
-
-bool Window::EnsureSDLInit()
+bool Window::EnsureGLFWInit()
 {
-    if (!InitializeSDL()) {
+    if (!InitializeGLFW()) {
         LOG(LogWindow, Fatal, "Window::Initialize() : Failed to initialize window");
         checkNoEntry();
         return false;
@@ -21,20 +22,22 @@ bool Window::EnsureSDLInit()
     return true;
 }
 
-Window::Window(): Definition(), p_HWnd(nullptr), bIsVisible(false), p_ParentWindow(nullptr)
+Window::Window(): Definition(), p_Handle(nullptr), bIsVisible(false)
 {
 }
 
 Window::~Window()
 {
+    if (p_Handle) {
+        Destroy();
+    }
 }
 
-void Window::Initialize(const WindowDefinition& InDefinition, const Ref<Window>& InParent)
+void Window::Initialize(const WindowDefinition& InDefinition)
 {
     Definition = InDefinition;
-    p_ParentWindow = InParent;
 
-    EnsureSDLInit();
+    EnsureGLFWInit();
 
     const float XInitialRect = Definition.XPositionOnScreen;
     const float YInitialRect = Definition.YPositionOnScreen;
@@ -47,53 +50,41 @@ void Window::Initialize(const WindowDefinition& InDefinition, const Ref<Window>&
     int32 Width = WidthInitial;
     int32 Height = HeightInitial;
 
-    uint32 WindowStyle = GWindowStyleSDL;
-    if (!Definition.HasOsWindowBorder) {
-        WindowStyle |= SDL_WINDOW_BORDERLESS;
-        if (!Definition.AppearsInTaskbar) {
-            WindowStyle |= SDL_WINDOW_UTILITY;
-        }
-    }
-    if (Definition.HasSizingFrame) {
-        WindowStyle |= SDL_WINDOW_RESIZABLE;
-    }
+    check(Width > 0 && Height > 0);
 
-    p_HWnd = SDL_CreateWindowWithPosition(Definition.Title.c_str(), X, Y, Width, Height, WindowStyle);
-    if (!p_HWnd) {
-        LOG(LogWindow, Fatal, "Failed To create the SDL Window");
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
+#if RAPHAEL_SELECTED_RHI_VULKAN == 1
+    check(glfwVulkanSupported());
+#endif    // RAPHAEL_SELECTED_RHI_VULKAN
+
+    glfwWindowHint(GLFW_RESIZABLE, InDefinition.HasSizingFrame);
+    glfwWindowHint(GLFW_DECORATED, InDefinition.HasOsWindowBorder);
+    p_Handle = glfwCreateWindow(Width, Height, Definition.Title.c_str(), nullptr, nullptr);
+    if (!p_Handle) {
+        LOG(LogWindow, Fatal, "Failed To create the GLFW Window");
         Utils::RequestExit(1);
     }
+    SetupGLFWCallbacks();
 
-    if (WindowStyle & SDL_WINDOW_RESIZABLE) {
-        SDL_SetWindowMinimumSize(p_HWnd, 100, 100);
-    }
-    if (p_ParentWindow) {
-        SDL_SetWindowModalFor(p_HWnd, p_ParentWindow->GetHandle());
-    }
-}
-
-const Ref<Window>& Window::GetParent() const
-{
-    return p_ParentWindow;
+    MoveWindow(X, Y);
 }
 
 void Window::ReshapeWindow(int32 X, int32 Y, int32 Width, int32 Height)
 {
-    (void)X;
-    (void)Y;
-    (void)Width;
-    (void)Height;
+    glfwSetWindowPos(p_Handle, X, Y);
+    glfwSetWindowSize(p_Handle, Width, Height);
 }
 
 void Window::MoveWindow(int32 X, int32 Y)
 {
-    SDL_SetWindowPosition(p_HWnd, X, Y);
+    glfwSetWindowPos(p_Handle, X, Y);
 }
 
 void Window::BringToFront(bool bForce)
 {
     if (bForce) {
-        SDL_RaiseWindow(p_HWnd);
+        glfwFocusWindow(p_Handle);
     } else {
         Show();
     }
@@ -101,27 +92,26 @@ void Window::BringToFront(bool bForce)
 
 void Window::Destroy()
 {
-    if (p_HWnd) {
-        LOG(LogWindow, Info, "Destroying SDL Window '{:p}'", (void*)p_HWnd);
-        SDL_DestroyWindow(p_HWnd);
-        p_HWnd = nullptr;
-    }
+    LOG(LogWindow, Info, "Destroying GLFW Window '{:p}'", (void*)p_Handle);
+    glfwDestroyWindow(p_Handle);
+    p_Handle = nullptr;
 }
 
 void Window::Minimize()
 {
-    SDL_MinimizeWindow(p_HWnd);
+    glfwIconifyWindow(p_Handle);
 }
 
 void Window::Maximize()
 {
-    SDL_MaximizeWindow(p_HWnd);
+    glfwMaximizeWindow(p_Handle);
 }
 
 void Window::Restore()
 {
-    SDL_RestoreWindow(p_HWnd);
+    glfwRestoreWindow(p_Handle);
 }
+
 void Window::Show()
 {
     if (IsMinimized()) {
@@ -130,7 +120,7 @@ void Window::Show()
 
     if (!bIsVisible) {
         bIsVisible = true;
-        SDL_ShowWindow(p_HWnd);
+        glfwShowWindow(p_Handle);
     }
 }
 
@@ -138,18 +128,18 @@ void Window::Hide()
 {
     if (bIsVisible) {
         bIsVisible = false;
-        SDL_HideWindow(p_HWnd);
+        glfwHideWindow(p_Handle);
     }
 }
 
 bool Window::IsMaximized() const
 {
-    return SDL_GetWindowFlags(p_HWnd) & SDL_WINDOW_MAXIMIZED;
+    return glfwGetWindowAttrib(p_Handle, GLFW_MAXIMIZED);
 }
 
 bool Window::IsMinimized() const
 {
-    return SDL_GetWindowFlags(p_HWnd) & SDL_WINDOW_MINIMIZED || SDL_GetWindowFlags(p_HWnd) & SDL_WINDOW_HIDDEN;
+    return glfwGetWindowAttrib(p_Handle, GLFW_ICONIFIED) || glfwGetWindowAttrib(p_Handle, GLFW_VISIBLE);
 }
 
 bool Window::IsVisible() const
@@ -174,55 +164,140 @@ int32 Window::GetWindowTitleBarSize() const
 
 void Window::SetText(const std::string_view Text)
 {
-    SDL_SetWindowTitle(p_HWnd, Text.data());
+    glfwSetWindowTitle(p_Handle, Text.data());
 }
 
-void Window::DrawAttention(bool bStop)
+void Window::DrawAttention()
 {
-    if (bStop) {
-        SDL_FlashWindow(p_HWnd, SDL_FLASH_CANCEL);
-    } else {
-        SDL_FlashWindow(p_HWnd, SDL_FLASH_UNTIL_FOCUSED);
-    }
+    glfwRequestWindowAttention(p_Handle);
 }
 
-SDL_Window* Window::GetHandle() const
+GLFWwindow* Window::GetHandle() const
 {
-    return p_HWnd;
+    return p_Handle;
 }
 
-bool Window::InitializeSDL()
+void Window::ProcessEvents()
 {
-    if (GSDLInitialized) {
+    glfwPollEvents();
+}
+
+bool Window::InitializeGLFW()
+{
+    if (GGLFWInitialized) {
         return true;
     }
-    LOG(LogWindow, Info, "Initializing SDL.");
+    LOG(LogWindow, Info, "Initializing GLFW.");
 
-    SDL_SetHint("SDL_VIDEO_X11_REQUIRE_XRANDR", "1");
-
-    // Turn off the audio of SDL
-    if (SDL_Init((SDL_INIT_EVERYTHING ^ SDL_INIT_AUDIO)) != 0) {
-        const char* ErrorMessage = SDL_GetError();
-        if (strcmp("No message system available", ErrorMessage) != 0) {
-            LOG(LogWindow, Warning, "Could not initialize SDL: {}", ErrorMessage);
+    if (glfwInit() == GLFW_FALSE) {
+        const char* ErrorMessage = nullptr;
+        glfwGetError(&ErrorMessage);
+        if (ErrorMessage) {
+            LOG(LogWindow, Warning, "Could not initialize GLFW: {}", ErrorMessage);
         }
         return false;
     }
 
-    SDL_version CompileTimeSDLVersion;
-    SDL_version RunTimeSDLVersion;
-    SDL_VERSION(&CompileTimeSDLVersion);
-    SDL_GetVersion(&RunTimeSDLVersion);
-    const char* SdlRevision = SDL_GetRevision();
+    glfwSetErrorCallback([](int ErrorCode, const char* ErrorMessage) {
+        LOG(LogWindow, Error, "GLFW Error ({}) \"{:s}\"", ErrorCode, ErrorMessage);
+    });
 
-    LOG(LogWindow, Info, "Initialized SDL {:d}.{:d}.{:d} revision {} (compiled against {:d}.{:d}.{:d})",
-        RunTimeSDLVersion.major, RunTimeSDLVersion.minor, RunTimeSDLVersion.patch, SdlRevision,
-        CompileTimeSDLVersion.major, CompileTimeSDLVersion.minor, CompileTimeSDLVersion.patch);
-    char const* SdlVideoDriver = SDL_GetCurrentVideoDriver();
-    if (SdlVideoDriver) {
-        LOG(LogWindow, Info, "Using SDL video driver '{}'", SdlVideoDriver);
-    }
+    int Major = 0;
+    int Minor = 0;
+    int Revision = 0;
+    glfwGetVersion(&Major, &Minor, &Revision);
 
-    GSDLInitialized = true;
+    LOG(LogWindow, Info, "Initialized GLFW {:d}.{:d}.{:d}  (compiled against {:d}.{:d}.{:d})", Major, Minor, Revision,
+        GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION);
+
+    GGLFWInitialized = true;
     return true;
+}
+
+void Window::SetupGLFWCallbacks()
+{
+    glfwSetWindowUserPointer(p_Handle, &Definition.EventCallback);
+
+    bool isRawMouseMotionSupported = glfwRawMouseMotionSupported();
+    if (isRawMouseMotionSupported)
+        glfwSetInputMode(p_Handle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    else
+        LOG(LogWindow, Warning, "Raw mouse motion not supported.");
+
+    // Set GLFW callbacks
+    glfwSetWindowSizeCallback(p_Handle, [](GLFWwindow* window, int width, int height) {
+        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        WindowResizeEvent event((uint32_t)width, (uint32_t)height);
+        Callback(event);
+    });
+
+    glfwSetWindowCloseCallback(p_Handle, [](GLFWwindow* window) {
+        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        WindowCloseEvent event;
+        Callback(event);
+    });
+
+    glfwSetKeyCallback(p_Handle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+        (void)scancode;
+        (void)mods;
+        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        switch (action) {
+            case GLFW_PRESS: {
+                KeyPressedEvent event((KeyCode)key, 0);
+                Callback(event);
+                break;
+            }
+            case GLFW_RELEASE: {
+                KeyReleasedEvent event((KeyCode)key);
+                Callback(event);
+                break;
+            }
+            case GLFW_REPEAT: {
+                KeyPressedEvent event((KeyCode)key, 1);
+                Callback(event);
+                break;
+            }
+        }
+    });
+
+    glfwSetCharCallback(p_Handle, [](GLFWwindow* window, uint32_t codepoint) {
+        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        KeyTypedEvent event((KeyCode)codepoint);
+        Callback(event);
+    });
+
+    glfwSetMouseButtonCallback(p_Handle, [](GLFWwindow* window, int button, int action, int mods) {
+        (void)mods;
+        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        switch (action) {
+            case GLFW_PRESS: {
+                MouseButtonPressedEvent event((MouseButton)button);
+                Callback(event);
+                break;
+            }
+            case GLFW_RELEASE: {
+                MouseButtonReleasedEvent event((MouseButton)button);
+                Callback(event);
+                break;
+            }
+        }
+    });
+
+    glfwSetScrollCallback(p_Handle, [](GLFWwindow* window, double xOffset, double yOffset) {
+        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        MouseScrolledEvent event((float)xOffset, (float)yOffset);
+        Callback(event);
+    });
+
+    glfwSetCursorPosCallback(p_Handle, [](GLFWwindow* window, double x, double y) {
+        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        MouseMovedEvent event((float)x, (float)y);
+        Callback(event);
+    });
+
+    glfwSetWindowIconifyCallback(p_Handle, [](GLFWwindow* window, int iconified) {
+        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        WindowMinimizeEvent event((bool)iconified);
+        Callback(event);
+    });
 }

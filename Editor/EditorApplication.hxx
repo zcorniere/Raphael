@@ -2,8 +2,6 @@
 
 #include <Engine/Core/Application.hxx>
 
-#include <SDL3/SDL.h>
-
 class EditorApplication : public BaseApplication
 {
 public:
