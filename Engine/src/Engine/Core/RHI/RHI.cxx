@@ -3,13 +3,13 @@
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "RHI.hxx"
 
-static Ref<RHICommandQueue> s_CommandQueue = nullptr;
+static std::unique_ptr<RHICommandQueue> s_CommandQueue = nullptr;
 
-Ref<GenericRHI> GDynamicRHI = nullptr;
+std::unique_ptr<GenericRHI> GDynamicRHI = nullptr;
 
 void RHI::Init()
 {
-    s_CommandQueue = Ref<RHICommandQueue>::Create();
+    s_CommandQueue = std::make_unique<RHICommandQueue>();
 }
 
 void RHI::DeleteRHI()
@@ -19,10 +19,10 @@ void RHI::DeleteRHI()
     GDynamicRHI = nullptr;
 }
 
-Ref<RHICommandQueue>& RHI::GetRHICommandQueue()
+RHICommandQueue* RHI::GetRHICommandQueue()
 {
     check(s_CommandQueue);
-    return s_CommandQueue;
+    return s_CommandQueue.get();
 }
 
 /// RHI Fowarding

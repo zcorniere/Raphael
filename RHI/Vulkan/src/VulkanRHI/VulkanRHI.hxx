@@ -101,7 +101,7 @@ private:
 
 }    // namespace VulkanRHI
 
-FORCEINLINE Ref<VulkanRHI::VulkanDynamicRHI> GetVulkanDynamicRHI()
+FORCEINLINE VulkanRHI::VulkanDynamicRHI* GetVulkanDynamicRHI()
 {
     checkMsg(GDynamicRHI, "Tried to fetch RHI too early");
     check(GDynamicRHI->GetInterfaceType() == RHIInterfaceType::Vulkan);

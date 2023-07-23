@@ -112,7 +112,7 @@ void VulkanViewport::RecreateSwapchain(void* NewNativeWindow)
 
 void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
 {
-    Ref<VulkanDynamicRHI> RHI = GetVulkanDynamicRHI();
+    VulkanDynamicRHI* RHI = GetVulkanDynamicRHI();
 
     SwapChain = Ref<VulkanSwapChain>::Create(RHI->GetInstance(), Device, WindowHandle, Size, 0, BackBufferImages, true,
                                              RecreateInfo);

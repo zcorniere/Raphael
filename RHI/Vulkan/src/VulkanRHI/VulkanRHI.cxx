@@ -13,12 +13,12 @@
 #include "VulkanRHI/VulkanUtils.hxx"
 
 // RHI Creation Implementation
-Ref<GenericRHI> RHI::CreateRHI()
+GenericRHI* RHI::CreateRHI()
 {
     RPH_PROFILE_FUNC()
 
-    GDynamicRHI = Ref<VulkanRHI::VulkanDynamicRHI>::CreateNamed("Vulkan RHI");
-    return GDynamicRHI;
+    GDynamicRHI = std::make_unique<VulkanRHI::VulkanDynamicRHI>();
+    return GDynamicRHI.get();
 }
 //
 
@@ -29,8 +29,6 @@ namespace VulkanRHI
 
 VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr)
 {
-    SetName("VulkanRHI");
-
     LOG(LogVulkanRHI, Info, "Built with Vulkan header version {}.{}.{}",
         VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
         VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));

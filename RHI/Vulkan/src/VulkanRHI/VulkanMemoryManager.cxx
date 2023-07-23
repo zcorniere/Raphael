@@ -91,7 +91,7 @@ VulkanMemoryManager::VulkanMemoryManager(VulkanDevice* InDevice)
 {
     check(Device);
 
-    Ref<VulkanDynamicRHI> RHI = GetVulkanDynamicRHI();
+    VulkanDynamicRHI* RHI = GetVulkanDynamicRHI();
 
     VulkanAPI::vkGetPhysicalDeviceMemoryProperties(Device->GetPhysicalHandle(), &MemoryProperties);
 
