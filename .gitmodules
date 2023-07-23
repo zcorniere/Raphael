@@ -40,3 +40,6 @@
 [submodule "Engine/External/glfw"]
 	path = Engine/External/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "Engine/External/ModernDialogs"]
+	path = Engine/External/ModernDialogs
+	url = https://github.com/GamesTrap/ModernDialogs.git

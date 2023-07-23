@@ -39,4 +39,6 @@ if(SELECTED_RHI STREQUAL "Vulkan")
     target_compile_definitions(glfw INTERFACE GLFW_INCLUDE_NONE GLFW_INCLUDE_VULKAN)
 endif()
 
-
+# Modern Dialogs
+add_library(ModernDialogs EXCLUDE_FROM_ALL STATIC ${CMAKE_CURRENT_SOURCE_DIR}/ModernDialogs/ModernDialogs/ModernDialogs.cpp)
+target_include_directories(ModernDialogs PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ModernDialogs/ModernDialogs)

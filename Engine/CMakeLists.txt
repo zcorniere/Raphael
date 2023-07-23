@@ -65,11 +65,12 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 target_link_libraries(
     ${PROJECT_NAME}
     PUBLIC cpplogger
+           RHI_Selector
            magic_enum
            glm
            glfw
            mimalloc-static
-           RHI_Selector
+           ModernDialogs
 )
 
 target_compile_options(

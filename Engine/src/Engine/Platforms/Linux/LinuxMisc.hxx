@@ -22,8 +22,7 @@ class LinuxMisc : public GenericMisc
 {
 public:
     /// @copydoc GenericMisc::DisplayMessageBox
-    static EBoxReturnType DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
-                                            const std::string_view Caption);
+    static EBoxReturnType DisplayMessageBox(EBoxMessageType MsgType, const std::string Title, const std::string Text);
 
     static Malloc* BaseAllocator();
 

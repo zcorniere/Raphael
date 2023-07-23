@@ -7,6 +7,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include "Engine/Platforms/PlatformMisc.hxx"
+
 DECLARE_LOGGER_CATEGORY(Core, LogBaseApplication, Info)
 
 bool BaseApplication::OnEngineInitialization()

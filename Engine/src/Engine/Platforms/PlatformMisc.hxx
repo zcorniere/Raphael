@@ -58,10 +58,9 @@ public:
     /// @param Title The Title of the message box
     /// @param Caption The content of the message box
     /// @return The answer of the user (@see EBoxReturnType)
-    static EBoxReturnType DisplayMessageBox(EBoxMessageType Type, const std::string_view Title,
-                                            const std::string_view Caption)
+    static EBoxReturnType DisplayMessageBox(EBoxMessageType Type, const std::string Title, const std::string Text)
     {
-        LOG(LogPlatformMisc, Info, "{} Message Box: {:s} {:s}", magic_enum::enum_name(Type), Title, Caption);
+        LOG(LogPlatformMisc, Info, "{} Message Box: {:s} {:s}", magic_enum::enum_name(Type), Title, Text);
         return EBoxReturnType::Ok;
     }
 
