@@ -84,7 +84,10 @@ bool BaseApplication::OnWindowResize(WindowResizeEvent& E)
     if (width == 0 || height == 0) {
         return false;
     }
-    MainViewport->ResizeViewport(width, height);
+    // The viewport was not created yet
+    if (MainViewport) {
+        MainViewport->ResizeViewport(width, height);
+    }
     return false;
 }
 
