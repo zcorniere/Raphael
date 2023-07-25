@@ -29,10 +29,10 @@ enum EventCategory {
     EventCategoryMouseButton = BIT(4),
 };
 
-#define EVENT_CLASS_TYPE(type)                      \
+#define EVENT_CLASS_TYPE(Type)                      \
     static EventType GetStaticType()                \
     {                                               \
-        return EventType::##type;                   \
+        return EventType::Type;                     \
     }                                               \
     virtual EventType GetEventType() const override \
     {                                               \
@@ -40,7 +40,7 @@ enum EventCategory {
     }                                               \
     virtual const char* GetName() const override    \
     {                                               \
-        return #type;                               \
+        return #Type;                               \
     }
 
 #define EVENT_CLASS_CATEGORY(category)            \

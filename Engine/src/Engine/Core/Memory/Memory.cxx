@@ -6,7 +6,7 @@ Malloc* GMalloc = 0;
 
 static void EnsureAllocatorIsSetup()
 {
-    if (!GMalloc) {
+    if (UNLIKELY(!GMalloc)) {
         // must manually allocate the memory
         GMalloc = PlatformMisc::BaseAllocator();
     }
@@ -23,6 +23,7 @@ void* Memory::Malloc(uint32 Size, uint32 Alignment)
 void* Memory::Realloc(void* Original, uint32 Size, uint32 Alignment)
 {
     EnsureAllocatorIsSetup();
+
     RPH_PROFILE_FREE(Original);
     void* Memory = GMalloc->Realloc(Original, Size, Alignment);
     RPH_PROFILE_ALLOC(Memory, Size);
