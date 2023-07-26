@@ -1,18 +1,17 @@
 project(RaphaelEngine)
-set(CMAKE_FOLDER  "Raphael/Engine")
-
+set(CMAKE_FOLDER "Raphael/Engine")
 
 set(SELECTED_RHI
-"Vulkan"
-CACHE STRING "Select the RHI to use"
+    "Vulkan"
+    CACHE STRING "Select the RHI to use"
 )
 
 add_library(RHI_Selector INTERFACE)
 if(SELECTED_RHI STREQUAL "Vulkan")
-target_link_libraries(RHI_Selector INTERFACE RaphaelRHIVulkan)
-target_compile_definitions(RHI_Selector INTERFACE RAPHAEL_SELECTED_RHI_VULKAN=1)
+    target_link_libraries(RHI_Selector INTERFACE RaphaelRHIVulkan)
+    target_compile_definitions(RHI_Selector INTERFACE RAPHAEL_SELECTED_RHI_VULKAN=1)
 else()
-message(FATAL_ERROR "${SELECTED_RHI} is not supported !")
+    message(FATAL_ERROR "${SELECTED_RHI} is not supported !")
 endif()
 
 add_subdirectory(External/)
@@ -90,6 +89,7 @@ target_compile_options(
 )
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/)
 target_precompile_headers(${PROJECT_NAME} PRIVATE src/Engine/Raphael.hxx)
+target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:RPH_POISON_ALLOCATION>)
 
 if(UNIX)
     target_link_libraries(${PROJECT_NAME} PUBLIC xdgpp)

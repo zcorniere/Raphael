@@ -20,10 +20,7 @@ public:
     virtual void Free(void* Ptr) = 0;
 
     virtual bool GetAllocationSize(void* Ptr, uint32& OutSize) = 0;
-    virtual const char* GetAllocatorName() const
-    {
-        return "?";
-    }
+    virtual const char* GetAllocatorName() const = 0;
 };
 
 namespace Raphael

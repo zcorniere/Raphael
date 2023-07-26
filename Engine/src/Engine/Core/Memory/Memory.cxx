@@ -1,5 +1,6 @@
 #include "Engine/Core/Memory/Memory.hxx"
 
+#include "Engine/Core/Memory/AllocatorPoison.hxx"
 #include "Engine/Platforms/PlatformMisc.hxx"
 
 Malloc* GMalloc = 0;
@@ -9,6 +10,11 @@ static void EnsureAllocatorIsSetup()
     if (UNLIKELY(!GMalloc)) {
         // must manually allocate the memory
         GMalloc = PlatformMisc::BaseAllocator();
+
+#if RPH_POISON_ALLOCATION
+        void* AllocPoisonMemory = std::malloc(sizeof(AllocatorPoison));
+        GMalloc = new (AllocPoisonMemory) AllocatorPoison(GMalloc);
+#endif
     }
 }
 
