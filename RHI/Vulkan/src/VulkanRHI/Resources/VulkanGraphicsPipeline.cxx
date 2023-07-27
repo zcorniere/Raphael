@@ -97,13 +97,38 @@ bool VulkanGraphicsPipeline::Create(bool bForceRecompileShaders)
         });
     }
 
+    Array<VkVertexInputBindingDescription> InputBinding(Desc.VertexBindings.Size());
+    for (unsigned i = 0; i < Desc.VertexBindings.Size(); i++) {
+        Desc.VertexBindings[i].WriteInto(InputBinding[i]);
+    }
+    Array<VkVertexInputAttributeDescription> InputAttribute(Desc.VertexAttributes.Size());
+    for (unsigned i = 0; i < Desc.VertexAttributes.Size(); i++) {
+        Desc.VertexAttributes[i].WriteInto(InputAttribute[i]);
+    }
+    VkPipelineRasterizationStateCreateInfo RasterizerInfo;
+    Desc.Rasterizer.WriteInto(RasterizerInfo);
+
+    VkPipelineVertexInputStateCreateInfo VertexInputState{
+        .vertexBindingDescriptionCount = InputBinding.Size(),
+        .pVertexBindingDescriptions = InputBinding.Raw(),
+        .vertexAttributeDescriptionCount = InputAttribute.Size(),
+        .pVertexAttributeDescriptions = InputAttribute.Raw(),
+    };
+    VkPipelineInputAssemblyStateCreateInfo InputAssembly{
+        .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+        .primitiveRestartEnable = VK_FALSE,
+    };
+
     VkGraphicsPipelineCreateInfo PipelineCreateInfo{
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
         .stageCount = ShaderStage.Size(),
         .pStages = ShaderStage.Raw(),
+        .pVertexInputState = &VertexInputState,
+        .pInputAssemblyState = &InputAssembly,
         .layout = PipelineLayout,
+
     };
 
     VK_CHECK_RESULT(VulkanAPI::vkCreateGraphicsPipelines(Device->GetHandle(), nullptr, 1, &PipelineCreateInfo,
