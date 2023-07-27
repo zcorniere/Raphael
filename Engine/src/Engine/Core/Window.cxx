@@ -36,6 +36,7 @@ Window::~Window()
 void Window::Initialize(const WindowDefinition& InDefinition)
 {
     Definition = InDefinition;
+    checkMsg(Definition.EventCallback, "You must provide an event callback !");
 
     EnsureGLFWInit();
 
