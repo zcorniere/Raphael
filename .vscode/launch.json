@@ -1,0 +1,15 @@
+{
+
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Launch Raphael Editor",
+            "program": "${workspaceFolder}/build/Editor/RaphaelEditor",
+            "args": [],
+            "cwd": "${workspaceFolder}/build"
+        }
+    ]
+    
+}
