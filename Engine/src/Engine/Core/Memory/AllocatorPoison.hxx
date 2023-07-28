@@ -27,13 +27,13 @@ public:
     virtual void* Realloc(void* Original, uint32 Size, uint32 Alignment = 0) override
     {
         unsigned OldSize = 0;
-        if (LIKELY(Original != nullptr && GetAllocationSize(Original, OldSize) && OldSize > 0 && OldSize > Size)) {
+        if (Original != nullptr && GetAllocationSize(Original, OldSize) && OldSize > 0 && OldSize > Size) {
             std::memset(static_cast<uint8*>(Original) + Size, AllocFillFree, OldSize - Size);
         }
 
         void* Result = TrueMalloc->Realloc(Original, Size, Alignment);
 
-        if (LIKELY(Result != nullptr && OldSize > 0 && OldSize < Size)) {
+        if (Result != nullptr && OldSize > 0 && OldSize < Size) {
             std::memset(static_cast<uint8*>(Result) + OldSize, AllocFillNew, Size - OldSize);
         }
 
