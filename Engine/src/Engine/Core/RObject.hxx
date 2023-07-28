@@ -81,6 +81,12 @@ public:
         }
     }
 
+    /// Override this function to be able to override the behaviour of Ref::IsValid;
+    virtual bool IsValid() const
+    {
+        return true;
+    }
+
     /// Increment the ref count of the RObject
     void IncrementRefCount() const
     {
@@ -286,7 +292,7 @@ public:
 
     bool IsValid() const
     {
-        return m_ObjPtr ? RObjectUtils::IsLive(m_ObjPtr) : false;
+        return m_ObjPtr ? (RObjectUtils::IsLive(m_ObjPtr) && m_ObjPtr->IsValid()) : (false);
     }
 
 private:
@@ -370,7 +376,7 @@ public:
 
     bool IsValid() const
     {
-        return m_Instance ? RObjectUtils::IsLive(m_Instance) : false;
+        return m_Instance ? (RObjectUtils::IsLive(m_Instance) && m_Instance->IsValid()) : (false);
     }
     operator bool() const
     {
