@@ -28,6 +28,15 @@ public:
     void Begin(Ref<VulkanCmdBuffer>& CmdBuffer, const VkRect2D RenderArea);
     void End(Ref<VulkanCmdBuffer>& CmdBuffer);
 
+    bool HasDepthTarget() const
+    {
+        return DepthTarget->IsValid();
+    }
+    unsigned HasResolveTargets() const
+    {
+        return ResolveTarget.Size();
+    }
+
     VkRenderPass GetRenderPass() const
     {
         return RenderPass;
@@ -35,6 +44,15 @@ public:
     VkFramebuffer GetFramebuffer() const
     {
         return FrameBuffer;
+    }
+
+    glm::uvec2 GetExtent() const
+    {
+        return Description.Size;
+    }
+    glm::uvec2 GetOffset() const
+    {
+        return Description.Offset;
     }
 
     void SetName(std::string_view InName) override;

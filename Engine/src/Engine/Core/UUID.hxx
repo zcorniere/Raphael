@@ -46,7 +46,6 @@ struct hash<Raphael::UUID> {
     std::size_t operator()(const Raphael::UUID& uuid) const
     {
         // uuid is already a randomly generated number, and is suitable as a hash key as-is.
-        // this may change in future, in which case return hash<uint64>{}(uuid); might be more appropriate
         return uuid;
     }
 };

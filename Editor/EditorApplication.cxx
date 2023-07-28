@@ -51,9 +51,30 @@ bool EditorApplication::OnEngineInitialization()
     Graph.Execute();
 #endif
 
-    // Create some shaders to test the reflection
-    RHI::CreateShader("DefaultTriangle.vert", true);
-    RHI::CreateShader("DefaultTriangle.frag", true);
+    RHI::CreateGraphicsPipeline(RHIGraphicsPipelineInitializer{
+        .VertexShader = "DefaultTriangle.vert",
+        .PixelShader = "DefaultTriangle.frag",
+        .Rasterizer =
+            {
+                .PolygonMode = EPolygonMode::Fill,
+                .CullMode = ECullMode::Back,
+                .FrontFaceCulling = EFrontFace::Clockwise,
+            },
+        .RenderPass =
+            {
+                .ColorTarget =
+                    {
+                        {
+                            .Format = EImageFormat::R8G8B8A8_SRGB,
+                        },
+                    },
+                .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
+                    .Format = EImageFormat::D32_SFLOAT,
+                }),
+                .Size = MainViewport->GetSize(),
+                .Name = "Simple path",
+            },
+    });
     return true;
 }
 

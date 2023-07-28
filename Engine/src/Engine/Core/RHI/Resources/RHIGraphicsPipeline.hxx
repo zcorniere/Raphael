@@ -4,8 +4,6 @@
 
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
 
-class RHIShader;
-
 struct RHIGraphicsPipelineInitializer {
 
     std::string VertexShader;
@@ -17,6 +15,7 @@ struct RHIGraphicsPipelineInitializer {
         EFrontFace FrontFaceCulling;
     };
     RasterizerDesc Rasterizer;
+    RHIRenderPassDescription RenderPass;
 };
 
 /// @brief Represent a shader used by the RHI

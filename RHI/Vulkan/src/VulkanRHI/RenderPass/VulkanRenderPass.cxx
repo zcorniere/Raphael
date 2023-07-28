@@ -32,6 +32,7 @@ VulkanRenderPass::VulkanRenderPass(VulkanDevice* InDevice, const RHIRenderPassDe
             CreateFramebufferTextures(InDescription.DepthTarget.value(), ETextureCreateFlags::DepthStencilTargetable);
     }
 
+    checkMsg(!ColorTarget.IsEmpty(), "The RenderPassDescription is invalid");
     CreateFrameBuffer();
 }
 

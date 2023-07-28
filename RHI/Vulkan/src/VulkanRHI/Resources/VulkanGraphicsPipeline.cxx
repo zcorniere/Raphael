@@ -1,6 +1,7 @@
 #include "VulkanRHI/Resources/VulkanGraphicsPipeline.hxx"
 
 #include "VulkanGraphicsPipeline.hxx"
+#include "VulkanRHI/RenderPass/VulkanRenderPass.hxx"
 #include "VulkanRHI/Resources/VulkanShader.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 
@@ -35,28 +36,28 @@ void GraphicsPipelineDescription::Rasterizer::WriteInto(VkPipelineRasterizationS
     OutState.lineWidth = 1.0f;
 }
 
-void GraphicsPipelineDescription::RenderTargets::AttachmentRef::WriteInto(VkAttachmentReference& OutState) const
+bool GraphicsPipelineDescription::Validate() const
 {
-    OutState.attachment = Attachment;
-    OutState.layout = OutState.layout;
-}
+    // Vertex shader is required
+    if (!VertexShader.IsValid())
+        return false;
+    // Pixel and vertex shader must be different
+    if (VertexShader == PixelShader)
+        return false;
+    // If there is a pixel shader, it must be valid
+    if (PixelShader != nullptr && !PixelShader.IsValid())
+        return false;
 
-void VulkanRHI::GraphicsPipelineDescription::RenderTargets::AttachmentDesc::WriteInto(
-    VkAttachmentDescription& OutState) const
-{
-    OutState.format = ImageFormatToFormat(Format);
-    OutState.flags = Flags;
-    OutState.samples = VK_SAMPLE_COUNT_1_BIT;
-    OutState.loadOp = LoadOp;
-    OutState.storeOp = StoreOp;
-    OutState.initialLayout = InitialLayout;
-    OutState.finalLayout = FinalLayout;
+    if (!RenderPass.IsValid())
+        return false;
+
+    return true;
 }
 
 VulkanGraphicsPipeline::VulkanGraphicsPipeline(VulkanDevice* InDevice, const GraphicsPipelineDescription& Description)
     : Device(InDevice), Desc(Description)
 {
-    Create(false);
+    Create();
 }
 
 VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
@@ -80,22 +81,25 @@ void VulkanGraphicsPipeline::SetName(std::string_view Name)
     }
 }
 
-bool VulkanGraphicsPipeline::Create(bool bForceRecompileShaders)
+static void FillShaderStageInfo(VulkanDevice* InDevice, Ref<VulkanShader>& InShader,
+                                Array<VkPipelineShaderStageCreateInfo>& OutShaderStage)
 {
-    Shaders[0] = RHI::CreateShader(Desc.VertexShader, bForceRecompileShaders);
-    Shaders[1] = RHI::CreateShader(Desc.PixelShader, bForceRecompileShaders);
+    Ref<VulkanShader::ShaderHandle> Handle = InShader->GetHandle(InDevice);
+    OutShaderStage.Add(VkPipelineShaderStageCreateInfo{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        .stage = ConvertToVulkanType(InShader->GetShaderType()),
+        .module = Handle->Handle,
+        .pName = "main",
+    });
+}
 
+bool VulkanGraphicsPipeline::Create()
+{
     CreatePipelineLayout();
 
     Array<VkPipelineShaderStageCreateInfo> ShaderStage;
-    for (Ref<VulkanShader>& Shader: Shaders) {
-        Ref<VulkanShader::ShaderHandle> Handle = Shader->GetHandle(Device);
-        ShaderStage.Add(VkPipelineShaderStageCreateInfo{
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-            .stage = ConvertToVulkanType(Shader->GetShaderType()),
-            .pName = "main",
-        });
-    }
+    FillShaderStageInfo(Device, Desc.VertexShader, ShaderStage);
+    FillShaderStageInfo(Device, Desc.PixelShader, ShaderStage);
 
     Array<VkVertexInputBindingDescription> InputBinding(Desc.VertexBindings.Size());
     for (unsigned i = 0; i < Desc.VertexBindings.Size(); i++) {
@@ -105,18 +109,92 @@ bool VulkanGraphicsPipeline::Create(bool bForceRecompileShaders)
     for (unsigned i = 0; i < Desc.VertexAttributes.Size(); i++) {
         Desc.VertexAttributes[i].WriteInto(InputAttribute[i]);
     }
-    VkPipelineRasterizationStateCreateInfo RasterizerInfo;
+    VkPipelineRasterizationStateCreateInfo RasterizerInfo{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+    };
     Desc.Rasterizer.WriteInto(RasterizerInfo);
 
     VkPipelineVertexInputStateCreateInfo VertexInputState{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
         .vertexBindingDescriptionCount = InputBinding.Size(),
         .pVertexBindingDescriptions = InputBinding.Raw(),
         .vertexAttributeDescriptionCount = InputAttribute.Size(),
         .pVertexAttributeDescriptions = InputAttribute.Raw(),
     };
     VkPipelineInputAssemblyStateCreateInfo InputAssembly{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
         .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
         .primitiveRestartEnable = VK_FALSE,
+    };
+
+    VkViewport viewport{
+        .x = 0.0f,
+        .y = 0.0f,
+        .width = static_cast<float>(Desc.RenderPass->GetExtent().x),
+        .height = static_cast<float>(Desc.RenderPass->GetExtent().y),
+        .minDepth = 0.0f,
+        .maxDepth = 1.0f,
+    };
+    VkRect2D scissor{
+        .offset =
+            {
+                .x = static_cast<int32_t>(Desc.RenderPass->GetOffset().x),
+                .y = static_cast<int32_t>(Desc.RenderPass->GetOffset().y),
+            },
+        .extent =
+            {
+                .width = Desc.RenderPass->GetExtent().x,
+                .height = Desc.RenderPass->GetExtent().y,
+            },
+    };
+    VkPipelineViewportStateCreateInfo viewportState{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+        .viewportCount = 1,
+        .pViewports = &viewport,
+        .scissorCount = 1,
+        .pScissors = &scissor,
+    };
+
+    VkPipelineColorBlendAttachmentState ColorBlendAttachment{
+        .blendEnable = VK_TRUE,
+        .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
+        .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+        .colorBlendOp = VK_BLEND_OP_ADD,
+        .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
+        .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
+        .alphaBlendOp = VK_BLEND_OP_ADD,
+        .colorWriteMask =
+            VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
+    };
+    VkPipelineColorBlendStateCreateInfo colorBlending{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+        .logicOpEnable = VK_FALSE,
+        .logicOp = VK_LOGIC_OP_COPY,
+        .attachmentCount = 1,
+        .pAttachments = &ColorBlendAttachment,
+    };
+
+    VkPipelineDepthStencilStateCreateInfo StencilState{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+        .depthTestEnable = VK_TRUE,
+        .depthWriteEnable = VK_TRUE,
+        .depthCompareOp = VK_COMPARE_OP_LESS,
+        .depthBoundsTestEnable = VK_FALSE,
+        .stencilTestEnable = VK_FALSE,
+        .front = {},
+        .back = {},
+        .minDepthBounds = 0.0f,
+        .maxDepthBounds = 1.0f,
+    };
+
+    VkPipelineMultisampleStateCreateInfo MultiSampling{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+        .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,    // TODO: Support for Multisample
+        .sampleShadingEnable = VK_FALSE,
+        .minSampleShading = 1.0f,
+        .pSampleMask = nullptr,
+        .alphaToCoverageEnable = VK_FALSE,
+        .alphaToOneEnable = VK_FALSE,
     };
 
     VkGraphicsPipelineCreateInfo PipelineCreateInfo{
@@ -127,9 +205,17 @@ bool VulkanGraphicsPipeline::Create(bool bForceRecompileShaders)
         .pStages = ShaderStage.Raw(),
         .pVertexInputState = &VertexInputState,
         .pInputAssemblyState = &InputAssembly,
+        .pViewportState = &viewportState,
+        .pRasterizationState = &RasterizerInfo,
+        .pMultisampleState = &MultiSampling,
+        .pColorBlendState = &colorBlending,
+        .pDynamicState = nullptr,
         .layout = PipelineLayout,
-
+        .renderPass = Desc.RenderPass->GetRenderPass(),
     };
+    if (Desc.RenderPass->HasDepthTarget()) {
+        PipelineCreateInfo.pDepthStencilState = &StencilState;
+    }
 
     VK_CHECK_RESULT(VulkanAPI::vkCreateGraphicsPipelines(Device->GetHandle(), nullptr, 1, &PipelineCreateInfo,
                                                          VULKAN_CPU_ALLOCATOR, &VulkanPipeline));
@@ -159,8 +245,8 @@ static VkPushConstantRange GetConstantRangeFromShader(Array<VkPushConstantRange>
 bool VulkanGraphicsPipeline::CreatePipelineLayout()
 {
     Array<VkPushConstantRange> PushRanges;
-    GetConstantRangeFromShader(PushRanges, Shaders[0], VK_SHADER_STAGE_VERTEX_BIT);
-    GetConstantRangeFromShader(PushRanges, Shaders[1], VK_SHADER_STAGE_FRAGMENT_BIT);
+    GetConstantRangeFromShader(PushRanges, Desc.VertexShader, VK_SHADER_STAGE_VERTEX_BIT);
+    GetConstantRangeFromShader(PushRanges, Desc.PixelShader, VK_SHADER_STAGE_FRAGMENT_BIT);
 
     // TODO: Shader descriptor set reflection
     Array<VkDescriptorSetLayout> SetLayout;

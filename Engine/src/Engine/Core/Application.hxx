@@ -36,7 +36,7 @@ public:
     virtual void Tick(const float DeltaTime) override;
     virtual bool ShouldExit() const override;
 
-    virtual void ProcessEvent(Event& Event);
+    virtual void WindowEventHandler(Event& Event);
 
     /// Creates & Dispatches an event either immediately, or adds it to an event queue which will be proccessed at the
     /// end of each frame
@@ -47,10 +47,10 @@ public:
 
         std::shared_ptr<TEvent> event = std::make_shared<TEvent>(std::forward<TEventArgs>(args)...);
         if constexpr (DispatchImmediately) {
-            ProcessEvent(*event);
+            WindowEventHandler(*event);
         } else {
-            std::scoped_lock<std::mutex> lock(m_EventQueueMutex);
-            m_EventQueue.Add([this, event]() { ProcessEvent(*event); });
+            std::scoped_lock lock(m_EventQueueMutex);
+            m_EventQueue.Add([this, event]() { WindowEventHandler(*event); });
         }
     }
 

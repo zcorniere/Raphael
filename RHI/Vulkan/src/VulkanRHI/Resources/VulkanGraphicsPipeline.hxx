@@ -6,6 +6,8 @@
 
 namespace VulkanRHI
 {
+class VulkanShader;
+class VulkanRenderPass;
 
 struct GraphicsPipelineDescription {
     struct VertexBinding {
@@ -42,38 +44,12 @@ struct GraphicsPipelineDescription {
     };
     Rasterizer Rasterizer;
 
-    std::string VertexShader;
-    std::string PixelShader;
+    Ref<VulkanShader> VertexShader;
+    Ref<VulkanShader> PixelShader;
 
-    struct RenderTargets {
-        struct AttachmentRef {
-            uint32 Attachment;
-            VkImageLayout Layout;
+    Ref<VulkanRenderPass> RenderPass;
 
-            void WriteInto(VkAttachmentReference& OutState) const;
-
-            bool operator==(const AttachmentRef& In) const = default;
-        };
-
-        Array<AttachmentRef> ColorAttachments;
-        Array<AttachmentRef> ResolveAttachments;
-        AttachmentRef Depth;
-
-        struct AttachmentDesc {
-            EImageFormat Format;
-            uint8 Flags;
-            VkAttachmentLoadOp LoadOp;
-            VkAttachmentStoreOp StoreOp;
-            VkImageLayout InitialLayout;
-            VkImageLayout FinalLayout;
-
-            bool operator==(const AttachmentDesc& In) const = default;
-
-            void WriteInto(VkAttachmentDescription& OutState) const;
-        };
-        Array<AttachmentDesc> Descriptions;
-    };
-
+    bool Validate() const;
     bool operator==(const GraphicsPipelineDescription&) const = default;
 };
 
@@ -89,7 +65,7 @@ public:
 
     void SetName(std::string_view Name) override;
 
-    bool Create(bool bForceRecompileShaders = false);
+    bool Create();
     void Bind(VkCommandBuffer CmdBuffer)
     {
         VulkanAPI::vkCmdBindPipeline(CmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VulkanPipeline);
@@ -106,8 +82,6 @@ private:
 private:
     VulkanDevice* Device;
     GraphicsPipelineDescription Desc;
-
-    Ref<VulkanShader> Shaders[2];
 
     VkPipelineLayout PipelineLayout;
     VkPipeline VulkanPipeline;

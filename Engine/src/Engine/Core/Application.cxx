@@ -18,7 +18,7 @@ bool BaseApplication::OnEngineInitialization()
     WindowDefinition WindowDef{
         .AppearsInTaskbar = true,
         .Title = "Raphael Engine",
-        .EventCallback = [this](Event& event) { ProcessEvent(event); },
+        .EventCallback = [this](Event& event) { WindowEventHandler(event); },
     };
     MainWindow = std::make_unique<Window>();
     MainWindow->SetName("Main Window");
@@ -28,17 +28,6 @@ bool BaseApplication::OnEngineInitialization()
 
     MainViewport = RHI::CreateViewport((void*)MainWindow->GetHandle(), glm::uvec2{500u, 500u});
     MainViewport->SetName("Main viewport");
-
-    // RHI::CreateGraphicsPipeline(RHIGraphicsPipelineInitializer{
-    //     .VertexShader = "DefaultTriangle.vert",
-    //     .PixelShader = "DefaultTriangle.frag",
-    //     .Rasterizer =
-    //         {
-    //             .PolygonMode = EPolygonMode::Fill,
-    //             .CullMode = ECullMode::Back,
-    //             .FrontFaceCulling = EFrontFace::Clockwise,
-    //         },
-    // });
     return true;
 }
 
@@ -50,7 +39,7 @@ void BaseApplication::OnEngineDestruction()
     MainWindow->Destroy();
 }
 
-void BaseApplication::ProcessEvent(Event& Event)
+void BaseApplication::WindowEventHandler(Event& Event)
 {
     EventDispatcher dispatcher(Event);
     dispatcher.Dispatch<WindowResizeEvent>([this](WindowResizeEvent& Event) { return OnWindowResize(Event); });

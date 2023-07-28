@@ -108,12 +108,17 @@ Ref<RHIShader> VulkanDynamicRHI::CreateShader(const std::filesystem::path Path, 
 Ref<RHIGraphicsPipeline>
 VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config)
 {
+    WeakRef<VulkanRenderPass> VRenderPass = RPassManager->Get(Config.RenderPass);
+    check(VRenderPass);
+
     GraphicsPipelineDescription Desc;
-    Desc.VertexShader = Config.VertexShader;
-    Desc.PixelShader = Config.PixelShader;
+    Desc.VertexShader = CreateShader(Config.VertexShader, false);
+    Desc.PixelShader = CreateShader(Config.PixelShader, false);
+    Desc.RenderPass = Ref(VRenderPass);
     Desc.Rasterizer.CullMode = ConvertToVulkanType(Config.Rasterizer.CullMode);
     Desc.Rasterizer.FrontFaceCulling = ConvertToVulkanType(Config.Rasterizer.FrontFaceCulling);
     Desc.Rasterizer.PolygonMode = ConvertToVulkanType(Config.Rasterizer.PolygonMode);
+    check(Desc.Validate());
 
     return Ref<VulkanGraphicsPipeline>::Create(Device.get(), Desc);
 }
