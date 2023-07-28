@@ -6,6 +6,8 @@ struct GLFWwindow;
 
 /// @brief Define a Window
 struct WindowDefinition {
+    using EventHandler = std::function<void(Event&)>;
+
     /// The X position on the screen
     float XPositionOnScreen = 0;
     /// The Y position on the screen
@@ -32,7 +34,7 @@ struct WindowDefinition {
     /// Should the resive preserve aspect ratio
     bool ShouldPreserveAspectRatio = true;
 
-    std::function<void(Event&)> EventCallback;
+    EventHandler EventCallback;
 };
 
 /// @class Window

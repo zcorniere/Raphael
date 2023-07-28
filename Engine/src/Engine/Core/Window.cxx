@@ -227,13 +227,13 @@ void Window::SetupGLFWCallbacks()
 
     // Set GLFW callbacks
     glfwSetWindowSizeCallback(p_Handle, [](GLFWwindow* window, int width, int height) {
-        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        auto& Callback = *(static_cast<WindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
         WindowResizeEvent event((uint32_t)width, (uint32_t)height);
         Callback(event);
     });
 
     glfwSetWindowCloseCallback(p_Handle, [](GLFWwindow* window) {
-        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        auto& Callback = *(static_cast<WindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
         WindowCloseEvent event;
         Callback(event);
     });
@@ -241,7 +241,7 @@ void Window::SetupGLFWCallbacks()
     glfwSetKeyCallback(p_Handle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
         (void)scancode;
         (void)mods;
-        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        auto& Callback = *(static_cast<WindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
         switch (action) {
             case GLFW_PRESS: {
                 KeyPressedEvent event((KeyCode)key, 0);
@@ -262,14 +262,14 @@ void Window::SetupGLFWCallbacks()
     });
 
     glfwSetCharCallback(p_Handle, [](GLFWwindow* window, uint32_t codepoint) {
-        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        auto& Callback = *(static_cast<WindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
         KeyTypedEvent event((KeyCode)codepoint);
         Callback(event);
     });
 
     glfwSetMouseButtonCallback(p_Handle, [](GLFWwindow* window, int button, int action, int mods) {
         (void)mods;
-        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        auto& Callback = *(static_cast<WindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
         switch (action) {
             case GLFW_PRESS: {
                 MouseButtonPressedEvent event((MouseButton)button);
@@ -285,19 +285,19 @@ void Window::SetupGLFWCallbacks()
     });
 
     glfwSetScrollCallback(p_Handle, [](GLFWwindow* window, double xOffset, double yOffset) {
-        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        auto& Callback = *(static_cast<WindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
         MouseScrolledEvent event((float)xOffset, (float)yOffset);
         Callback(event);
     });
 
     glfwSetCursorPosCallback(p_Handle, [](GLFWwindow* window, double x, double y) {
-        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        auto& Callback = *(static_cast<WindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
         MouseMovedEvent event((float)x, (float)y);
         Callback(event);
     });
 
     glfwSetWindowIconifyCallback(p_Handle, [](GLFWwindow* window, int iconified) {
-        auto& Callback = *(static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window)));
+        auto& Callback = *(static_cast<WindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
         WindowMinimizeEvent event((bool)iconified);
         Callback(event);
     });
