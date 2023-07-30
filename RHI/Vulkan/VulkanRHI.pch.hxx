@@ -1,6 +1,6 @@
 #pragma once
 
-#define VULKAN_CUSTOM_CPU_ALLOCATOR 1
+#define VULKAN_CUSTOM_CPU_ALLOCATOR 0
 
 #include <Engine/Raphael.hxx>
 
