@@ -61,6 +61,10 @@ void RHI::EndRenderPass()
     return RHI::Get<GenericRHI>()->EndRenderPass();
 }
 
+void RHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
+{
+    return RHI::Get<GenericRHI>()->Draw(Pipeline);
+}
 //
 //  -------------------- RHI Create resources --------------------
 //

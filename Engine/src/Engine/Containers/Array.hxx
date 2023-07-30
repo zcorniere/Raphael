@@ -154,6 +154,11 @@ public:
         return InvalidVectorIndex;
     }
 
+    [[nodiscard]] FORCEINLINE bool Contains(const T& Object) const
+    {
+        return Find(Object) != InvalidVectorIndex;
+    }
+
     void Append(const Array& Source)
     {
         check((void*)this != (void*)&Source);

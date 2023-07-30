@@ -62,6 +62,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(VulkanDevice* InDevice, const Gra
 
 VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
 {
+    Device->WaitUntilIdle();
     if (VulkanPipeline) {
         VulkanAPI::vkDestroyPipeline(Device->GetHandle(), VulkanPipeline, VULKAN_CPU_ALLOCATOR);
     }

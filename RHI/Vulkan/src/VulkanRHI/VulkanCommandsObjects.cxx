@@ -3,6 +3,8 @@
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanQueue.hxx"
 
+#include "VulkanRHI/Resources/VulkanGraphicsPipeline.hxx"
+
 namespace VulkanRHI
 {
 
@@ -82,10 +84,16 @@ void VulkanCmdBuffer::EndRenderPass()
     State = EState::IsInsideBegin;
 }
 
+void VulkanCmdBuffer::BindPipeline(const Ref<VulkanGraphicsPipeline>& Pipeline)
+{
+    VulkanAPI::vkCmdBindPipeline(m_CommandBufferHandle, VK_PIPELINE_BIND_POINT_GRAPHICS, Pipeline->GetVulkanPipeline());
+}
+
 void VulkanCmdBuffer::AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore>& InSemaphore)
 {
-    // TODO: check if InSemaphore is not already inside WaitSemaphore (std::vector does not have find() / contains())
-    WaitFlags.Add(InWaitFlags);
+    if (!WaitFlags.Contains(InWaitFlags)) {
+        WaitFlags.Add(InWaitFlags);
+    }
     WaitSemaphore.Add(InSemaphore);
 }
 

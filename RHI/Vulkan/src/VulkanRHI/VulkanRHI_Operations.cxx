@@ -70,6 +70,16 @@ void VulkanDynamicRHI::EndRenderPass()
     });
 }
 
+void VulkanDynamicRHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
+{
+    RHI::Submit([this, Pipeline] {
+        Ref<VulkanCmdBuffer> CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
+
+        CmdBuffer->BindPipeline(Pipeline.As<VulkanGraphicsPipeline>());
+        VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), 3, 1, 0, 0);
+    });
+}
+
 void VulkanDynamicRHI::RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport)
 {
     // TODO: check if Viewport is inside Viewports (wtf no find in std::vector ?)

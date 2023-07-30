@@ -57,6 +57,9 @@ public:
     /// @brief Indicate the RHI that we are done rendering for now
     static void EndRenderPass();
 
+    /// Temp
+    static void Draw(Ref<RHIGraphicsPipeline>& Pipeline);
+
     /// Create a new RHI viewport - through the current RHI
     static Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize);
     /// Create a new RHI texture - through the current RHI

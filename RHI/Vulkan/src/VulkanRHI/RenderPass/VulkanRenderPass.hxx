@@ -30,7 +30,7 @@ public:
 
     bool HasDepthTarget() const
     {
-        return DepthTarget->IsValid();
+        return DepthTarget.IsValid();
     }
     unsigned HasResolveTargets() const
     {

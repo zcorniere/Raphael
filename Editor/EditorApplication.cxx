@@ -51,13 +51,13 @@ bool EditorApplication::OnEngineInitialization()
     Graph.Execute();
 #endif
 
-    RHI::CreateGraphicsPipeline(RHIGraphicsPipelineInitializer{
+    Pipeline = RHI::CreateGraphicsPipeline(RHIGraphicsPipelineInitializer{
         .VertexShader = "DefaultTriangle.vert",
         .PixelShader = "DefaultTriangle.frag",
         .Rasterizer =
             {
                 .PolygonMode = EPolygonMode::Fill,
-                .CullMode = ECullMode::Back,
+                .CullMode = ECullMode::None,
                 .FrontFaceCulling = EFrontFace::Clockwise,
             },
         .RenderPass =
@@ -68,9 +68,10 @@ bool EditorApplication::OnEngineInitialization()
                             .Format = EImageFormat::R8G8B8A8_SRGB,
                         },
                     },
-                .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
-                    .Format = EImageFormat::D32_SFLOAT,
-                }),
+                .DepthTarget = std::nullopt,
+                // .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
+                //     .Format = EImageFormat::D32_SFLOAT,
+                // }),
                 .Size = MainViewport->GetSize(),
                 .Name = "Simple path",
             },
@@ -80,6 +81,8 @@ bool EditorApplication::OnEngineInitialization()
 
 void EditorApplication::OnEngineDestruction()
 {
+    Pipeline = nullptr;
+
     BaseApplication::OnEngineDestruction();
 }
 
@@ -100,13 +103,15 @@ void EditorApplication::Tick(const float DeltaTime)
                     .Format = EImageFormat::R8G8B8A8_SRGB,
                 },
             },
-        .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
-            .Format = EImageFormat::D32_SFLOAT,
-        }),
+        .DepthTarget = std::nullopt,
+        // .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
+        //     .Format = EImageFormat::D32_SFLOAT,
+        // }),
         .Size = MainViewport->GetSize(),
         .Name = "Simple path",
     };
     RHI::BeginRenderPass(Description);
+    RHI::Draw(Pipeline);
     RHI::EndRenderPass();
 
     MainViewport->EndDrawViewport();

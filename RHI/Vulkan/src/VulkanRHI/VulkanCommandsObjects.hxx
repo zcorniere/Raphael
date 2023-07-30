@@ -12,6 +12,7 @@ class VulkanQueue;
 class VulkanCommandContext;
 class VulkanCommandBufferPool;
 class VulkanCommandBufferManager;
+class VulkanGraphicsPipeline;
 
 class VulkanCmdBuffer : public RObject
 {
@@ -38,6 +39,8 @@ public:
 
     void BeginRenderPass(const VkRenderPassBeginInfo& RenderPassBeginInfo);
     void EndRenderPass();
+
+    void BindPipeline(const Ref<VulkanGraphicsPipeline>& Pipeline);
 
     void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore>& InSemaphore);
 

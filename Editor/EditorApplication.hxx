@@ -12,4 +12,7 @@ public:
     void OnEngineDestruction() override;
 
     void Tick(const float DeltaTime) override;
+
+private:
+    Ref<RHIGraphicsPipeline> Pipeline;
 };

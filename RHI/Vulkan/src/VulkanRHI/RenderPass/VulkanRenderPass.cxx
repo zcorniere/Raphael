@@ -11,7 +11,13 @@ namespace VulkanRHI
 
 VulkanRenderPass::VulkanRenderPass(VulkanDevice* InDevice, const RHIRenderPassDescription& InDescription,
                                    VkRenderPass ExternalPass)
-    : Device(InDevice), Description(InDescription), RenderPass(ExternalPass), FrameBuffer(VK_NULL_HANDLE)
+    : Device(InDevice),
+      ColorTarget(),
+      ResolveTarget(),
+      DepthTarget(nullptr),
+      Description(InDescription),
+      RenderPass(ExternalPass),
+      FrameBuffer(VK_NULL_HANDLE)
 {
     if (!RenderPass) {
         CreateRenderPass();
@@ -114,7 +120,8 @@ void VulkanRenderPass::SetName(std::string_view InName)
 VkFramebuffer VulkanRenderPass::CreateFrameBuffer()
 {
     Array<VkImageView> Attachments(GetFramebufferAttachment(ColorTarget));
-    Attachments.Append(GetFramebufferAttachment({DepthTarget}));
+    if (DepthTarget)
+        Attachments.Append(GetFramebufferAttachment({DepthTarget}));
     Attachments.Append(GetFramebufferAttachment(ResolveTarget));
 
     VkFramebufferCreateInfo CreateInfo{
@@ -147,7 +154,7 @@ VkRenderPass VulkanRenderPass::CreateRenderPass()
     Array<VkAttachmentDescription> Attachments =
         GetAttachmentDescriptions(Description.ColorTarget, ETextureCreateFlags::RenderTargetable);
     Attachments.Append(GetAttachmentDescriptions(Description.ResolveTarget, ETextureCreateFlags::ResolveTargetable));
-    if (Description.DepthTarget)
+    if (Description.DepthTarget.has_value())
         Attachments.Append(
             GetAttachmentDescriptions({Description.DepthTarget.value()}, ETextureCreateFlags::DepthStencilTargetable));
 
