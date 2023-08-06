@@ -26,7 +26,7 @@ public:
     }
 
     void SetName(std::string_view InName) override;
-    bool Present(Ref<VulkanCmdBuffer>& CmdBuffer, VulkanQueue* Queue, VulkanQueue* PresentQueue);
+    bool Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, VulkanQueue* PresentQueue);
     void RecreateSwapchain(void* NewNativeWindow);
 
 private:

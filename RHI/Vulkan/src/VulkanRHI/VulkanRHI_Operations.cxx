@@ -44,7 +44,7 @@ void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Descripti
 
         CurrentRenderPass->SetName(Description.Name);
 
-        Ref<VulkanCmdBuffer> CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
+        VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
         CurrentRenderPass->Begin(CmdBuffer, {
                                                 .offset =
                                                     {
@@ -64,7 +64,7 @@ void VulkanDynamicRHI::EndRenderPass()
 {
     RHI::Submit([this] {
         check(CurrentRenderPass.IsValid());
-        Ref<VulkanCmdBuffer> CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
+        VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
 
         CurrentRenderPass->End(CmdBuffer);
     });
@@ -73,7 +73,7 @@ void VulkanDynamicRHI::EndRenderPass()
 void VulkanDynamicRHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
 {
     RHI::Submit([this, Pipeline] {
-        Ref<VulkanCmdBuffer> CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
+        VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
 
         CmdBuffer->BindPipeline(Pipeline.As<VulkanGraphicsPipeline>());
         VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), 3, 1, 0, 0);

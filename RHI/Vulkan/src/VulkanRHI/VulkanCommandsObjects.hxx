@@ -150,8 +150,8 @@ public:
         Pool->RefreshFenceStatus(SkipCmdBuffer);
     }
 
-    Ref<VulkanCmdBuffer>& GetActiveCmdBuffer();
-    Ref<VulkanCmdBuffer>& GetUploadCmdBuffer();
+    WeakRef<VulkanCmdBuffer> GetActiveCmdBuffer();
+    WeakRef<VulkanCmdBuffer> GetUploadCmdBuffer();
 
     void PrepareForNewActiveCommandBuffer();
 

@@ -49,8 +49,9 @@ VulkanRenderPass::~VulkanRenderPass()
     }
 }
 
-void VulkanRenderPass::Begin(Ref<VulkanCmdBuffer>& CmdBuffer, const VkRect2D RenderArea)
+void VulkanRenderPass::Begin(VulkanCmdBuffer* CmdBuffer, const VkRect2D RenderArea)
 {
+    check(CmdBuffer);
     Array<VkClearValue> ClearValues;
     for (const Ref<VulkanTexture>& Texture: ColorTarget) {
         const glm::vec4& Color = Texture->GetDescription().ClearColor;
@@ -73,9 +74,10 @@ void VulkanRenderPass::Begin(Ref<VulkanCmdBuffer>& CmdBuffer, const VkRect2D Ren
     CmdBuffer->BeginRenderPass(BeginInfo);
     bHasBegun = true;
 }
-void VulkanRenderPass::End(Ref<VulkanCmdBuffer>& CmdBuffer)
+void VulkanRenderPass::End(VulkanCmdBuffer* CmdBuffer)
 {
     check(bHasBegun);
+    check(CmdBuffer);
     CmdBuffer->EndRenderPass();
     bHasBegun = false;
 }

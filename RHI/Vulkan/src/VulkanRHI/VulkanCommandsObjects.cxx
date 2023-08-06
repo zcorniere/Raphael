@@ -222,14 +222,14 @@ VulkanCommandBufferManager ::~VulkanCommandBufferManager()
 {
 }
 
-Ref<VulkanCmdBuffer>& VulkanCommandBufferManager::GetActiveCmdBuffer()
+WeakRef<VulkanCmdBuffer> VulkanCommandBufferManager::GetActiveCmdBuffer()
 {
     if (UploadCmdBuffer) {
         SubmitUploadCmdBuffer();
     }
     return ActiveCmdBuffer;
 }
-Ref<VulkanCmdBuffer>& VulkanCommandBufferManager::GetUploadCmdBuffer()
+WeakRef<VulkanCmdBuffer> VulkanCommandBufferManager::GetUploadCmdBuffer()
 {
     if (!UploadCmdBuffer) {
         UploadCmdBuffer = FindAvailableCmdBuffer();
@@ -254,9 +254,9 @@ void VulkanCommandBufferManager::SubmitUploadCmdBuffer(Ref<Semaphore> SignalSema
         UploadCmdBuffer->End();
 
         if (SignalSemaphore) {
-            Queue->Submit(UploadCmdBuffer, SignalSemaphore->GetHandle());
+            Queue->Submit(UploadCmdBuffer.Raw(), SignalSemaphore->GetHandle());
         } else {
-            Queue->Submit(UploadCmdBuffer);
+            Queue->Submit(UploadCmdBuffer.Raw());
         }
     }
     UploadCmdBuffer->SetName("Available buffer");
@@ -276,9 +276,9 @@ void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Ref<Semaphore> SignalSema
         ActiveCmdBuffer->End();
 
         if (SignalSemaphore) {
-            Queue->Submit(ActiveCmdBuffer, SignalSemaphore->GetHandle());
+            Queue->Submit(ActiveCmdBuffer.Raw(), SignalSemaphore->GetHandle());
         } else {
-            Queue->Submit(ActiveCmdBuffer);
+            Queue->Submit(ActiveCmdBuffer.Raw());
         }
     }
     ActiveCmdBuffer->SetName("Available buffer");
@@ -288,9 +288,9 @@ void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Ref<Semaphore> SignalSema
 void VulkanCommandBufferManager::SubmitActiveCmdBufferFormPresent(Ref<Semaphore> SignalSemaphore)
 {
     if (SignalSemaphore) {
-        Queue->Submit(ActiveCmdBuffer, SignalSemaphore->GetHandle());
+        Queue->Submit(ActiveCmdBuffer.Raw(), SignalSemaphore->GetHandle());
     } else {
-        Queue->Submit(ActiveCmdBuffer);
+        Queue->Submit(ActiveCmdBuffer.Raw());
     }
 }
 

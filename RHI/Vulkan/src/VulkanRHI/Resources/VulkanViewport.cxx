@@ -33,7 +33,7 @@ void VulkanViewport::RT_BeginDrawViewport()
 }
 void VulkanViewport::RT_EndDrawViewport()
 {
-    Ref<VulkanCmdBuffer> CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
+    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
     check(!CmdBuffer->HasEnded() && !CmdBuffer->IsInsideRenderPass());
 
     this->Present(CmdBuffer, Device->GraphicsQueue.get(), Device->PresentQueue);
@@ -68,7 +68,7 @@ void VulkanViewport::SetName(std::string_view InName)
     }
 }
 
-bool VulkanViewport::Present(Ref<VulkanCmdBuffer>& CmdBuffer, VulkanQueue* Queue, VulkanQueue* PresentQueue)
+bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, VulkanQueue* PresentQueue)
 {
     check(CmdBuffer->IsOutsideRenderPass());
 
@@ -122,8 +122,9 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
         RenderingDoneSemaphores[i] = Ref<Semaphore>::Create(Device);
     }
 
-    Ref<VulkanCmdBuffer>& CmdBuffer = Device->GetCommandManager()->GetUploadCmdBuffer();
-    verify(CmdBuffer->IsOutsideRenderPass());
+    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetUploadCmdBuffer();
+    check(CmdBuffer);
+    verifyAlways(CmdBuffer->IsOutsideRenderPass());
 
     VkClearColorValue ClearColor;
     std::memset(&ClearColor, 0, sizeof(VkClearColorValue));

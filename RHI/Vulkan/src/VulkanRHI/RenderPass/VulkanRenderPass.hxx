@@ -25,8 +25,8 @@ public:
                      VkRenderPass ExternalPass = VK_NULL_HANDLE);
     ~VulkanRenderPass();
 
-    void Begin(Ref<VulkanCmdBuffer>& CmdBuffer, const VkRect2D RenderArea);
-    void End(Ref<VulkanCmdBuffer>& CmdBuffer);
+    void Begin(VulkanCmdBuffer* CmdBuffer, const VkRect2D RenderArea);
+    void End(VulkanCmdBuffer* CmdBuffer);
 
     bool HasDepthTarget() const
     {

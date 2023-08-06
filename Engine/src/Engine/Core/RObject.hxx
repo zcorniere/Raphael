@@ -382,6 +382,10 @@ public:
     {
         return IsValid();
     }
+    operator T*() const
+    {
+        return m_Instance;
+    }
 
 private:
     T* m_Instance = nullptr;
