@@ -1,5 +1,6 @@
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 
+#include "VulkanRHI/RenderPass/VulkanRenderPass.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanQueue.hxx"
 
@@ -82,11 +83,6 @@ void VulkanCmdBuffer::EndRenderPass()
              (void*)m_CommandBufferHandle, magic_enum::enum_name(State));
     VulkanAPI::vkCmdEndRenderPass(m_CommandBufferHandle);
     State = EState::IsInsideBegin;
-}
-
-void VulkanCmdBuffer::BindPipeline(const Ref<VulkanGraphicsPipeline>& Pipeline)
-{
-    VulkanAPI::vkCmdBindPipeline(m_CommandBufferHandle, VK_PIPELINE_BIND_POINT_GRAPHICS, Pipeline->GetVulkanPipeline());
 }
 
 void VulkanCmdBuffer::AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore>& InSemaphore)

@@ -40,8 +40,6 @@ public:
     void BeginRenderPass(const VkRenderPassBeginInfo& RenderPassBeginInfo);
     void EndRenderPass();
 
-    void BindPipeline(const Ref<VulkanGraphicsPipeline>& Pipeline);
-
     void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore>& InSemaphore);
 
     inline VkCommandBuffer GetHandle() const

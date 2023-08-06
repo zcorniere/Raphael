@@ -75,7 +75,10 @@ void VulkanDynamicRHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
     RHI::Submit([this, Pipeline] {
         VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
 
-        CmdBuffer->BindPipeline(Pipeline.As<VulkanGraphicsPipeline>());
+        Ref<VulkanGraphicsPipeline> VulkanPipeline = Pipeline.As<VulkanGraphicsPipeline>();
+        VulkanPipeline->Bind(CmdBuffer->GetHandle());
+
+        // DELETE ME
         VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), 3, 1, 0, 0);
     });
 }
