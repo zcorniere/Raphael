@@ -12,6 +12,11 @@ static_assert(false, "Clang Compiler header included without compiling with clan
 
 #endif
 
+#define FORCEINLINE inline __attribute__((always_inline)) /* Force code to be inline */
+#define FORCENOINLINE __attribute__((noinline))           /* Force code to NOT be inline */
+
+#define ASSUME(...) __builtin_assume((__VA_ARGS__)) /* Assume code will ALWAYS be true */
+
 ///
 /// @brief Wrapper arround clang intrinsics function
 ///

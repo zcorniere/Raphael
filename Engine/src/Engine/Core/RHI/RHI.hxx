@@ -20,7 +20,7 @@ public:
     /// @brief Return the current RHI
     /// @tparam TRHI The type of the RHI, default is GenericRHI
     template <typename TRHI = GenericRHI>
-    static TRHI* Get()
+    FORCEINLINE static TRHI* Get()
     {
         checkMsg(GDynamicRHI, "Attemped to fetch the RHI to early !");
         return static_cast<TRHI*>(GDynamicRHI.get());

@@ -40,16 +40,10 @@ void Window::Initialize(const WindowDefinition& InDefinition)
 
     EnsureGLFWInit();
 
-    const float XInitialRect = Definition.XPositionOnScreen;
-    const float YInitialRect = Definition.YPositionOnScreen;
-
-    const float WidthInitial = Definition.WidthDesiredOnScreen;
-    const float HeightInitial = Definition.HeightDesiredOnScreen;
-
-    int32 X = XInitialRect;
-    int32 Y = YInitialRect;
-    int32 Width = WidthInitial;
-    int32 Height = HeightInitial;
+    const int32 X = Definition.XPositionOnScreen;
+    const int32 Y = Definition.YPositionOnScreen;
+    const int32 Width = Definition.WidthDesiredOnScreen;
+    const int32 Height = Definition.HeightDesiredOnScreen;
 
     check(Width > 0 && Height > 0);
 

@@ -78,12 +78,12 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
                          VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, Barrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT));
 
     CmdBuffer->End();
-    if (LIKELY(bSuccesfullyAquiredImage)) {
+    if (bSuccesfullyAquiredImage) [[likely]] {
         CmdBuffer->AddWaitSemaphore(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, AcquiredSemaphore);
         Ref<Semaphore> SignalSemaphore =
             (AcquiredImageIndex >= 0) ? RenderingDoneSemaphores[AcquiredImageIndex] : nullptr;
         Device->GetCommandManager()->SubmitActiveCmdBufferFormPresent(SignalSemaphore);
-    } else {
+    } else [[unlikely]] {
         LOG(LogVulkanRHI, Trace, "AcquireNextImage() failed due to outdated swapchain, recreating");
         Queue->Submit(CmdBuffer);
         RecreateSwapchain(WindowHandle);

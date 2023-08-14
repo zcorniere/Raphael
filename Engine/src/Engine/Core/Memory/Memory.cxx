@@ -7,7 +7,7 @@ Malloc* GMalloc = 0;
 
 static void EnsureAllocatorIsSetup()
 {
-    if (UNLIKELY(!GMalloc)) {
+    if (!GMalloc) [[unlikely]] {
         // must manually allocate the memory
         GMalloc = PlatformMisc::BaseAllocator();
 

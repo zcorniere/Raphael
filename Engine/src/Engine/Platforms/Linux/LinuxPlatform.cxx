@@ -20,14 +20,14 @@ bool LinuxPlateform::isDebuggerPresent()
     // Performance wise, the /proc filesystem is ram only, so it is ok
 
     int StatusFile = open("/proc/self/status", O_RDONLY);
-    if (UNLIKELY(StatusFile == -1)) {
+    if (StatusFile == -1) [[unlikely]] {
         // Failed - unknown debugger status.
         return false;
     }
 
     char Buffer[256] = {0};
     ssize_t Length = read(StatusFile, Buffer, sizeof(Buffer) - 1);
-    if (UNLIKELY(Length == -1)) {
+    if (Length == -1) [[unlikely]] {
         // Failed - unknown debugger status.
         return false;
     }
@@ -39,7 +39,7 @@ bool LinuxPlateform::isDebuggerPresent()
 
     const char* foundStr = std::strstr(Buffer, TracerString);
 
-    if (foundStr != nullptr) {
+    if (foundStr != nullptr) [[likely]] {
         return foundStr[LenTracerString] != '0';
     } else {
         return false;

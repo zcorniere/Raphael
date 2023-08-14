@@ -31,25 +31,24 @@ constexpr bool ShouldCheckPrintStackTrace()
 
 #ifndef NDEBUG
 
-    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, Format, ...)                                  \
-        ((LIKELY(!!(Expression))) ||                                                                       \
-         ([Capture]() {                                                                                    \
-             static std::atomic_bool bExecuted = false;                                                    \
-             if (!bExecuted || Always) {                                                                   \
-                 bExecuted = true;                                                                         \
-                 /* TODO: Check if another assertion is in progress */                                     \
-                 if (Raphael::ShouldCheckPrintStackTrace())                                                \
-                     Raphael::CollectAndPrintStackTrace(Compiler::ReturnAddress());                        \
-                 const std::string Message =                                                               \
-                     std::format("Assertion failed: " STR(#Expression) " in {}" __VA_OPT__(" :: " Format), \
-                                 file_position() __VA_OPT__(, ) __VA_ARGS__);                              \
-                 fprintf(stderr, "%s\n", Message.c_str());                                                 \
-                 fflush(stderr);                                                                           \
-                 return Platform::isDebuggerPresent();                                                     \
-             }                                                                                             \
-             return false;                                                                                 \
-         }()) &&                                                                                           \
-             ([]() { PLATFORM_BREAK(); }(), false))
+    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, Format, ...)                                         \
+        (((Expression)) || (([Capture]() {                                                                        \
+                                static std::atomic_bool bExecuted = false;                                        \
+                                if (!bExecuted || Always) {                                                       \
+                                    bExecuted = true;                                                             \
+                                    /* TODO: Check if another assertion is in progress */                         \
+                                    if (Raphael::ShouldCheckPrintStackTrace())                                    \
+                                        Raphael::CollectAndPrintStackTrace(Compiler::ReturnAddress());            \
+                                    const std::string Message = std::format(                                      \
+                                        "Assertion failed: " STR(#Expression) " in {}" __VA_OPT__(" :: " Format), \
+                                        file_position() __VA_OPT__(, ) __VA_ARGS__);                              \
+                                    fprintf(stderr, "%s\n", Message.c_str());                                     \
+                                    fflush(stderr);                                                               \
+                                    return Platform::isDebuggerPresent();                                         \
+                                }                                                                                 \
+                                return false;                                                                     \
+                            }()) &&                                                                               \
+                            ([]() { PLATFORM_BREAK(); }(), false)))
 
     #define verify(Expression) RAPHAEL_VERIFY_IMPL(, false, Expression, )
     #define verifyMsg(Expression, Format, ...) RAPHAEL_VERIFY_IMPL(&, false, Expression, Format, ##__VA_ARGS__)
@@ -58,7 +57,7 @@ constexpr bool ShouldCheckPrintStackTrace()
 
     #define RAPHAEL_CHECK_IMPL(Expression, Format, ...)                                                   \
         {                                                                                                 \
-            if (UNLIKELY(!(Expression))) {                                                                \
+            if (!(Expression)) [[unlikely]] {                                                             \
                 using namespace Raphael;                                                                  \
                 if (Raphael::ShouldCheckPrintStackTrace())                                                \
                     CollectAndPrintStackTrace(Compiler::ReturnAddress());                                 \
@@ -91,15 +90,16 @@ constexpr bool ShouldCheckPrintStackTrace()
         }
 
 #else
+    #define RAPHAEL_CHECK_IMPL(Expression) ASSUME(Expression);
 
-    #define verify(Expression) (LIKELY(!!(Expression)))
-    #define verifyMsg(Expression, ...) (LIKELY(!!(Expression)))
-    #define verifyAlways(Expression) (LIKELY(!!(Expression)))
-    #define verifyAlwaysMsg(Expression, ...) (LIKELY(!!(Expression)))
+    #define verify(Expression) RAPHAEL_CHECK_IMPL(Expression)
+    #define verifyMsg(Expression, ...) RAPHAEL_CHECK_IMPL(Expression)
+    #define verifyAlways(Expression) RAPHAEL_CHECK_IMPL(Expression)
+    #define verifyAlwaysMsg(Expression, ...) RAPHAEL_CHECK_IMPL(Expression)
 
-    #define check(Expression) (LIKELY(!!(Expression)))
+    #define check(Expression) RAPHAEL_CHECK_IMPL(Expression)
     #define checkSlow(Expression)
-    #define checkMsg(Expression, ...) (LIKELY(!!(Expression)))
+    #define checkMsg(Expression, ...) RAPHAEL_CHECK_IMPL(Expression)
     #define checkNoEntry()             \
         {                              \
             ::Compiler::Unreachable(); \
@@ -107,7 +107,7 @@ constexpr bool ShouldCheckPrintStackTrace()
     #define checkNoReentry()                                                    \
         {                                                                       \
             static std::atomic_bool MACRO_EXPENDER(beenHere, __LINE__) = false; \
-            if (UNLIKELY(MACRO_EXPENDER(beenHere, __LINE__) == true)) {         \
+            if (MACRO_EXPENDER(beenHere, __LINE__) == true) [[unlikely]] {      \
                 ::Compiler::Unreachable();                                      \
             }                                                                   \
             MACRO_EXPENDER(beenHere, __LINE__) = true;                          \

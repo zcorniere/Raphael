@@ -19,7 +19,7 @@ public:
     virtual void* Alloc(uint32 Size, uint32 Alignment = 0) override
     {
         void* Ptr = TrueMalloc->Alloc(Size, Alignment);
-        if (LIKELY(Ptr != nullptr && Size > 0)) {
+        if (Ptr != nullptr && Size > 0) [[likely]] {
             std::memset(Ptr, AllocFillNew, Size);
         }
         return Ptr;
@@ -42,9 +42,9 @@ public:
 
     virtual void Free(void* Ptr) override
     {
-        if (LIKELY(Ptr)) {
+        if (Ptr) [[likely]] {
             unsigned AllocSize;
-            if (LIKELY(GetAllocationSize(Ptr, AllocSize) && AllocSize > 0)) {
+            if (GetAllocationSize(Ptr, AllocSize) && AllocSize > 0) [[likely]] {
                 std::memset(Ptr, AllocFillFree, AllocSize);
             }
             TrueMalloc->Free(Ptr);

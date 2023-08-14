@@ -12,6 +12,15 @@ static_assert(false, "GNU Compiler header included without compiling with GNU");
 
 #endif
 
+#define FORCEINLINE inline __attribute__((always_inline)) /* Force code to be inline */
+#define FORCENOINLINE __attribute__((noinline))           /* Force code to NOT be inline */
+
+#define ASSUME(...)                  \
+    {                                \
+        if (!(__VA_ARGS__))          \
+            __builtin_unreachable(); \
+    }
+
 ///
 /// @brief Wrapper around GCC intrisics functions
 ///
