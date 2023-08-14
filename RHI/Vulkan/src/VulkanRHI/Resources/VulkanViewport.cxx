@@ -59,12 +59,11 @@ void VulkanViewport::SetName(std::string_view InName)
     check(BackBufferImages.Size() == TexturesViews.Size());
 
     for (unsigned i = 0; i < BackBufferImages.Size(); i++) {
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SEMAPHORE, RenderingDoneSemaphores[i]->GetHandle(),
-                              "Swapchain \"{:s}\" - Semaphore Rendering done({})", InName, i);
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, TexturesViews[i].Image, "Swapchain \"{:s}\" - Image ({})",
-                              InName, i);
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, TexturesViews[i].View,
-                              "Swapchain \"{:s}\" - Image View ({})", InName, i);
+        RenderingDoneSemaphores[i]->SetName(std::format("{:s}.RenderingDone{:d}", InName, i));
+
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, TexturesViews[i].Image, "{:s}.Image{:d}", InName, i);
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, TexturesViews[i].View, "{:s}.Image{:d}.View", InName,
+                              i);
     }
 }
 
@@ -79,6 +78,7 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
 
     CmdBuffer->End();
     if (bSuccesfullyAquiredImage) [[likely]] {
+        check(AcquiredSemaphore);
         CmdBuffer->AddWaitSemaphore(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, AcquiredSemaphore);
         Ref<Semaphore> SignalSemaphore =
             (AcquiredImageIndex >= 0) ? RenderingDoneSemaphores[AcquiredImageIndex] : nullptr;
@@ -89,7 +89,6 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
         RecreateSwapchain(WindowHandle);
 
         Device->WaitUntilIdle();
-
         return true;
     }
 
@@ -142,6 +141,7 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
     }
 
     Device->GetCommandManager()->SubmitUploadCmdBuffer();
+    Device->WaitUntilIdle();
 
     // Refresh vulkan object name
     VulkanViewport::SetName(GetName());

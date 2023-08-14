@@ -228,7 +228,7 @@ Semaphore::~Semaphore()
 void Semaphore::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
-    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SEMAPHORE, SemaphoreHandle, "[Semaphore] {:s}", InName);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SEMAPHORE, SemaphoreHandle, "{:s}.Semaphore", InName);
 }
 
 Fence::Fence(VulkanDevice* InDevice, bool bCreateSignaled)
@@ -252,7 +252,7 @@ Fence::~Fence()
 void Fence::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
-    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_FENCE, Handle, "[Fence] {:s}", InName);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_FENCE, Handle, "{:s}.Fence", InName);
 }
 
 void Fence::Reset()

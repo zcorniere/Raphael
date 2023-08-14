@@ -40,8 +40,8 @@ bool EditorApplication::OnEngineInitialization()
         "Test pass",
         [](FrameGraphBuilder &Builder, FrameData &Data) {
             RHITextureCreateDesc Description{};
-            Data.Texture = Builder.Create<RHIResourceType::Texture>("Test Texture", Description);
-            Data.Shader = Builder.Create<RHIResourceType::Shader>("Triangle shader",
+            Data.Texture = Builder.Create<RHIResourceType::Texture>("Test_Texture", Description);
+            Data.Shader = Builder.Create<RHIResourceType::Shader>("Triangle_shader",
                                                                   std::filesystem::path("DefaultTriangle.vert"), false);
 
             LOG(LogApplication, Info, "Setup");
@@ -73,7 +73,7 @@ bool EditorApplication::OnEngineInitialization()
                 //     .Format = EImageFormat::D32_SFLOAT,
                 // }),
                 .Size = MainViewport->GetSize(),
-                .Name = "Simple path",
+                .Name = "SimpleRenderPass",
             },
     });
     return true;
@@ -108,7 +108,7 @@ void EditorApplication::Tick(const float DeltaTime)
         //     .Format = EImageFormat::D32_SFLOAT,
         // }),
         .Size = MainViewport->GetSize(),
-        .Name = "Simple path",
+        .Name = "SimpleRenderPass",
     };
     RHI::BeginRenderPass(Description);
     RHI::Draw(Pipeline);

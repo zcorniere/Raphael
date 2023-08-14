@@ -16,9 +16,23 @@ VulkanShader::ShaderHandle::~ShaderHandle()
     VulkanAPI::vkDestroyShaderModule(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR);
 }
 
+void VulkanShader::ShaderHandle::SetName(std::string_view Name)
+{
+    RObject::SetName(Name);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SHADER_MODULE, Handle, "{:s}", Name);
+}
+
 VulkanShader::VulkanShader(RHIShaderType Type, const Array<uint32>& InSPIRVCode, const ReflectionData& InReflectionData)
     : RHIShader(Type), SPIRVCode(InSPIRVCode), m_ReflectionData(InReflectionData), Type(Type), m_ShaderHandle(nullptr)
 {
+}
+
+void VulkanShader::SetName(std::string_view Name)
+{
+    RObject::SetName(Name);
+    if (m_ShaderHandle) {
+        m_ShaderHandle->SetName(Name);
+    }
 }
 
 Ref<VulkanShader::ShaderHandle> VulkanShader::GetHandle(VulkanDevice* InDevice)
@@ -32,6 +46,7 @@ Ref<VulkanShader::ShaderHandle> VulkanShader::GetHandle(VulkanDevice* InDevice)
         .pCode = SPIRVCode.Raw(),
     };
     m_ShaderHandle = Ref<ShaderHandle>::Create(InDevice, CreateInfo);
+    m_ShaderHandle->SetName(GetName());
     return m_ShaderHandle;
 }
 

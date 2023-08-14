@@ -46,6 +46,9 @@ public:
         ShaderHandle(VulkanDevice* InDevice, const VkShaderModuleCreateInfo& Info);
         ~ShaderHandle();
 
+        virtual void SetName(std::string_view Name) override;
+
+    public:
         VkShaderModule Handle;
 
     private:
@@ -54,6 +57,8 @@ public:
 
 public:
     VulkanShader(RHIShaderType Type, const Array<uint32>& InSPRIVCode, const ReflectionData& InReflectionData);
+
+    virtual void SetName(std::string_view Name) override;
 
     const ReflectionData& GetReflectionData() const
     {

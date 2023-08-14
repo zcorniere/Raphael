@@ -37,8 +37,7 @@ void VulkanCmdBuffer::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
     if (m_CommandBufferHandle) {
-        VULKAN_SET_DEBUG_NAME(m_Device, VK_OBJECT_TYPE_COMMAND_BUFFER, m_CommandBufferHandle, "[Command Buffer] {:s}",
-                              InName);
+        VULKAN_SET_DEBUG_NAME(m_Device, VK_OBJECT_TYPE_COMMAND_BUFFER, m_CommandBufferHandle, "{:s}", InName);
     }
     if (m_Fence) {
         m_Fence->SetName(InName);
@@ -154,7 +153,7 @@ void VulkanCommandBufferPool::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
     if (m_Handle) {
-        VULKAN_SET_DEBUG_NAME(m_Device, VK_OBJECT_TYPE_COMMAND_POOL, m_Handle, "[Command Pool] {:s}", InName);
+        VULKAN_SET_DEBUG_NAME(m_Device, VK_OBJECT_TYPE_COMMAND_POOL, m_Handle, "{:s}", InName);
     }
 }
 
@@ -174,14 +173,11 @@ Ref<VulkanCmdBuffer> VulkanCommandBufferPool::CreateCmdBuffer()
     // Find already allocated buffer ...
     for (int32 i = m_FreeCmdBuffers.Size() - 1; i >= 0; --i) {
         Ref<VulkanCmdBuffer> CmdBuffer = m_FreeCmdBuffers[i];
-
         m_FreeCmdBuffers.Pop();
         // ... grab some memory ...
         CmdBuffer->Allocate();
-
         // put it in the "in use" buffers
         m_CmdBuffers.Add(CmdBuffer);
-
         return CmdBuffer;
     }
 
@@ -207,10 +203,10 @@ VulkanCommandBufferManager::VulkanCommandBufferManager(VulkanDevice* InDevice, V
 {
     Pool = Ref<VulkanCommandBufferPool>::Create(Device, this);
     Pool->Initialize(Queue->GetFamilyIndex());
-    Pool->SetName("Main Command Pool");
+    Pool->SetName("Main.CommandPool");
 
     ActiveCmdBuffer = Pool->CreateCmdBuffer();
-    ActiveCmdBuffer->SetName(std::format("Active command buffer [{}]", GFrameCounter));
+    ActiveCmdBuffer->SetName(std::format("Active{:d}.CommandBuffer", GFrameCounter));
     UploadCmdBuffer = nullptr;
 }
 
@@ -229,7 +225,7 @@ WeakRef<VulkanCmdBuffer> VulkanCommandBufferManager::GetUploadCmdBuffer()
 {
     if (!UploadCmdBuffer) {
         UploadCmdBuffer = FindAvailableCmdBuffer();
-        UploadCmdBuffer->SetName("Upload command buffer");
+        UploadCmdBuffer->SetName("Upload.CommandBuffer");
     }
     return UploadCmdBuffer;
 }
@@ -237,7 +233,7 @@ WeakRef<VulkanCmdBuffer> VulkanCommandBufferManager::GetUploadCmdBuffer()
 void VulkanCommandBufferManager::PrepareForNewActiveCommandBuffer()
 {
     ActiveCmdBuffer = FindAvailableCmdBuffer();
-    ActiveCmdBuffer->SetName(std::format("Active command buffer [{}]", GFrameCounter));
+    ActiveCmdBuffer->SetName(std::format("Active{:d}.CommandBuffer", GFrameCounter));
 }
 
 void VulkanCommandBufferManager::SubmitUploadCmdBuffer(Ref<Semaphore> SignalSemaphore)
@@ -255,7 +251,7 @@ void VulkanCommandBufferManager::SubmitUploadCmdBuffer(Ref<Semaphore> SignalSema
             Queue->Submit(UploadCmdBuffer.Raw());
         }
     }
-    UploadCmdBuffer->SetName("Available buffer");
+    UploadCmdBuffer->SetName("Unused.Buffer");
     UploadCmdBuffer = nullptr;
 }
 
@@ -277,7 +273,7 @@ void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Ref<Semaphore> SignalSema
             Queue->Submit(ActiveCmdBuffer.Raw());
         }
     }
-    ActiveCmdBuffer->SetName("Available buffer");
+    ActiveCmdBuffer->SetName("Unused.Buffer");
     ActiveCmdBuffer = nullptr;
 }
 

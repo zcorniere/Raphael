@@ -103,19 +103,19 @@ void VulkanRenderPass::SetName(std::string_view InName)
     RObject::SetName(InName);
 
     if (FrameBuffer) {
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_FRAMEBUFFER, FrameBuffer, "{:s} [Framebuffer]", GetName());
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_FRAMEBUFFER, FrameBuffer, "{:s}.Framebuffer", GetName());
     }
     if (RenderPass) {
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_RENDER_PASS, RenderPass, "{:s} [Renderpass]", GetName());
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_RENDER_PASS, RenderPass, "{:s}", GetName());
     }
     for (unsigned i = 0; i < ColorTarget.Size(); i++) {
-        ColorTarget[i]->SetName(std::format("[Color Target {}] {:s}", i, InName));
+        ColorTarget[i]->SetName(std::format("{:s}.{:s}", InName, Description.ColorTarget[i].Name));
     }
     for (unsigned i = 0; i < ResolveTarget.Size(); i++) {
-        ResolveTarget[i]->SetName(std::format("[Resolve Target {}] {:s}", i, InName));
+        ResolveTarget[i]->SetName(std::format("{:s}.{:s}", InName, Description.ColorTarget[i].Name));
     }
     if (DepthTarget) {
-        DepthTarget->SetName(std::format("[Depth Target] {:s}", InName));
+        DepthTarget->SetName(std::format("{:s}.{:s}", InName, Description.DepthTarget->Name));
     }
 }
 

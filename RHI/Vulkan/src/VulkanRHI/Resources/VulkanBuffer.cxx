@@ -69,8 +69,8 @@ VulkanBuffer::~VulkanBuffer()
 void VulkanBuffer::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
-    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_BUFFER, BufferHandle, "{}", InName);
-    Memory->SetName(std::format("{} [Memory]", InName));
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_BUFFER, BufferHandle, "{:s}", InName);
+    Memory->SetName(std::format("{:s}.Memory", InName));
 }
 
 uint64 VulkanBuffer::GetCurrentSize() const

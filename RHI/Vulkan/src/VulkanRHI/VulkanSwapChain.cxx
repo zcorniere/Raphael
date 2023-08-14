@@ -265,7 +265,7 @@ VulkanSwapChain::Status VulkanSwapChain::Present(VulkanQueue* PresentQueue, Ref<
 void VulkanSwapChain::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
-    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SWAPCHAIN_KHR, SwapChain, "Swapchain - \"{:s}\"", InName);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SWAPCHAIN_KHR, SwapChain, "{:s}", InName);
 }
 
 int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore>& OutSemaphore)

@@ -57,7 +57,7 @@ void VulkanQueue::Submit(VulkanCmdBuffer* CmdBuffer, uint32 NumSignaledSemaphore
 void VulkanQueue::SetName(std::string_view InName)
 {
     NamedClass::SetName(InName);
-    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_QUEUE, Queue, "{}", InName);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_QUEUE, Queue, "{:s}", InName);
 }
 
 }    // namespace VulkanRHI

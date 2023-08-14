@@ -30,7 +30,8 @@ void VulkanMemoryAllocation::SetName(std::string_view InName)
             vmaSetAllocationName(ManagerHandle.GetAllocator(), Allocation, InName.data());
         }
         if (AllocationInfo.deviceMemory) {
-            VULKAN_SET_DEBUG_NAME(ManagerHandle.Device, VK_OBJECT_TYPE_DEVICE_MEMORY, AllocationInfo.deviceMemory, "{}", InName);
+            VULKAN_SET_DEBUG_NAME(ManagerHandle.Device, VK_OBJECT_TYPE_DEVICE_MEMORY, AllocationInfo.deviceMemory,
+                                  "{:s}", InName);
         }
     }
 }

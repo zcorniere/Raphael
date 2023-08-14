@@ -75,10 +75,10 @@ void VulkanGraphicsPipeline::SetName(std::string_view Name)
 {
     RObject::SetName(Name);
     if (VulkanPipeline) {
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE, VulkanPipeline, "{}", Name);
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE, VulkanPipeline, "{:s}", Name);
     }
     if (PipelineLayout) {
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE_LAYOUT, PipelineLayout, "{} [Pipeline Layout]", Name);
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE_LAYOUT, PipelineLayout, "{:s}.Layout", Name);
     }
 }
 

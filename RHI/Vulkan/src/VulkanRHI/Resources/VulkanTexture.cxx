@@ -112,13 +112,13 @@ void VulkanTexture::SetName(std::string_view InName)
 {
     RHIResource::SetName(InName);
     if (Image) {
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, Image, "[Image] {:s}", InName);
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, Image, "{:s}.Image", InName);
     }
     if (View) {
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, View, "[Image View] {:s}", InName);
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, View, "{:s}.Image.View", InName);
     }
     if (Allocation) {
-        Allocation->SetName(std::format("[Memory] {:s}", InName));
+        Allocation->SetName(std::format("{:s}.Image.Memory", InName));
     }
 }
 

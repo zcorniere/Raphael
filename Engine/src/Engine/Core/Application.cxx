@@ -21,13 +21,13 @@ bool BaseApplication::OnEngineInitialization()
         .EventCallback = [this](Event& event) { WindowEventHandler(event); },
     };
     MainWindow = std::make_unique<Window>();
-    MainWindow->SetName("Main Window");
+    MainWindow->SetName("MainWindow");
     MainWindow->Initialize(WindowDef);
     MainWindow->Show();
     MainWindow->Maximize();
 
     MainViewport = RHI::CreateViewport((void*)MainWindow->GetHandle(), glm::uvec2{500u, 500u});
-    MainViewport->SetName("Main viewport");
+    MainViewport->SetName("MainViewport");
     return true;
 }
 
