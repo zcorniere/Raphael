@@ -62,7 +62,7 @@ struct type_name_holder {
 };
 #endif
 
-/// @brief Return the template type name
+/// @brief Return the name of the type given as template arguments
 template <typename T>
 constexpr auto type_name() -> std::string_view
 {

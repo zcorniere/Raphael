@@ -83,7 +83,7 @@ namespace Utils
     {
 #define SPIRV_CONVERT_VEC(SpirvType, RaphTypePrefix)                                        \
     case spirv_cross::SpirvType: {                                                          \
-        if (!verifyMsg(Type.columns == 1, "Shader stage IO matrices is not supported !")) { \
+        if (!ensureMsg(Type.columns == 1, "Shader stage IO matrices is not supported !")) { \
             return std::nullopt;                                                            \
         }                                                                                   \
         switch (Type.vecsize) {                                                             \

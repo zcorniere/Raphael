@@ -52,16 +52,16 @@ static std::string_view GetMessageSeverity(const VkDebugUtilsMessageSeverityFlag
     const bool bWarning = (MsgSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) != 0;
 
     if (bError) {
-        verify((MsgSeverity & ~VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) == 0);
+        ensure((MsgSeverity & ~VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) == 0);
         return "Error";
     } else if (bWarning) {
-        verify((MsgSeverity & ~VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) == 0);
+        ensure((MsgSeverity & ~VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) == 0);
         return "Warning";
     } else if (MsgSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
-        verify((MsgSeverity & ~VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) == 0);
+        ensure((MsgSeverity & ~VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) == 0);
         return "Info";
     } else if (MsgSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-        verify((MsgSeverity & ~VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) == 0);
+        ensure((MsgSeverity & ~VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) == 0);
         return "Verbose";
     }
     return "Unknown";
@@ -145,7 +145,7 @@ void VulkanDynamicRHI::SetupDebugLayerCallback()
     };
     VkResult Result =
         VulkanAPI::vkCreateDebugUtilsMessengerEXT(m_Instance, &CreateInfo, VULKAN_CPU_ALLOCATOR, &Messenger);
-    verify(Result == VK_SUCCESS);
+    ensure(Result == VK_SUCCESS);
 }
 
 void VulkanDynamicRHI::RemoveDebugLayerCallback()

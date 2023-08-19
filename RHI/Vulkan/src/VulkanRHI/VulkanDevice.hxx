@@ -52,12 +52,12 @@ public:
 
     inline VkPhysicalDevice GetPhysicalHandle() const
     {
-        verify(Gpu);
+        ensure(Gpu);
         return Gpu;
     }
     inline VkDevice GetHandle() const
     {
-        verify(Device);
+        ensure(Device);
         return Device;
     }
     inline const VkPhysicalDeviceProperties& GetDeviceProperties() const

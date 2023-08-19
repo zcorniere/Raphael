@@ -36,7 +36,7 @@ void RHICommandQueue::Execute()
 
 void* RHICommandQueue::Allocate(RenderCommandFn Func, uint32_t Size)
 {
-    verifyAlwaysMsg(Size > 0, "RenderCommand has a size of 0 !");
+    ensureAlwaysMsg(Size > 0, "RenderCommand has a size of 0 !");
 
     *(RenderCommandFn*)m_CommandBufferCursor = Func;
     m_CommandBufferCursor += NEXT_NEAREST(sizeof(RenderCommandFn), sizeof(std::max_align_t));

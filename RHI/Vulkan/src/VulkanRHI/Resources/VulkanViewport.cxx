@@ -79,7 +79,7 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
     CmdBuffer->End();
     if (bSuccesfullyAquiredImage) [[likely]] {
         check(AcquiredSemaphore);
-        CmdBuffer->AddWaitSemaphore(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, AcquiredSemaphore);
+        CmdBuffer->AddWaitSemaphore(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, AcquiredSemaphore);
         Ref<Semaphore> SignalSemaphore =
             (AcquiredImageIndex >= 0) ? RenderingDoneSemaphores[AcquiredImageIndex] : nullptr;
         Device->GetCommandManager()->SubmitActiveCmdBufferFormPresent(SignalSemaphore);
@@ -123,7 +123,7 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
 
     VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetUploadCmdBuffer();
     check(CmdBuffer);
-    verifyAlways(CmdBuffer->IsOutsideRenderPass());
+    ensureAlways(CmdBuffer->IsOutsideRenderPass());
 
     VkClearColorValue ClearColor;
     std::memset(&ClearColor, 0, sizeof(VkClearColorValue));

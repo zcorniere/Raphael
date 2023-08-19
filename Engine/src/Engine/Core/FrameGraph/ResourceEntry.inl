@@ -8,7 +8,7 @@
 template <RHIResourceType ResourceType, typename... ArgTypes>
 void TResourceEntry<ResourceType, ArgTypes...>::ConstructResource()
 {
-    verify(!m_Resource);
+    ensure(!m_Resource);
 
     RHI_CREATE_FUNCTION(Viewport)
     RHI_CREATE_FUNCTION(Shader)

@@ -1,6 +1,6 @@
 #pragma once
 
-DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Info);
+DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Trace);
 
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"

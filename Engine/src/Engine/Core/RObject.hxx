@@ -96,7 +96,7 @@ public:
     /// Decrement the ref count of the RObject
     void DecrementRefCount() const
     {
-        if (!verifyAlwaysMsg(m_RefCount > 0, "Ref count is already at 0")) {
+        if (!ensureAlwaysMsg(m_RefCount > 0, "Ref count is already at 0")) {
             return;
         }
         m_RefCount.fetch_sub(1, std::memory_order_acq_rel);

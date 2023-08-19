@@ -60,8 +60,8 @@ class RHIGraphicsPipeline;
 
 struct RHIRenderPassDescription {
     struct RenderingTargetInfo {
-        EImageFormat Format;
         std::string Name;
+        EImageFormat Format;
         bool operator==(const RenderingTargetInfo&) const = default;
     };
 

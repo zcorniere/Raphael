@@ -54,6 +54,7 @@ public:
     VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, void* WindowHandle, glm::uvec2 Size,
                     uint32 InOutDesiredNumBackBuffers, Array<VkImage>& OutImages, bool LockToVSync,
                     VulkanSwapChainRecreateInfo* RecreateInfo);
+    void SetName(std::string_view InName) override;
 
     void Destroy(VulkanSwapChainRecreateInfo* RecreateInfo);
 
@@ -74,7 +75,10 @@ public:
         return LockToVSync;
     }
 
-    void SetName(std::string_view InName) override;
+    glm::uvec2 GetInternalSize() const
+    {
+        return InternalSize;
+    }
 
 private:
     int32 AcquireImageIndex(Ref<Semaphore>& OutSemaphore);

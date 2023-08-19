@@ -31,8 +31,8 @@ constexpr bool ShouldCheckPrintStackTrace()
 
 #ifndef NDEBUG
 
-    #define RAPHAEL_VERIFY_IMPL(Capture, Always, Expression, Format, ...)                                         \
-        (((Expression)) || (([Capture]() {                                                                        \
+    #define RAPHAEL_ENSURE_IMPL(Always, Expression, Format, ...)                                                  \
+        (((Expression)) || (([__VA_OPT__(&)]() {                                                                  \
                                 static std::atomic_bool bExecuted = false;                                        \
                                 if (!bExecuted || Always) {                                                       \
                                     bExecuted = true;                                                             \
@@ -50,10 +50,10 @@ constexpr bool ShouldCheckPrintStackTrace()
                             }()) &&                                                                               \
                             ([]() { PLATFORM_BREAK(); }(), false)))
 
-    #define verify(Expression) RAPHAEL_VERIFY_IMPL(, false, Expression, )
-    #define verifyMsg(Expression, Format, ...) RAPHAEL_VERIFY_IMPL(&, false, Expression, Format, ##__VA_ARGS__)
-    #define verifyAlways(Expression) RAPHAEL_VERIFY_IMPL(, true, Expression, )
-    #define verifyAlwaysMsg(Expression, Format, ...) RAPHAEL_VERIFY_IMPL(&, true, Expression, Format, ##__VA_ARGS__)
+    #define ensure(Expression) RAPHAEL_ENSURE_IMPL(false, Expression, )
+    #define ensureMsg(Expression, Format, ...) RAPHAEL_ENSURE_IMPL(false, Expression, Format, ##__VA_ARGS__)
+    #define ensureAlways(Expression) RAPHAEL_ENSURE_IMPL(true, Expression, )
+    #define ensureAlwaysMsg(Expression, Format, ...) RAPHAEL_ENSURE_IMPL(true, Expression, Format, ##__VA_ARGS__)
 
     #define RAPHAEL_CHECK_IMPL(Expression, Format, ...)                                                   \
         {                                                                                                 \
@@ -92,10 +92,10 @@ constexpr bool ShouldCheckPrintStackTrace()
 #else
     #define RAPHAEL_CHECK_IMPL(Expression) ASSUME(Expression);
 
-    #define verify(Expression) RAPHAEL_CHECK_IMPL(Expression)
-    #define verifyMsg(Expression, ...) RAPHAEL_CHECK_IMPL(Expression)
-    #define verifyAlways(Expression) RAPHAEL_CHECK_IMPL(Expression)
-    #define verifyAlwaysMsg(Expression, ...) RAPHAEL_CHECK_IMPL(Expression)
+    #define ensure(Expression) RAPHAEL_CHECK_IMPL(Expression)
+    #define ensureMsg(Expression, ...) RAPHAEL_CHECK_IMPL(Expression)
+    #define ensureAlways(Expression) RAPHAEL_CHECK_IMPL(Expression)
+    #define ensureAlwaysMsg(Expression, ...) RAPHAEL_CHECK_IMPL(Expression)
 
     #define check(Expression) RAPHAEL_CHECK_IMPL(Expression)
     #define checkSlow(Expression)

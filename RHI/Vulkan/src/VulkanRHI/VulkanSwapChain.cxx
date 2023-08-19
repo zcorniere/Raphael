@@ -233,15 +233,20 @@ VulkanSwapChain::Status VulkanSwapChain::Present(VulkanQueue* PresentQueue, Ref<
 
     check(CurrentImageIndex != -1);
 
-    VkSemaphore Semaphore = RenderingComplete->GetHandle();
+    VkSemaphore Semaphore = VK_NULL_HANDLE;
     VkPresentInfoKHR Info{
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &Semaphore,
+        .waitSemaphoreCount = 0,
+        .pWaitSemaphores = nullptr,
         .swapchainCount = 1,
         .pSwapchains = &SwapChain,
         .pImageIndices = (uint32*)&CurrentImageIndex,
     };
+    if (RenderingComplete) {
+        Semaphore = RenderingComplete->GetHandle();
+        Info.waitSemaphoreCount = 1;
+        Info.pWaitSemaphores = &Semaphore;
+    }
 
     VkResult PresentResult = VulkanAPI::vkQueuePresentKHR(PresentQueue->GetHandle(), &Info);
 
@@ -295,11 +300,16 @@ int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore>& OutSemaphore)
     }
     OutSemaphore = ImageAcquiredSemaphore[SemaphoreIndex];
 
-    checkMsg(Result == VK_SUCCESS || Result == VK_SUBOPTIMAL_KHR, "vkAcquireNextImageKHR failed Result = {}",
-             int32(Result));
+#if VULKAN_DEBUGGING_ENABLED
+    if (Result != VK_ERROR_VALIDATION_FAILED_EXT)
+#endif
+    {
+        checkMsg(Result == VK_SUCCESS || Result == VK_SUBOPTIMAL_KHR, "vkAcquireNextImageKHR failed Result = {:s}({})",
+                 magic_enum::enum_name(Result), int32(Result));
+    }
     CurrentImageIndex = (int32)ImageIndex;
 
-    verify(ImageInUseFence[SemaphoreIndex]->Wait(UINT64_MAX));
+    ensure(ImageInUseFence[SemaphoreIndex]->Wait(UINT64_MAX));
 
     return CurrentImageIndex;
 }

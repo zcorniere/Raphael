@@ -15,6 +15,10 @@ public:
     {
         check(TrueMalloc);
     }
+    ~AllocatorPoison()
+    {
+        std::free(TrueMalloc);
+    }
 
     virtual void* Alloc(uint32 Size, uint32 Alignment = 0) override
     {
