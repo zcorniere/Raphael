@@ -2,15 +2,15 @@
 
 // Defines all bitwise operators for enum classes so it can be (mostly) used as a regular flags enum
 #define ENUM_CLASS_FLAGS(Enum)                                                                      \
-    inline Enum& operator|=(Enum& Lhs, Enum Rhs)                                                    \
+    inline constexpr Enum& operator|=(Enum& Lhs, Enum Rhs)                                          \
     {                                                                                               \
         return Lhs = (Enum)((std::underlying_type_t<Enum>)Lhs | (std::underlying_type_t<Enum>)Rhs); \
     }                                                                                               \
-    inline Enum& operator&=(Enum& Lhs, Enum Rhs)                                                    \
+    inline constexpr Enum& operator&=(Enum& Lhs, Enum Rhs)                                          \
     {                                                                                               \
         return Lhs = (Enum)((std::underlying_type_t<Enum>)Lhs & (std::underlying_type_t<Enum>)Rhs); \
     }                                                                                               \
-    inline Enum& operator^=(Enum& Lhs, Enum Rhs)                                                    \
+    inline constexpr Enum& operator^=(Enum& Lhs, Enum Rhs)                                          \
     {                                                                                               \
         return Lhs = (Enum)((std::underlying_type_t<Enum>)Lhs ^ (std::underlying_type_t<Enum>)Rhs); \
     }                                                                                               \

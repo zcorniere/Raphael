@@ -25,17 +25,17 @@ VulkanRenderPass::VulkanRenderPass(VulkanDevice* InDevice, const RHIRenderPassDe
 
     ColorTarget.Reserve(InDescription.ColorTarget.Size());
     for (const RHIRenderPassDescription::RenderingTargetInfo& Info: InDescription.ColorTarget) {
-        ColorTarget.Add(CreateFramebufferTextures(Info, ETextureCreateFlags::RenderTargetable));
+        ColorTarget.Add(CreateFramebufferTextures(Info, ETextureUsageFlags::RenderTargetable));
     }
 
     ResolveTarget.Reserve(InDescription.ResolveTarget.Size());
     for (const RHIRenderPassDescription::RenderingTargetInfo& Info: InDescription.ResolveTarget) {
-        ResolveTarget.Add(CreateFramebufferTextures(Info, ETextureCreateFlags::ResolveTargetable));
+        ResolveTarget.Add(CreateFramebufferTextures(Info, ETextureUsageFlags::ResolveTargetable));
     }
 
     if (InDescription.DepthTarget) {
         DepthTarget =
-            CreateFramebufferTextures(InDescription.DepthTarget.value(), ETextureCreateFlags::DepthStencilTargetable);
+            CreateFramebufferTextures(InDescription.DepthTarget.value(), ETextureUsageFlags::DepthStencilTargetable);
     }
 
     checkMsg(!ColorTarget.IsEmpty(), "The RenderPassDescription is invalid");
@@ -82,14 +82,14 @@ void VulkanRenderPass::End(VulkanCmdBuffer* CmdBuffer)
     bHasBegun = false;
 }
 
-static VkImageLayout GetLayout(ETextureCreateFlags Flags)
+static VkImageLayout GetLayout(ETextureUsageFlags Flags)
 {
     switch (Flags) {
-        case ETextureCreateFlags::RenderTargetable:
+        case ETextureUsageFlags::RenderTargetable:
             return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        case ETextureCreateFlags::ResolveTargetable:
+        case ETextureUsageFlags::ResolveTargetable:
             return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-        case ETextureCreateFlags::DepthStencilTargetable:
+        case ETextureUsageFlags::DepthStencilTargetable:
             return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         default:
             break;
@@ -154,11 +154,11 @@ Array<VkImageView> VulkanRenderPass::GetFramebufferAttachment(const Array<Ref<Vu
 VkRenderPass VulkanRenderPass::CreateRenderPass()
 {
     Array<VkAttachmentDescription> Attachments =
-        GetAttachmentDescriptions(Description.ColorTarget, ETextureCreateFlags::RenderTargetable);
-    Attachments.Append(GetAttachmentDescriptions(Description.ResolveTarget, ETextureCreateFlags::ResolveTargetable));
+        GetAttachmentDescriptions(Description.ColorTarget, ETextureUsageFlags::RenderTargetable);
+    Attachments.Append(GetAttachmentDescriptions(Description.ResolveTarget, ETextureUsageFlags::ResolveTargetable));
     if (Description.DepthTarget.has_value())
         Attachments.Append(
-            GetAttachmentDescriptions({Description.DepthTarget.value()}, ETextureCreateFlags::DepthStencilTargetable));
+            GetAttachmentDescriptions({Description.DepthTarget.value()}, ETextureUsageFlags::DepthStencilTargetable));
 
     AttachmentRefs AttachRef = FillAttachmentReference(Attachments);
 
@@ -226,7 +226,7 @@ VulkanRenderPass::FillAttachmentReference(const Array<VkAttachmentDescription>& 
 
 VkAttachmentDescription
 VulkanRenderPass::GetAttachmentDescription(const RHIRenderPassDescription::RenderingTargetInfo& Target,
-                                           ETextureCreateFlags Flags) const
+                                           ETextureUsageFlags Flags) const
 {
     VkAttachmentDescription AttachmentDescription{
         .format = ImageFormatToFormat(Target.Format),
@@ -243,7 +243,7 @@ VulkanRenderPass::GetAttachmentDescription(const RHIRenderPassDescription::Rende
 
 Array<VkAttachmentDescription>
 VulkanRenderPass::GetAttachmentDescriptions(const Array<RHIRenderPassDescription::RenderingTargetInfo>& Targets,
-                                            ETextureCreateFlags Flags)
+                                            ETextureUsageFlags Flags)
 {
     Array<VkAttachmentDescription> AttachmentDescription;
     AttachmentDescription.Reserve(Targets.Size());
@@ -255,9 +255,9 @@ VulkanRenderPass::GetAttachmentDescriptions(const Array<RHIRenderPassDescription
 }
 Ref<VulkanTexture>
 VulkanRenderPass::CreateFramebufferTextures(const RHIRenderPassDescription::RenderingTargetInfo& TargetInfo,
-                                            ETextureCreateFlags Flags)
+                                            ETextureUsageFlags Flags)
 {
-    RHITextureCreateDesc TextureCreate{
+    RHITextureSpecification TextureCreate{
         .Flags = Flags,
         .Dimension = EImageDimension::Texture2D,
         .Format = TargetInfo.Format,

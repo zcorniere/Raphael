@@ -4,8 +4,7 @@
 
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
 
-struct RHIGraphicsPipelineInitializer {
-
+struct RHIGraphicsPipelineSpecification {
     std::string VertexShader;
     std::string PixelShader;
 

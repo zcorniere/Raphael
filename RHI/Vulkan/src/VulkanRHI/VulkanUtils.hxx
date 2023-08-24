@@ -102,19 +102,35 @@ FORCEINLINE VkImageViewType TextureDimensionToVkImageViewType(EImageDimension Di
     checkNoEntry();
 }
 
-FORCEINLINE VkImageAspectFlags TextureCreateFlagToVkImageAspectFlags(ETextureCreateFlags CreateFlags)
+FORCEINLINE VkImageAspectFlags TextureUsageFlagToVkImageAspectFlags(ETextureUsageFlags CreateFlags)
 {
-    switch (CreateFlags) {
-        case ETextureCreateFlags::None:
-            return VK_IMAGE_ASPECT_NONE;
-        case ETextureCreateFlags::RenderTargetable:
-            return VK_IMAGE_ASPECT_COLOR_BIT;
-        case ETextureCreateFlags::DepthStencilTargetable:
-            return VK_IMAGE_ASPECT_DEPTH_BIT;
-        case ETextureCreateFlags::ResolveTargetable:
-            return VK_IMAGE_ASPECT_COLOR_BIT;
+    VkImageAspectFlags ReturnFlag = VK_IMAGE_ASPECT_NONE;
+
+    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::RenderTargetable | ETextureUsageFlags::ResolveTargetable)) {
+        ReturnFlag |= VK_IMAGE_ASPECT_COLOR_BIT;
     }
-    checkNoEntry();
+    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::DepthStencilTargetable)) {
+        ReturnFlag |= VK_IMAGE_ASPECT_DEPTH_BIT;
+    }
+    return ReturnFlag;
+}
+
+FORCEINLINE VkImageUsageFlags TextureUsageFlagsToVkImageUsageFlags(ETextureUsageFlags CreateFlags)
+{
+    VkImageUsageFlags ReturnFlag = 0;
+    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::SampleTargetable)) {
+        ReturnFlag |= VK_IMAGE_USAGE_SAMPLED_BIT;
+    }
+    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::TransferTargetable)) {
+        ReturnFlag |= VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    }
+    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::RenderTargetable | ETextureUsageFlags::ResolveTargetable)) {
+        ReturnFlag |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    }
+    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::DepthStencilTargetable)) {
+        ReturnFlag |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    }
+    return ReturnFlag;
 }
 
 FORCEINLINE VkImageType TextureDimensionToVkImageType(EImageDimension Dimension)

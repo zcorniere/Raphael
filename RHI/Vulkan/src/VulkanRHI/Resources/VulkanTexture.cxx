@@ -8,7 +8,7 @@
 namespace VulkanRHI
 {
 
-VulkanTexture::VulkanTexture(VulkanDevice* InDevice, const RHITextureCreateDesc& InDesc)
+VulkanTexture::VulkanTexture(VulkanDevice* InDevice, const RHITextureSpecification& InDesc)
     : RHITexture(InDesc),
       Device(InDevice),
       Description(InDesc),
@@ -29,27 +29,12 @@ VulkanTexture::VulkanTexture(VulkanDevice* InDevice, const RHITextureCreateDesc&
                 .height = InDesc.Extent.y,
                 .depth = InDesc.Depth,
             },
-        .mipLevels = 1,
+        .mipLevels = InDesc.NumMips,
         .arrayLayers = 1,
-        .usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+        .usage = TextureUsageFlagsToVkImageUsageFlags(Description.Flags),
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .initialLayout = Layout,
     };
-
-    // Add other usage bit to the CreateInfo
-    switch (Description.Flags) {
-        case ETextureCreateFlags::None:
-            break;
-
-        case ETextureCreateFlags::ResolveTargetable:
-        case ETextureCreateFlags::RenderTargetable:
-            ImageCreateInfo.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-            break;
-
-        case ETextureCreateFlags::DepthStencilTargetable:
-            ImageCreateInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-            break;
-    }
 
     const VkImageViewType ResourceImageView = TextureDimensionToVkImageViewType(InDesc.Dimension);
     switch (ResourceImageView) {
@@ -139,7 +124,7 @@ VkImageView VulkanTexture::GetImageView() const
                 .b = VK_COMPONENT_SWIZZLE_IDENTITY,
                 .a = VK_COMPONENT_SWIZZLE_IDENTITY,
             },
-        .subresourceRange = Barrier::MakeSubresourceRange(TextureCreateFlagToVkImageAspectFlags(Description.Flags)),
+        .subresourceRange = Barrier::MakeSubresourceRange(TextureUsageFlagToVkImageAspectFlags(Description.Flags)),
     };
     VK_CHECK_RESULT(VulkanAPI::vkCreateImageView(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &View));
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, View, "{:s} [View]", GetName());

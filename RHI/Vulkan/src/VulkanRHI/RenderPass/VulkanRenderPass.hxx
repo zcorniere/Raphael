@@ -64,13 +64,13 @@ private:
     VkRenderPass CreateRenderPass();
     AttachmentRefs FillAttachmentReference(const Array<VkAttachmentDescription>& Targets);
     VkAttachmentDescription GetAttachmentDescription(const RHIRenderPassDescription::RenderingTargetInfo& Target,
-                                                     ETextureCreateFlags Flags) const;
+                                                     ETextureUsageFlags Flags) const;
     Array<VkAttachmentDescription>
     GetAttachmentDescriptions(const Array<RHIRenderPassDescription::RenderingTargetInfo>& Targets,
-                              ETextureCreateFlags Flags);
+                              ETextureUsageFlags Flags);
 
     Ref<VulkanTexture> CreateFramebufferTextures(const RHIRenderPassDescription::RenderingTargetInfo& TargetInfo,
-                                                 ETextureCreateFlags Flags);
+                                                 ETextureUsageFlags Flags);
 
 private:
     bool bHasBegun = false;

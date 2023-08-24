@@ -99,7 +99,7 @@ Ref<RHIViewport> VulkanDynamicRHI::CreateViewport(void* InWindowHandle, glm::uve
     return Ref<VulkanViewport>::Create(GetDevice(), InWindowHandle, InSize);
 }
 
-Ref<RHITexture> VulkanDynamicRHI::CreateTexture(const RHITextureCreateDesc& InDesc)
+Ref<RHITexture> VulkanDynamicRHI::CreateTexture(const RHITextureSpecification& InDesc)
 {
     return Ref<VulkanTexture>::Create(GetDevice(), InDesc);
 }
@@ -119,7 +119,7 @@ Ref<RHIShader> VulkanDynamicRHI::CreateShader(const std::filesystem::path Path, 
 }
 
 Ref<RHIGraphicsPipeline>
-VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config)
+VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineSpecification& Config)
 {
     WeakRef<VulkanRenderPass> VRenderPass = RPassManager->Get(Config.RenderPass);
     check(VRenderPass);

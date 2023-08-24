@@ -74,7 +74,7 @@ Ref<RHIViewport> RHI::CreateViewport(void* InWindowHandle, glm::uvec2 InSize)
     return RHI::Get<GenericRHI>()->CreateViewport(InWindowHandle, InSize);
 }
 
-Ref<RHITexture> RHI::CreateTexture(const RHITextureCreateDesc& InDesc)
+Ref<RHITexture> RHI::CreateTexture(const RHITextureSpecification& InDesc)
 {
     return RHI::Get<GenericRHI>()->CreateTexture(InDesc);
 }
@@ -90,7 +90,7 @@ Ref<RHIShader> RHI::CreateShader(const std::filesystem::path Path, bool bForceCo
     return RHI::Get<GenericRHI>()->CreateShader(Path, bForceCompile);
 }
 
-Ref<RHIGraphicsPipeline> RHI::CreateGraphicsPipeline(const RHIGraphicsPipelineInitializer& Config)
+Ref<RHIGraphicsPipeline> RHI::CreateGraphicsPipeline(const RHIGraphicsPipelineSpecification& Config)
 {
     return RHI::Get<GenericRHI>()->CreateGraphicsPipeline(Config);
 }

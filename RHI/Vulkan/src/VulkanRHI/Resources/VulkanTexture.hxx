@@ -14,7 +14,7 @@ class VulkanMemoryAllocation;
 class VulkanTexture : public RHITexture
 {
 public:
-    VulkanTexture(VulkanDevice* InDevice, const RHITextureCreateDesc& InDesc);
+    VulkanTexture(VulkanDevice* InDevice, const RHITextureSpecification& InDesc);
     virtual ~VulkanTexture();
 
     void SetName(std::string_view InName) override;
@@ -26,7 +26,7 @@ public:
 private:
     VulkanDevice* Device;
 
-    RHITextureCreateDesc Description;
+    RHITextureSpecification Description;
     Ref<VulkanMemoryAllocation> Allocation;
     VkMemoryRequirements MemoryRequirements;
     VkImage Image;

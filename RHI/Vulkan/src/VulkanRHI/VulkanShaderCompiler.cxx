@@ -9,7 +9,7 @@
 #include <shaderc/shaderc.hpp>
 #include <spirv_cross.hpp>
 
-DECLARE_LOGGER_CATEGORY(Core, LogVulkanShaderCompiler, Info)
+DECLARE_LOGGER_CATEGORY(Core, LogVulkanShaderCompiler, Trace)
 
 static uint32 VulkanVersionToShaderc(uint32 Version)
 {
@@ -137,6 +137,7 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
     if (!bForceCompile) {
         ShaderUnit = CheckCache(Result);
         if (ShaderUnit) {
+            LOG(LogVulkanShaderCompiler, Trace, "Cache hit with shader: {:s} !", Path.filename().string());
             return ShaderUnit;
         }
     }
@@ -217,7 +218,7 @@ bool VulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
     }
 
     std::string PreprocessCode(PreProcessResult.begin(), PreProcessResult.end());
-    LOG(LogVulkanShaderCompiler, Trace, "Pre-process Result \"{}\": {}", Result.Path.string().c_str(), PreprocessCode);
+    LOG(LogVulkanShaderCompiler, Trace, "Pre-process Result \"{}\":\n{}", Result.Path.string().c_str(), PreprocessCode);
 
     Result.Status = CompilationStatus::Compilation;
     shaderc::CompilationResult CompilationResult =
