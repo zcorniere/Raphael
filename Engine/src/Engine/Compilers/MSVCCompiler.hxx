@@ -11,8 +11,13 @@ static_assert(false, "MSVC Compiler header included without compiling with MSVC"
 
 #include <intrin.h>
 
-#define FORCEINLINE inline __forceinline   /* Force code to be inline */
-#define FORCENOINLINE __declspec(noinline) /* Force code NOT to be inline */
+#ifndef FORCEINLINE
+    #define FORCEINLINE inline __forceinline   /* Force code to be inline */
+#endif
+
+#ifndef FORCENOINLINE
+    #define FORCENOINLINE __declspec(noinline) /* Force code NOT to be inline */
+#endif
 
 #define ASSUME(...) __assume((__VA_ARGS__)) /* Assume code will ALWAYS be true */
 
