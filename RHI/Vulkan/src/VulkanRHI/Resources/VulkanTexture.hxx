@@ -19,6 +19,7 @@ public:
 
     void SetName(std::string_view InName) override;
 
+    VkImage GetImage() const;
     VkImageView GetImageView() const;
     VkImageViewType GetViewType() const;
     VkImageLayout GetLayout() const;

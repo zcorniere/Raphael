@@ -101,7 +101,7 @@ Ref<RHIViewport> VulkanDynamicRHI::CreateViewport(void* InWindowHandle, glm::uve
 
 Ref<RHITexture> VulkanDynamicRHI::CreateTexture(const RHITextureSpecification& InDesc)
 {
-    return Ref<VulkanTexture>::Create(GetDevice(), InDesc);
+    return Ref<VulkanTexture>::CreateNamed(InDesc.Name, GetDevice(), InDesc);
 }
 
 Ref<RHIBuffer> VulkanDynamicRHI::CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage,

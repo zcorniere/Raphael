@@ -20,7 +20,7 @@ ENUM_CLASS_FLAGS(ETextureUsageFlags)
 
 /// @brief Describe the texture to be created
 struct RHITextureSpecification {
-    ETextureUsageFlags Flags = ETextureUsageFlags::None;
+    ETextureUsageFlags Flags = ETextureUsageFlags::TransferTargetable;
     EImageDimension Dimension = EImageDimension::Texture2D;
     EImageFormat Format = EImageFormat::R8G8B8A8_SRGB;
 

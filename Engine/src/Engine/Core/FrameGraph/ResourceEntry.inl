@@ -1,5 +1,7 @@
 /// Resource Entry Implementation
 
+#include "Engine/Core/FrameGraph/ResourceEntry.hxx"
+
 #define RHI_CREATE_FUNCTION(Type)                                                                                  \
     if constexpr (ResourceType == RHIResourceType::Type) {                                                         \
         m_Resource = UnpackTupleAndCallRHIFunction(RHI::Create##Type, typename Gens<sizeof...(ArgTypes)>::type()); \

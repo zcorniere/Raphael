@@ -50,7 +50,18 @@ bool EditorApplication::OnEngineInitialization()
     Graph.Compile();
     Graph.Execute();
 #endif
-
+    RHIRenderPassDescription Description{
+        .ColorTarget =
+            {
+                MainViewport->GetBackbuffer(),
+            },
+        .DepthTarget = nullptr,
+        // .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
+        //     .Format = EImageFormat::D32_SFLOAT,
+        // }),
+        .Size = MainViewport->GetSize(),
+        .Name = "SimpleRenderPass",
+    };
     Pipeline = RHI::CreateGraphicsPipeline(RHIGraphicsPipelineSpecification{
         .VertexShader = "DefaultTriangle.vert",
         .PixelShader = "DefaultTriangle.frag",
@@ -60,21 +71,7 @@ bool EditorApplication::OnEngineInitialization()
                 .CullMode = ECullMode::None,
                 .FrontFaceCulling = EFrontFace::Clockwise,
             },
-        .RenderPass =
-            {
-                .ColorTarget =
-                    {
-                        {
-                            .Format = EImageFormat::R8G8B8A8_SRGB,
-                        },
-                    },
-                .DepthTarget = std::nullopt,
-                // .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
-                //     .Format = EImageFormat::D32_SFLOAT,
-                // }),
-                .Size = MainViewport->GetSize(),
-                .Name = "SimpleRenderPass",
-            },
+        .RenderPass = Description,
     });
     return true;
 }
@@ -99,11 +96,9 @@ void EditorApplication::Tick(const float DeltaTime)
     RHIRenderPassDescription Description{
         .ColorTarget =
             {
-                {
-                    .Format = EImageFormat::R8G8B8A8_SRGB,
-                },
+                MainViewport->GetBackbuffer(),
             },
-        .DepthTarget = std::nullopt,
+        .DepthTarget = nullptr,
         // .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
         //     .Format = EImageFormat::D32_SFLOAT,
         // }),

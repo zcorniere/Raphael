@@ -29,6 +29,12 @@ public:
     bool Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, VulkanQueue* PresentQueue);
     void RecreateSwapchain(void* NewNativeWindow);
 
+    virtual Ref<RHITexture> GetBackbuffer() const override
+    {
+        check(RenderingBackbuffer);
+        return RenderingBackbuffer.As<RHITexture>();
+    }
+
 private:
     // Override from RHIViewport
     virtual void RT_BeginDrawViewport() override;
@@ -50,6 +56,7 @@ private:
     Array<VulkanTextureView> TexturesViews;
     Array<Ref<Semaphore>> RenderingDoneSemaphores;
 
+    Ref<VulkanTexture> RenderingBackbuffer;
     void* WindowHandle;
     glm::uvec2 Size;
 

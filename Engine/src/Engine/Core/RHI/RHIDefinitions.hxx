@@ -59,15 +59,9 @@ class RHITexture;
 class RHIGraphicsPipeline;
 
 struct RHIRenderPassDescription {
-    struct RenderingTargetInfo {
-        std::string Name;
-        EImageFormat Format;
-        bool operator==(const RenderingTargetInfo&) const = default;
-    };
-
-    Array<RenderingTargetInfo> ColorTarget;
-    Array<RenderingTargetInfo> ResolveTarget;
-    std::optional<RenderingTargetInfo> DepthTarget;
+    Array<Ref<RHITexture>> ColorTarget = {};
+    Array<Ref<RHITexture>> ResolveTarget = {};
+    Ref<RHITexture> DepthTarget = nullptr;
 
     glm::ivec2 Offset;
     glm::uvec2 Size;
@@ -118,22 +112,7 @@ namespace std
 
 template <>
 struct hash<RHIRenderPassDescription> {
-    size_t operator()(const RHIRenderPassDescription& Desc) const
-    {
-        size_t Result = 0;
-        ::Raphael::HashCombine(Result, Desc.Offset);
-        ::Raphael::HashCombine(Result, Desc.Size);
-        for (const RHIRenderPassDescription::RenderingTargetInfo& Target: Desc.ColorTarget) {
-            ::Raphael::HashCombine(Result, Target.Format);
-        }
-        for (const RHIRenderPassDescription::RenderingTargetInfo& Target: Desc.ResolveTarget) {
-            ::Raphael::HashCombine(Result, Target.Format);
-        }
-        if (Desc.DepthTarget) {
-            ::Raphael::HashCombine(Result, Desc.DepthTarget->Format);
-        }
-        return Result;
-    }
+    size_t operator()(const RHIRenderPassDescription& Desc) const;
 };
 
 }    // namespace std

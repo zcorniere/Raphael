@@ -48,6 +48,7 @@ add_library(
     src/Engine/Core/FrameGraph/ResourceNode.cxx
     src/Engine/Core/Window.cxx
     src/Engine/Core/RHI/RHI.cxx
+    src/Engine/Core/RHI/RHIDefinitions.cxx
     src/Engine/Core/RHI/RHICommandQueue.cxx
     src/Engine/Core/RHI/Resources/RHIResources.cxx
     src/Engine/Core/Memory/Memory.cxx

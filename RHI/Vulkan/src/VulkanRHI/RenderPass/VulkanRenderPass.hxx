@@ -28,13 +28,13 @@ public:
     void Begin(VulkanCmdBuffer* CmdBuffer, const VkRect2D RenderArea);
     void End(VulkanCmdBuffer* CmdBuffer);
 
-    bool HasDepthTarget() const
+    FORCEINLINE bool HasDepthTarget() const
     {
-        return DepthTarget.IsValid();
+        return Description.DepthTarget.IsValid();
     }
     unsigned HasResolveTargets() const
     {
-        return ResolveTarget.Size();
+        return Description.ResolveTarget.Size();
     }
 
     VkRenderPass GetRenderPass() const
@@ -59,26 +59,17 @@ public:
 
 private:
     VkFramebuffer CreateFrameBuffer();
-    Array<VkImageView> GetFramebufferAttachment(const Array<Ref<VulkanTexture>>& SourceTextures);
+    Array<VkImageView> GetFramebufferAttachment(const Array<Ref<RHITexture>>& SourceTextures);
 
     VkRenderPass CreateRenderPass();
     AttachmentRefs FillAttachmentReference(const Array<VkAttachmentDescription>& Targets);
-    VkAttachmentDescription GetAttachmentDescription(const RHIRenderPassDescription::RenderingTargetInfo& Target,
-                                                     ETextureUsageFlags Flags) const;
-    Array<VkAttachmentDescription>
-    GetAttachmentDescriptions(const Array<RHIRenderPassDescription::RenderingTargetInfo>& Targets,
-                              ETextureUsageFlags Flags);
-
-    Ref<VulkanTexture> CreateFramebufferTextures(const RHIRenderPassDescription::RenderingTargetInfo& TargetInfo,
-                                                 ETextureUsageFlags Flags);
+    VkAttachmentDescription GetAttachmentDescription(const Ref<RHITexture>& Target, ETextureUsageFlags Flags) const;
+    Array<VkAttachmentDescription> GetAttachmentDescriptions(const Array<Ref<RHITexture>>& Targets,
+                                                             ETextureUsageFlags Flags);
 
 private:
     bool bHasBegun = false;
     VulkanDevice* Device;
-
-    Array<Ref<VulkanTexture>> ColorTarget;
-    Array<Ref<VulkanTexture>> ResolveTarget;
-    Ref<VulkanTexture> DepthTarget;
 
     RHIRenderPassDescription Description;
     VkRenderPass RenderPass;

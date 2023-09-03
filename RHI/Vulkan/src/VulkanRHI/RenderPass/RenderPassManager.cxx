@@ -10,14 +10,14 @@ namespace VulkanRHI
 size_t RenderPassManager::RenderPassDescriptionHashWithoutSize::operator()(const RHIRenderPassDescription& Desc) const
 {
     size_t Result = 0;
-    for (const RHIRenderPassDescription::RenderingTargetInfo& Target: Desc.ColorTarget) {
-        ::Raphael::HashCombine(Result, Target.Format);
+    for (const Ref<RHITexture>& Target: Desc.ColorTarget) {
+        ::Raphael::HashCombine(Result, Target->GetDescription().Format);
     }
-    for (const RHIRenderPassDescription::RenderingTargetInfo& Target: Desc.ResolveTarget) {
-        ::Raphael::HashCombine(Result, Target.Format);
+    for (const Ref<RHITexture>& Target: Desc.ResolveTarget) {
+        ::Raphael::HashCombine(Result, Target->GetDescription().Format);
     }
     if (Desc.DepthTarget) {
-        ::Raphael::HashCombine(Result, Desc.DepthTarget->Format);
+        ::Raphael::HashCombine(Result, Desc.DepthTarget->GetDescription().Format);
     }
     return Result;
 }

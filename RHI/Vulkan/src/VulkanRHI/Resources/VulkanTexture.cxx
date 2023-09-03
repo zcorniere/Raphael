@@ -79,8 +79,6 @@ VulkanTexture::VulkanTexture(VulkanDevice* InDevice, const RHITextureSpecificati
 
     Allocation = Device->GetMemoryManager()->Alloc(MemoryRequirements, VMA_MEMORY_USAGE_GPU_ONLY, false);
     Allocation->BindImage(Image);
-
-    VulkanTexture::SetName(Description.Name);
 }
 
 VulkanTexture::~VulkanTexture()
@@ -105,6 +103,11 @@ void VulkanTexture::SetName(std::string_view InName)
     if (Allocation) {
         Allocation->SetName(std::format("{:s}.Image.Memory", InName));
     }
+}
+
+VkImage VulkanTexture::GetImage() const
+{
+    return Image;
 }
 
 VkImageView VulkanTexture::GetImageView() const

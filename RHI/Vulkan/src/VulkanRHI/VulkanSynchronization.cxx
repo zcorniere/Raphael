@@ -132,18 +132,15 @@ static VkPipelineStageFlags GetVkStageFlagsForLayout(VkImageLayout Layout)
             break;
 
         case VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL:
-            // todo-jn: sync2 currently only used by depth/stencil targets
             Flags = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
             break;
 
         case VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL:
-            // todo-jn: sync2 currently only used by depth/stencil targets
             Flags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
                     VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
             break;
 
         default:
-            checkNoEntry();
             break;
     }
 

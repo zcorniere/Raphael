@@ -122,26 +122,27 @@ public:
     /// @brief Create a new RObject and give it is name
     /// @return the new RObject
     template <typename... Args>
-    static Ref<T> CreateNamed(std::string_view Name, Args&&... args)
+    FORCEINLINE static Ref<T> CreateNamed(std::string_view Name, Args&&... args)
     {
-        return CreateInternal(Name, std::forward<Args>(args)...);
+        Ref<T> NewRef = CreateInternal(std::forward<Args>(args)...);
+        NewRef->SetName(Name);
+        return NewRef;
     }
 
     /// @brief Create a new RObject
     /// @return the new RObject
     template <typename... Args>
-    static Ref<T> Create(Args&&... args)
+    FORCEINLINE static Ref<T> Create(Args&&... args)
     {
-        return CreateInternal("", std::forward<Args>(args)...);
+        return CreateInternal(std::forward<Args>(args)...);
     }
 
 private:
     template <typename... Args>
-    static Ref<T> CreateInternal(std::string_view Name, Args&&... args)
+    FORCEINLINE static Ref<T> CreateInternal(Args&&... args)
     {
         T* ObjectPtr = new T(std::forward<Args>(args)...);
         ObjectPtr->SetTypeName(type_name<T>());
-        ObjectPtr->SetName(Name);
 
         LOG(RObjectUtils::LogRObject, Trace, "Creating RObject {:s}", ObjectPtr->ToString());
 
@@ -272,6 +273,7 @@ public:
     }
 
     template <typename Other>
+    requires std::convertible_to<T*, Other*> || std::derived_from<Other, T>
     Ref<Other> As() const
     {
         return Ref<Other>(*this);
