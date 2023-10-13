@@ -376,6 +376,12 @@ public:
         return *m_Instance;
     }
 
+    Ref<T> Pin() const
+    {
+        check(IsValid());
+        return Ref(m_Instance);
+    }
+
     bool IsValid() const
     {
         return m_Instance ? (RObjectUtils::IsLive(m_Instance) && m_Instance->IsValid()) : (false);
