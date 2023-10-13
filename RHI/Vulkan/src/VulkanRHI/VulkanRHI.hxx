@@ -98,7 +98,7 @@ private:
     std::unique_ptr<RenderPassManager> RPassManager;
     WeakRef<VulkanRenderPass> CurrentRenderPass;
 
-    VulkanShaderCompiler ShaderCompiler;
+    std::unique_ptr<VulkanShaderCompiler> ShaderCompiler;
 };
 
 }    // namespace VulkanRHI

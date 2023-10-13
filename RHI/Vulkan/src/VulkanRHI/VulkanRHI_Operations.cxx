@@ -113,7 +113,7 @@ Ref<RHIBuffer> VulkanDynamicRHI::CreateBuffer(const uint32 InSize, const EBuffer
 Ref<RHIShader> VulkanDynamicRHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)
 {
     std::filesystem::path RefPath = DataLocationFinder::GetShaderPath();
-    Ref<VulkanShader> Shader = ShaderCompiler.Get(RefPath / Path, bForceCompile);
+    Ref<VulkanShader> Shader = ShaderCompiler->Get(RefPath / Path, bForceCompile);
     check(Shader);
     return Shader;
 }

@@ -16,6 +16,8 @@ public:
         None,
         /// Optimize for size, no debug symbols
         Size,
+        /// Optimize for performance, with debug symbols
+        PerfWithDebug,
         /// Optimize for Performance, no debug symbols
         Performance,
     };

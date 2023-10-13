@@ -9,7 +9,7 @@
 #include <shaderc/shaderc.hpp>
 #include <spirv_cross.hpp>
 
-DECLARE_LOGGER_CATEGORY(Core, LogVulkanShaderCompiler, Trace)
+DECLARE_LOGGER_CATEGORY(Core, LogVulkanShaderCompiler, Info)
 
 static uint32 VulkanVersionToShaderc(uint32 Version)
 {
@@ -45,6 +45,10 @@ namespace Utils
                 break;
             case VulkanShaderCompiler::OptimizationLevel::Size:
                 Options.SetOptimizationLevel(shaderc_optimization_level_size);
+                break;
+            case VulkanRHI::VulkanShaderCompiler::OptimizationLevel::PerfWithDebug:
+                Options.SetOptimizationLevel(shaderc_optimization_level_performance);
+                Options.SetGenerateDebugInfo();
                 break;
             case VulkanShaderCompiler::OptimizationLevel::Performance:
                 Options.SetOptimizationLevel(shaderc_optimization_level_performance);

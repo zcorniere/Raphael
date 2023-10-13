@@ -71,11 +71,12 @@ void VulkanDynamicRHI::Init()
     Device->SetName("Main Vulkan Device");
 
     RPassManager = std::make_unique<RenderPassManager>(Device.get());
+    ShaderCompiler = std::make_unique<VulkanShaderCompiler>();
 
 #if VULKAN_DEBUGGING_ENABLED
-    ShaderCompiler.SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::None);
+    ShaderCompiler->SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::PerfWithDebug);
 #else
-    ShaderCompiler.SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::Performance);
+    ShaderCompiler->SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::Performance);
 #endif
 }
 
