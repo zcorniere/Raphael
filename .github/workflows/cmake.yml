@@ -41,6 +41,13 @@ jobs:
       run: |
           sudo apt-get update
           sudo apt-get install -y xorg-dev libgtk-3-dev
+
+    - name: Setup C/C++ Compiler
+      uses: rlalik/setup-cpp-compiler@v1.2
+      if: ${{ matrix.c_compiler }} != 'cl'
+      with:
+        compiler: ${{ matrix.c_compiler }}
+            
           
     - uses: actions/checkout@v4.1.0
       with:
