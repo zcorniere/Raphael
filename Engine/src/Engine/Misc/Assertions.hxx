@@ -90,13 +90,13 @@ constexpr bool ShouldCheckPrintStackTrace()
         }
 
 #else
-    #define RAPHAEL_CHECK_IMPL(Expression) ASSUME(Expression);
+    #define RAPHAEL_ENSURE_IMPL(Expression) (bool)(Expression)
+    #define ensure(Expression) RAPHAEL_ENSURE_IMPL(Expression)
+    #define ensureMsg(Expression, ...) RAPHAEL_ENSURE_IMPL(Expression)
+    #define ensureAlways(Expression) RAPHAEL_ENSURE_IMPL(Expression)
+    #define ensureAlwaysMsg(Expression, ...) RAPHAEL_ENSURE_IMPL(Expression)
 
-    #define ensure(Expression) RAPHAEL_CHECK_IMPL(Expression)
-    #define ensureMsg(Expression, ...) RAPHAEL_CHECK_IMPL(Expression)
-    #define ensureAlways(Expression) RAPHAEL_CHECK_IMPL(Expression)
-    #define ensureAlwaysMsg(Expression, ...) RAPHAEL_CHECK_IMPL(Expression)
-
+    #define RAPHAEL_CHECK_IMPL(Expression) (void)(Expression);
     #define check(Expression) RAPHAEL_CHECK_IMPL(Expression)
     #define checkSlow(Expression)
     #define checkMsg(Expression, ...) RAPHAEL_CHECK_IMPL(Expression)
