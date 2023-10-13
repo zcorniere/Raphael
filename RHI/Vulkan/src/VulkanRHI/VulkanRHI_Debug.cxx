@@ -46,36 +46,13 @@ static cpplogger::Level VulkanMessageSeverityToLogLevel(const VkDebugUtilsMessag
     }
 }
 
-static std::string_view GetMessageSeverity(const VkDebugUtilsMessageSeverityFlagBitsEXT MsgSeverity)
-{
-    const bool bError = (MsgSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) != 0;
-    const bool bWarning = (MsgSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) != 0;
-
-    if (bError) {
-        ensure((MsgSeverity & ~VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) == 0);
-        return "Error";
-    } else if (bWarning) {
-        ensure((MsgSeverity & ~VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) == 0);
-        return "Warning";
-    } else if (MsgSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
-        ensure((MsgSeverity & ~VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) == 0);
-        return "Info";
-    } else if (MsgSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-        ensure((MsgSeverity & ~VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) == 0);
-        return "Verbose";
-    }
-    return "Unknown";
-}
-
 static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
     const VkDebugUtilsMessageSeverityFlagBitsEXT MsgSeverity, const VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void*)
 {
-    const std::string_view Severity = GetMessageSeverity(MsgSeverity);
-
     std::string Objects;
     if (pCallbackData->objectCount) {
-        Objects = std::format("\n\tObjects({}): \n", pCallbackData->objectCount);
+        Objects = std::format("\tObjects({}): \n", pCallbackData->objectCount);
         for (uint32_t i = 0; i < pCallbackData->objectCount; ++i) {
             const auto& object = pCallbackData->pObjects[i];
             Objects.append(std::format("\t\t- Object[{0}] name: {1}, type: {2}, handle: {3:#x}\n", i,
@@ -84,8 +61,16 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
         }
     }
 
-    LOG_V(LogVulkanRHI, VulkanMessageSeverityToLogLevel(MsgSeverity), "[{:s}:{:s}({:d})] {:s}{:s}", Severity,
-          VulkanMessageType(messageType), pCallbackData->messageIdNumber, pCallbackData->pMessage, Objects);
+    std::string InterestingPart(pCallbackData->pMessage);
+    std::size_t Size = InterestingPart.find_last_of('|');
+    if (Size == InterestingPart.npos) {
+        Size = 0;
+    } else {
+        Size += 2;
+    }
+
+    LOG_V(LogVulkanRHI, VulkanMessageSeverityToLogLevel(MsgSeverity), "{:s} [ {:s} ]\n\t{:s}\n{:s}",
+          VulkanMessageType(messageType), pCallbackData->pMessageIdName, InterestingPart.data() + Size, Objects);
 
     if (Platform::isDebuggerPresent()) {
         PLATFORM_BREAK();
