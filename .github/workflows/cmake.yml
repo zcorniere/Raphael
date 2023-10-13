@@ -44,7 +44,7 @@ jobs:
 
     - name: Setup C/C++ Compiler
       uses: rlalik/setup-cpp-compiler@v1.2
-      if: ${{ matrix.c_compiler }} != 'cl'
+      if: runner.os == 'Linux'
       with:
         compiler: ${{ matrix.c_compiler }}
             
