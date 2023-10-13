@@ -89,6 +89,25 @@ FORCEINLINE VkFormat ImageFormatToFormat(const EImageFormat Format)
             return VK_FORMAT_R8G8B8_SRGB;
         case EImageFormat::R8G8B8A8_SRGB:
             return VK_FORMAT_R8G8B8A8_SRGB;
+        case EImageFormat::B8G8R8A8_SRGB:
+            return VK_FORMAT_B8G8R8A8_SRGB;
+    }
+    checkNoEntry();
+}
+/// Transform RHI Image Format to VC_FORMAT_*
+FORCEINLINE EImageFormat VkFormatToImageFormat(const VkFormat Format)
+{
+    switch (Format) {
+        case VK_FORMAT_D32_SFLOAT:
+            return EImageFormat::D32_SFLOAT;
+        case VK_FORMAT_R8G8B8_SRGB:
+            return EImageFormat::R8G8B8_SRGB;
+        case VK_FORMAT_R8G8B8A8_SRGB:
+            return EImageFormat::R8G8B8A8_SRGB;
+        case VK_FORMAT_B8G8R8A8_SRGB:
+            return EImageFormat::B8G8R8A8_SRGB;
+        default:
+            break;
     }
     checkNoEntry();
 }

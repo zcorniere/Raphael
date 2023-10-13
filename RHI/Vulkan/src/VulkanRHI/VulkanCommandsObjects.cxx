@@ -84,7 +84,7 @@ void VulkanCmdBuffer::EndRenderPass()
     State = EState::IsInsideBegin;
 }
 
-void VulkanCmdBuffer::AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore>& InSemaphore)
+void VulkanCmdBuffer::AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore> InSemaphore)
 {
     if (!WaitFlags.Contains(InWaitFlags)) {
         WaitFlags.Add(InWaitFlags);
@@ -277,7 +277,7 @@ void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Ref<Semaphore> SignalSema
     ActiveCmdBuffer = nullptr;
 }
 
-void VulkanCommandBufferManager::SubmitActiveCmdBufferFormPresent(Ref<Semaphore> SignalSemaphore)
+void VulkanCommandBufferManager::SubmitActiveCmdBufferFromPresent(Ref<Semaphore> SignalSemaphore)
 {
     if (SignalSemaphore) {
         Queue->Submit(ActiveCmdBuffer.Raw(), SignalSemaphore->GetHandle());

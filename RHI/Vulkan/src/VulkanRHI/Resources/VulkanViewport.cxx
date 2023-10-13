@@ -11,7 +11,7 @@ namespace VulkanRHI
 {
 
 VulkanViewport::VulkanViewport(VulkanDevice* InDevice, void* InWindowHandle, glm::uvec2 InSize)
-    : Device(InDevice), WindowHandle(InWindowHandle), Size(InSize), AcquiredImageIndex(-1)
+    : Device(InDevice), WindowHandle(InWindowHandle), Size(InSize), AcquiredImageIndex(-1), AcquiredSemaphore(nullptr)
 {
     CreateSwapchain(nullptr);
 }
@@ -71,20 +71,18 @@ void VulkanViewport::SetName(std::string_view InName)
     }
 }
 
-inline static void CopyImageToBackBuffer(VulkanCmdBuffer* CmdBuffer, VulkanTexture* SrcSurface, VkImage DstSurface,
-                                         glm::uvec2 Size, glm::uvec2 WindowSize)
+static void CopyImageToBackBuffer(VulkanCmdBuffer* CmdBuffer, VulkanTexture* SrcSurface, VkImage DstSurface,
+                                  glm::uvec2 Size, glm::uvec2 WindowSize)
 {
 
-    const VkImageSubresourceRange Range = Barrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT);
+    const VkImageSubresourceRange Range = Barrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT, 0, 1);
     {
-        {
-            VulkanRHI::Barrier Barrier;
-            Barrier.TransitionLayout(DstSurface, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                     Range);
-            Barrier.TransitionLayout(SrcSurface->GetImage(), VK_IMAGE_LAYOUT_UNDEFINED,
-                                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, Range);
-            Barrier.Execute(CmdBuffer->GetHandle());
-        }
+        VulkanRHI::Barrier Barrier;
+        Barrier.TransitionLayout(DstSurface, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                 Range);
+        Barrier.TransitionLayout(SrcSurface->GetImage(), VK_IMAGE_LAYOUT_UNDEFINED,
+                                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, Range);
+        Barrier.Execute(CmdBuffer->GetHandle());
     }
 
     if (Size != WindowSize) {
@@ -125,10 +123,10 @@ inline static void CopyImageToBackBuffer(VulkanCmdBuffer* CmdBuffer, VulkanTextu
 
     {
         VulkanRHI::Barrier Barrier;
-        Barrier.TransitionLayout(DstSurface, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                                 Range);
         Barrier.TransitionLayout(SrcSurface->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, Range);
+        Barrier.TransitionLayout(DstSurface, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                 Range);
         Barrier.Execute(CmdBuffer->GetHandle());
     }
 }
@@ -142,8 +140,8 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
                               SwapChain->GetInternalSize());
     }
 
-    VulkanSetImageLayout(CmdBuffer->GetHandle(), BackBufferImages[AcquiredImageIndex], VK_IMAGE_LAYOUT_UNDEFINED,
-                         VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, Barrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT));
+    // VulkanSetImageLayout(CmdBuffer->GetHandle(), BackBufferImages[AcquiredImageIndex], VK_IMAGE_LAYOUT_UNDEFINED,
+    //                      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, Barrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT));
 
     CmdBuffer->End();
     if (AcquiredImageIndex != -1) [[likely]] {
@@ -151,9 +149,9 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
         CmdBuffer->AddWaitSemaphore(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, AcquiredSemaphore);
         Ref<Semaphore> SignalSemaphore =
             (AcquiredImageIndex >= 0) ? RenderingDoneSemaphores[AcquiredImageIndex] : nullptr;
-        Device->GetCommandManager()->SubmitActiveCmdBufferFormPresent(SignalSemaphore);
+        Device->GetCommandManager()->SubmitActiveCmdBufferFromPresent(SignalSemaphore);
     } else [[unlikely]] {
-        LOG(LogVulkanRHI, Trace, "AcquireNextImage() failed due to outdated swapchain, recreating");
+        LOG(LogVulkanRHI, Info, "AcquireNextImage() failed due to outdated swapchain, recreating");
         Queue->Submit(CmdBuffer);
         RecreateSwapchain(WindowHandle);
 
@@ -207,6 +205,8 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, Range);
         VulkanAPI::vkCmdClearColorImage(CmdBuffer->GetHandle(), BackBufferImages[i],
                                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &ClearColor, 1, &Range);
+        VulkanSetImageLayout(CmdBuffer->GetHandle(), BackBufferImages[i], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                             VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, Range);
     }
 
     {
@@ -214,19 +214,21 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
             .Flags = ETextureUsageFlags::RenderTargetable | ETextureUsageFlags::ResolveTargetable |
                      ETextureUsageFlags::TransferTargetable,
             .Dimension = EImageDimension::Texture2D,
-            .Format = EImageFormat::R8G8B8A8_SRGB,
+            .Format = VkFormatToImageFormat(SwapChain->GetFormat()),
             .Extent = Size,
             .Name = std::format("{:s}.BackBuffer", GetName()),
         };
         RenderingBackbuffer = RHI::CreateTexture(Description);
         VulkanSetImageLayout(CmdBuffer->GetHandle(), RenderingBackbuffer->GetImage(), VK_IMAGE_LAYOUT_UNDEFINED,
-                             VK_IMAGE_LAYOUT_GENERAL, Range);
+                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, Range);
 
         VkClearColorValue ClearColor;
         std::memset(&ClearColor, 0, sizeof(VkClearColorValue));
         const VkImageSubresourceRange Range = Barrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT);
         VulkanAPI::vkCmdClearColorImage(CmdBuffer->GetHandle(), RenderingBackbuffer->GetImage(),
-                                        VK_IMAGE_LAYOUT_GENERAL, &ClearColor, 1, &Range);
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &ClearColor, 1, &Range);
+        VulkanSetImageLayout(CmdBuffer->GetHandle(), RenderingBackbuffer->GetImage(),
+                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, Range);
     }
 
     Device->GetCommandManager()->SubmitUploadCmdBuffer();

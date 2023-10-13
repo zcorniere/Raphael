@@ -55,18 +55,15 @@ static VkAccessFlags GetVkAccessMaskForLayout(const VkImageLayout Layout)
             break;
 
         case VK_IMAGE_LAYOUT_GENERAL:
-            // todo-jn: could be used for R64 in read layout
         case VK_IMAGE_LAYOUT_UNDEFINED:
             Flags = 0;
             break;
 
         case VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL:
-            // todo-jn: sync2 currently only used by depth/stencil targets
             Flags = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
             break;
 
         case VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL:
-            // todo-jn: sync2 currently only used by depth/stencil targets
             Flags = VK_ACCESS_SHADER_READ_BIT;
             break;
 
@@ -178,7 +175,7 @@ Barrier::Barrier()
 void Barrier::TransitionLayout(VkImage Image, VkImageLayout OldLayout, VkImageLayout NewLayout,
                                const VkImageSubresourceRange& SubresourceRange)
 {
-    VkImageMemoryBarrier& Barrier = ImageBarrier.emplace_back();
+    VkImageMemoryBarrier& Barrier = ImageBarrier.Emplace();
 
     std::memset(&Barrier, 0, sizeof(Barrier));
     Barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -187,6 +184,8 @@ void Barrier::TransitionLayout(VkImage Image, VkImageLayout OldLayout, VkImageLa
     Barrier.oldLayout = OldLayout;
     Barrier.newLayout = NewLayout;
     Barrier.image = Image;
+    Barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    Barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     Barrier.subresourceRange = SubresourceRange;
 }
 
@@ -199,9 +198,10 @@ void Barrier::Execute(VkCommandBuffer CmdBuffer)
         SrcStageMask |= GetVkStageFlagsForLayout(Barrier.oldLayout);
         DstStageMask |= GetVkStageFlagsForLayout(Barrier.newLayout);
     }
-    if (!ImageBarrier.empty()) {
+
+    if (!ImageBarrier.IsEmpty()) {
         VulkanAPI::vkCmdPipelineBarrier(CmdBuffer, SrcStageMask, DstStageMask, 0, 0, nullptr, 0, nullptr,
-                                        ImageBarrier.size(), ImageBarrier.data());
+                                        ImageBarrier.Size(), ImageBarrier.Raw());
     }
 }
 

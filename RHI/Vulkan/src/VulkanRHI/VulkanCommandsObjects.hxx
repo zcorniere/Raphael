@@ -40,7 +40,7 @@ public:
     void BeginRenderPass(const VkRenderPassBeginInfo& RenderPassBeginInfo);
     void EndRenderPass();
 
-    void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore>& InSemaphore);
+    void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore> InSemaphore);
 
     inline VkCommandBuffer GetHandle() const
     {
@@ -156,7 +156,7 @@ public:
     void SubmitUploadCmdBuffer(Ref<Semaphore> SignalSemaphore = nullptr);
 
     void SubmitActiveCmdBuffer(Ref<Semaphore> SignalSemaphore = nullptr);
-    void SubmitActiveCmdBufferFormPresent(Ref<Semaphore> SignalSemaphore = nullptr);
+    void SubmitActiveCmdBufferFromPresent(Ref<Semaphore> SignalSemaphore = nullptr);
 
 private:
     Ref<VulkanCmdBuffer> FindAvailableCmdBuffer();

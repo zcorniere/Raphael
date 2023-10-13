@@ -49,7 +49,7 @@ VulkanSwapChain::SupportDetails VulkanSwapChain::SupportDetails::QuerySwapChainS
 VkSurfaceFormatKHR VulkanSwapChain::SupportDetails::ChooseSwapSurfaceFormat() const noexcept
 {
     for (const auto& availableFormat: Formats)
-        if (availableFormat.format == VK_FORMAT_R8G8B8A8_SRGB &&
+        if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
             availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
             return availableFormat;
     return Formats[0];
@@ -207,7 +207,7 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, 
 
     ImageInUseFence.Resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
-        ImageInUseFence[BufferIndex] = Ref<Fence>::Create(Device, false);
+        ImageInUseFence[BufferIndex] = Ref<Fence>::Create(Device, true);
         ImageInUseFence[BufferIndex]->SetName(std::format("Swapchain Fence Image In Use {}", BufferIndex));
     }
 }
@@ -305,7 +305,7 @@ int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore>& OutSemaphore)
 #endif
     {
         checkMsg(Result == VK_SUCCESS || Result == VK_SUBOPTIMAL_KHR, "vkAcquireNextImageKHR failed Result = {:s}({})",
-                 magic_enum::enum_name(Result), int32(Result));
+                 VK_TYPE_TO_STRING(VkResult, Result), int32(Result));
     }
     CurrentImageIndex = (int32)ImageIndex;
 

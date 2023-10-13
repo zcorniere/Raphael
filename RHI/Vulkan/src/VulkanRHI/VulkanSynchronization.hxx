@@ -25,7 +25,7 @@ public:
     void Execute(VkCommandBuffer CmdBuffer);
 
 private:
-    std::vector<VkImageMemoryBarrier> ImageBarrier;
+    Array<VkImageMemoryBarrier> ImageBarrier;
 };
 
 class Semaphore : public RObject

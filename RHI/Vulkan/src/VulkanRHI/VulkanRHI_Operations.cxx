@@ -20,13 +20,13 @@ void VulkanDynamicRHI::BeginFrame()
 void VulkanDynamicRHI::EndFrame()
 {
     RHI::Submit([this] {
-        GetDevice()->GetCommandManager()->SubmitActiveCmdBuffer();
-
         if (DrawingViewport.IsValid()) {
             LOG(LogVulkanRHI, Error, "Viewport \"{}\"draw session was not ended properly !",
                 DrawingViewport->GetName());
             DrawingViewport->RT_EndDrawViewport();
         }
+
+        GetDevice()->GetCommandManager()->SubmitActiveCmdBuffer();
     });
 
     RHI::GetRHICommandQueue()->Execute();
