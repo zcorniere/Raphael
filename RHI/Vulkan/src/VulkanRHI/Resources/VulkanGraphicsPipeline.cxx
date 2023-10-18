@@ -128,32 +128,12 @@ bool VulkanGraphicsPipeline::Create()
         .primitiveRestartEnable = VK_FALSE,
     };
 
-    VkViewport viewport{
-        .x = 0.0f,
-        .y = 0.0f,
-        .width = static_cast<float>(Desc.RenderPass->GetExtent().x),
-        .height = static_cast<float>(Desc.RenderPass->GetExtent().y),
-        .minDepth = 0.0f,
-        .maxDepth = 1.0f,
-    };
-    VkRect2D scissor{
-        .offset =
-            {
-                .x = static_cast<int32_t>(Desc.RenderPass->GetOffset().x),
-                .y = static_cast<int32_t>(Desc.RenderPass->GetOffset().y),
-            },
-        .extent =
-            {
-                .width = Desc.RenderPass->GetExtent().x,
-                .height = Desc.RenderPass->GetExtent().y,
-            },
-    };
     VkPipelineViewportStateCreateInfo viewportState{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
         .viewportCount = 1,
-        .pViewports = &viewport,
+        .pViewports = nullptr,
         .scissorCount = 1,
-        .pScissors = &scissor,
+        .pScissors = nullptr,
     };
 
     VkPipelineColorBlendAttachmentState ColorBlendAttachment{
@@ -198,6 +178,16 @@ bool VulkanGraphicsPipeline::Create()
         .alphaToOneEnable = VK_FALSE,
     };
 
+    VkDynamicState DynamicState[2]{
+        VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_SCISSOR,
+    };
+    VkPipelineDynamicStateCreateInfo DynamicStateCreateInfo{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+        .dynamicStateCount = std::size(DynamicState),
+        .pDynamicStates = DynamicState,
+    };
+
     VkGraphicsPipelineCreateInfo PipelineCreateInfo{
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
         .pNext = nullptr,
@@ -210,7 +200,7 @@ bool VulkanGraphicsPipeline::Create()
         .pRasterizationState = &RasterizerInfo,
         .pMultisampleState = &MultiSampling,
         .pColorBlendState = &colorBlending,
-        .pDynamicState = nullptr,
+        .pDynamicState = &DynamicStateCreateInfo,
         .layout = PipelineLayout,
         .renderPass = Desc.RenderPass->GetRenderPass(),
     };

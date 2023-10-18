@@ -9,30 +9,27 @@
 namespace VulkanRHI
 {
 
-VulkanRenderPass::VulkanRenderPass(VulkanDevice* InDevice, const RHIRenderPassDescription& InDescription,
+VulkanRenderPass::VulkanRenderPass(VulkanDevice* const InDevice, const RHIRenderPassDescription& InDescription,
                                    VkRenderPass ExternalPass)
-    : Device(InDevice), Description(InDescription), RenderPass(ExternalPass), FrameBuffer(VK_NULL_HANDLE)
+    : Device(InDevice), Description(InDescription), RenderPass(ExternalPass)
 {
     if (!RenderPass) {
         CreateRenderPass();
     }
 
     checkMsg(!Description.ColorTarget.IsEmpty(), "The RenderPassDescription is invalid");
-    CreateFrameBuffer();
 }
 
 VulkanRenderPass::~VulkanRenderPass()
 {
-    if (FrameBuffer) {
-        VulkanAPI::vkDestroyFramebuffer(Device->GetHandle(), FrameBuffer, VULKAN_CPU_ALLOCATOR);
-    }
 }
 
-void VulkanRenderPass::Begin(VulkanCmdBuffer* CmdBuffer, const VkRect2D RenderArea)
+void VulkanRenderPass::Begin(VulkanCmdBuffer* const CmdBuffer, const VulkanFramebuffer* const Framebuffer,
+                             const VkRect2D RenderArea)
 {
     check(CmdBuffer);
     Array<VkClearValue> ClearValues;
-    for (const Ref<VulkanTexture> Texture: Description.ColorTarget) {
+    for (const Ref<VulkanTexture> Texture: Framebuffer->GetDefinition().ColorTarget) {
         const glm::vec4& Color = Texture->GetDescription().ClearColor;
         VkClearValue& Value = ClearValues.Emplace();
         Value.color = {{Color.r, Color.g, Color.b, Color.a}};
@@ -40,14 +37,14 @@ void VulkanRenderPass::Begin(VulkanCmdBuffer* CmdBuffer, const VkRect2D RenderAr
     if (HasDepthTarget()) {
         VkClearValue& Value = ClearValues.Emplace();
         Value.depthStencil = {
-            Description.DepthTarget->GetDescription().ClearColor.x,
+            Framebuffer->GetDefinition().DepthTarget->GetDescription().ClearColor.x,
         };
     }
 
     VkRenderPassBeginInfo BeginInfo{
         .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
         .renderPass = RenderPass,
-        .framebuffer = FrameBuffer,
+        .framebuffer = Framebuffer->GetFramebuffer(),
         .renderArea = RenderArea,
         .clearValueCount = ClearValues.Size(),
         .pClearValues = ClearValues.Raw(),
@@ -55,7 +52,7 @@ void VulkanRenderPass::Begin(VulkanCmdBuffer* CmdBuffer, const VkRect2D RenderAr
     CmdBuffer->BeginRenderPass(BeginInfo);
     bHasBegun = true;
 }
-void VulkanRenderPass::End(VulkanCmdBuffer* CmdBuffer)
+void VulkanRenderPass::End(VulkanCmdBuffer* const CmdBuffer)
 {
     check(bHasBegun);
     check(CmdBuffer);
@@ -83,60 +80,20 @@ void VulkanRenderPass::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
 
-    if (FrameBuffer) {
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_FRAMEBUFFER, FrameBuffer, "{:s}.Framebuffer", GetName());
-    }
     if (RenderPass) {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_RENDER_PASS, RenderPass, "{:s}", GetName());
     }
 }
 
-VkFramebuffer VulkanRenderPass::CreateFrameBuffer()
-{
-    Array<VkImageView> Attachments(GetFramebufferAttachment(Description.ColorTarget));
-    if (HasDepthTarget())
-        Attachments.Append(GetFramebufferAttachment({
-            Description.DepthTarget,
-        }));
-    Attachments.Append(GetFramebufferAttachment(Description.ResolveTarget));
-
-    VkFramebufferCreateInfo CreateInfo{
-        .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-        .renderPass = GetRenderPass(),
-        .attachmentCount = Attachments.Size(),
-        .pAttachments = Attachments.Raw(),
-        .width = Description.Size.x,
-        .height = Description.Size.y,
-        .layers = 1,
-    };
-    VK_CHECK_RESULT(
-        VulkanAPI::vkCreateFramebuffer(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &FrameBuffer));
-    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_FRAMEBUFFER, FrameBuffer, "%s [Framebuffer]", GetName());
-    return FrameBuffer;
-}
-
-Array<VkImageView> VulkanRenderPass::GetFramebufferAttachment(const Array<Ref<RHITexture>>& SourceTextures)
-{
-    Array<VkImageView> ImageView;
-    ImageView.Reserve(SourceTextures.Size());
-    for (const Ref<RHITexture>& Texture: SourceTextures) {
-        WeakRef<VulkanTexture> VkTexture = Texture.As<VulkanTexture>();
-        ImageView.Add(VkTexture->GetImageView());
-    }
-    return ImageView;
-}
-
 VkRenderPass VulkanRenderPass::CreateRenderPass()
 {
-    Array<VkAttachmentDescription> Attachments =
-        GetAttachmentDescriptions(Description.ColorTarget, ETextureUsageFlags::RenderTargetable);
-    Attachments.Append(GetAttachmentDescriptions(Description.ResolveTarget, ETextureUsageFlags::ResolveTargetable));
+    Array<VkAttachmentDescription> Attachments;
+    Attachments.Append(GetAttachmentDescriptions(Description.ColorTarget));
+    Attachments.Append(GetAttachmentDescriptions(Description.ResolveTarget));
     if (HasDepthTarget())
-        Attachments.Append(GetAttachmentDescriptions(
-            {
-                Description.DepthTarget,
-            },
-            ETextureUsageFlags::DepthStencilTargetable));
+        Attachments.Append(GetAttachmentDescriptions({
+            Description.DepthTarget.value(),
+        }));
 
     AttachmentRefs AttachRef = FillAttachmentReference(Attachments);
 
@@ -167,7 +124,7 @@ VkRenderPass VulkanRenderPass::CreateRenderPass()
     };
     VK_CHECK_RESULT(
         VulkanAPI::vkCreateRenderPass(Device->GetHandle(), &RenderPassInfo, VULKAN_CPU_ALLOCATOR, &RenderPass));
-    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_RENDER_PASS, RenderPass, "%s [Renderpass]", GetName());
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_RENDER_PASS, RenderPass, "{:s}.Renderpass", GetName());
     return RenderPass;
 }
 
@@ -202,29 +159,27 @@ VulkanRenderPass::FillAttachmentReference(const Array<VkAttachmentDescription>& 
     return Ref;
 }
 
-VkAttachmentDescription VulkanRenderPass::GetAttachmentDescription(const Ref<RHITexture>& Target,
-                                                                   ETextureUsageFlags Flags) const
+VkAttachmentDescription VulkanRenderPass::GetAttachmentDescription(const RHIRenderPassTarget& Target) const
 {
     VkAttachmentDescription AttachmentDescription{
-        .format = ImageFormatToFormat(Target->GetDescription().Format),
+        .format = ImageFormatToFormat(Target.Format),
         .samples = VK_SAMPLE_COUNT_1_BIT,
         .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
         .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
         .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
         .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-        .finalLayout = GetLayout(Flags),
+        .finalLayout = GetLayout(Target.Flags),
     };
     return AttachmentDescription;
 }
 
-Array<VkAttachmentDescription> VulkanRenderPass::GetAttachmentDescriptions(const Array<Ref<RHITexture>>& Targets,
-                                                                           ETextureUsageFlags Flags)
+Array<VkAttachmentDescription> VulkanRenderPass::GetAttachmentDescriptions(const Array<RHIRenderPassTarget>& Targets)
 {
     Array<VkAttachmentDescription> AttachmentDescription;
     AttachmentDescription.Reserve(Targets.Size());
-    for (const Ref<RHITexture>& Target: Targets) {
-        AttachmentDescription.Add(GetAttachmentDescription(Target, Flags));
+    for (const RHIRenderPassTarget& Target: Targets) {
+        AttachmentDescription.Add(GetAttachmentDescription(Target));
     }
 
     return AttachmentDescription;

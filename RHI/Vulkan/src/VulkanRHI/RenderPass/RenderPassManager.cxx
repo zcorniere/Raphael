@@ -7,44 +7,24 @@ DECLARE_LOGGER_CATEGORY(Core, LogRenderPassManager, Info)
 namespace VulkanRHI
 {
 
-size_t RenderPassManager::RenderPassDescriptionHashWithoutSize::operator()(const RHIRenderPassDescription& Desc) const
-{
-    size_t Result = 0;
-    for (const Ref<RHITexture>& Target: Desc.ColorTarget) {
-        ::Raphael::HashCombine(Result, Target->GetDescription().Format);
-    }
-    for (const Ref<RHITexture>& Target: Desc.ResolveTarget) {
-        ::Raphael::HashCombine(Result, Target->GetDescription().Format);
-    }
-    if (Desc.DepthTarget) {
-        ::Raphael::HashCombine(Result, Desc.DepthTarget->GetDescription().Format);
-    }
-    return Result;
-}
-
-size_t RenderPassManager::RenderPassDescriptionEqualWithoutSize::operator()(const RHIRenderPassDescription& A,
-                                                                            const RHIRenderPassDescription& B) const
-{
-    return A.ColorTarget == B.ColorTarget && A.ResolveTarget == B.ResolveTarget && A.DepthTarget == B.DepthTarget;
-}
-
 RenderPassManager::RenderPassManager(VulkanDevice* InDevice): Device(InDevice)
 {
 }
 
 RenderPassManager::~RenderPassManager()
 {
-    Clear();
+    ClearRenderpass();
 }
 
-void RenderPassManager::Clear()
+void RenderPassManager::ClearRenderpass()
 {
-    LOG(LogRenderPassManager, Info, "Clearing {} render pass{}", StorageMap.size(),
-        (StorageMap.size() > 1) ? ("es") : (""));
+    ClearFramebuffers();
+    LOG(LogRenderPassManager, Info, "Clearing {} render pass{}", RenderPassStorageMap.size(),
+        (RenderPassStorageMap.size() > 1) ? ("es") : (""));
     LOG(LogRenderPassManager, Info, "- {} vulkan render pass{}", RenderPassStorage.size(),
         (RenderPassStorage.size() > 1) ? ("es") : (""));
 
-    StorageMap.clear();
+    RenderPassStorageMap.clear();
 
     for (auto& [_, VulkanPass]: RenderPassStorage) {
         VulkanAPI::vkDestroyRenderPass(Device->GetHandle(), VulkanPass, VULKAN_CPU_ALLOCATOR);
@@ -52,11 +32,19 @@ void RenderPassManager::Clear()
     RenderPassStorage.clear();
 }
 
-WeakRef<VulkanRenderPass> RenderPassManager::Get(const RHIRenderPassDescription& Description)
+void RenderPassManager::ClearFramebuffers()
+{
+    LOG(LogRenderPassManager, Info, "Clearing {} framebuffers pass{}", FrameBufferStorageMap.size(),
+        (FrameBufferStorageMap.size() > 1) ? ("es") : (""));
+
+    FrameBufferStorageMap.clear();
+}
+
+WeakRef<VulkanRenderPass> RenderPassManager::GetRenderPass(const RHIRenderPassDescription& Description)
 {
     // Find an already created RenderPass
-    auto RenderPassIter = StorageMap.find(Description);
-    if (RenderPassIter != StorageMap.end()) {
+    auto RenderPassIter = RenderPassStorageMap.find(Description);
+    if (RenderPassIter != RenderPassStorageMap.end()) {
         return RenderPassIter->second;
     }
 
@@ -74,8 +62,25 @@ WeakRef<VulkanRenderPass> RenderPassManager::Get(const RHIRenderPassDescription&
     if (!RenderPass) {
         RenderPassStorage[Description] = Pass->GetRenderPass();
     }
-    StorageMap[Description] = Pass;
+    RenderPassStorageMap[Description] = Pass;
     return Pass;
+}
+
+WeakRef<VulkanFramebuffer> RenderPassManager::GetFrameBuffer(const VulkanRenderPass* const RenderPass,
+                                                             const RHIFramebufferDefinition& Definition)
+{
+    // Find an already created Framebuffer
+    auto FramebufferIter = FrameBufferStorageMap.find(Definition);
+    if (FramebufferIter != FrameBufferStorageMap.end()) {
+        return FramebufferIter->second;
+    }
+
+    // Create the render pass
+    Ref<VulkanFramebuffer> Framebuffer = Ref<VulkanFramebuffer>::Create(Device, RenderPass, Definition);
+
+    // If no VkFramebuffer was found earlier, store the new one
+    FrameBufferStorageMap[Definition] = Framebuffer;
+    return Framebuffer;
 }
 
 }    // namespace VulkanRHI

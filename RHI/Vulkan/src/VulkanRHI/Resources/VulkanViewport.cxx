@@ -7,10 +7,14 @@
 #include "VulkanRHI/VulkanSwapChain.hxx"
 #include "VulkanRHI/VulkanSynchronization.hxx"
 
+#include "Engine/Core/Window.hxx"
+
+#include "VulkanRHI/RenderPass/RenderPassManager.hxx"
+
 namespace VulkanRHI
 {
 
-VulkanViewport::VulkanViewport(VulkanDevice* InDevice, void* InWindowHandle, glm::uvec2 InSize)
+VulkanViewport::VulkanViewport(VulkanDevice* InDevice, Ref<Window> InWindowHandle, glm::uvec2 InSize)
     : Device(InDevice), WindowHandle(InWindowHandle), Size(InSize), AcquiredImageIndex(-1), AcquiredSemaphore(nullptr)
 {
     CreateSwapchain(nullptr);
@@ -42,11 +46,12 @@ void VulkanViewport::RT_EndDrawViewport()
 
 void VulkanViewport::RT_ResizeViewport(uint32 Width, uint32 Height)
 {
+    GetVulkanDynamicRHI()->RPassManager->ClearFramebuffers();
+
     Size.x = Width;
     Size.y = Height;
 
-    LOG(LogVulkanRHI, Trace, "Viewport {:s} resized leads to outdated swapchain, recreating", GetName());
-    RecreateSwapchain(WindowHandle);
+    RenderingBackbuffer->Resize(Size);
 }
 
 void VulkanViewport::SetName(std::string_view InName)
@@ -93,7 +98,7 @@ static void CopyImageToBackBuffer(VulkanCmdBuffer* CmdBuffer, VulkanTexture* Src
         Region.srcOffsets[0].z = 0;
         Region.srcOffsets[1].x = Size.x;
         Region.srcOffsets[1].y = Size.y;
-        Region.srcOffsets[1].z = 0;
+        Region.srcOffsets[1].z = 1;
         Region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         Region.srcSubresource.layerCount = 1;
         Region.dstOffsets[0].x = 0;
@@ -101,7 +106,7 @@ static void CopyImageToBackBuffer(VulkanCmdBuffer* CmdBuffer, VulkanTexture* Src
         Region.dstOffsets[0].z = 0;
         Region.dstOffsets[1].x = WindowSize.x;
         Region.dstOffsets[1].y = WindowSize.y;
-        Region.dstOffsets[1].z = 0;
+        Region.dstOffsets[1].z = 1;
         Region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         Region.dstSubresource.baseArrayLayer = 0;
         Region.dstSubresource.layerCount = 1;
@@ -140,9 +145,6 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
                               SwapChain->GetInternalSize());
     }
 
-    // VulkanSetImageLayout(CmdBuffer->GetHandle(), BackBufferImages[AcquiredImageIndex], VK_IMAGE_LAYOUT_UNDEFINED,
-    //                      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, Barrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT));
-
     CmdBuffer->End();
     if (AcquiredImageIndex != -1) [[likely]] {
         check(AcquiredSemaphore);
@@ -153,9 +155,8 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
     } else [[unlikely]] {
         LOG(LogVulkanRHI, Info, "AcquireNextImage() failed due to outdated swapchain, recreating");
         Queue->Submit(CmdBuffer);
-        RecreateSwapchain(WindowHandle);
-
         Device->WaitUntilIdle();
+        RecreateSwapchain(WindowHandle);
         return true;
     }
 
@@ -166,7 +167,7 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
     return bResult;
 }
 
-void VulkanViewport::RecreateSwapchain(void* NewNativeWindow)
+void VulkanViewport::RecreateSwapchain(Ref<Window> NewNativeWindow)
 {
     VulkanSwapChainRecreateInfo RecreateInfo = {VK_NULL_HANDLE, VK_NULL_HANDLE};
     DeleteSwapchain(&RecreateInfo);
@@ -180,7 +181,7 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
 {
     VulkanDynamicRHI* RHI = GetVulkanDynamicRHI();
 
-    SwapChain = Ref<VulkanSwapChain>::Create(RHI->GetInstance(), Device, WindowHandle, Size, 0, BackBufferImages, true,
+    SwapChain = Ref<VulkanSwapChain>::Create(RHI->GetInstance(), Device, WindowHandle.Raw(), 0, BackBufferImages, true,
                                              RecreateInfo);
 
     RenderingDoneSemaphores.Resize(BackBufferImages.Size());
@@ -209,7 +210,8 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
                              VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, Range);
     }
 
-    {
+    Size = SwapChain->GetInternalSize();
+    if (!RenderingBackbuffer) {
         RHITextureSpecification Description{
             .Flags = ETextureUsageFlags::RenderTargetable | ETextureUsageFlags::ResolveTargetable |
                      ETextureUsageFlags::TransferTargetable,
@@ -219,6 +221,10 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
             .Name = std::format("{:s}.BackBuffer", GetName()),
         };
         RenderingBackbuffer = RHI::CreateTexture(Description);
+    } else {
+        RenderingBackbuffer->Resize(Size);
+    }
+    {
         VulkanSetImageLayout(CmdBuffer->GetHandle(), RenderingBackbuffer->GetImage(), VK_IMAGE_LAYOUT_UNDEFINED,
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, Range);
 
@@ -249,8 +255,6 @@ void VulkanViewport::DeleteSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
     SwapChain->Destroy(RecreateInfo);
     SwapChain = nullptr;
 
-    RenderingBackbuffer = nullptr;
-
     AcquiredImageIndex = -1;
 }
 
@@ -280,9 +284,8 @@ bool VulkanViewport::TryPresenting(VulkanQueue* PresentQueue)
             checkNoEntry();
         }
 
-        RecreateSwapchain(WindowHandle);
-
         Device->WaitUntilIdle();
+        RecreateSwapchain(WindowHandle);
 
         if (AcquiredImageIndex == -1) {
             return true;

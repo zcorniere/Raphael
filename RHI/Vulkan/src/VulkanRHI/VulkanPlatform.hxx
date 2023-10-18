@@ -3,6 +3,8 @@
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
+class Window;
+
 namespace VulkanRHI
 {
 
@@ -21,7 +23,7 @@ public:
     static void GetDeviceExtensions(VulkanDevice* Device, Array<const char*>& OutExtensions);
     static void GetDeviceLayers(Array<const char*>& OutLayers);
 
-    static void CreateSurface(void* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface);
+    static void CreateSurface(Window* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface);
 };
 
 }    // namespace VulkanRHI

@@ -40,7 +40,7 @@ struct WindowDefinition {
 /// @class Window
 ///
 /// @brief A class allowing some abstaction over the GLFW library
-class Window : public NamedClass
+class Window : public RObject
 {
 public:
     /// Make sure GLFW is initialized or do it if it is not

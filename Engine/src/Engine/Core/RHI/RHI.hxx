@@ -3,6 +3,8 @@
 #include "Engine/Core/RHI/RHICommandQueue.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
 
+class Window;
+
 DECLARE_LOGGER_CATEGORY(Core, LogGenericRHI, Info);
 
 enum class RHIInterfaceType {
@@ -53,7 +55,8 @@ public:
     /// @brief Indicate the RHI that we are moving to a new frame
     static void NextFrame();
     /// @brief Indicate the RHI that we are starting drawing
-    static void BeginRenderPass(const RHIRenderPassDescription& Description);
+    static void BeginRenderPass(const RHIRenderPassDescription& Renderpass,
+                                const RHIFramebufferDefinition& Framebuffer);
     /// @brief Indicate the RHI that we are done rendering for now
     static void EndRenderPass();
 
@@ -61,7 +64,7 @@ public:
     static void Draw(Ref<RHIGraphicsPipeline>& Pipeline);
 
     /// Create a new RHI viewport - through the current RHI
-    static Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize);
+    static Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize);
     /// Create a new RHI texture - through the current RHI
     static Ref<RHITexture> CreateTexture(const RHITextureSpecification& InDesc);
     /// Create a new RHI buffer - through the current RHI

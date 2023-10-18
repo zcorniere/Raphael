@@ -4,6 +4,8 @@
 
 #include "VulkanRHI/Resources/VulkanTexture.hxx"
 
+class Window;
+
 namespace VulkanRHI
 {
 
@@ -17,7 +19,7 @@ struct VulkanSwapChainRecreateInfo;
 class VulkanViewport : public RHIViewport
 {
 public:
-    VulkanViewport(VulkanDevice* InDevice, void* InWindowHandle, glm::uvec2 InSize);
+    VulkanViewport(VulkanDevice* InDevice, Ref<Window> InWindowHandle, glm::uvec2 InSize);
     ~VulkanViewport();
 
     virtual glm::uvec2 GetSize() const override
@@ -27,7 +29,7 @@ public:
 
     void SetName(std::string_view InName) override;
     bool Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, VulkanQueue* PresentQueue);
-    void RecreateSwapchain(void* NewNativeWindow);
+    void RecreateSwapchain(Ref<Window> NewNativeWindow);
 
     virtual Ref<RHITexture> GetBackbuffer() const override
     {
@@ -57,7 +59,7 @@ private:
     Array<Ref<Semaphore>> RenderingDoneSemaphores;
 
     Ref<VulkanTexture> RenderingBackbuffer;
-    void* WindowHandle;
+    Ref<Window> WindowHandle;
     glm::uvec2 Size;
 
     int32 AcquiredImageIndex;

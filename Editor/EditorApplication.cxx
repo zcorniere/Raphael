@@ -53,14 +53,12 @@ bool EditorApplication::OnEngineInitialization()
     RHIRenderPassDescription Description{
         .ColorTarget =
             {
-                MainViewport->GetBackbuffer(),
+                {
+                    .Format = MainViewport->GetBackbuffer()->GetDescription().Format,
+                    .Flags = ETextureUsageFlags::RenderTargetable,
+                },
             },
-        .DepthTarget = nullptr,
-        // .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
-        //     .Format = EImageFormat::D32_SFLOAT,
-        // }),
-        .Size = MainViewport->GetSize(),
-        .Name = "SimpleRenderPass",
+        .DepthTarget = std::nullopt,
     };
     Pipeline = RHI::CreateGraphicsPipeline(RHIGraphicsPipelineSpecification{
         .VertexShader = "DefaultTriangle.vert",
@@ -96,16 +94,26 @@ void EditorApplication::Tick(const float DeltaTime)
     RHIRenderPassDescription Description{
         .ColorTarget =
             {
-                MainViewport->GetBackbuffer(),
+                {
+                    .Format = MainViewport->GetBackbuffer()->GetDescription().Format,
+                    .Flags = ETextureUsageFlags::RenderTargetable,
+                },
             },
-        .DepthTarget = nullptr,
+        .DepthTarget = std::nullopt,
         // .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
         //     .Format = EImageFormat::D32_SFLOAT,
         // }),
-        .Size = MainViewport->GetSize(),
-        .Name = "SimpleRenderPass",
     };
-    RHI::BeginRenderPass(Description);
+    RHIFramebufferDefinition Definition{
+        .ColorTarget =
+            {
+                MainViewport->GetBackbuffer(),
+            },
+        .DepthTarget = nullptr,
+        .Offset = {0, 0},
+        .Extent = MainViewport->GetSize(),
+    };
+    RHI::BeginRenderPass(Description, Definition);
     RHI::Draw(Pipeline);
     RHI::EndRenderPass();
 

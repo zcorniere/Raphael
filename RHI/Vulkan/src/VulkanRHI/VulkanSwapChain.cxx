@@ -104,22 +104,14 @@ VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool Loc
     }
 }
 
-VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const glm::uvec2& s) const noexcept
+VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent() const noexcept
 {
-    if (Capabilities.currentExtent.width != UINT32_MAX) {
-        return Capabilities.currentExtent;
-    } else {
-        VkExtent2D size{
-            .width = s.x,
-            .height = s.y,
-        };
-        size.width = std::clamp(size.width, Capabilities.minImageExtent.width, Capabilities.maxImageExtent.width);
-        size.height = std::clamp(size.height, Capabilities.minImageExtent.height, Capabilities.maxImageExtent.height);
-        return size;
-    }
+    check(Capabilities.currentExtent.width != UINT32_MAX);
+    // Always return the current extent of the swapchain
+    return Capabilities.currentExtent;
 }
 
-VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, void* WindowHandle, glm::uvec2 Size,
+VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, Window* WindowHandle,
                                  uint32 InDesiredNumBackBuffers, Array<VkImage>& OutImages, bool LockToVSync,
                                  VulkanSwapChainRecreateInfo* RecreateInfo)
     : Device(InDevice),
@@ -141,7 +133,7 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, 
     const SupportDetails SwapChainSupport = SupportDetails::QuerySwapChainSupport(Device, Surface);
     VkSurfaceFormatKHR SurfaceFormat = SwapChainSupport.ChooseSwapSurfaceFormat();
     VkPresentModeKHR PresentMode = SwapChainSupport.ChooseSwapPresentMode(LockToVSync);
-    VkExtent2D Extent = SwapChainSupport.ChooseSwapExtent(Size);
+    VkExtent2D Extent = SwapChainSupport.ChooseSwapExtent();
 
     uint32 ImageCount = std::max(SwapChainSupport.Capabilities.minImageCount + 1, InDesiredNumBackBuffers);
     if (SwapChainSupport.Capabilities.maxImageCount > 0 && ImageCount > SwapChainSupport.Capabilities.maxImageCount) {
@@ -189,8 +181,8 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, 
         }
     }
 
-    InternalSize.x = std::min(Size.x, CreateInfo.imageExtent.width);
-    InternalSize.y = std::min(Size.y, CreateInfo.imageExtent.height);
+    InternalSize.x = CreateInfo.imageExtent.width;
+    InternalSize.y = CreateInfo.imageExtent.height;
 
     uint32 NumSwapchainImages;
     VK_CHECK_RESULT_EXPANDED(

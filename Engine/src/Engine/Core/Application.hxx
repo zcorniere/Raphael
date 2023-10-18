@@ -64,7 +64,7 @@ private:
 protected:
     bool bShouldExit = false;
 
-    std::unique_ptr<Window> MainWindow;
+    Ref<Window> MainWindow;
     Ref<RHIViewport> MainViewport;
 
     std::mutex m_EventQueueMutex;

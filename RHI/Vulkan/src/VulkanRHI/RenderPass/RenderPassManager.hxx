@@ -7,30 +7,28 @@ namespace VulkanRHI
 {
 class VulkanDevice;
 
+/// This class manage the creation and deletion of Vulkan render passes
 class RenderPassManager
 {
-private:
-    struct RenderPassDescriptionHashWithoutSize {
-        size_t operator()(const RHIRenderPassDescription& Desc) const;
-    };
-    struct RenderPassDescriptionEqualWithoutSize {
-        size_t operator()(const RHIRenderPassDescription& A, const RHIRenderPassDescription& B) const;
-    };
-
 public:
     explicit RenderPassManager(VulkanDevice* InDevice);
     ~RenderPassManager();
 
-    void Clear();
+    /// Delete all the renderpasses currently stored
+    /// @note ClearFramebuffers() will be called
+    void ClearRenderpass();
+    /// Delete all framebuffers objects currently stored
+    void ClearFramebuffers();
 
-    WeakRef<VulkanRenderPass> Get(const RHIRenderPassDescription& Description);
+    WeakRef<VulkanRenderPass> GetRenderPass(const RHIRenderPassDescription& Description);
+    WeakRef<VulkanFramebuffer> GetFrameBuffer(const VulkanRenderPass* const RenderPass,
+                                              const RHIFramebufferDefinition& Definition);
 
 public:
     VulkanDevice* Device;
-    std::unordered_map<RHIRenderPassDescription, VkRenderPass, RenderPassDescriptionHashWithoutSize,
-                       RenderPassDescriptionEqualWithoutSize>
-        RenderPassStorage;
-    std::unordered_map<RHIRenderPassDescription, Ref<VulkanRenderPass>> StorageMap;
+    std::unordered_map<RHIRenderPassDescription, VkRenderPass> RenderPassStorage;
+    std::unordered_map<RHIRenderPassDescription, Ref<VulkanRenderPass>> RenderPassStorageMap;
+    std::unordered_map<RHIFramebufferDefinition, Ref<VulkanFramebuffer>> FrameBufferStorageMap;
 };
 
 }    // namespace VulkanRHI

@@ -38,14 +38,15 @@ public:
     virtual void NextFrame() = 0;
 
     /// @copydoc RHI::BeginRenderPass
-    virtual void BeginRenderPass(const RHIRenderPassDescription& Description) = 0;
+    virtual void BeginRenderPass(const RHIRenderPassDescription& Renderpass,
+                                 const RHIFramebufferDefinition& Framebuffer) = 0;
     /// @copydoc RHI::EndRenderPass
     virtual void EndRenderPass() = 0;
 
     virtual void Draw(Ref<RHIGraphicsPipeline>& Pipeline) = 0;
 
     /// @copydoc RHI::CreateViewport
-    virtual Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize) = 0;
+    virtual Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize) = 0;
     /// @copydoc RHI::CreateTexture
     virtual Ref<RHITexture> CreateTexture(const RHITextureSpecification& InDesc) = 0;
     /// @copydoc RHI::CreateBuffer

@@ -56,19 +56,45 @@ enum class EFrontFace {
     Clockwise,
 };
 
+/// @brief What the texture will be used for
+enum class ETextureUsageFlags {
+    None = 0,
+    RenderTargetable = BIT(0),
+    ResolveTargetable = BIT(1),
+    DepthStencilTargetable = BIT(2),
+
+    SampleTargetable = BIT(3),
+    TransferTargetable = BIT(4),
+};
+ENUM_CLASS_FLAGS(ETextureUsageFlags)
+
 class RHITexture;
 class RHIGraphicsPipeline;
 
+struct RHIRenderPassTarget {
+    EImageFormat Format;
+    ETextureUsageFlags Flags;
+
+    bool operator==(const RHIRenderPassTarget&) const = default;
+};
+
 struct RHIRenderPassDescription {
+    Array<RHIRenderPassTarget> ColorTarget = {};
+    Array<RHIRenderPassTarget> ResolveTarget = {};
+    std::optional<RHIRenderPassTarget> DepthTarget = std::nullopt;
+
+    bool operator==(const RHIRenderPassDescription&) const = default;
+};
+
+struct RHIFramebufferDefinition {
     Array<Ref<RHITexture>> ColorTarget = {};
     Array<Ref<RHITexture>> ResolveTarget = {};
     Ref<RHITexture> DepthTarget = nullptr;
 
     glm::ivec2 Offset;
-    glm::uvec2 Size;
-    std::string Name;
+    glm::uvec2 Extent;
 
-    bool operator==(const RHIRenderPassDescription&) const = default;
+    bool operator==(const RHIFramebufferDefinition&) const = default;
 };
 
 class ResourceArray : public RObject
@@ -114,6 +140,11 @@ namespace std
 template <>
 struct hash<RHIRenderPassDescription> {
     size_t operator()(const RHIRenderPassDescription& Desc) const;
+};
+
+template <>
+struct hash<RHIFramebufferDefinition> {
+    size_t operator()(const RHIFramebufferDefinition& Desc) const;
 };
 
 }    // namespace std

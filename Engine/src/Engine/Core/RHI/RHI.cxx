@@ -1,6 +1,7 @@
 #include "Engine/Core/RHI/RHI.hxx"
 
 #include "Engine/Core/RHI/GenericRHI.hxx"
+#include "Engine/Core/Window.hxx"
 #include "RHI.hxx"
 
 static std::unique_ptr<RHICommandQueue> s_CommandQueue = nullptr;
@@ -47,11 +48,11 @@ void RHI::NextFrame()
     return RHI::Get<GenericRHI>()->NextFrame();
 }
 
-void RHI::BeginRenderPass(const RHIRenderPassDescription& Description)
+void RHI::BeginRenderPass(const RHIRenderPassDescription& Renderpass, const RHIFramebufferDefinition& Framebuffer)
 {
     RPH_PROFILE_FUNC()
 
-    return RHI::Get<GenericRHI>()->BeginRenderPass(Description);
+    return RHI::Get<GenericRHI>()->BeginRenderPass(Renderpass, Framebuffer);
 }
 
 void RHI::EndRenderPass()
@@ -69,9 +70,9 @@ void RHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
 //  -------------------- RHI Create resources --------------------
 //
 
-Ref<RHIViewport> RHI::CreateViewport(void* InWindowHandle, glm::uvec2 InSize)
+Ref<RHIViewport> RHI::CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize)
 {
-    return RHI::Get<GenericRHI>()->CreateViewport(InWindowHandle, InSize);
+    return RHI::Get<GenericRHI>()->CreateViewport(std::move(InWindowHandle), std::move(InSize));
 }
 
 Ref<RHITexture> RHI::CreateTexture(const RHITextureSpecification& InDesc)

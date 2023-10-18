@@ -17,37 +17,110 @@ VulkanTexture::VulkanTexture(VulkanDevice* InDevice, const RHITextureSpecificati
       Layout(VK_IMAGE_LAYOUT_UNDEFINED),
       View(VK_NULL_HANDLE)
 {
+    CreateTexture();
+}
+
+VulkanTexture::~VulkanTexture()
+{
+    DestroyTexture();
+}
+
+void VulkanTexture::SetName(std::string_view InName)
+{
+    RHIResource::SetName(InName);
+    if (Image) {
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, Image, "{:s}.Image", InName);
+    }
+    if (View) {
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, View, "{:s}.Image.View", InName);
+    }
+    if (Allocation) {
+        Allocation->SetName(std::format("{:s}.Image.Memory", InName));
+    }
+}
+
+void VulkanTexture::Resize(const glm::uvec2& Size)
+{
+    if (Description.Extent == Size) {
+        return;
+    }
+    DestroyTexture();
+    Description.Extent = Size;
+    CreateTexture();
+}
+
+VkImage VulkanTexture::GetImage() const
+{
+    return Image;
+}
+
+VkImageView VulkanTexture::GetImageView() const
+{
+    if (View != VK_NULL_HANDLE) {
+        return View;
+    }
+    VkImageViewCreateInfo CreateInfo{
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .image = Image,
+        .viewType = TextureDimensionToVkImageViewType(Description.Dimension),
+        .format = ImageFormatToFormat(Description.Format),
+        .components =
+            {
+                .r = VK_COMPONENT_SWIZZLE_IDENTITY,
+                .g = VK_COMPONENT_SWIZZLE_IDENTITY,
+                .b = VK_COMPONENT_SWIZZLE_IDENTITY,
+                .a = VK_COMPONENT_SWIZZLE_IDENTITY,
+            },
+        .subresourceRange = Barrier::MakeSubresourceRange(TextureUsageFlagToVkImageAspectFlags(Description.Flags)),
+    };
+    VK_CHECK_RESULT(VulkanAPI::vkCreateImageView(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &View));
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, View, "{:s}.Image.View", GetName());
+    return View;
+}
+
+VkImageViewType VulkanTexture::GetViewType() const
+{
+    return TextureDimensionToVkImageViewType(Description.Dimension);
+}
+
+VkImageLayout VulkanTexture::GetLayout() const
+{
+    return Layout;
+}
+
+void VulkanTexture::CreateTexture()
+{
     const VkPhysicalDeviceProperties& DeviceProperties = Device->GetDeviceProperties();
 
     VkImageCreateInfo ImageCreateInfo{
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-        .imageType = TextureDimensionToVkImageType(InDesc.Dimension),
-        .format = ImageFormatToFormat(InDesc.Format),
+        .imageType = TextureDimensionToVkImageType(Description.Dimension),
+        .format = ImageFormatToFormat(Description.Format),
         .extent =
             {
-                .width = InDesc.Extent.x,
-                .height = InDesc.Extent.y,
-                .depth = InDesc.Depth,
+                .width = Description.Extent.x,
+                .height = Description.Extent.y,
+                .depth = Description.Depth,
             },
-        .mipLevels = InDesc.NumMips,
+        .mipLevels = Description.NumMips,
         .arrayLayers = 1,
         .usage = TextureUsageFlagsToVkImageUsageFlags(Description.Flags),
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .initialLayout = Layout,
     };
 
-    const VkImageViewType ResourceImageView = TextureDimensionToVkImageViewType(InDesc.Dimension);
+    const VkImageViewType ResourceImageView = TextureDimensionToVkImageViewType(Description.Dimension);
     switch (ResourceImageView) {
         case VK_IMAGE_VIEW_TYPE_2D:
-            ImageCreateInfo.imageType = TextureDimensionToVkImageType(InDesc.Dimension);
-            check(InDesc.Extent.x <= DeviceProperties.limits.maxImageDimension2D);
-            check(InDesc.Extent.y <= DeviceProperties.limits.maxImageDimension2D);
+            ImageCreateInfo.imageType = TextureDimensionToVkImageType(Description.Dimension);
+            check(Description.Extent.x <= DeviceProperties.limits.maxImageDimension2D);
+            check(Description.Extent.y <= DeviceProperties.limits.maxImageDimension2D);
             break;
         default:
             checkNoEntry() break;
     }
 
-    switch (InDesc.NumSamples) {
+    switch (Description.NumSamples) {
         case 1:
             ImageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
             break;
@@ -81,67 +154,16 @@ VulkanTexture::VulkanTexture(VulkanDevice* InDevice, const RHITextureSpecificati
     Allocation->BindImage(Image);
 }
 
-VulkanTexture::~VulkanTexture()
+void VulkanTexture::DestroyTexture()
 {
     if (View) {
         VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, VULKAN_CPU_ALLOCATOR);
+        View = VK_NULL_HANDLE;
     }
     Device->GetMemoryManager()->Free(Allocation);
     Allocation = nullptr;
     VulkanAPI::vkDestroyImage(Device->GetHandle(), Image, VULKAN_CPU_ALLOCATOR);
-}
-
-void VulkanTexture::SetName(std::string_view InName)
-{
-    RHIResource::SetName(InName);
-    if (Image) {
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, Image, "{:s}.Image", InName);
-    }
-    if (View) {
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, View, "{:s}.Image.View", InName);
-    }
-    if (Allocation) {
-        Allocation->SetName(std::format("{:s}.Image.Memory", InName));
-    }
-}
-
-VkImage VulkanTexture::GetImage() const
-{
-    return Image;
-}
-
-VkImageView VulkanTexture::GetImageView() const
-{
-    if (View != VK_NULL_HANDLE) {
-        return View;
-    }
-    VkImageViewCreateInfo CreateInfo{
-        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-        .image = Image,
-        .viewType = TextureDimensionToVkImageViewType(Description.Dimension),
-        .format = ImageFormatToFormat(Description.Format),
-        .components =
-            {
-                .r = VK_COMPONENT_SWIZZLE_IDENTITY,
-                .g = VK_COMPONENT_SWIZZLE_IDENTITY,
-                .b = VK_COMPONENT_SWIZZLE_IDENTITY,
-                .a = VK_COMPONENT_SWIZZLE_IDENTITY,
-            },
-        .subresourceRange = Barrier::MakeSubresourceRange(TextureUsageFlagToVkImageAspectFlags(Description.Flags)),
-    };
-    VK_CHECK_RESULT(VulkanAPI::vkCreateImageView(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &View));
-    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, View, "{:s} [View]", GetName());
-    return View;
-}
-
-VkImageViewType VulkanTexture::GetViewType() const
-{
-    return TextureDimensionToVkImageViewType(Description.Dimension);
-}
-
-VkImageLayout VulkanTexture::GetLayout() const
-{
-    return Layout;
+    Image = VK_NULL_HANDLE;
 }
 
 //////////////////// VulkanTextureView ////////////////////

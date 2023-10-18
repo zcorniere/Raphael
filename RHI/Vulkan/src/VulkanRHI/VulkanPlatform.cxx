@@ -131,10 +131,10 @@ void VulkanPlatform::GetDeviceExtensions([[maybe_unused]] VulkanDevice* Device,
 {
 }
 
-void VulkanPlatform::CreateSurface(void* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface)
+void VulkanPlatform::CreateSurface(Window* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface)
 {
     Window::EnsureGLFWInit();
 
-    VK_CHECK_RESULT(glfwCreateWindowSurface(Instance, (GLFWwindow*)WindowHandle, VULKAN_CPU_ALLOCATOR, OutSurface));
+    VK_CHECK_RESULT(glfwCreateWindowSurface(Instance, WindowHandle->GetHandle(), VULKAN_CPU_ALLOCATOR, OutSurface));
 }
 }    // namespace VulkanRHI

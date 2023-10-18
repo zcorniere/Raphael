@@ -32,12 +32,13 @@ public:
     virtual void BeginFrame() override;
     virtual void EndFrame() override;
     virtual void NextFrame() override;
-    virtual void BeginRenderPass(const RHIRenderPassDescription& Description) override;
+    virtual void BeginRenderPass(const RHIRenderPassDescription& Renderpass,
+                                 const RHIFramebufferDefinition& Framebuffer) override;
     virtual void EndRenderPass() override;
 
     virtual void Draw(Ref<RHIGraphicsPipeline>& Pipeline) override;
 
-    virtual Ref<RHIViewport> CreateViewport(void* InWindowHandle, glm::uvec2 InSize) override;
+    virtual Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize) override;
     virtual Ref<RHITexture> CreateTexture(const RHITextureSpecification& InDesc) override;
     virtual Ref<RHIBuffer> CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
                                         Ref<ResourceArray>& InitialData) override;

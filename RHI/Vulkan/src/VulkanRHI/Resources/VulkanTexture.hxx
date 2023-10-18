@@ -19,12 +19,17 @@ public:
 
     void SetName(std::string_view InName) override;
 
+    virtual void Resize(const glm::uvec2& Size) override;
+
     VkImage GetImage() const;
     VkImageView GetImageView() const;
     VkImageViewType GetViewType() const;
     VkImageLayout GetLayout() const;
 
 private:
+    void CreateTexture();
+    void DestroyTexture();
+
     VulkanDevice* Device;
 
     RHITextureSpecification Description;

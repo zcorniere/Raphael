@@ -2,6 +2,8 @@
 
 #include "VulkanRHI/VulkanLoader.hxx"
 
+class Window;
+
 namespace VulkanRHI
 {
 
@@ -39,7 +41,7 @@ private:
         /// Choose a presentation mode
         VkPresentModeKHR ChooseSwapPresentMode(bool LockToVSync) const noexcept;
         /// Check if the size if supported
-        VkExtent2D ChooseSwapExtent(const glm::uvec2& Size) const noexcept;
+        VkExtent2D ChooseSwapExtent() const noexcept;
 
     public:
         /// surface capability
@@ -51,7 +53,7 @@ private:
     };
 
 public:
-    VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, void* WindowHandle, glm::uvec2 Size,
+    VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, Window* WindowHandle,
                     uint32 InOutDesiredNumBackBuffers, Array<VkImage>& OutImages, bool LockToVSync,
                     VulkanSwapChainRecreateInfo* RecreateInfo);
     void SetName(std::string_view InName) override;

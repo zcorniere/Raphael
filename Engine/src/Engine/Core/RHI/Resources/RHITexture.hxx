@@ -6,18 +6,6 @@
 
 #include <glm/vec3.hpp>
 
-/// @brief What the texture will be used for
-enum class ETextureUsageFlags {
-    None = 0,
-    RenderTargetable = BIT(0),
-    ResolveTargetable = BIT(1),
-    DepthStencilTargetable = BIT(2),
-
-    SampleTargetable = BIT(3),
-    TransferTargetable = BIT(4),
-};
-ENUM_CLASS_FLAGS(ETextureUsageFlags)
-
 /// @brief Describe the texture to be created
 struct RHITextureSpecification {
     ETextureUsageFlags Flags = ETextureUsageFlags::TransferTargetable;
@@ -47,6 +35,8 @@ public:
     virtual ~RHITexture()
     {
     }
+
+    virtual void Resize(const glm::uvec2& Size) = 0;
 
     const RHITextureSpecification& GetDescription() const
     {

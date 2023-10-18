@@ -386,6 +386,14 @@ public:
     {
         return m_Instance ? (RObjectUtils::IsLive(m_Instance) && m_Instance->IsValid()) : (false);
     }
+    T* Raw()
+    {
+        return m_Instance;
+    }
+    const T* Raw() const
+    {
+        return m_Instance;
+    }
     operator bool() const
     {
         return IsValid();

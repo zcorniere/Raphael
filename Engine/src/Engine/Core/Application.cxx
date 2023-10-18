@@ -20,13 +20,13 @@ bool BaseApplication::OnEngineInitialization()
         .Title = "Raphael Engine",
         .EventCallback = [this](Event& event) { WindowEventHandler(event); },
     };
-    MainWindow = std::make_unique<Window>();
+    MainWindow = Ref<Window>::Create();
     MainWindow->SetName("MainWindow");
     MainWindow->Initialize(WindowDef);
     MainWindow->Show();
     MainWindow->Maximize();
 
-    MainViewport = RHI::CreateViewport((void*)MainWindow->GetHandle(), glm::uvec2{500u, 500u});
+    MainViewport = RHI::CreateViewport(MainWindow, glm::uvec2{500u, 500u});
     MainViewport->SetName("MainViewport");
     return true;
 }

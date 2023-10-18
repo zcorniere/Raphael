@@ -5,8 +5,8 @@
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 
+#include "Engine/Core/Window.hxx"
 #include "Engine/Misc/DataLocation.hxx"
-#include "VulkanRHI.hxx"
 
 namespace VulkanRHI
 {
@@ -36,27 +36,30 @@ void VulkanDynamicRHI::NextFrame()
 {
 }
 
-void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Description)
+void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Renderpass,
+                                       const RHIFramebufferDefinition& Framebuffer)
 {
-    RHI::Submit([this, Description] {
-        CurrentRenderPass = RPassManager->Get(Description);
+    RHI::Submit([this, Renderpass, Framebuffer] {
+        CurrentRenderPass = RPassManager->GetRenderPass(Renderpass);
         check(CurrentRenderPass);
 
-        CurrentRenderPass->SetName(Description.Name);
+        WeakRef<VulkanFramebuffer> FramebufferRef = RPassManager->GetFrameBuffer(CurrentRenderPass.Raw(), Framebuffer);
+        check(FramebufferRef);
 
         VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
-        CurrentRenderPass->Begin(CmdBuffer, {
-                                                .offset =
-                                                    {
-                                                        .x = Description.Offset.x,
-                                                        .y = Description.Offset.y,
-                                                    },
-                                                .extent =
-                                                    {
-                                                        .width = Description.Size.x,
-                                                        .height = Description.Size.y,
-                                                    },
-                                            });
+        CurrentRenderPass->Begin(CmdBuffer, FramebufferRef,
+                                 {
+                                     .offset =
+                                         {
+                                             .x = Framebuffer.Offset.x,
+                                             .y = Framebuffer.Offset.y,
+                                         },
+                                     .extent =
+                                         {
+                                             .width = FramebufferRef->GetExtent().x,
+                                             .height = FramebufferRef->GetExtent().y,
+                                         },
+                                 });
     });
 }
 
@@ -78,6 +81,28 @@ void VulkanDynamicRHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
         Ref<VulkanGraphicsPipeline> VulkanPipeline = Pipeline.As<VulkanGraphicsPipeline>();
         VulkanPipeline->Bind(CmdBuffer->GetHandle());
 
+        VkViewport viewport{
+            .x = 0.0f,
+            .y = 0.0f,
+            .width = static_cast<float>(DrawingViewport->GetSize().x),
+            .height = static_cast<float>(DrawingViewport->GetSize().y),
+            .minDepth = 0.0f,
+            .maxDepth = 1.0f,
+        };
+        VkRect2D scissor{
+            .offset =
+                {
+                    .x = 0,
+                    .y = 0,
+                },
+            .extent =
+                {
+                    .width = DrawingViewport->GetSize().x,
+                    .height = DrawingViewport->GetSize().y,
+                },
+        };
+        VulkanAPI::vkCmdSetViewport(CmdBuffer->GetHandle(), 0, 1, &viewport);
+        VulkanAPI::vkCmdSetScissor(CmdBuffer->GetHandle(), 0, 1, &scissor);
         // DELETE ME
         VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), 3, 1, 0, 0);
     });
@@ -94,9 +119,9 @@ void VulkanDynamicRHI::RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport)
 //  -------------------- RHI Create resources --------------------
 //
 
-Ref<RHIViewport> VulkanDynamicRHI::CreateViewport(void* InWindowHandle, glm::uvec2 InSize)
+Ref<RHIViewport> VulkanDynamicRHI::CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize)
 {
-    return Ref<VulkanViewport>::Create(GetDevice(), InWindowHandle, InSize);
+    return Ref<VulkanViewport>::Create(GetDevice(), std::move(InWindowHandle), std::move(InSize));
 }
 
 Ref<RHITexture> VulkanDynamicRHI::CreateTexture(const RHITextureSpecification& InDesc)
@@ -121,7 +146,7 @@ Ref<RHIShader> VulkanDynamicRHI::CreateShader(const std::filesystem::path Path, 
 Ref<RHIGraphicsPipeline>
 VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineSpecification& Config)
 {
-    WeakRef<VulkanRenderPass> VRenderPass = RPassManager->Get(Config.RenderPass);
+    WeakRef<VulkanRenderPass> VRenderPass = RPassManager->GetRenderPass(Config.RenderPass);
     check(VRenderPass);
 
     GraphicsPipelineDescription Desc;
