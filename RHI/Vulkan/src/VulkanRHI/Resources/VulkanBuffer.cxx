@@ -26,7 +26,7 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage, bool bZ
 }
 
 VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const uint32 InSize, const EBufferUsageFlags InUsage,
-                           const uint32 InStride, Ref<ResourceArray>& InitialData)
+                           const uint32 InStride)
     : RHIBuffer(InUsage, InSize, InStride),
       Device(InDevice),
       Offset(0),
@@ -47,16 +47,6 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const uint32 InSize, const EB
     VulkanAPI::vkGetBufferMemoryRequirements(Device->GetHandle(), BufferHandle, &MemoryRequirements);
     Memory = Device->GetMemoryManager()->Alloc(MemoryRequirements, VMA_MEMORY_USAGE_GPU_ONLY, false);
     Memory->BindBuffer(BufferHandle);
-
-    if (InitialData) {
-        uint32 CopyDataSize = std::min(InSize, InitialData->GetResourceDataSize());
-
-        void* Data = Memory->Map(CopyDataSize);
-        std::memcpy(Data, InitialData->GetResourceData(), CopyDataSize);
-        Memory->FlushMappedMemory(CopyDataSize, 0);
-        Memory->Unmap();
-        InitialData->Discard();
-    }
 }
 
 VulkanBuffer::~VulkanBuffer()

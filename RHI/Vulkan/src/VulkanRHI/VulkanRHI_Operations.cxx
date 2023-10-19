@@ -130,9 +130,9 @@ Ref<RHITexture> VulkanDynamicRHI::CreateTexture(const RHITextureSpecification& I
 }
 
 Ref<RHIBuffer> VulkanDynamicRHI::CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage,
-                                              const uint32 InStride, Ref<ResourceArray>& InitialData)
+                                              const uint32 InStride)
 {
-    return Ref<VulkanBuffer>::Create(GetDevice(), InSize, InUsage, InStride, InitialData);
+    return Ref<VulkanBuffer>::Create(GetDevice(), InSize, InUsage, InStride);
 }
 
 Ref<RHIShader> VulkanDynamicRHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)

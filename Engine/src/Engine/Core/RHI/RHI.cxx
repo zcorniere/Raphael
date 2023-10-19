@@ -80,10 +80,9 @@ Ref<RHITexture> RHI::CreateTexture(const RHITextureSpecification& InDesc)
     return RHI::Get<GenericRHI>()->CreateTexture(InDesc);
 }
 
-Ref<RHIBuffer> RHI::CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride,
-                                 Ref<ResourceArray>& InitialData)
+Ref<RHIBuffer> RHI::CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride)
 {
-    return RHI::Get<GenericRHI>()->CreateBuffer(InSize, InUsage, InStride, InitialData);
+    return RHI::Get<GenericRHI>()->CreateBuffer(InSize, InUsage, InStride);
 }
 
 Ref<RHIShader> RHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)
