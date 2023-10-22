@@ -169,12 +169,15 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
 
 void VulkanViewport::RecreateSwapchain(Ref<Window> NewNativeWindow)
 {
-    VulkanSwapChainRecreateInfo RecreateInfo = {VK_NULL_HANDLE, VK_NULL_HANDLE};
-    DeleteSwapchain(&RecreateInfo);
-    WindowHandle = NewNativeWindow;
-    CreateSwapchain(&RecreateInfo);
-    check(RecreateInfo.Surface == VK_NULL_HANDLE);
-    check(RecreateInfo.SwapChain == VK_NULL_HANDLE);
+    ENQUEUE_RENDER_COMMAND(RecreateSwapchain)
+    ([this, &NewNativeWindow] {
+        VulkanSwapChainRecreateInfo RecreateInfo = {VK_NULL_HANDLE, VK_NULL_HANDLE};
+        DeleteSwapchain(&RecreateInfo);
+        WindowHandle = NewNativeWindow;
+        CreateSwapchain(&RecreateInfo);
+        check(RecreateInfo.Surface == VK_NULL_HANDLE);
+        check(RecreateInfo.SwapChain == VK_NULL_HANDLE);
+    });
 }
 
 void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
@@ -210,8 +213,8 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
                              VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, Range);
     }
 
-    Size = SwapChain->GetInternalSize();
     if (!RenderingBackbuffer) {
+        Size = SwapChain->GetInternalSize();
         RHITextureSpecification Description{
             .Flags = ETextureUsageFlags::RenderTargetable | ETextureUsageFlags::ResolveTargetable |
                      ETextureUsageFlags::TransferTargetable,
@@ -221,8 +224,6 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
             .Name = std::format("{:s}.BackBuffer", GetName()),
         };
         RenderingBackbuffer = RHI::CreateTexture(Description);
-    } else {
-        RenderingBackbuffer->Resize(Size);
     }
     {
         VulkanSetImageLayout(CmdBuffer->GetHandle(), RenderingBackbuffer->GetImage(), VK_IMAGE_LAYOUT_UNDEFINED,

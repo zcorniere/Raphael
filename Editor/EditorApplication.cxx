@@ -91,31 +91,34 @@ void EditorApplication::Tick(const float DeltaTime)
 
     MainViewport->BeginDrawViewport();
 
-    RHIRenderPassDescription Description{
-        .ColorTarget =
-            {
+    ENQUEUE_RENDER_COMMAND(MainApplicationTick)
+    ([this] {
+        RHIRenderPassDescription Description{
+            .ColorTarget =
                 {
-                    .Format = MainViewport->GetBackbuffer()->GetDescription().Format,
-                    .Flags = ETextureUsageFlags::RenderTargetable,
+                    {
+                        .Format = MainViewport->GetBackbuffer()->GetDescription().Format,
+                        .Flags = ETextureUsageFlags::RenderTargetable,
+                    },
                 },
-            },
-        .DepthTarget = std::nullopt,
-        // .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
-        //     .Format = EImageFormat::D32_SFLOAT,
-        // }),
-    };
-    RHIFramebufferDefinition Definition{
-        .ColorTarget =
-            {
-                MainViewport->GetBackbuffer(),
-            },
-        .DepthTarget = nullptr,
-        .Offset = {0, 0},
-        .Extent = MainViewport->GetSize(),
-    };
-    RHI::BeginRenderPass(Description, Definition);
-    RHI::Draw(Pipeline);
-    RHI::EndRenderPass();
+            .DepthTarget = std::nullopt,
+            // .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
+            //     .Format = EImageFormat::D32_SFLOAT,
+            // }),
+        };
+        RHIFramebufferDefinition Definition{
+            .ColorTarget =
+                {
+                    MainViewport->GetBackbuffer(),
+                },
+            .DepthTarget = nullptr,
+            .Offset = {0, 0},
+            .Extent = MainViewport->GetBackbuffer()->GetDescription().Extent,
+        };
+        RHI::BeginRenderPass(Description, Definition);
+        RHI::Draw(Pipeline);
+        RHI::EndRenderPass();
+    });
 
     MainViewport->EndDrawViewport();
 }

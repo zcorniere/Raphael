@@ -1,6 +1,6 @@
 #include "Engine/Core/RHI/RHICommandQueue.hxx"
 
-RHICommandQueue::RHICommandQueue(): m_CommandCount(0)
+RHICommandQueue::RHICommandQueue(): m_CommandCount(0), IsCurrentlyExecuting(false)
 {
     m_CommandBuffer = new uint8[AllocatedSize];
     m_CommandBufferUpperLimit = m_CommandBuffer + AllocatedSize;
@@ -20,6 +20,7 @@ void RHICommandQueue::Execute()
 
     uint8* Buffer = m_CommandBuffer;
 
+    IsCurrentlyExecuting = true;
     for (uint32_t i = 0; i < m_CommandCount; i++) {
         RenderCommandFn Function = *(RenderCommandFn*)Buffer;
         Buffer += NEXT_NEAREST(sizeof(RenderCommandFn), sizeof(std::max_align_t));
@@ -30,6 +31,7 @@ void RHICommandQueue::Execute()
         Buffer += NEXT_NEAREST(Size, sizeof(std::max_align_t));
     }
 
+    IsCurrentlyExecuting = false;
     m_CommandBufferCursor = m_CommandBuffer;
     m_CommandCount = 0;
 }

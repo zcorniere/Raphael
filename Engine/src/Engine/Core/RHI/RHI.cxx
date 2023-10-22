@@ -1,8 +1,8 @@
 #include "Engine/Core/RHI/RHI.hxx"
 
 #include "Engine/Core/RHI/GenericRHI.hxx"
+#include "Engine/Core/RHI/RHICommandQueue.hxx"
 #include "Engine/Core/Window.hxx"
-#include "RHI.hxx"
 
 static std::unique_ptr<RHICommandQueue> s_CommandQueue = nullptr;
 

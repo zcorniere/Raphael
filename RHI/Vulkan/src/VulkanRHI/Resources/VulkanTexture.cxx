@@ -11,7 +11,6 @@ namespace VulkanRHI
 VulkanTexture::VulkanTexture(VulkanDevice* InDevice, const RHITextureSpecification& InDesc)
     : RHITexture(InDesc),
       Device(InDevice),
-      Description(InDesc),
       Allocation(nullptr),
       Image(VK_NULL_HANDLE),
       Layout(VK_IMAGE_LAYOUT_UNDEFINED),

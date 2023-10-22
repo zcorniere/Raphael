@@ -19,7 +19,8 @@ void VulkanDynamicRHI::BeginFrame()
 
 void VulkanDynamicRHI::EndFrame()
 {
-    RHI::Submit([this] {
+    ENQUEUE_RENDER_COMMAND(EndFrame)
+    ([this] {
         if (DrawingViewport.IsValid()) {
             LOG(LogVulkanRHI, Error, "Viewport \"{}\"draw session was not ended properly !",
                 DrawingViewport->GetName());
@@ -39,7 +40,8 @@ void VulkanDynamicRHI::NextFrame()
 void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Renderpass,
                                        const RHIFramebufferDefinition& Framebuffer)
 {
-    RHI::Submit([this, Renderpass, Framebuffer] {
+    ENQUEUE_RENDER_COMMAND(BeginRenderPass)
+    ([this, Renderpass, Framebuffer] {
         CurrentRenderPass = RPassManager->GetRenderPass(Renderpass);
         check(CurrentRenderPass);
 
@@ -65,7 +67,8 @@ void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Renderpas
 
 void VulkanDynamicRHI::EndRenderPass()
 {
-    RHI::Submit([this] {
+    ENQUEUE_RENDER_COMMAND(EndRenderPass)
+    ([this] {
         check(CurrentRenderPass.IsValid());
         VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
 
@@ -75,7 +78,8 @@ void VulkanDynamicRHI::EndRenderPass()
 
 void VulkanDynamicRHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
 {
-    RHI::Submit([this, Pipeline] {
+    ENQUEUE_RENDER_COMMAND(Draw)
+    ([this, Pipeline] {
         VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
 
         Ref<VulkanGraphicsPipeline> VulkanPipeline = Pipeline.As<VulkanGraphicsPipeline>();

@@ -50,6 +50,6 @@ public:
                           std::max(Desc.Depth >> MipIndex, 1u));
     }
 
-private:
-    const RHITextureSpecification Description;
+protected:
+    RHITextureSpecification Description;
 };

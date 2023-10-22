@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Engine/Core/RHI/RHICommandQueue.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
 
 class Window;
@@ -11,6 +10,8 @@ enum class RHIInterfaceType {
     Null,
     Vulkan,
 };
+
+class RHICommandQueue;
 
 class GenericRHI;
 extern std::unique_ptr<GenericRHI> GDynamicRHI;
@@ -35,13 +36,6 @@ public:
 
     /// @brief Delete the current RHI
     static void DeleteRHI();
-
-    /// @brief Subtmit a function to the Renderqueue, to be executed later
-    template <typename TFunction>
-    static void Submit(TFunction&& func)
-    {
-        RHI::GetRHICommandQueue()->EnqueueCommand(std::forward<TFunction>(func));
-    }
 
     /// @brief Return the command queue of the RHI
     static RHICommandQueue* GetRHICommandQueue();

@@ -32,7 +32,6 @@ private:
 
     VulkanDevice* Device;
 
-    RHITextureSpecification Description;
     Ref<VulkanMemoryAllocation> Allocation;
     VkMemoryRequirements MemoryRequirements;
     VkImage Image;
