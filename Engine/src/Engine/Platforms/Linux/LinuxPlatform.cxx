@@ -15,7 +15,7 @@ DECLARE_LOGGER_CATEGORY(Core, LogUnixPlateform, Info)
 bool LinuxPlateform::isDebuggerPresent()
 {
     // If a process is tracing this one then TracerPid in /proc/self/status will
-    // be the id of the tracing process. Use SignalHandler safe functions
+    // be the id of the tracing process.
 
     // Performance wise, the /proc filesystem is ram only, so it is ok
 
@@ -26,7 +26,7 @@ bool LinuxPlateform::isDebuggerPresent()
     }
 
     char Buffer[256] = {0};
-    ssize_t Length = read(StatusFile, Buffer, sizeof(Buffer) - 1);
+    const ssize_t Length = read(StatusFile, Buffer, sizeof(Buffer) - 1);
     if (Length == -1) [[unlikely]] {
         // Failed - unknown debugger status.
         return false;
@@ -37,7 +37,7 @@ bool LinuxPlateform::isDebuggerPresent()
     constexpr char TracerString[] = "TracerPid:\t";
     const ssize_t LenTracerString = std::strlen(TracerString);
 
-    const char* foundStr = std::strstr(Buffer, TracerString);
+    const char* const foundStr = std::strstr(Buffer, TracerString);
 
     if (foundStr != nullptr) [[likely]] {
         return foundStr[LenTracerString] != '0';

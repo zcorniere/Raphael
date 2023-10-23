@@ -11,7 +11,7 @@
     };                                                \
     RHI::GetRHICommandQueue()->EnqueueCommand<Type##Name>
 
-DECLARE_LOGGER_CATEGORY(Core, LogRenderCommand, Trace)
+DECLARE_LOGGER_CATEGORY(Core, LogRenderCommand, Warning)
 
 /// Dummy class to represent a RenderCommand Lambda
 class RenderCommand
@@ -21,6 +21,11 @@ public:
 };
 
 template <typename TSTR, typename LAMBDA>
+requires std::invocable<LAMBDA> && requires {
+    {
+        TSTR::Str()
+    } -> std::convertible_to<std::string_view>;
+}
 class TUniqueRenderCommandType : public RenderCommand
 {
 public:
@@ -69,7 +74,7 @@ public:
     void EnqueueCommand(TFunction&& Function)
     {
         using TUniqueRenderCommand = TUniqueRenderCommandType<TSTR, TFunction>;
-        RenderCommandFn RenderCmd = [](void* ptr) {
+        RenderCommandFn RenderCmd = [](void* ptr) -> void {
             TUniqueRenderCommand* pFunction = (TUniqueRenderCommand*)ptr;
             pFunction->DoTask();
 

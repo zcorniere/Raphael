@@ -9,7 +9,6 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
-#include <variant>
 #include <vector>
 
 #include <Engine/Misc/MiscDefines.hxx>
@@ -28,6 +27,7 @@
 
 #include <Engine/Containers/Array.hxx>
 
+// Make sure we're 64 bit
 static_assert(sizeof(void*) == 8);
 
 DECLARE_LOGGER_CATEGORY(Core, LogCore, Trace);
