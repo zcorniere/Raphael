@@ -9,6 +9,7 @@ namespace VulkanRHI
 {
 
 class VulkanDevice;
+class VulkanCmdBuffer;
 class VulkanMemoryAllocation;
 
 class VulkanTexture : public RHITexture
@@ -24,7 +25,10 @@ public:
     VkImage GetImage() const;
     VkImageView GetImageView() const;
     VkImageViewType GetViewType() const;
+
     VkImageLayout GetLayout() const;
+    void SetLayout(VkImageLayout NewLayout);
+    void SetLayout(VulkanCmdBuffer* CommandBuffer, VkImageLayout NewLayout);
 
 private:
     void CreateTexture();

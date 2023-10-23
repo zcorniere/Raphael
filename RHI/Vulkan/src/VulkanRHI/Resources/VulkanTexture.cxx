@@ -87,6 +87,29 @@ VkImageLayout VulkanTexture::GetLayout() const
     return Layout;
 }
 
+void VulkanTexture::SetLayout(VkImageLayout NewLayout)
+{
+    Layout = NewLayout;
+}
+
+void VulkanTexture::SetLayout(VulkanCmdBuffer* CmdBuffer, VkImageLayout NewLayout)
+{
+    VkImageAspectFlags AspectMask = 0;
+    switch (Description.Format) {
+        case EImageFormat::R8G8B8_SRGB:
+        case EImageFormat::B8G8R8A8_SRGB:
+        case EImageFormat::R8G8B8A8_SRGB:
+            AspectMask |= VK_IMAGE_ASPECT_COLOR_BIT;
+            break;
+        case EImageFormat::D32_SFLOAT:
+            AspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+            break;
+    }
+    VkImageSubresourceRange Range = Barrier::MakeSubresourceRange(AspectMask, 0, Description.NumMips);
+    VulkanSetImageLayout(CmdBuffer->GetHandle(), Image, Layout, NewLayout, Range);
+    SetLayout(NewLayout);
+}
+
 void VulkanTexture::CreateTexture()
 {
     const VkPhysicalDeviceProperties& DeviceProperties = Device->GetDeviceProperties();
@@ -163,6 +186,7 @@ void VulkanTexture::DestroyTexture()
     Allocation = nullptr;
     VulkanAPI::vkDestroyImage(Device->GetHandle(), Image, VULKAN_CPU_ALLOCATOR);
     Image = VK_NULL_HANDLE;
+    Layout = VK_IMAGE_LAYOUT_UNDEFINED;
 }
 
 //////////////////// VulkanTextureView ////////////////////
