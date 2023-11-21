@@ -66,6 +66,7 @@ void RHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
 {
     return RHI::Get<GenericRHI>()->Draw(Pipeline);
 }
+
 //
 //  -------------------- RHI Create resources --------------------
 //
@@ -80,9 +81,9 @@ Ref<RHITexture> RHI::CreateTexture(const RHITextureSpecification& InDesc)
     return RHI::Get<GenericRHI>()->CreateTexture(InDesc);
 }
 
-Ref<RHIBuffer> RHI::CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride)
+Ref<RHIBuffer> RHI::CreateBuffer(const RHIBufferDesc& InDesc)
 {
-    return RHI::Get<GenericRHI>()->CreateBuffer(InSize, InUsage, InStride);
+    return RHI::Get<GenericRHI>()->CreateBuffer(InDesc);
 }
 
 Ref<RHIShader> RHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)

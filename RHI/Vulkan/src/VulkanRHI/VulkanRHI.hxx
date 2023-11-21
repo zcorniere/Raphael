@@ -40,8 +40,7 @@ public:
 
     virtual Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize) override;
     virtual Ref<RHITexture> CreateTexture(const RHITextureSpecification& InDesc) override;
-    virtual Ref<RHIBuffer> CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage,
-                                        const uint32 InStride) override;
+    virtual Ref<RHIBuffer> CreateBuffer(const RHIBufferDesc& InDesc) override;
     virtual Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) override;
     virtual Ref<RHIGraphicsPipeline> CreateGraphicsPipeline(const RHIGraphicsPipelineSpecification& Config) override;
 

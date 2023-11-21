@@ -14,9 +14,6 @@ public:
     UUID();
     explicit UUID(uint64 uuid);
     UUID(const UUID& other);
-    virtual ~UUID()
-    {
-    }
 
     uint64 ID() const
     {

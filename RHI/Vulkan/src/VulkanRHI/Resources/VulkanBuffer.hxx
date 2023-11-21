@@ -14,7 +14,7 @@ class VulkanMemoryAllocation;
 class VulkanBuffer : public RHIBuffer
 {
 public:
-    VulkanBuffer(VulkanDevice* InDevice, const uint32 InSize, const EBufferUsageFlags InUsage, const uint32 InStride);
+    VulkanBuffer(VulkanDevice* InDevice, const RHIBufferDesc& InDescription);
     ~VulkanBuffer();
 
     void SetName(std::string_view InName) override;
@@ -24,17 +24,10 @@ public:
         return BufferHandle;
     }
 
-    /// Offset used for Binding a VkBuffer
-    inline uint32 GetOffset() const
-    {
-        return Offset;
-    }
-
     /// Remaining size from the current offset
-    uint64 GetCurrentSize() const;
-    inline VkBufferUsageFlags GetBufferUsageFlags() const
+    inline uint32 GetCurrentSize() const
     {
-        return BufferUsageFlags;
+        return Description.Size;
     }
 
     inline VkIndexType GetIndexType() const
@@ -48,9 +41,6 @@ private:
     VkMemoryRequirements MemoryRequirements;
     VkBuffer BufferHandle;
     Ref<VulkanMemoryAllocation> Memory;
-
-    uint32 Offset;
-    VkBufferUsageFlags BufferUsageFlags;
 };
 
 }    // namespace VulkanRHI

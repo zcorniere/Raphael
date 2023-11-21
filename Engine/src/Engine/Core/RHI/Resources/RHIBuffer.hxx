@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Containers/ResourceArray.hxx"
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
 #include "Engine/Misc/EnumFlags.hxx"
@@ -9,49 +10,55 @@
 enum class EBufferUsageFlags {
     None = 0,
 
-    SourceCopy = BIT(0),
-    DestinationCopy = BIT(1),
+    Static = BIT(0),
+    Transient = BIT(1),
 
-    DrawIndirect = BIT(2),
+    KeepCPUAccessible = BIT(2),
 
-    VertexBuffer = BIT(3),
-    IndexBuffer = BIT(4),
-    StructuredBuffer = BIT(5),
+    SourceCopy = BIT(3),
+    DestinationCopy = BIT(4),
+
+    DrawIndirect = BIT(5),
+
+    VertexBuffer = BIT(6),
+    IndexBuffer = BIT(7),
+    StructuredBuffer = BIT(8),
+};
+
+struct RHIBufferDesc {
+    uint32 Size = 0;
+    uint32 Stride = 0;
+    EBufferUsageFlags Usage = EBufferUsageFlags::None;
+    ResourceArrayInterface* ResourceArray = nullptr;
+    std::string DebugName;
 };
 
 /// @brief Represent a Buffer used by the RHI
 class RHIBuffer : public RHIResource
 {
 public:
-    RHIBuffer(): RHIResource(RHIResourceType::Buffer), Size(0), Stride(0), Usage(EBufferUsageFlags::None)
-    {
-    }
-
-    RHIBuffer(EBufferUsageFlags InUsage, uint32 InSize, uint32 InStride)
-        : RHIResource(RHIResourceType::Buffer), Size(InSize), Stride(InStride), Usage(InUsage)
+    RHIBuffer(const RHIBufferDesc& InDescription): RHIResource(RHIResourceType::Buffer), Description(InDescription)
     {
     }
 
     /// @return The number of bytes in the buffer.
     uint32 GetSize() const
     {
-        return Size;
+        return Description.Size;
     }
 
     /// @return The stride in bytes of the buffer.
     uint32 GetStride() const
     {
-        return Stride;
+        return Description.Stride;
     }
 
     /// @return The usage flags used to create the buffer.
     EBufferUsageFlags GetUsage() const
     {
-        return Usage;
+        return Description.Usage;
     }
 
-private:
-    uint32 Size;
-    uint32 Stride;
-    EBufferUsageFlags Usage;
+protected:
+    RHIBufferDesc Description;
 };

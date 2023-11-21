@@ -25,28 +25,31 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage, bool bZ
     return OutUsage;
 }
 
-VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const uint32 InSize, const EBufferUsageFlags InUsage,
-                           const uint32 InStride)
-    : RHIBuffer(InUsage, InSize, InStride),
-      Device(InDevice),
-      Offset(0),
-      BufferUsageFlags(ConvertToVulkanType(InUsage, InSize == 0))
+VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const RHIBufferDesc& InDescription)
+    : RHIBuffer(InDescription), Device(InDevice)
 {
-    if (InSize == 0) {
+    if (Description.Size == 0) {
         return;
     }
 
     check(Device);
     VkBufferCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-        .size = InSize,
-        .usage = BufferUsageFlags,
+        .size = Description.Size,
+        .usage = ConvertToVulkanType(Description.Usage, Description.Size == 0),
     };
     VK_CHECK_RESULT(VulkanAPI::vkCreateBuffer(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &BufferHandle));
 
     VulkanAPI::vkGetBufferMemoryRequirements(Device->GetHandle(), BufferHandle, &MemoryRequirements);
-    Memory = Device->GetMemoryManager()->Alloc(MemoryRequirements, VMA_MEMORY_USAGE_GPU_ONLY, false);
+    Memory =
+        Device->GetMemoryManager()->Alloc(MemoryRequirements, VMA_MEMORY_USAGE_AUTO,
+                                          EnumHasAnyFlags(Description.Usage, EBufferUsageFlags::KeepCPUAccessible));
     Memory->BindBuffer(BufferHandle);
+    if (Description.ResourceArray) {
+        void* const MappedPtr = Memory->Map(Description.ResourceArray->GetByteSize());
+        std::memcpy(MappedPtr, Description.ResourceArray->GetData(), Description.ResourceArray->GetByteSize());
+        Memory->Unmap();
+    }
 }
 
 VulkanBuffer::~VulkanBuffer()
@@ -61,11 +64,6 @@ void VulkanBuffer::SetName(std::string_view InName)
     RObject::SetName(InName);
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_BUFFER, BufferHandle, "{:s}", InName);
     Memory->SetName(std::format("{:s}.Memory", InName));
-}
-
-uint64 VulkanBuffer::GetCurrentSize() const
-{
-    return Memory->GetSize() - Offset;
 }
 
 }    // namespace VulkanRHI

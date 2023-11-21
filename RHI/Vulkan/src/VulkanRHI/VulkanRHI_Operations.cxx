@@ -133,10 +133,11 @@ Ref<RHITexture> VulkanDynamicRHI::CreateTexture(const RHITextureSpecification& I
     return Ref<VulkanTexture>::CreateNamed(InDesc.Name, GetDevice(), InDesc);
 }
 
-Ref<RHIBuffer> VulkanDynamicRHI::CreateBuffer(const uint32 InSize, const EBufferUsageFlags InUsage,
-                                              const uint32 InStride)
+Ref<RHIBuffer> VulkanDynamicRHI::CreateBuffer(const RHIBufferDesc& InDesc)
 {
-    return Ref<VulkanBuffer>::Create(GetDevice(), InSize, InUsage, InStride);
+    Ref<VulkanBuffer> Buffer = Ref<VulkanBuffer>::Create(GetDevice(), InDesc);
+    Buffer->SetName(InDesc.DebugName.empty() ? "Unknown buffer" : InDesc.DebugName);
+    return Buffer;
 }
 
 Ref<RHIShader> VulkanDynamicRHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)

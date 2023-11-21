@@ -31,6 +31,10 @@ public:
     {
         return std::vector<T, Allocation>::size();
     }
+    [[nodiscard]] constexpr auto ByteSize() const -> typename std::make_unsigned<TSize>::type
+    {
+        return Size() * sizeof(T);
+    }
     constexpr const T* Raw() const
     {
         return std::vector<T, Allocation>::data();
