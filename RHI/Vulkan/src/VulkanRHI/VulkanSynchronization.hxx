@@ -28,7 +28,7 @@ private:
     Array<VkImageMemoryBarrier> ImageBarrier;
 };
 
-class Semaphore : public RObject
+class Semaphore : public RObject, public IDeviceChild
 {
 public:
     Semaphore(VulkanDevice* InDevice);
@@ -42,11 +42,10 @@ public:
     }
 
 private:
-    VulkanDevice* Device;
     VkSemaphore SemaphoreHandle;
 };
 
-class Fence : public RObject
+class Fence : public RObject, public IDeviceChild
 {
 protected:
     enum class State {
@@ -80,7 +79,6 @@ private:
     bool CheckFenceStatus();
 
 private:
-    VulkanDevice* Device;
     VkFence Handle;
     State State;
 };

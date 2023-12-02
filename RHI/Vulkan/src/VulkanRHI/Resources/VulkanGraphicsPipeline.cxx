@@ -55,7 +55,7 @@ bool GraphicsPipelineDescription::Validate() const
 }
 
 VulkanGraphicsPipeline::VulkanGraphicsPipeline(VulkanDevice* InDevice, const GraphicsPipelineDescription& Description)
-    : Device(InDevice), Desc(Description)
+    : IDeviceChild(InDevice), Desc(Description)
 {
     Create();
 }

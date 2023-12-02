@@ -15,7 +15,11 @@ namespace VulkanRHI
 {
 
 VulkanViewport::VulkanViewport(VulkanDevice* InDevice, Ref<Window> InWindowHandle, glm::uvec2 InSize)
-    : Device(InDevice), WindowHandle(InWindowHandle), Size(InSize), AcquiredImageIndex(-1), AcquiredSemaphore(nullptr)
+    : IDeviceChild(InDevice),
+      WindowHandle(InWindowHandle),
+      Size(InSize),
+      AcquiredImageIndex(-1),
+      AcquiredSemaphore(nullptr)
 {
     CreateSwapchain(nullptr);
 }

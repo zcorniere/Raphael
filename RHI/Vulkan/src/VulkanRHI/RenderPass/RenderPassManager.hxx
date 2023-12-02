@@ -8,7 +8,7 @@ namespace VulkanRHI
 class VulkanDevice;
 
 /// This class manage the creation and deletion of Vulkan render passes
-class RenderPassManager
+class RenderPassManager : public IDeviceChild
 {
 public:
     explicit RenderPassManager(VulkanDevice* InDevice);
@@ -25,7 +25,6 @@ public:
                                               const RHIFramebufferDefinition& Definition);
 
 public:
-    VulkanDevice* Device;
     std::unordered_map<RHIRenderPassDescription, VkRenderPass> RenderPassStorage;
     std::unordered_map<RHIRenderPassDescription, Ref<VulkanRenderPass>> RenderPassStorageMap;
     std::unordered_map<RHIFramebufferDefinition, Ref<VulkanFramebuffer>> FrameBufferStorageMap;

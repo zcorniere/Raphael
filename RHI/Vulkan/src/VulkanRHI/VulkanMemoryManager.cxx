@@ -87,7 +87,7 @@ void VulkanMemoryAllocation::BindImage(VkImage Image)
 ////////////////////////////////////////////////////////////////////
 
 VulkanMemoryManager::VulkanMemoryManager(VulkanDevice* InDevice)
-    : Device(InDevice), Allocator(VK_NULL_HANDLE), MemoryProperties(), AllocationCount(0)
+    : IDeviceChild(InDevice), Allocator(VK_NULL_HANDLE), MemoryProperties(), AllocationCount(0)
 {
     check(Device);
 

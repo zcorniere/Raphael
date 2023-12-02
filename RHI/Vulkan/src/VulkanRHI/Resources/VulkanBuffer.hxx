@@ -11,7 +11,7 @@ namespace VulkanRHI
 class VulkanDevice;
 class VulkanMemoryAllocation;
 
-class VulkanBuffer : public RHIBuffer
+class VulkanBuffer : public RHIBuffer, public IDeviceChild
 {
 public:
     VulkanBuffer(VulkanDevice* InDevice, const RHIBufferDesc& InDescription);
@@ -36,8 +36,6 @@ public:
     }
 
 private:
-    VulkanDevice* Device;
-
     VkMemoryRequirements MemoryRequirements;
     VkBuffer BufferHandle;
     Ref<VulkanMemoryAllocation> Memory;

@@ -26,7 +26,7 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage, bool bZ
 }
 
 VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const RHIBufferDesc& InDescription)
-    : RHIBuffer(InDescription), Device(InDevice)
+    : RHIBuffer(InDescription), IDeviceChild(InDevice)
 {
     if (Description.Size == 0) {
         return;

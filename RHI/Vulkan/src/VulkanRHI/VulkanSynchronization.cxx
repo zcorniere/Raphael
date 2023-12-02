@@ -205,7 +205,7 @@ void Barrier::Execute(VkCommandBuffer CmdBuffer)
     }
 }
 
-Semaphore::Semaphore(VulkanDevice* InDevice): Device(InDevice), SemaphoreHandle(VK_NULL_HANDLE)
+Semaphore::Semaphore(VulkanDevice* InDevice): IDeviceChild(InDevice), SemaphoreHandle(VK_NULL_HANDLE)
 {
     VkSemaphoreCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
@@ -229,7 +229,7 @@ void Semaphore::SetName(std::string_view InName)
 }
 
 Fence::Fence(VulkanDevice* InDevice, bool bCreateSignaled)
-    : Device(InDevice), State(bCreateSignaled ? Fence::State::Signaled : Fence::State::NotReady)
+    : IDeviceChild(InDevice), State(bCreateSignaled ? Fence::State::Signaled : Fence::State::NotReady)
 {
     VkFenceCreateInfo Info{
         .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,

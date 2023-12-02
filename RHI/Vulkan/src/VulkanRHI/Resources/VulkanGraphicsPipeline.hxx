@@ -56,8 +56,7 @@ struct GraphicsPipelineDescription {
 class VulkanDevice;
 class VulkanShader;
 
-
-class VulkanGraphicsPipeline : public RHIGraphicsPipeline
+class VulkanGraphicsPipeline : public RHIGraphicsPipeline, public IDeviceChild
 {
 public:
     VulkanGraphicsPipeline(VulkanDevice* InDevice, const GraphicsPipelineDescription& Description);
@@ -80,7 +79,6 @@ private:
     bool CreatePipelineLayout();
 
 private:
-    VulkanDevice* Device;
     GraphicsPipelineDescription Desc;
 
     VkPipelineLayout PipelineLayout;

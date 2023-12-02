@@ -14,7 +14,7 @@ class VulkanCommandBufferPool;
 class VulkanCommandBufferManager;
 class VulkanGraphicsPipeline;
 
-class VulkanCmdBuffer : public RObject
+class VulkanCmdBuffer : public RObject, public IDeviceChild
 {
 public:
     enum class EState : uint8 {
@@ -92,7 +92,6 @@ public:
     EState State;
 
 private:
-    VulkanDevice* m_Device;
     WeakRef<VulkanCommandBufferPool> m_OwnerPool;
 
     Ref<Fence> m_Fence;
@@ -106,7 +105,7 @@ private:
     friend class VulkanQueue;
 };
 
-class VulkanCommandBufferPool : public RObject
+class VulkanCommandBufferPool : public RObject, public IDeviceChild
 {
 public:
     VulkanCommandBufferPool() = delete;
@@ -130,13 +129,12 @@ private:
     Array<Ref<VulkanCmdBuffer>> m_CmdBuffers;
     Array<Ref<VulkanCmdBuffer>> m_FreeCmdBuffers;
 
-    VulkanDevice* m_Device;
     VulkanCommandBufferManager* p_Manager;
 
     friend class VulkanCommandBufferManager;
 };
 
-class VulkanCommandBufferManager
+class VulkanCommandBufferManager : public IDeviceChild
 {
 public:
     VulkanCommandBufferManager(VulkanDevice* InDevice, VulkanQueue* InQueue);
@@ -162,7 +160,6 @@ private:
     Ref<VulkanCmdBuffer> FindAvailableCmdBuffer();
 
 private:
-    VulkanDevice* Device;
     VulkanQueue* Queue;
 
     Ref<VulkanCommandBufferPool> Pool;

@@ -11,11 +11,11 @@ namespace VulkanRHI
 
 /// ------------------- VulkanCmdBuffer -------------------
 VulkanCmdBuffer::VulkanCmdBuffer(VulkanDevice* InDevice, WeakRef<VulkanCommandBufferPool> InCommandPool)
-    : State(EState::NotAllocated), m_Device(InDevice), m_OwnerPool(InCommandPool)
+    : IDeviceChild(InDevice), State(EState::NotAllocated), m_OwnerPool(InCommandPool)
 {
     Allocate();
 
-    m_Fence = Ref<Fence>::Create(m_Device, false);
+    m_Fence = Ref<Fence>::Create(Device, false);
 }
 
 VulkanCmdBuffer::~VulkanCmdBuffer()
@@ -37,7 +37,7 @@ void VulkanCmdBuffer::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
     if (m_CommandBufferHandle) {
-        VULKAN_SET_DEBUG_NAME(m_Device, VK_OBJECT_TYPE_COMMAND_BUFFER, m_CommandBufferHandle, "{:s}", InName);
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_COMMAND_BUFFER, m_CommandBufferHandle, "{:s}", InName);
     }
     if (m_Fence) {
         m_Fence->SetName(InName);
@@ -103,7 +103,7 @@ void VulkanCmdBuffer::Allocate()
         .commandBufferCount = 1,
     };
     VK_CHECK_RESULT(
-        VulkanAPI::vkAllocateCommandBuffers(m_Device->GetHandle(), &CreateCmdBufInfo, &m_CommandBufferHandle));
+        VulkanAPI::vkAllocateCommandBuffers(Device->GetHandle(), &CreateCmdBufInfo, &m_CommandBufferHandle));
     State = EState::ReadyForBegin;
 }
 
@@ -112,7 +112,7 @@ void VulkanCmdBuffer::Free()
     check(State != EState::NotAllocated);
     check(m_CommandBufferHandle != VK_NULL_HANDLE);
 
-    VulkanAPI::vkFreeCommandBuffers(m_Device->GetHandle(), m_OwnerPool->GetHandle(), 1, &m_CommandBufferHandle);
+    VulkanAPI::vkFreeCommandBuffers(Device->GetHandle(), m_OwnerPool->GetHandle(), 1, &m_CommandBufferHandle);
 
     m_CommandBufferHandle = VK_NULL_HANDLE;
     State = EState::NotAllocated;
@@ -136,7 +136,7 @@ void VulkanCmdBuffer::RefreshFenceStatus()
 /// ------------------- VulkanCommandBufferPool -------------------
 
 VulkanCommandBufferPool::VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanCommandBufferManager* InManager)
-    : m_Handle(VK_NULL_HANDLE), m_Device(InDevice), p_Manager(InManager)
+    : IDeviceChild(InDevice), m_Handle(VK_NULL_HANDLE), p_Manager(InManager)
 {
 }
 
@@ -145,7 +145,7 @@ VulkanCommandBufferPool::~VulkanCommandBufferPool()
     m_CmdBuffers.Clear();
     m_FreeCmdBuffers.Clear();
 
-    VulkanAPI::vkDestroyCommandPool(m_Device->GetHandle(), m_Handle, VULKAN_CPU_ALLOCATOR);
+    VulkanAPI::vkDestroyCommandPool(Device->GetHandle(), m_Handle, VULKAN_CPU_ALLOCATOR);
     m_Handle = VK_NULL_HANDLE;
 }
 
@@ -153,7 +153,7 @@ void VulkanCommandBufferPool::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
     if (m_Handle) {
-        VULKAN_SET_DEBUG_NAME(m_Device, VK_OBJECT_TYPE_COMMAND_POOL, m_Handle, "{:s}", InName);
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_COMMAND_POOL, m_Handle, "{:s}", InName);
     }
 }
 
@@ -164,8 +164,7 @@ void VulkanCommandBufferPool::Initialize(uint32 QueueFamilyIndex)
         .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
         .queueFamilyIndex = QueueFamilyIndex,
     };
-    VK_CHECK_RESULT(
-        VulkanAPI::vkCreateCommandPool(m_Device->GetHandle(), &CmdPoolInfo, VULKAN_CPU_ALLOCATOR, &m_Handle));
+    VK_CHECK_RESULT(VulkanAPI::vkCreateCommandPool(Device->GetHandle(), &CmdPoolInfo, VULKAN_CPU_ALLOCATOR, &m_Handle));
 }
 
 Ref<VulkanCmdBuffer> VulkanCommandBufferPool::CreateCmdBuffer()
@@ -182,7 +181,7 @@ Ref<VulkanCmdBuffer> VulkanCommandBufferPool::CreateCmdBuffer()
     }
 
     // No buffer are available, create a new one. It already has memory
-    Ref<VulkanCmdBuffer> NewCmdBuffer = Ref<VulkanCmdBuffer>::Create(m_Device, this);
+    Ref<VulkanCmdBuffer> NewCmdBuffer = Ref<VulkanCmdBuffer>::Create(Device, this);
     m_CmdBuffers.Add(NewCmdBuffer);
     return NewCmdBuffer;
 }
@@ -199,7 +198,7 @@ void VulkanCommandBufferPool::RefreshFenceStatus(const Ref<VulkanCmdBuffer>& Ski
 /// ------------------- VulkanCommandBufferManager -------------------
 
 VulkanCommandBufferManager::VulkanCommandBufferManager(VulkanDevice* InDevice, VulkanQueue* InQueue)
-    : Device(InDevice), Queue(InQueue)
+    : IDeviceChild(InDevice), Queue(InQueue)
 {
     Pool = Ref<VulkanCommandBufferPool>::Create(Device, this);
     Pool->Initialize(Queue->GetFamilyIndex());

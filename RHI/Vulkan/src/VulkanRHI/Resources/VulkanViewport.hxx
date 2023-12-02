@@ -16,7 +16,7 @@ class VulkanQueue;
 class VulkanCmdBuffer;
 struct VulkanSwapChainRecreateInfo;
 
-class VulkanViewport : public RHIViewport
+class VulkanViewport : public RHIViewport, public IDeviceChild
 {
 public:
     VulkanViewport(VulkanDevice* InDevice, Ref<Window> InWindowHandle, glm::uvec2 InSize);
@@ -51,7 +51,6 @@ private:
     bool TryPresenting(VulkanQueue* PresentQueue);
 
 private:
-    VulkanDevice* Device;
     Ref<VulkanSwapChain> SwapChain;
 
     Array<VkImage> BackBufferImages;

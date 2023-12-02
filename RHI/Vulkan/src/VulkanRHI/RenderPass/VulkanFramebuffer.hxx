@@ -10,7 +10,7 @@ namespace VulkanRHI
 class VulkanDevice;
 class VulkanRenderPass;
 
-class VulkanFramebuffer : public RObject
+class VulkanFramebuffer : public RObject, public IDeviceChild
 {
 public:
     VulkanFramebuffer(VulkanDevice* const InDevice, const VulkanRenderPass* const InRenderPass,
@@ -52,7 +52,6 @@ private:
     Array<VkImageView> GetFramebufferAttachment(const Array<Ref<RHITexture>>& SourceTextures);
 
 private:
-    VulkanDevice* const Device;
     const VulkanRenderPass* const RenderPass;
 
     RHIFramebufferDefinition Definition;

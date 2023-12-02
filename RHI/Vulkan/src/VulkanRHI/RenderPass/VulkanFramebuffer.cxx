@@ -8,7 +8,7 @@ namespace VulkanRHI
 
 VulkanFramebuffer::VulkanFramebuffer(VulkanDevice* const InDevice, const VulkanRenderPass* const InRenderPass,
                                      const RHIFramebufferDefinition& InDefinitions)
-    : Device(InDevice), RenderPass(InRenderPass), Definition(InDefinitions)
+    : IDeviceChild(InDevice), RenderPass(InRenderPass), Definition(InDefinitions)
 {
     CreateFrameBuffer();
 }

@@ -11,7 +11,7 @@ namespace VulkanRHI
 
 VulkanRenderPass::VulkanRenderPass(VulkanDevice* const InDevice, const RHIRenderPassDescription& InDescription,
                                    VkRenderPass ExternalPass)
-    : Device(InDevice), Description(InDescription), RenderPass(ExternalPass)
+    : IDeviceChild(InDevice), Description(InDescription), RenderPass(ExternalPass)
 {
     if (!RenderPass) {
         CreateRenderPass();

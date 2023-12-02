@@ -12,7 +12,7 @@ class VulkanDevice;
 class VulkanCmdBuffer;
 class VulkanMemoryAllocation;
 
-class VulkanTexture : public RHITexture
+class VulkanTexture : public RHITexture, public IDeviceChild
 {
 public:
     VulkanTexture(VulkanDevice* InDevice, const RHITextureSpecification& InDesc);
@@ -34,8 +34,7 @@ private:
     void CreateTexture();
     void DestroyTexture();
 
-    VulkanDevice* Device;
-
+private:
     Ref<VulkanMemoryAllocation> Allocation;
     VkMemoryRequirements MemoryRequirements;
     VkImage Image;

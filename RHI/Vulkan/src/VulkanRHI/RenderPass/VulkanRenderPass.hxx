@@ -12,7 +12,7 @@ namespace VulkanRHI
 class VulkanDevice;
 class VulkanCmdBuffer;
 
-class VulkanRenderPass : public RObject
+class VulkanRenderPass : public RObject, public IDeviceChild
 {
 private:
     struct AttachmentRefs {
@@ -53,7 +53,6 @@ private:
 
 private:
     bool bHasBegun = false;
-    VulkanDevice* const Device;
 
     RHIRenderPassDescription Description;
     VkRenderPass RenderPass;

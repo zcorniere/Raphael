@@ -18,7 +18,7 @@ struct VulkanSwapChainRecreateInfo {
     VkSurfaceKHR Surface = VK_NULL_HANDLE;
 };
 
-class VulkanSwapChain : public RObject
+class VulkanSwapChain : public RObject, public IDeviceChild
 {
 public:
     enum class Status {
@@ -86,7 +86,6 @@ private:
     int32 AcquireImageIndex(Ref<Semaphore>& OutSemaphore);
 
 private:
-    VulkanDevice* Device;
     int32 CurrentImageIndex;
     int32 SemaphoreIndex;
 

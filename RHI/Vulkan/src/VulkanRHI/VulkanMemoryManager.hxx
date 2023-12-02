@@ -65,7 +65,7 @@ private:
     friend class VulkanMemoryManager;
 };
 
-class VulkanMemoryManager
+class VulkanMemoryManager : public IDeviceChild
 {
 public:
     explicit VulkanMemoryManager(VulkanDevice* InDevice);
@@ -87,7 +87,6 @@ private:
     VmaAllocationCreateInfo GetCreateInfo(VmaMemoryUsage MemUsage, bool Mappable);
 
 private:
-    VulkanDevice* Device;
     VmaAllocator Allocator;
 
     VkPhysicalDeviceMemoryProperties MemoryProperties;

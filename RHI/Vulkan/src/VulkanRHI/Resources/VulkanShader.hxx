@@ -39,7 +39,7 @@ public:
         bool operator==(const ReflectionData&) const = default;
     };
 
-    class ShaderHandle : public RObject
+    class ShaderHandle : public RObject, public IDeviceChild
     {
     public:
         ShaderHandle() = delete;
@@ -50,9 +50,6 @@ public:
 
     public:
         VkShaderModule Handle;
-
-    private:
-        VulkanDevice* Device;
     };
 
 public:

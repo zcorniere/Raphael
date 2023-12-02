@@ -114,7 +114,7 @@ VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent() const noexcept
 VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, Window* WindowHandle,
                                  uint32 InDesiredNumBackBuffers, Array<VkImage>& OutImages, bool LockToVSync,
                                  VulkanSwapChainRecreateInfo* RecreateInfo)
-    : Device(InDevice),
+    : IDeviceChild(InDevice),
       CurrentImageIndex(-1),
       SemaphoreIndex(0),
       LockToVSync(LockToVSync),

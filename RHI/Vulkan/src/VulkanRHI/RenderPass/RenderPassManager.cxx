@@ -7,7 +7,7 @@ DECLARE_LOGGER_CATEGORY(Core, LogRenderPassManager, Info)
 namespace VulkanRHI
 {
 
-RenderPassManager::RenderPassManager(VulkanDevice* InDevice): Device(InDevice)
+RenderPassManager::RenderPassManager(VulkanDevice* InDevice): IDeviceChild(InDevice)
 {
 }
 
