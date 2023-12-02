@@ -15,4 +15,6 @@ public:
 
 private:
     Ref<RHIGraphicsPipeline> Pipeline;
+
+    Ref<RHIBuffer> Buffer;
 };

@@ -25,6 +25,7 @@ template <typename Type>
 class ResourceArray : public ResourceArrayInterface, public Array<Type>
 {
 public:
+    ResourceArray() = default;
     ResourceArray(ResourceArray&&) = default;
     ResourceArray(const ResourceArray&) = default;
     ResourceArray& operator=(ResourceArray&&) = default;
@@ -44,7 +45,7 @@ public:
         }
         return this->ByteSize();
     }
-    uint32 GetTypesize() const override
+    uint32 GetTypeSize() const override
     {
         return sizeof(Type);
     }

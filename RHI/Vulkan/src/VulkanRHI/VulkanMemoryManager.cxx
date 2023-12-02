@@ -41,8 +41,7 @@ void* VulkanMemoryAllocation::Map(VkDeviceSize InSize, VkDeviceSize Offset)
     check(bCanBeMapped);
     if (!MappedPointer) {
         check(!MappedPointer);
-        checkMsg(InSize + Offset <= Size, "Failed to Map {} bytes, Offset {}, AllocSize {} bytes", InSize, Offset,
-                 Size);
+        checkMsg(InSize + Offset <= Size, "Can't to Map {} bytes, Offset {}, AllocSize {} bytes", InSize, Offset, Size);
         VK_CHECK_RESULT(vmaMapMemory(ManagerHandle.GetAllocator(), Allocation, &MappedPointer));
     }
     return MappedPointer;
@@ -130,6 +129,8 @@ Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(const VkMemoryRequirement
     Ref<VulkanMemoryAllocation> Alloc = Ref<VulkanMemoryAllocation>::Create(*this);
     VK_CHECK_RESULT(
         vmaAllocateMemory(Allocator, &MemoryRequirement, &CreateInfo, &(Alloc->GetHandle()), &Alloc->AllocationInfo));
+    Alloc->Size = MemoryRequirement.size;
+    Alloc->bCanBeMapped = Mappable;
 
     AllocationCount += 1;
     return Alloc;

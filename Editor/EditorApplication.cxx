@@ -50,6 +50,15 @@ bool EditorApplication::OnEngineInitialization()
     Graph.Compile();
     Graph.Execute();
 #endif
+    ResourceArray<uint32> TestArray;
+    TestArray.Append({11, 22, 33, 44, 55});
+    Buffer = RHI::CreateBuffer(RHIBufferDesc{
+        .Size = 200,
+        .Stride = 0,
+        .Usage = EBufferUsageFlags::KeepCPUAccessible,
+        .ResourceArray = &TestArray,
+        .DebugName = "Test",
+    });
     RHIRenderPassDescription Description{
         .ColorTarget =
             {
@@ -76,6 +85,7 @@ bool EditorApplication::OnEngineInitialization()
 
 void EditorApplication::OnEngineDestruction()
 {
+    Buffer = nullptr;
     Pipeline = nullptr;
 
     BaseApplication::OnEngineDestruction();

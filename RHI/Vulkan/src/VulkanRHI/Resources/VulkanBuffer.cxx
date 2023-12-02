@@ -42,7 +42,7 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const RHIBufferDesc& InDescri
 
     VulkanAPI::vkGetBufferMemoryRequirements(Device->GetHandle(), BufferHandle, &MemoryRequirements);
     Memory =
-        Device->GetMemoryManager()->Alloc(MemoryRequirements, VMA_MEMORY_USAGE_AUTO,
+        Device->GetMemoryManager()->Alloc(MemoryRequirements, VMA_MEMORY_USAGE_CPU_TO_GPU,
                                           EnumHasAnyFlags(Description.Usage, EBufferUsageFlags::KeepCPUAccessible));
     Memory->BindBuffer(BufferHandle);
     if (Description.ResourceArray) {
