@@ -2,6 +2,7 @@
 
 #include "Engine/Core/Log.hxx"
 
+#include "VulkanRHI/Resources/VulkanShader.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 
 #include <catch2/catch_test_macros.hpp>
@@ -99,6 +100,19 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
 
     CHECK(ShaderResult->GetShaderType() == RHIShaderType::Pixel);
 
+    struct ShaderPushConstantStruct {
+        uint32 pointLightCount;
+        uint32 directLightCount;
+        uint32 spotLightCount;
+        float position[3];
+        float __Padding;
+    };
+    const uint32 ExpectedPushConstantOffset = 64;
+    const ShaderResource::PushConstantRange ExpectedPushConstant{
+        .Offset = ExpectedPushConstantOffset,
+        .Size = ExpectedPushConstantOffset + sizeof(ShaderPushConstantStruct),
+    };
+
     const VulkanShader::ReflectionData ExpectedReflection{
         .StageInput =
             {
@@ -143,10 +157,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
             },
         .PushConstants =
             {
-                {
-                    .Offset = 64,
-                    .Size = 92,
-                },
+                ExpectedPushConstant,
             },
     };
     const VulkanShader::ReflectionData& GotReflection = ShaderResult->GetReflectionData();
