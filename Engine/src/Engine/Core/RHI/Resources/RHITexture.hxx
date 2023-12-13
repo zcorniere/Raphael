@@ -34,7 +34,8 @@ public:
     }
     virtual ~RHITexture() = default;
 
-    virtual void Resize(const glm::uvec2& Size) = 0;
+    virtual void Resize(const glm::uvec2& Size);
+    virtual void Invalidate() = 0;
 
     const RHITextureSpecification& GetDescription() const
     {

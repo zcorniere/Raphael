@@ -3,8 +3,6 @@
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
 #include "Engine/Core/RHI/Resources/RHITexture.hxx"
 
-#include "VulkanRHI/VulkanLoader.hxx"
-
 namespace VulkanRHI
 {
 
@@ -18,9 +16,9 @@ public:
     VulkanTexture(VulkanDevice* InDevice, const RHITextureSpecification& InDesc);
     virtual ~VulkanTexture();
 
-    void SetName(std::string_view InName) override;
+    virtual void SetName(std::string_view InName) override;
 
-    virtual void Resize(const glm::uvec2& Size) override;
+    virtual void Invalidate() override;
 
     VkImage GetImage() const;
     VkImageView GetImageView() const;

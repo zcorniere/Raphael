@@ -1,5 +1,6 @@
 #include "VulkanRHI/Resources/VulkanTexture.hxx"
 
+#include "Engine/Core/RHI/RHICommandQueue.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanMemoryManager.hxx"
@@ -38,14 +39,13 @@ void VulkanTexture::SetName(std::string_view InName)
     }
 }
 
-void VulkanTexture::Resize(const glm::uvec2& Size)
+void VulkanTexture::Invalidate()
 {
-    if (Description.Extent == Size) {
-        return;
-    }
-    DestroyTexture();
-    Description.Extent = Size;
-    CreateTexture();
+    ENQUEUE_RENDER_COMMAND(InvalidateTexture)
+    ([instance = Ref(this)] mutable {
+        instance->DestroyTexture();
+        instance->CreateTexture();
+    });
 }
 
 VkImage VulkanTexture::GetImage() const
