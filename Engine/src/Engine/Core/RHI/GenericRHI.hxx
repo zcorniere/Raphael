@@ -55,7 +55,4 @@ public:
     virtual Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) = 0;
     /// @copydoc RHI::CreateGraphicsPipeline
     virtual Ref<RHIGraphicsPipeline> CreateGraphicsPipeline(const RHIGraphicsPipelineSpecification& Config) = 0;
-
-private:
-    friend class RHI;
 };

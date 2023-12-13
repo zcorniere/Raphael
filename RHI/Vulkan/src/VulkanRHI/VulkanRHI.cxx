@@ -17,8 +17,8 @@ GenericRHI* RHI::CreateRHI()
 {
     RPH_PROFILE_FUNC()
 
-    GDynamicRHI = std::make_unique<VulkanRHI::VulkanDynamicRHI>();
-    return GDynamicRHI.get();
+    GDynamicRHI = new VulkanRHI::VulkanDynamicRHI;
+    return GDynamicRHI;
 }
 //
 

@@ -4,26 +4,30 @@
 #include "Engine/Core/RHI/RHICommandQueue.hxx"
 #include "Engine/Core/Window.hxx"
 
-static std::unique_ptr<RHICommandQueue> s_CommandQueue = nullptr;
+static RHICommandQueue* s_CommandQueue = nullptr;
 
-std::unique_ptr<GenericRHI> GDynamicRHI = nullptr;
+GenericRHI* GDynamicRHI = nullptr;
 
 void RHI::Init()
 {
-    s_CommandQueue = std::make_unique<RHICommandQueue>();
+    s_CommandQueue = new RHICommandQueue;
 }
 
 void RHI::DeleteRHI()
 {
     GDynamicRHI->Shutdown();
+
+    delete s_CommandQueue;
     s_CommandQueue = nullptr;
+
+    delete GDynamicRHI;
     GDynamicRHI = nullptr;
 }
 
 RHICommandQueue* RHI::GetRHICommandQueue()
 {
     check(s_CommandQueue);
-    return s_CommandQueue.get();
+    return s_CommandQueue;
 }
 
 /// RHI Fowarding
@@ -31,40 +35,40 @@ void RHI::BeginFrame()
 {
     RPH_PROFILE_FUNC()
 
-    return RHI::Get<GenericRHI>()->BeginFrame();
+    return RHI::Get()->BeginFrame();
 }
 
 void RHI::EndFrame()
 {
     RPH_PROFILE_FUNC()
 
-    return RHI::Get<GenericRHI>()->EndFrame();
+    return RHI::Get()->EndFrame();
 }
 
 void RHI::NextFrame()
 {
     RPH_PROFILE_FUNC()
 
-    return RHI::Get<GenericRHI>()->NextFrame();
+    return RHI::Get()->NextFrame();
 }
 
 void RHI::BeginRenderPass(const RHIRenderPassDescription& Renderpass, const RHIFramebufferDefinition& Framebuffer)
 {
     RPH_PROFILE_FUNC()
 
-    return RHI::Get<GenericRHI>()->BeginRenderPass(Renderpass, Framebuffer);
+    return RHI::Get()->BeginRenderPass(Renderpass, Framebuffer);
 }
 
 void RHI::EndRenderPass()
 {
     RPH_PROFILE_FUNC()
-    
-    return RHI::Get<GenericRHI>()->EndRenderPass();
+
+    return RHI::Get()->EndRenderPass();
 }
 
 void RHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
 {
-    return RHI::Get<GenericRHI>()->Draw(Pipeline);
+    return RHI::Get()->Draw(Pipeline);
 }
 
 //
@@ -73,26 +77,25 @@ void RHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
 
 Ref<RHIViewport> RHI::CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize)
 {
-    return RHI::Get<GenericRHI>()->CreateViewport(std::move(InWindowHandle), std::move(InSize));
+    return RHI::Get()->CreateViewport(std::move(InWindowHandle), std::move(InSize));
 }
 
 Ref<RHITexture> RHI::CreateTexture(const RHITextureSpecification& InDesc)
 {
-    return RHI::Get<GenericRHI>()->CreateTexture(InDesc);
+    return RHI::Get()->CreateTexture(InDesc);
 }
 
 Ref<RHIBuffer> RHI::CreateBuffer(const RHIBufferDesc& InDesc)
 {
-    return RHI::Get<GenericRHI>()->CreateBuffer(InDesc);
+    return RHI::Get()->CreateBuffer(InDesc);
 }
 
 Ref<RHIShader> RHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)
 {
-    return RHI::Get<GenericRHI>()->CreateShader(Path, bForceCompile);
+    return RHI::Get()->CreateShader(Path, bForceCompile);
 }
 
 Ref<RHIGraphicsPipeline> RHI::CreateGraphicsPipeline(const RHIGraphicsPipelineSpecification& Config)
 {
-    return RHI::Get<GenericRHI>()->CreateGraphicsPipeline(Config);
+    return RHI::Get()->CreateGraphicsPipeline(Config);
 }
-
