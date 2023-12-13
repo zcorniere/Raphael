@@ -22,9 +22,7 @@ public:
     {
     }
 
-    virtual ~RHIResource()
-    {
-    }
+    virtual ~RHIResource() = default;
 
 protected:
     const RHIResourceType ResourceType;

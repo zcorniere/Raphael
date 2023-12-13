@@ -32,9 +32,7 @@ public:
         : RHIResource(RHIResourceType::Texture), Description(InDesc)
     {
     }
-    virtual ~RHITexture()
-    {
-    }
+    virtual ~RHITexture() = default;
 
     virtual void Resize(const glm::uvec2& Size) = 0;
 

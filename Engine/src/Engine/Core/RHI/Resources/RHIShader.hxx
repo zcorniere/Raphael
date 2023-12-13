@@ -18,6 +18,8 @@ public:
     {
     }
 
+    virtual ~RHIShader() = default;
+
     /// @brief Return the type of the shader
     RHIShaderType GetShaderType() const
     {

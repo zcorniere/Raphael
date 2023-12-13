@@ -24,4 +24,6 @@ public:
     RHIGraphicsPipeline(): RHIResource(RHIResourceType::GraphicsPipeline)
     {
     }
+
+    virtual ~RHIGraphicsPipeline() = default;
 };

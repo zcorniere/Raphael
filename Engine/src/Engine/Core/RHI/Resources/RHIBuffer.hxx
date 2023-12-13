@@ -40,6 +40,7 @@ public:
     RHIBuffer(const RHIBufferDesc& InDescription): RHIResource(RHIResourceType::Buffer), Description(InDescription)
     {
     }
+    virtual ~RHIBuffer() = default;
 
     /// @return The number of bytes in the buffer.
     uint32 GetSize() const

@@ -9,6 +9,7 @@ public:
     RHIViewport(): RHIResource(RHIResourceType::Viewport)
     {
     }
+    virtual ~RHIViewport() = default;
 
     /// @brief Mark the current viewport as the one to draw on
     ///
@@ -18,7 +19,7 @@ public:
     ///
     /// Will be queued in the RHI command, and be executed later
     void EndDrawViewport();
-    
+
     /// @brief The current viewport will be resized
     ///
     /// Will be queued in the RHI command, and be executed later
