@@ -1,6 +1,5 @@
 project(RaphaelEditor)
-set(CMAKE_FOLDER  "Raphael/Editor")
-
+set(CMAKE_FOLDER "Raphael/Editor")
 
 option(RPH_ENABLE_PROFILING "Enable the profiling" OFF)
 
@@ -22,11 +21,11 @@ target_compile_options(
             /wd4244
             /wd4324>
 )
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 set_target_properties(${PROJECT_NAME} PROPERTIES ENABLE_EXPORTS 1)
 
-if (MSVC)
-	set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+if(MSVC)
+    set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 endif()
 
 if(RPH_ENABLE_PROFILING)
@@ -35,7 +34,6 @@ if(RPH_ENABLE_PROFILING)
     target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
 else()
     message(STATUS "Profiling is disabled")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC RPH_ENABLE_PROFILING=0)
 endif(RPH_ENABLE_PROFILING)
 
 # target_generate_debug_file(${PROJECT_NAME})

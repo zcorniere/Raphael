@@ -1,5 +1,5 @@
 project(RaphaelRHIVulkan)
-set(CMAKE_FOLDER  "Raphael/RHI/Vulkan")
+set(CMAKE_FOLDER "Raphael/RHI/Vulkan")
 
 add_subdirectory(External/)
 
@@ -16,7 +16,7 @@ file(
 add_library(${PROJECT_NAME} STATIC ${VULKAN_RENDERER_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_precompile_headers(${PROJECT_NAME} PRIVATE VulkanRHI.pch.hxx)
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 target_link_libraries(
     ${PROJECT_NAME}
     PRIVATE spirv-cross-core
