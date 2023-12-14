@@ -4,7 +4,6 @@
 
 #include "VulkanRHI/RenderPass/VulkanFramebuffer.hxx"
 #include "VulkanRHI/Resources/VulkanTexture.hxx"
-#include "VulkanRHI/VulkanLoader.hxx"
 
 namespace VulkanRHI
 {

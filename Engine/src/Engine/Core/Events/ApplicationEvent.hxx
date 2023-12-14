@@ -2,8 +2,6 @@
 
 #include "Engine/Core/Events/Events.hxx"
 
-#include <sstream>
-
 class WindowResizeEvent : public Event
 {
 public:

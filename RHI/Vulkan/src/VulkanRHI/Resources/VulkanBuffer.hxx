@@ -2,9 +2,6 @@
 
 #include "Engine/Core/RHI/Resources/RHIBuffer.hxx"
 
-#include "VulkanRHI/VulkanLoader.hxx"
-
-
 namespace VulkanRHI
 {
 

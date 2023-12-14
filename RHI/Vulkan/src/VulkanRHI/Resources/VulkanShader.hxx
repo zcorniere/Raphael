@@ -2,8 +2,6 @@
 
 #include "Engine/Core/RHI/Resources/RHIShader.hxx"
 
-#include "VulkanRHI/VulkanLoader.hxx"
-
 namespace VulkanRHI
 {
 
