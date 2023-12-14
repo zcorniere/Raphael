@@ -2,7 +2,6 @@
 
 #include <signal.h>
 
-#include "Engine/Compilers/Compiler.hxx"
 #include "Engine/Platforms/Platform.hxx"
 
 #include <sys/param.h>
@@ -14,6 +13,8 @@ static_assert(false, "Unix Platform header included on a non Unix platform");
 #endif
 
 #define PLATFORM_BREAK() raise(SIGTRAP)
+
+#define PLATFORM_CODE_SECTION(Name) __attribute__((section(Name)))
 
 /// @brief Unix-specific functions
 class LinuxPlateform : public GenericPlatform

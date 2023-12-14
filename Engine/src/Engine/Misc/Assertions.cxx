@@ -6,7 +6,7 @@ DECLARE_LOGGER_CATEGORY(Core, LogAssert, Trace)
 namespace Raphael
 {
 
-void CollectAndPrintStackTrace(void* ReturnAddress)
+void RPH_DEBUG_SECTION CollectAndPrintStackTrace(void* ReturnAddress)
 {
     static bool bIsAlreadyHandlerAssertions = false;
 

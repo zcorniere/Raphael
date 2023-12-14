@@ -6,14 +6,18 @@
 
 #include <atomic>
 
+#define RPH_CHECK_STACKTRACE
+
+#define RPH_DEBUG_SECTION PLATFORM_CODE_SECTION(".rph_debug")
+
 namespace Raphael
 {
 
 /// Collect and print the callstack
-void CollectAndPrintStackTrace(void* ReturnAddress);
+void RPH_DEBUG_SECTION CollectAndPrintStackTrace(void* ReturnAddress);
 
 /// Whether or not the check should print the stacktrace
-constexpr bool ShouldCheckPrintStackTrace()
+consteval RPH_DEBUG_SECTION bool ShouldCheckPrintStackTrace()
 {
 #if defined(RPH_CHECK_STACKTRACE)
     return true;
@@ -32,12 +36,12 @@ constexpr bool ShouldCheckPrintStackTrace()
 #ifndef NDEBUG
 
     #define RAPHAEL_ENSURE_IMPL(Always, Expression, Format, ...)                                                  \
-        (((Expression)) || (([__VA_OPT__(&)]() {                                                                  \
+        (((Expression)) || (([__VA_OPT__(&)] RPH_DEBUG_SECTION {                                                  \
                                 static std::atomic_bool bExecuted = false;                                        \
                                 if (!bExecuted || Always) {                                                       \
                                     bExecuted = true;                                                             \
                                     /* TODO: Check if another assertion is in progress */                         \
-                                    if (Raphael::ShouldCheckPrintStackTrace())                                    \
+                                    if constexpr (Raphael::ShouldCheckPrintStackTrace())                          \
                                         Raphael::CollectAndPrintStackTrace(Compiler::ReturnAddress());            \
                                     const std::string Message = std::format(                                      \
                                         "Assertion failed: " STR(#Expression) " in {}" __VA_OPT__(" :: " Format), \
@@ -48,7 +52,10 @@ constexpr bool ShouldCheckPrintStackTrace()
                                 }                                                                                 \
                                 return false;                                                                     \
                             }()) &&                                                                               \
-                            ([]() { PLATFORM_BREAK(); }(), false)))
+                            ([] RPH_DEBUG_SECTION {                                                               \
+                                PLATFORM_BREAK();                                                                 \
+                                return false;                                                                     \
+                            }())))
 
     #define ensure(Expression) RAPHAEL_ENSURE_IMPL(false, Expression, )
     #define ensureMsg(Expression, Format, ...) RAPHAEL_ENSURE_IMPL(false, Expression, Format, ##__VA_ARGS__)
@@ -59,7 +66,7 @@ constexpr bool ShouldCheckPrintStackTrace()
         {                                                                                                 \
             if (!(Expression)) [[unlikely]] {                                                             \
                 using namespace Raphael;                                                                  \
-                if (Raphael::ShouldCheckPrintStackTrace())                                                \
+                if constexpr (Raphael::ShouldCheckPrintStackTrace())                                      \
                     CollectAndPrintStackTrace(Compiler::ReturnAddress());                                 \
                 const std::string Message =                                                               \
                     std::format("Assertion failed: " STR(#Expression) " in {}" __VA_OPT__(" :: " Format), \
