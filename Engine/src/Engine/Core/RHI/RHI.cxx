@@ -33,36 +33,26 @@ RHICommandQueue* RHI::GetRHICommandQueue()
 /// RHI Fowarding
 void RHI::BeginFrame()
 {
-    RPH_PROFILE_FUNC()
-
     return RHI::Get()->BeginFrame();
 }
 
 void RHI::EndFrame()
 {
-    RPH_PROFILE_FUNC()
-
     return RHI::Get()->EndFrame();
 }
 
 void RHI::NextFrame()
 {
-    RPH_PROFILE_FUNC()
-
     return RHI::Get()->NextFrame();
 }
 
 void RHI::BeginRenderPass(const RHIRenderPassDescription& Renderpass, const RHIFramebufferDefinition& Framebuffer)
 {
-    RPH_PROFILE_FUNC()
-
     return RHI::Get()->BeginRenderPass(Renderpass, Framebuffer);
 }
 
 void RHI::EndRenderPass()
 {
-    RPH_PROFILE_FUNC()
-
     return RHI::Get()->EndRenderPass();
 }
 

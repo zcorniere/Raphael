@@ -2,6 +2,11 @@ project(RaphaelEditor)
 set(CMAKE_FOLDER "Raphael/Editor")
 
 option(RPH_ENABLE_PROFILING "Enable the profiling" OFF)
+if(RPH_ENABLE_PROFILING)
+    message(STATUS "Profiling is enabled")
+else()
+    message(STATUS "Profiling is disabled")
+endif(RPH_ENABLE_PROFILING)
 
 add_executable(${PROJECT_NAME} main.cxx EditorApplication.cxx)
 
@@ -29,11 +34,8 @@ if(MSVC)
 endif()
 
 if(RPH_ENABLE_PROFILING)
-    message(STATUS "Profiling is enabled")
     target_compile_definitions(${PROJECT_NAME} PUBLIC RPH_ENABLE_PROFILING=1)
     target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
-else()
-    message(STATUS "Profiling is disabled")
 endif(RPH_ENABLE_PROFILING)
 
 # target_generate_debug_file(${PROJECT_NAME})

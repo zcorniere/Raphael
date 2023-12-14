@@ -2,16 +2,23 @@
 
 #include "Engine/Core/RHI/RHI.hxx"
 
-#define ENQUEUE_RENDER_COMMAND(Type)                  \
-    struct Type##Name {                               \
-        static constexpr const std::string_view Str() \
-        {                                             \
-            return std::string_view(#Type);           \
-        }                                             \
-    };                                                \
+#define ENQUEUE_RENDER_COMMAND(Type)       \
+    struct Type##Name {                    \
+        static constexpr const char* Str() \
+        {                                  \
+            return #Type;                  \
+        }                                  \
+    };                                     \
     RHI::GetRHICommandQueue()->EnqueueCommand<Type##Name>
 
 DECLARE_LOGGER_CATEGORY(Core, LogRenderCommand, Warning)
+
+template <typename TTypeString, typename TLambda>
+concept ValidRenderLambda = std::invocable<TLambda> && requires {
+    {
+        TTypeString::Str()
+    } -> std::convertible_to<const char*>;
+};
 
 /// Dummy class to represent a RenderCommand Lambda
 class RenderCommand
@@ -20,16 +27,12 @@ public:
     virtual void DoTask() = 0;
 };
 
-template <typename TSTR, typename LAMBDA>
-requires std::invocable<LAMBDA> && requires {
-    {
-        TSTR::Str()
-    } -> std::convertible_to<std::string_view>;
-}
+template <typename TTypeString, typename TLambda>
+requires ValidRenderLambda<TTypeString, TLambda>
 class TUniqueRenderCommandType : public RenderCommand
 {
 public:
-    TUniqueRenderCommandType(LAMBDA&& InLambda): Lambda(std::forward<LAMBDA>(InLambda))
+    TUniqueRenderCommandType(TLambda&& InLambda): Lambda(std::forward<TLambda>(InLambda))
     {
     }
     virtual ~TUniqueRenderCommandType()
@@ -38,13 +41,13 @@ public:
 
     virtual void DoTask() override
     {
-        RPH_PROFILE_FUNC();
-        LOG(LogRenderCommand, Trace, "Running task: {:s}", TSTR::Str());
+        RPH_PROFILE_SCOPE_DYNAMIC(TTypeString::Str());
+        LOG(LogRenderCommand, Trace, "Running task: {:s}", TTypeString::Str());
         Lambda();
     }
 
 private:
-    LAMBDA Lambda;
+    TLambda Lambda;
 };
 
 /// @brief This class enqueue commands in a buffer

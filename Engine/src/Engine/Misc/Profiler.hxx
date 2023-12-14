@@ -1,6 +1,10 @@
 #pragma once
 
-#if RPH_ENABLE_PROFILING == 1
+#ifdef RPH_ENABLE_PROFILING
+    #define TracyFunction function_name()
+// #define TracyFile __FILE__
+// #define TracyLine __LINE__
+
     #include <tracy/Tracy.hpp>
 
     #define RPH_PROFILE_MARK_FRAME FrameMark;

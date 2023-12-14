@@ -97,3 +97,8 @@ if(UNIX)
 endif()
 
 build_tests(${PROJECT_NAME} tests/Containers/Array.cxx)
+
+if(RPH_ENABLE_PROFILING)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC RPH_ENABLE_PROFILING=1)
+    target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
+endif(RPH_ENABLE_PROFILING)

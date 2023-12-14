@@ -68,6 +68,8 @@ bool BaseApplication::ShouldExit() const
 
 bool BaseApplication::OnWindowResize(WindowResizeEvent& E)
 {
+    RPH_PROFILE_FUNC()
+
     const uint32 width = E.GetWidth();
     const uint32 height = E.GetHeight();
     if (width == 0 || height == 0) {
@@ -82,11 +84,15 @@ bool BaseApplication::OnWindowResize(WindowResizeEvent& E)
 
 bool BaseApplication::OnWindowMinimize(WindowMinimizeEvent& E)
 {
+    RPH_PROFILE_FUNC()
+
     (void)E;
     return false;
 }
 bool BaseApplication::OnWindowClose(WindowCloseEvent& E)
 {
+    RPH_PROFILE_FUNC()
+
     (void)E;
     bShouldExit = true;
     return false;
