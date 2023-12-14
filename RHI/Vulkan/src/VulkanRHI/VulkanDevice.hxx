@@ -1,10 +1,13 @@
 #pragma once
 
+#include "vulkan/vulkan_core.h"
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
 #include "VulkanRHI/VulkanRHI.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
+
+#include "Engine/Core/Memory/SmartPointers.hxx"
 
 #if VULKAN_DEBUGGING_ENABLED
     #define VULKAN_SET_DEBUG_NAME(Device, Type, Handle, Format, ...) \
@@ -71,13 +74,13 @@ public:
     inline VulkanMemoryManager* GetMemoryManager()
     {
         check(MemoryAllocator);
-        return MemoryAllocator.get();
+        return MemoryAllocator.Get();
     }
 
     inline VulkanCommandBufferManager* GetCommandManager()
     {
         check(CommandManager);
-        return CommandManager.get();
+        return CommandManager.Get();
     }
 
 private:
@@ -85,17 +88,17 @@ private:
     void CreateDeviceAndQueue(const Array<const char*>& DeviceLayers, const Array<const char*>& DeviceExtensions);
 
 public:
-    std::unique_ptr<VulkanQueue> GraphicsQueue;
-    std::unique_ptr<VulkanQueue> ComputeQueue;
-    std::unique_ptr<VulkanQueue> TransferQueue;
-    VulkanQueue* PresentQueue;
+    UniquePtr<VulkanQueue> GraphicsQueue = nullptr;
+    UniquePtr<VulkanQueue> ComputeQueue = nullptr;
+    UniquePtr<VulkanQueue> TransferQueue = nullptr;
+    VulkanQueue* PresentQueue = nullptr;
 
 private:
-    std::unique_ptr<VulkanMemoryManager> MemoryAllocator;
-    std::unique_ptr<VulkanCommandBufferManager> CommandManager;
+    UniquePtr<VulkanMemoryManager> MemoryAllocator = nullptr;
+    UniquePtr<VulkanCommandBufferManager> CommandManager = nullptr;
 
-    VkDevice Device;
-    VkPhysicalDevice Gpu;
+    VkDevice Device = VK_NULL_HANDLE;
+    VkPhysicalDevice Gpu = VK_NULL_HANDLE;
     VkPhysicalDeviceProperties GpuProps;
 
     VkPhysicalDeviceFeatures PhysicalFeatures;

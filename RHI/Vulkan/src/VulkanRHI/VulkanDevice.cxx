@@ -44,13 +44,7 @@ static const Array<const char*> DefaultDeviceExtensions{VK_KHR_SWAPCHAIN_EXTENSI
 namespace VulkanRHI
 {
 
-VulkanDevice::VulkanDevice(VkPhysicalDevice InGpu)
-    : GraphicsQueue(nullptr),
-      ComputeQueue(nullptr),
-      TransferQueue(nullptr),
-      PresentQueue(nullptr),
-      Device(VK_NULL_HANDLE),
-      Gpu(InGpu)
+VulkanDevice::VulkanDevice(VkPhysicalDevice InGpu): Gpu(InGpu)
 {
     VulkanAPI::vkGetPhysicalDeviceProperties(Gpu, &GpuProps);
     LOG(LogVulkanRHI, Info, "- DeviceName: {}", GpuProps.deviceName);
@@ -99,9 +93,9 @@ void VulkanDevice::InitPhysicalDevice()
     VulkanPlatform::GetDeviceExtensions(this, DeviceExtensions);
     CreateDeviceAndQueue({}, DeviceExtensions);
 
-    MemoryAllocator = std::make_unique<VulkanMemoryManager>(this);
+    MemoryAllocator = MakeUnique<VulkanMemoryManager>(this);
 
-    CommandManager = std::make_unique<VulkanCommandBufferManager>(this, GraphicsQueue.get());
+    CommandManager = MakeUnique<VulkanCommandBufferManager>(this, GraphicsQueue.Get());
 }
 
 void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
@@ -193,19 +187,19 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
     }
     VK_CHECK_RESULT_EXPANDED(Result);
 
-    GraphicsQueue = std::make_unique<VulkanQueue>(this, GraphicsQueueFamilyIndex);
+    GraphicsQueue = MakeUnique<VulkanQueue>(this, GraphicsQueueFamilyIndex);
     GraphicsQueue->SetName("Graphics Queue");
 
     if (ComputeQueueFamilyIndex == -1) {
         ComputeQueueFamilyIndex = GraphicsQueueFamilyIndex;
     }
-    ComputeQueue = std::make_unique<VulkanQueue>(this, ComputeQueueFamilyIndex);
+    ComputeQueue = MakeUnique<VulkanQueue>(this, ComputeQueueFamilyIndex);
     ComputeQueue->SetName("Compute Queue");
 
     if (TransferQueueFamilyIndex == -1) {
         TransferQueueFamilyIndex = ComputeQueueFamilyIndex;
     }
-    TransferQueue = std::make_unique<VulkanQueue>(this, TransferQueueFamilyIndex);
+    TransferQueue = MakeUnique<VulkanQueue>(this, TransferQueueFamilyIndex);
     TransferQueue->SetName("Transfer Queue");
 
     LOG(LogVulkanRHI, Info, "Using {} device layers{}", DeviceLayers.Size(), DeviceLayers.Size() ? ":" : ".");
@@ -234,7 +228,7 @@ static bool DoesQueueSupportPresent(VkSurfaceKHR Surface, VkPhysicalDevice Physi
 void VulkanDevice::SetupPresentQueue(VkSurfaceKHR Surface)
 {
     if (!PresentQueue) {
-        bool bGfx = DoesQueueSupportPresent(Surface, Gpu, GraphicsQueue.get());
+        bool bGfx = DoesQueueSupportPresent(Surface, Gpu, GraphicsQueue.Get());
         if (!bGfx) {
             PlatformMisc::DisplayMessageBox(
                 EBoxMessageType::Ok, "Cannot find a compatible Vulkan device that supports surface presentation.\n\n",
@@ -242,16 +236,16 @@ void VulkanDevice::SetupPresentQueue(VkSurfaceKHR Surface)
             Utils::RequestExit(1);
         }
 
-        bool bCompute = DoesQueueSupportPresent(Surface, Gpu, ComputeQueue.get());
+        bool bCompute = DoesQueueSupportPresent(Surface, Gpu, ComputeQueue.Get());
         if (TransferQueue->GetFamilyIndex() != GraphicsQueue->GetFamilyIndex() &&
             TransferQueue->GetFamilyIndex() != ComputeQueue->GetFamilyIndex()) {
-            DoesQueueSupportPresent(Surface, Gpu, TransferQueue.get());
+            DoesQueueSupportPresent(Surface, Gpu, TransferQueue.Get());
         }
 
         if (ComputeQueue->GetFamilyIndex() != GraphicsQueue->GetFamilyIndex() && bCompute) {
-            PresentQueue = ComputeQueue.get();
+            PresentQueue = ComputeQueue.Get();
         } else {
-            PresentQueue = GraphicsQueue.get();
+            PresentQueue = GraphicsQueue.Get();
         }
         LOG(LogVulkanRHI, Info, "Using {} as the present Queue", PresentQueue->GetName());
     }

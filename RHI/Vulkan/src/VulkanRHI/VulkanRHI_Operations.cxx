@@ -163,6 +163,6 @@ VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineSpe
     Desc.Rasterizer.PolygonMode = ConvertToVulkanType(Config.Rasterizer.PolygonMode);
     check(Desc.Validate());
 
-    return Ref<VulkanGraphicsPipeline>::Create(Device.get(), Desc);
+    return Ref<VulkanGraphicsPipeline>::Create(Device.Get(), Desc);
 }
 }    // namespace VulkanRHI

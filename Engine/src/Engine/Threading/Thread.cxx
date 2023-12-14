@@ -1,4 +1,5 @@
 #include "Engine/Threading/Thread.hxx"
+#include "Engine/Core/Memory/SmartPointers.hxx"
 
 DECLARE_LOGGER_CATEGORY(Core, LogThread, Warning)
 
@@ -27,7 +28,7 @@ void Thread::End(bool bShouldWait)
     }
 }
 
-void Thread::Create(const std::string& name, std::unique_ptr<ThreadRuntime> threadCode)
+void Thread::Create(const std::string& name, UniquePtr<ThreadRuntime> threadCode)
 {
     if (m_managedThread.joinable()) {
         m_managedThread.request_stop();

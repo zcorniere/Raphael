@@ -27,7 +27,7 @@ static std::string GetMissingExtensions(Array<const char*> VulkanExtensions);
 namespace VulkanRHI
 {
 
-VulkanDynamicRHI::VulkanDynamicRHI(): m_Instance(VK_NULL_HANDLE), Device(nullptr)
+VulkanDynamicRHI::VulkanDynamicRHI()
 {
     LOG(LogVulkanRHI, Info, "Built with Vulkan header version {}.{}.{}",
         VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
@@ -70,8 +70,8 @@ void VulkanDynamicRHI::Init()
     Device->InitPhysicalDevice();
     Device->SetName("Main Vulkan Device");
 
-    RPassManager = std::make_unique<RenderPassManager>(Device.get());
-    ShaderCompiler = std::make_unique<VulkanShaderCompiler>();
+    RPassManager = MakeUnique<RenderPassManager>(Device.Get());
+    ShaderCompiler = MakeUnique<VulkanShaderCompiler>();
 
 #if VULKAN_DEBUGGING_ENABLED
     ShaderCompiler->SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::PerfWithDebug);
@@ -232,16 +232,16 @@ void VulkanDynamicRHI::SelectDevice()
     DiscreteDevice.Append(IntegratedDevice);
 
     if (DiscreteDevice.Size() > 0) {
-        Device.reset(DiscreteDevice[0].Device);
+        Device.Reset(DiscreteDevice[0].Device);
         DeviceIndex = DiscreteDevice[0].DeviceIndex;
     } else if (IntegratedDevice.Size() > 0) {
-        Device.reset(IntegratedDevice[0].Device);
+        Device.Reset(IntegratedDevice[0].Device);
         DeviceIndex = IntegratedDevice[0].DeviceIndex;
     } else {
         LOG(LogVulkanRHI, Info, "Cannot find compatible Vulkan device");
         return;
     }
-    Devices.Remove(Device.get());
+    Devices.Remove(Device.Get());
     Devices.Clear(true);
 
     LOG(LogVulkanRHI, Info, "Chosen device index: {}", DeviceIndex);

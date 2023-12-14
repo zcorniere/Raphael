@@ -1,4 +1,5 @@
 #include "Engine/Threading/ThreadPool.hxx"
+#include "Engine/Core/Memory/SmartPointers.hxx"
 
 DECLARE_LOGGER_CATEGORY(Core, LogWorkerThreadRuntime, Warning);
 
@@ -22,8 +23,8 @@ void ThreadPool::Resize(unsigned size)
     unsigned old_size = thread_p.Size();
     thread_p.Resize(size);
     for (; old_size < thread_p.Size(); old_size++) {
-        thread_p[old_size].Create(std::format("Worker Thread nb {}", old_size),
-                                  std::make_unique<WorkerPoolRuntime>(state));
+        UniquePtr<WorkerPoolRuntime> Runtime = MakeUnique<WorkerPoolRuntime>(state);
+        thread_p[old_size].Create(std::format("Worker Thread nb {}", old_size), std::move(Runtime));
     }
 }
 

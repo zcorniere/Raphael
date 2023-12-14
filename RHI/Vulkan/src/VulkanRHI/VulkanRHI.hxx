@@ -2,7 +2,9 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Trace);
 
+#include "Engine/Core/Memory/SmartPointers.hxx"
 #include "Engine/Core/RHI/GenericRHI.hxx"
+
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 
 #define VK_NO_PROTOTYPES
@@ -69,7 +71,7 @@ public:
 
     VulkanDevice* GetDevice()
     {
-        return Device.get();
+        return Device.Get();
     }
 
 private:
@@ -90,15 +92,14 @@ private:
     void RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport);
 
 private:
-    VkInstance m_Instance;
-    std::unique_ptr<VulkanDevice> Device;
+    VkInstance m_Instance = VK_NULL_HANDLE;
+    UniquePtr<VulkanDevice> Device = nullptr;
+    UniquePtr<VulkanShaderCompiler> ShaderCompiler = nullptr;
+    UniquePtr<RenderPassManager> RPassManager = nullptr;
 
-    WeakRef<VulkanViewport> DrawingViewport;
-
-    std::unique_ptr<RenderPassManager> RPassManager;
-    WeakRef<VulkanRenderPass> CurrentRenderPass;
-
-    std::unique_ptr<VulkanShaderCompiler> ShaderCompiler;
+    // Used during runtime //
+    WeakRef<VulkanViewport> DrawingViewport = nullptr;
+    WeakRef<VulkanRenderPass> CurrentRenderPass = nullptr;
 };
 
 }    // namespace VulkanRHI
