@@ -1,5 +1,7 @@
 #include "Engine/Compilers/ClangCompiler.hxx"
 
+#include "Engine/Core/Memory/UniquePtr.hxx"
+
 DECLARE_LOGGER_CATEGORY(Core, LogClangCompiler, Info);
 
 std::string ClangCompiler::Demangle(const std::string_view& name)

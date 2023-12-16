@@ -1,4 +1,3 @@
-#include "Engine/Misc/UniquePtr.hxx"
 #include "Engine/Platforms/PlatformStacktrace.hxx"
 
 DECLARE_LOGGER_CATEGORY(Core, LogAssert, Trace)
