@@ -10,7 +10,7 @@ consteval const char* function_name(const std::source_location& location = std::
 
 inline std::string file_position(const std::source_location& location = std::source_location::current())
 {
-    return std::format("%s:%i", std::filesystem::path(location.file_name()).filename().string(), location.line());
+    return std::format("{:s}:{}", std::filesystem::path(location.file_name()).filename().string(), location.line());
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
