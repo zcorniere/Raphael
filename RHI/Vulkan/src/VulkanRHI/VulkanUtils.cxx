@@ -29,8 +29,6 @@ void VulkanCheckResult(VkResult Result, const char* VulkanFunction, const std::s
         LOG(LogVulkanRHI, Fatal, "VMA DUMP : \n{}", String);
         vmaFreeStatsString(GetVulkanDynamicRHI()->GetDevice()->GetMemoryManager()->GetAllocator(), String);
     }
-    // TODO: Do something with bDumpMemory
-    (void)bDumpMemory;
 
     LOG(LogVulkanRHI, Fatal, "{} failed, VkResult={:s}\n\tat {}:{} with error {}", VulkanFunction,
         magic_enum::enum_name(Result), location.file_name(), location.line(), ErrorString);
