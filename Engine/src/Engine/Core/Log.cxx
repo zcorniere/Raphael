@@ -1,5 +1,8 @@
 #include "Engine/Core/Log.hxx"
 
+#include "Engine/Platforms/PlatformMisc.hxx"
+
+#include <cpplogger/sinks/FileSink.hpp>
 #include <cpplogger/sinks/StdoutSink.hpp>
 #include <cstdio>
 
@@ -10,7 +13,7 @@ void Log::Init()
     if (!s_CoreLogger) {
         s_CoreLogger = new cpplogger::Logger("Core");
 
-        s_CoreLogger->addSink<cpplogger::StdoutSink, Log::Formatter>(stdout);
+        s_CoreLogger->addSink<cpplogger::StdoutSink, Log::ColorFormatter>(stdout);
     }
 }
 

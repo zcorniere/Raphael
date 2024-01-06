@@ -1,9 +1,11 @@
 #include "EditorApplication.hxx"
 
-#include "Engine/Core/RHI/Resources/RHIViewport.hxx"
 #include <Engine/Core/FrameGraph/FrameGraph.hxx>
 #include <Engine/Core/Log.hxx>
+#include <Engine/Core/RHI/Resources/RHIViewport.hxx>
+#include <Engine/Platforms/PlatformMisc.hxx>
 
+#include <cpplogger/sinks/FileSink.hpp>
 #include <cpplogger/sinks/StdoutSink.hpp>
 
 DECLARE_LOGGER_CATEGORY(Editor, LogApplication, Warning)
@@ -15,7 +17,7 @@ EditorApplication::EditorApplication()
     check(s_EditorLogger == nullptr);
     s_EditorLogger = new cpplogger::Logger("Editor");
 
-    s_EditorLogger->addSink<cpplogger::StdoutSink, Log::Formatter>(stdout);
+    s_EditorLogger->addSink<cpplogger::StdoutSink, Log::ColorFormatter>(stdout);
 }
 
 EditorApplication::~EditorApplication()
