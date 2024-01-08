@@ -7,6 +7,7 @@
 
 #include <ModernDialogs.h>
 #include <dlfcn.h>
+#include <filesystem>
 #include <xdg.hpp>
 
 EBoxReturnType LinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string Title, const std::string Text)
@@ -67,7 +68,7 @@ void* LinuxExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
 
 Malloc* LinuxMisc::BaseAllocator()
 {
-    // This function gets executed very early, way before main() (because global constructors will allocate memory).
+    // This function gets executed very early, way before main() (because global constructors may allocate memory).
     // This makes it an ideal place for a root privilege check.
     if (geteuid() == 0) {
         fprintf(stderr, "Refusing to run with the root privileges.\n");
@@ -95,5 +96,9 @@ Ref<IExternalModule> LinuxMisc::LoadExternalModule(const std::string& ModuleName
 
 std::filesystem::path LinuxMisc::GetConfigPath()
 {
+#ifndef NDEBUG
+    return std::filesystem::current_path();
+#else
     return xdg::ConfigHomeDir() / "RaphaelEngine";
+#endif
 }
