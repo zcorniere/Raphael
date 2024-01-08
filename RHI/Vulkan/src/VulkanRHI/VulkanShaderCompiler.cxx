@@ -46,7 +46,7 @@ namespace Utils
             case VulkanShaderCompiler::OptimizationLevel::Size:
                 Options.SetOptimizationLevel(shaderc_optimization_level_size);
                 break;
-            case VulkanRHI::VulkanShaderCompiler::OptimizationLevel::PerfWithDebug:
+            case VulkanShaderCompiler::OptimizationLevel::PerfWithDebug:
                 Options.SetOptimizationLevel(shaderc_optimization_level_performance);
                 Options.SetGenerateDebugInfo();
                 break;
