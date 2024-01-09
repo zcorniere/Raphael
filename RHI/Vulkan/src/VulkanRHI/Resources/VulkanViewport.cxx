@@ -228,16 +228,10 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
         };
         RenderingBackbuffer = RHI::CreateTexture(Description);
     }
-    {
-        RenderingBackbuffer->SetLayout(CmdBuffer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
-        VkClearColorValue ClearColor;
-        std::memset(&ClearColor, 0, sizeof(VkClearColorValue));
-        const VkImageSubresourceRange Range = Barrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT);
-        VulkanAPI::vkCmdClearColorImage(CmdBuffer->GetHandle(), RenderingBackbuffer->GetImage(),
-                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &ClearColor, 1, &Range);
-        RenderingBackbuffer->SetLayout(CmdBuffer, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-    }
+    RenderingBackbuffer->SetLayout(CmdBuffer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    VulkanAPI::vkCmdClearColorImage(CmdBuffer->GetHandle(), RenderingBackbuffer->GetImage(),
+                                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &ClearColor, 1, &Range);
+    RenderingBackbuffer->SetLayout(CmdBuffer, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
     Device->GetCommandManager()->SubmitUploadCmdBuffer();
     Device->WaitUntilIdle();
