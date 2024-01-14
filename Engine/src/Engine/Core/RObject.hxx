@@ -46,7 +46,7 @@ public:
     }
 
 private:
-    std::string m_Name;
+    std::string m_Name = "Unnamed";
 };
 
 /// Custom Ref Counting class
@@ -57,16 +57,8 @@ public:
     {
     }
 
-    /// Set the typename of the RObject (should NOT be called by the user)
-    void SetTypeName(std::string_view InTypeName)
-    {
-        // Should not be called multiple time
-        check(m_TypeName.empty());
-        m_TypeName = InTypeName;
-    }
-
     /// Return the typename
-    const std::string& GetTypeName() const
+    std::string_view GetTypeName() const
     {
         return m_TypeName;
     }
@@ -74,17 +66,29 @@ public:
     /// Return a string representing the RObject
     virtual std::string ToString() const
     {
-        if (GetName().empty()) {
-            return std::format("(<{:s}> {:p})", GetTypeName(), (void*)this);
-        } else {
-            return std::format("(\"{:s}\" <{:s}> {:p})", GetName(), GetTypeName(), (void*)this);
-        }
+        return std::format("(\"{:s}\" <{:s}> {:p})", GetName(), GetTypeName(), (void*)this);
     }
 
     /// Override this function to be able to override the behaviour of Ref::IsValid;
     virtual bool IsValid() const
     {
         return true;
+    }
+
+    /// Get the current ref count
+    std::uint32_t GetRefCount() const
+    {
+        return m_RefCount.load(std::memory_order_acq_rel);
+    }
+
+private:
+    /// Set the typename of the RObject (should NOT be called by the user)
+    template <typename T>
+    constexpr void SetTypeName()
+    {
+        // Should not be called multiple time
+        check(m_TypeName.empty());
+        m_TypeName = type_name<T>();
     }
 
     /// Increment the ref count of the RObject
@@ -102,15 +106,13 @@ public:
         m_RefCount.fetch_sub(1, std::memory_order_acq_rel);
     }
 
-    /// Get the current ref count
-    std::uint32_t GetRefCount() const
-    {
-        return m_RefCount.load();
-    }
-
 private:
-    std::string m_TypeName;
+    std::string_view m_TypeName;
     mutable std::atomic<std::uint32_t> m_RefCount = 0;
+
+    // Allow Refs to access private members
+    template <class Other>
+    friend class Ref;
 };
 
 /// @brief Hold a reference to a RObject
@@ -141,12 +143,12 @@ private:
     template <typename... Args>
     FORCEINLINE static Ref<T> CreateInternal(Args&&... args)
     {
-        T* ObjectPtr = new T(std::forward<Args>(args)...);
-        ObjectPtr->SetTypeName(type_name<T>());
+        T* const NewRef = new T(std::forward<Args>(args)...);
+        NewRef->template SetTypeName<T>();
 
-        LOG(RObjectUtils::LogRObject, Trace, "Creating RObject {:s}", ObjectPtr->ToString());
+        LOG(RObjectUtils::LogRObject, Trace, "Creating RObject {:s}", NewRef->ToString());
 
-        return Ref<T>(ObjectPtr);
+        return Ref<T>(NewRef);
     }
 
 public:
