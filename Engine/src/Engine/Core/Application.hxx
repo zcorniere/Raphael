@@ -15,8 +15,6 @@ public:
     /// Called once per frame
     /// @param DeltaTime the time elapsed since last frame
     virtual void Tick(const float DeltaTime) = 0;
-    /// Determine if the application want the engine to exit
-    virtual bool ShouldExit() const = 0;
 };
 
 #include <Engine/Core/Events/ApplicationEvent.hxx>
@@ -34,7 +32,6 @@ public:
     virtual void OnEngineDestruction() override;
 
     virtual void Tick(const float DeltaTime) override;
-    virtual bool ShouldExit() const override;
 
     virtual void WindowEventHandler(Event& Event);
 

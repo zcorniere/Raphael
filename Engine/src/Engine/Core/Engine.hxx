@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Engine/Core/Application.hxx"
 #include "Engine/Threading/ThreadPool.hxx"
 
 extern class Engine* GEngine;
@@ -8,36 +7,7 @@ extern class Engine* GEngine;
 class Engine
 {
 public:
-    /// @brief Start the Engine
-    /// @tparam T The Application type to use
-    /// @return The exit code of the engine.
-    template <std::derived_from<IApplication> T>
-    static int Start(const int ac, const char* const* const av)
-    {
-        GEngine = new Engine(ac, av);
-
-        IApplication* Application = new T();
-        if (!GEngine->Initialisation(Application)) {
-            return -1;
-        }
-
-        unsigned Result = GEngine->Run();
-
-        // Only destroy if the return value is ok
-        if (Result == 0) {
-            GEngine->Destroy();
-        }
-
-        delete Application;
-
-        delete GEngine;
-
-        return Result;
-    }
-
-public:
-    Engine() = delete;
-    Engine(const int ac, const char* const* const av);
+    Engine();
     ~Engine();
 
     ThreadPool& GetThreadPool()
@@ -45,13 +15,15 @@ public:
         return m_ThreadPool;
     }
 
-private:
-    bool Initialisation(IApplication* Application);
+public:
+    bool ShouldExit() const;
+
+    bool Initialisation();
     void Destroy();
 
-    unsigned Run();
+    void PreTick();
+    void PostTick();
 
 public:
-    IApplication* App;
     ThreadPool m_ThreadPool;
 };

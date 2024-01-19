@@ -30,7 +30,6 @@ public:
     static Ref<IExternalModule> LoadExternalModule(const std::string& ModuleName);
 
     /// @brief Return the XDG_CONFIG path
-    /// @return
     static std::filesystem::path GetConfigPath();
 };
 

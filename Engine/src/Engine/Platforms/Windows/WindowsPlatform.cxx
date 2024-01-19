@@ -6,6 +6,10 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogWindowsPlateform, Info)
 
+void WindowsPlatform::Initialize()
+{
+}
+
 bool WindowsPlatform::isDebuggerPresent()
 {
     return !!::IsDebuggerPresent();

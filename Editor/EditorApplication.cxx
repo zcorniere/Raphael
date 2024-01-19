@@ -134,3 +134,9 @@ void EditorApplication::Tick(const float DeltaTime)
 
     MainViewport->EndDrawViewport();
 }
+
+// Not really extern "C" but I use it to mark that this function will be called by an external unit
+extern "C" IApplication* GetApplication()
+{
+    return new EditorApplication();
+}

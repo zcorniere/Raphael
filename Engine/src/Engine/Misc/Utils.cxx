@@ -49,9 +49,23 @@ std::string BytesToString(uint64 bytes)
 
 #undef SPRINTF
 
-[[noreturn]] void RequestExit(int Status)
+static struct {
+    bool bHasRequested = false;
+    int ExitStatus = 0;
+} GExitRequestInfo;
+void RequestExit(int Status, bool bForce)
 {
-    std::exit(Status);
+    if (bForce) {
+        std::exit(Status);
+    }
+    GExitRequestInfo.ExitStatus = Status;
+    GExitRequestInfo.bHasRequested = true;
+}
+
+bool HasRequestedExit(int& OutStatus)
+{
+    OutStatus = GExitRequestInfo.ExitStatus;
+    return GExitRequestInfo.bHasRequested;
 }
 
 }    // namespace Utils

@@ -7,7 +7,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "Engine/Platforms/PlatformMisc.hxx"
+#include "Engine/Misc/Utils.hxx"
 
 DECLARE_LOGGER_CATEGORY(Core, LogBaseApplication, Info)
 
@@ -61,11 +61,6 @@ void BaseApplication::Tick(const float DeltaTime)
     ProcessEvents();
 }
 
-bool BaseApplication::ShouldExit() const
-{
-    return bShouldExit;
-}
-
 bool BaseApplication::OnWindowResize(WindowResizeEvent& E)
 {
     RPH_PROFILE_FUNC()
@@ -84,17 +79,13 @@ bool BaseApplication::OnWindowResize(WindowResizeEvent& E)
 
 bool BaseApplication::OnWindowMinimize(WindowMinimizeEvent& E)
 {
-    RPH_PROFILE_FUNC()
-
     (void)E;
     return false;
 }
 bool BaseApplication::OnWindowClose(WindowCloseEvent& E)
 {
-    RPH_PROFILE_FUNC()
-
     (void)E;
-    bShouldExit = true;
+    Utils::RequestExit(0);
     return false;
 }
 

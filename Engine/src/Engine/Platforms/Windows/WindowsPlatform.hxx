@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Engine/Compilers/Compiler.hxx"
 #include "Engine/Platforms/Platform.hxx"
+
+#include "Engine/Compilers/Compiler.hxx"
 
 #if !defined(PLATFORM_WINDOWS)
 
@@ -22,25 +23,18 @@ static_assert(false, "Windows Platform header included on a non windows platform
 class WindowsPlatform : public GenericPlatform
 {
 public:
-    /// Is a debugger attached to the current process
+    /// @copydoc GenericPlatform::Initialize
+    static void Initialize();
+
+    /// @copydoc GenericPlatform::isDebuggerPresent
     static bool isDebuggerPresent();
 
     static std::filesystem::path GetExecutablePath();
 
-    ///
-    /// @brief Set the Thread Name
-    ///
-    /// @param thread the handle of the thread to name
-    /// @param name the new  name of the thread
-    ///
+    /// @copydoc GenericPlatform::setThreadName
     static void setThreadName(std::jthread& thread, const std::string& name);
 
-    ///
-    /// @brief Get the Thread Name
-    ///
-    /// @param thread the thread handle to get the name of
-    /// @return std::string the name of the thread
-    ///
+    /// @copydoc GenericPlatform::getThreadName
     static std::string getThreadName(std::jthread& thread);
 };
 

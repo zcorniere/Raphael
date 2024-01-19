@@ -13,12 +13,11 @@
 #include "VulkanRHI/VulkanUtils.hxx"
 
 // RHI Creation Implementation
-GenericRHI* RHI::CreateRHI()
+extern "C" GenericRHI* RHI_CreateRHI()
 {
     RPH_PROFILE_FUNC()
 
-    GDynamicRHI = new VulkanRHI::VulkanDynamicRHI;
-    return GDynamicRHI;
+    return new VulkanRHI::VulkanDynamicRHI;
 }
 //
 

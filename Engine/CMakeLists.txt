@@ -36,6 +36,7 @@ endif()
 
 add_library(
     ${PROJECT_NAME} STATIC
+    src/Engine/Main.cxx
     src/Engine/Core/Log.cxx
     src/Engine/Core/UUID.cxx
     src/Engine/Core/RObject.cxx

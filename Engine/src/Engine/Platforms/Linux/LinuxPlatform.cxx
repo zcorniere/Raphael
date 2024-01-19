@@ -1,5 +1,6 @@
 #include "Engine/Platforms/Linux/LinuxPlatform.hxx"
 #include "Engine/Misc/Assertions.hxx"
+#include "Engine/Misc/Utils.hxx"
 
 #include <cstring>
 #include <dlfcn.h>
@@ -11,6 +12,14 @@
 #include <unistd.h>
 
 DECLARE_LOGGER_CATEGORY(Core, LogUnixPlateform, Info)
+
+void LinuxPlateform::Initialize()
+{
+    if (geteuid() == 0) {
+        fprintf(stderr, "Refusing to run with the root privileges.\n");
+        Utils::RequestExit(1, true);
+    }
+}
 
 bool LinuxPlateform::isDebuggerPresent()
 {

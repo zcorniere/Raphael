@@ -1,18 +1,20 @@
 #include "Engine/Core/Memory/Memory.hxx"
 
 #include "Engine/Core/Memory/AllocatorPoison.hxx"
+#include "Engine/Misc/Assertions.hxx"
 #include "Engine/Platforms/PlatformMisc.hxx"
 
 Malloc* GMalloc = 0;
 
 static void EnsureAllocatorIsSetup()
 {
+    // Note: must manually allocate the memory
     if (!GMalloc) [[unlikely]] {
-        // must manually allocate the memory
+        checkNoReentry();
         GMalloc = PlatformMisc::BaseAllocator();
 
 #if RPH_POISON_ALLOCATION
-        void* AllocPoisonMemory = std::malloc(sizeof(AllocatorPoison));
+        void* const AllocPoisonMemory = std::malloc(sizeof(AllocatorPoison));
         GMalloc = new (AllocPoisonMemory) AllocatorPoison(GMalloc);
 #endif
     }
@@ -22,7 +24,7 @@ void* Memory::Malloc(uint32 Size, uint32 Alignment)
 {
     EnsureAllocatorIsSetup();
 
-    void* Memory = GMalloc->Alloc(Size, Alignment);
+    void* const Memory = GMalloc->Alloc(Size, Alignment);
     RPH_PROFILE_ALLOC(Memory, Size);
     return Memory;
 }
@@ -31,7 +33,7 @@ void* Memory::Realloc(void* Original, uint32 Size, uint32 Alignment)
     EnsureAllocatorIsSetup();
 
     RPH_PROFILE_FREE(Original);
-    void* Memory = GMalloc->Realloc(Original, Size, Alignment);
+    void* const Memory = GMalloc->Realloc(Original, Size, Alignment);
     RPH_PROFILE_ALLOC(Memory, Size);
     return Memory;
 }

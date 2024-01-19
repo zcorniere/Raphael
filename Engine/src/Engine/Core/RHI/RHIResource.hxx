@@ -13,7 +13,7 @@ enum class RHIResourceType : uint8 {
     MAX_VALUE,
 };
 
-/// Represent and abstract abore RHI ressources
+/// Represent and abstract above RHI resources
 class RHIResource : public RObject
 {
 public:
@@ -29,7 +29,7 @@ protected:
 };
 
 #include "Engine/Core/RHI/Resources/RHIBuffer.hxx"
-#include "Engine/Core/RHI/Resources/RHIGraphicsPipeline.hxx"
+#include "Engine/Core/RHI/Resources/RHIGraphicsPipeline.hxx"    // IWYU pragma : ignore
 #include "Engine/Core/RHI/Resources/RHIShader.hxx"
 #include "Engine/Core/RHI/Resources/RHITexture.hxx"
 #include "Engine/Core/RHI/Resources/RHIViewport.hxx"

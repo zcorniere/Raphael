@@ -17,6 +17,9 @@
 class GenericPlatform
 {
 public:
+    /// Called before engine init, should the platform required it
+    static void Initialize();
+
     /// Is a debugger attached to the current process
     static bool isDebuggerPresent()
     {

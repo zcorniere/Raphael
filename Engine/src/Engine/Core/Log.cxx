@@ -1,7 +1,5 @@
 #include "Engine/Core/Log.hxx"
 
-#include "Engine/Platforms/PlatformMisc.hxx"
-
 #include <cpplogger/sinks/FileSink.hpp>
 #include <cpplogger/sinks/StdoutSink.hpp>
 #include <cstdio>

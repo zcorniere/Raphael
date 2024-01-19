@@ -8,7 +8,7 @@ else()
     message(STATUS "Profiling is disabled")
 endif(RPH_ENABLE_PROFILING)
 
-add_executable(${PROJECT_NAME} main.cxx EditorApplication.cxx)
+add_executable(${PROJECT_NAME} EditorApplication.cxx)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelEngine)
 target_precompile_headers(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/Engine/src/Engine/Raphael.hxx)

@@ -17,7 +17,10 @@ class GenericRHI;
 
 extern GenericRHI* GDynamicRHI;
 
-/// Wrapper function arround the RHI function
+/// @brief This function create the RHI, and must be implemented individually by every RHI
+extern "C" GenericRHI* RHI_CreateRHI();
+
+/// Wrapper function around the RHI function
 namespace RHI
 {
 
@@ -30,21 +33,18 @@ FORCEINLINE TRHI* Get()
     return static_cast<TRHI*>(GDynamicRHI);
 }
 
-/// @brief This function create RHI-agnostic object, like the command queue
-void Init();
-
-/// @brief This function create the RHI, and must be implemented individualy by every RHI
-GenericRHI* CreateRHI();
+/// @brief This function create the RHI, and perform early initialisation
+void Create();
 
 /// @brief Delete the current RHI
-void DeleteRHI();
+void Destroy();
 
 /// @brief Return the command queue of the RHI
 RHICommandQueue* GetRHICommandQueue();
 
 /// -------------- RHI Operations --------------
 
-/// @brief Mark the begining of a new frame
+/// @brief Mark the beginning of a new frame
 void BeginFrame();
 /// @brief Mark the end of the current frame
 void EndFrame();

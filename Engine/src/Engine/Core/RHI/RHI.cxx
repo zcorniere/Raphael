@@ -8,12 +8,14 @@ static RHICommandQueue* s_CommandQueue = nullptr;
 
 GenericRHI* GDynamicRHI = nullptr;
 
-void RHI::Init()
+void RHI::Create()
 {
     s_CommandQueue = new RHICommandQueue;
+
+    GDynamicRHI = RHI_CreateRHI();
 }
 
-void RHI::DeleteRHI()
+void RHI::Destroy()
 {
     GDynamicRHI->Shutdown();
 
@@ -30,7 +32,7 @@ RHICommandQueue* RHI::GetRHICommandQueue()
     return s_CommandQueue;
 }
 
-/// RHI Fowarding
+/// RHI Forwarding
 void RHI::BeginFrame()
 {
     return RHI::Get()->BeginFrame();

@@ -8,66 +8,46 @@ uint64 GFrameCounter = 0;
 
 Engine* GEngine = nullptr;
 
-Engine::Engine(const int ac, const char* const* const av)
+Engine::Engine()
 {
-    (void)ac;
-    (void)av;
-    Log::Init();
 }
 
 Engine::~Engine()
 {
-    // Make sure no RObjects are left undestroyed
-    // Not strictly necessary, but this precaution don't hurt ¯\_(ツ)_/¯
-    check(RObjectUtils::AreThereAnyLiveObject() == false);
-
-    Log::Shutdown();
 }
 
-bool Engine::Initialisation(IApplication* Application)
+bool Engine::ShouldExit() const
+{
+    return false;
+}
+
+bool Engine::Initialisation()
 {
     checkNoReentry();
 
-    App = Application;
-    check(App);
+    RHI::Create();
 
-    RHI::Init();
-    RHI::CreateRHI();
-    
     GDynamicRHI->Init();
     m_ThreadPool.Start();
 
-    return App->OnEngineInitialization();
+    return true;
 }
 
 void Engine::Destroy()
 {
-    App->OnEngineDestruction();
     m_ThreadPool.Stop();
-    RHI::DeleteRHI();
+    RHI::Destroy();
 }
 
-unsigned Engine::Run()
+void Engine::PreTick()
 {
     RPH_PROFILE_FUNC();
-    checkNoReentry();
 
-    float dt = 0.0f;
-    while (!App->ShouldExit()) {
-        auto startTime = std::chrono::high_resolution_clock::now();
-        RHI::BeginFrame();
+    RHI::BeginFrame();
+}
 
-        App->Tick(dt);
-
-        RHI::EndFrame();
-        RHI::NextFrame();
-
-        RPH_PROFILE_MARK_FRAME;
-
-        auto stopTime = std::chrono::high_resolution_clock::now();
-        dt = std::chrono::duration<float>(stopTime - startTime).count();
-
-        GFrameCounter += 1;
-    }
-    return 0;
+void Engine::PostTick()
+{
+    RHI::EndFrame();
+    RHI::NextFrame();
 }

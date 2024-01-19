@@ -22,7 +22,7 @@ public:
 
     virtual void* Alloc(uint32 Size, uint32 Alignment = 0) override
     {
-        void* Ptr = TrueMalloc->Alloc(Size, Alignment);
+        void* const Ptr = TrueMalloc->Alloc(Size, Alignment);
         if (Ptr != nullptr && Size > 0) [[likely]] {
             std::memset(Ptr, AllocFillNew, Size);
         }

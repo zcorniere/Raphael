@@ -6,11 +6,12 @@ void* MiMalloc::Alloc(uint32 Size, uint32 Alignment)
 {
     void* NewPtr = nullptr;
 
+    uint32 AlignSize(Size >= 16 ? 16 : 8);
     if (Alignment != 0) {
-        Alignment = std::max(uint32(Size >= 16 ? 16 : 8), Alignment);
+        Alignment = std::max(AlignSize, Alignment);
         NewPtr = mi_malloc_aligned(Size, Alignment);
     } else {
-        NewPtr = mi_malloc_aligned(Size, uint32(Size >= 16 ? 16 : 8));
+        NewPtr = mi_malloc_aligned(Size, AlignSize);
     }
     return NewPtr;
 }
