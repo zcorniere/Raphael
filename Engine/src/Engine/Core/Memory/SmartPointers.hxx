@@ -1,9 +1,6 @@
 #pragma once
 
 /// Smart unique pointer that will get free the memory when destroyed
-#include "Engine/Compilers/ClangCompiler.hxx"
-#include <cstddef>
-
 template <typename Type>
 class UniquePtr
 {
