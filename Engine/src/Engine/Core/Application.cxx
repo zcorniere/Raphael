@@ -56,9 +56,7 @@ void BaseApplication::Tick(const float DeltaTime)
     RPH_PROFILE_FUNC()
 
     (void)DeltaTime;
-
-    // Process All event
-    ProcessEvents();
+    MainWindow->ProcessEvents();
 }
 
 bool BaseApplication::OnWindowResize(WindowResizeEvent& E)
@@ -87,18 +85,4 @@ bool BaseApplication::OnWindowClose(WindowCloseEvent& E)
     (void)E;
     Utils::RequestExit(0);
     return false;
-}
-
-void BaseApplication::ProcessEvents()
-{
-    MainWindow->ProcessEvents();
-
-    {
-        std::scoped_lock lock(m_EventQueueMutex);
-        // Process custom event queue
-        for (std::function<void()>& Func: m_EventQueue) {
-            Func();
-        }
-        m_EventQueue.Clear();
-    }
 }

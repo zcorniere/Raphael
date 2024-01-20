@@ -17,6 +17,11 @@ void VulkanDynamicRHI::BeginFrame()
     GetDevice()->CommandManager->PrepareForNewActiveCommandBuffer();
 }
 
+void VulkanDynamicRHI::Tick(float fDeltaTime)
+{
+    (void)fDeltaTime;
+}
+
 void VulkanDynamicRHI::EndFrame()
 {
     ENQUEUE_RENDER_COMMAND(EndFrame)
@@ -31,10 +36,6 @@ void VulkanDynamicRHI::EndFrame()
     });
 
     RHI::GetRHICommandQueue()->Execute();
-}
-
-void VulkanDynamicRHI::NextFrame()
-{
 }
 
 void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Renderpass,

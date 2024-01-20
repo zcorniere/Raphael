@@ -38,14 +38,16 @@ void RHI::BeginFrame()
     return RHI::Get()->BeginFrame();
 }
 
-void RHI::EndFrame()
+void RHI::Tick(float fDeltaTime)
 {
-    return RHI::Get()->EndFrame();
+    return RHI::Get()->Tick(fDeltaTime);
 }
 
-void RHI::NextFrame()
+void RHI::EndFrame()
 {
-    return RHI::Get()->NextFrame();
+    RHI::Get()->EndFrame();
+
+    GFrameCounter += 1;
 }
 
 void RHI::BeginRenderPass(const RHIRenderPassDescription& Renderpass, const RHIFramebufferDefinition& Framebuffer)

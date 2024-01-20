@@ -31,7 +31,7 @@ struct WindowDefinition {
 
     /// The title of the window
     std::string Title = __FILE__;
-    /// Should the resive preserve aspect ratio
+    /// Should the resize preserve aspect ratio
     bool ShouldPreserveAspectRatio = true;
 
     EventHandler EventCallback;
@@ -39,7 +39,7 @@ struct WindowDefinition {
 
 /// @class Window
 ///
-/// @brief A class allowing some abstaction over the GLFW library
+/// @brief A class allowing some abstraction over the GLFW library
 class Window : public RObject
 {
 public:

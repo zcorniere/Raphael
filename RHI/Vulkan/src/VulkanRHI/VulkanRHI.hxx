@@ -32,8 +32,8 @@ class VulkanDynamicRHI : public GenericRHI
 public:
     // ---------------------- RHI Operations --------------------- //
     virtual void BeginFrame() override;
+    virtual void Tick(float fDeltaTime) override;
     virtual void EndFrame() override;
-    virtual void NextFrame() override;
     virtual void BeginRenderPass(const RHIRenderPassDescription& Renderpass,
                                  const RHIFramebufferDefinition& Framebuffer) override;
     virtual void EndRenderPass() override;
@@ -59,6 +59,10 @@ public:
     virtual void PostInit() final override;
     virtual void Shutdown() final override;
 
+    virtual const char* GetName() const final override
+    {
+        return "Vulkan";
+    }
     RHIInterfaceType GetInterfaceType() const final
     {
         return RHIInterfaceType::Vulkan;

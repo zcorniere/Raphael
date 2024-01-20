@@ -5,7 +5,7 @@
 
 #include "Engine/Core/RHI/RHI.hxx"
 
-DECLARE_LOGGER_CATEGORY(Core, LogGenericRHI, Info);
+DECLARE_LOGGER_CATEGORY(Core, LogRHI, Info);
 
 class GenericRHI
 {
@@ -20,9 +20,14 @@ public:
     /// Called after the RHI init
     virtual void PostInit() = 0;
 
+    /// Called every frame from the main loop
+    virtual void Tick(float fDeltaTime) = 0;
+
     /// Shutdown the RHI
     virtual void Shutdown() = 0;
 
+    /// Return the name of the RHI
+    virtual const char* GetName() const = 0;
     /// Return the type of the RHI
     virtual RHIInterfaceType GetInterfaceType() const
     {
@@ -34,8 +39,6 @@ public:
     virtual void BeginFrame() = 0;
     /// @copydoc RHI::EndFrame
     virtual void EndFrame() = 0;
-    /// @copydoc RHI::NextFrame
-    virtual void NextFrame() = 0;
 
     /// @copydoc RHI::BeginRenderPass
     virtual void BeginRenderPass(const RHIRenderPassDescription& Renderpass,

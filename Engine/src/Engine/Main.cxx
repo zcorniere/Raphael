@@ -1,12 +1,11 @@
 #include "Engine/Core/Application.hxx"
 #include "Engine/Core/Engine.hxx"
 #include "Engine/Core/Log.hxx"
+#include "Engine/Core/RHI/GenericRHI.hxx"
+#include "Engine/Core/RHI/RHI.hxx"
 #include "Engine/Misc/Utils.hxx"
-#include "Engine/Raphael.hxx"
 
-extern "C" {
-IApplication* GetApplication();
-}
+extern "C" IApplication* GetApplication();
 
 int EngineLoop()
 {
@@ -16,6 +15,10 @@ int EngineLoop()
         return -1;
     }
 
+    // Initialize the graphics RHI
+    RHI::Create();
+    GDynamicRHI->Init();
+
     IApplication* const Application = GetApplication();
     check(Application);
     if (!Application->OnEngineInitialization()) {
@@ -23,20 +26,33 @@ int EngineLoop()
     }
 
     int ExitStatus = 0;
+    float DeltaTime = 0.0f;
     while (!Utils::HasRequestedExit(ExitStatus) || GEngine->ShouldExit()) {
+        RPH_PROFILE_FUNC("Engine Tick")
+        const auto startTime = std::chrono::high_resolution_clock::now();
 
         GEngine->PreTick();
+        RHI::BeginFrame();
 
-        Application->Tick(0.0f);
+        Application->Tick(DeltaTime);
+
+        // Tick the RHI
+        RHI::Tick(DeltaTime);
 
         GEngine->PostTick();
 
+        // End the frame on the RHI side
+        RHI::EndFrame();
+
+        const auto stopTime = std::chrono::high_resolution_clock::now();
+        DeltaTime = std::chrono::duration<float>(stopTime - startTime).count();
+        // Must be on the last line of the engine loop
         RPH_PROFILE_MARK_FRAME
-        GFrameCounter += 1;
     }
     // Only destroy if the return value is ok
     if (ExitStatus == 0) {
         Application->OnEngineDestruction();
+        RHI::Destroy();
         GEngine->Destroy();
     }
 

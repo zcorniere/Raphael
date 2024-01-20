@@ -4,7 +4,7 @@
 
 class Window;
 
-DECLARE_LOGGER_CATEGORY(Core, LogGenericRHI, Info);
+DECLARE_LOGGER_CATEGORY(Core, LogRHI, Info);
 
 enum class RHIInterfaceType {
     Null,
@@ -36,6 +36,9 @@ FORCEINLINE TRHI* Get()
 /// @brief This function create the RHI, and perform early initialisation
 void Create();
 
+/// @brief Called every frame from the main loop
+void Tick(float fDeltaTime);
+
 /// @brief Delete the current RHI
 void Destroy();
 
@@ -48,8 +51,6 @@ RHICommandQueue* GetRHICommandQueue();
 void BeginFrame();
 /// @brief Mark the end of the current frame
 void EndFrame();
-/// @brief Indicate the RHI that we are moving to a new frame
-void NextFrame();
 /// @brief Indicate the RHI that we are starting drawing
 void BeginRenderPass(const RHIRenderPassDescription& Renderpass, const RHIFramebufferDefinition& Framebuffer);
 /// @brief Indicate the RHI that we are done rendering for now

@@ -33,26 +33,8 @@ public:
 
     virtual void Tick(const float DeltaTime) override;
 
-    virtual void WindowEventHandler(Event& Event);
-
-    /// Creates & Dispatches an event either immediately, or adds it to an event queue which will be proccessed at the
-    /// end of each frame
-    template <typename TEvent, bool DispatchImmediately = false, typename... TEventArgs>
-    void DispatchEvent(TEventArgs&&... args)
-    {
-        static_assert(std::is_assignable_v<Event, TEvent>);
-
-        std::shared_ptr<TEvent> event = std::make_shared<TEvent>(std::forward<TEventArgs>(args)...);
-        if constexpr (DispatchImmediately) {
-            WindowEventHandler(*event);
-        } else {
-            std::scoped_lock lock(m_EventQueueMutex);
-            m_EventQueue.Add([this, event]() { WindowEventHandler(*event); });
-        }
-    }
-
 private:
-    void ProcessEvents();
+    virtual void WindowEventHandler(Event& Event);
 
     virtual bool OnWindowResize(WindowResizeEvent& e);
     virtual bool OnWindowMinimize(WindowMinimizeEvent& e);
@@ -63,7 +45,4 @@ protected:
 
     Ref<Window> MainWindow;
     Ref<RHIViewport> MainViewport;
-
-    std::mutex m_EventQueueMutex;
-    Array<std::function<void()>> m_EventQueue;
 };
