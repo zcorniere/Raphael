@@ -11,7 +11,7 @@
 #include "Engine/Threading/Thread.hxx"
 #include "Engine/Threading/ThreadRuntime.hxx"
 
-/// Manage a set of thread for sheduling work
+/// Manage a set of thread for scheduling work
 class ThreadPool
 {
     RPH_NONCOPYABLE(ThreadPool)
