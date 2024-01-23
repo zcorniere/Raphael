@@ -28,8 +28,8 @@ protected:
     const RHIResourceType ResourceType;
 };
 
-#include "Engine/Core/RHI/Resources/RHIBuffer.hxx"
-#include "Engine/Core/RHI/Resources/RHIGraphicsPipeline.hxx"    // IWYU pragma : ignore
-#include "Engine/Core/RHI/Resources/RHIShader.hxx"
-#include "Engine/Core/RHI/Resources/RHITexture.hxx"
-#include "Engine/Core/RHI/Resources/RHIViewport.hxx"
+#include "Engine/Core/RHI/Resources/RHIBuffer.hxx"              // IWYU pragma: export
+#include "Engine/Core/RHI/Resources/RHIGraphicsPipeline.hxx"    // IWYU pragma: export
+#include "Engine/Core/RHI/Resources/RHIShader.hxx"              // IWYU pragma: export
+#include "Engine/Core/RHI/Resources/RHITexture.hxx"             // IWYU pragma: export
+#include "Engine/Core/RHI/Resources/RHIViewport.hxx"            // IWYU pragma: export

@@ -1,6 +1,6 @@
 #pragma once
 
-/// Interface used to type earease an Array<T> in an RHI buffer context
+/// Interface used to type erase an Array<T> in an RHI buffer context
 /// where we don't care that much about the type. We care much more about the size of the data and the data itself.
 class ResourceArrayInterface
 {

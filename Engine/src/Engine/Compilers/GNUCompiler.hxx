@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Engine/Compilers/Compiler.hxx"
+// IWYU pragma: private, include "Compiler.hxx"
+
 #include "Engine/Misc/UniquePtr.hxx"
 #include "Engine/Platforms/Platform.hxx"
 
@@ -22,7 +24,7 @@ static_assert(false, "GNU Compiler header included without compiling with GNU");
     }
 
 ///
-/// @brief Wrapper around GCC intrisics functions
+/// @brief Wrapper around GCC intrinsics functions
 ///
 class GNUCompiler : public GenericCompiler
 {

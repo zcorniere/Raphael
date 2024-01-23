@@ -90,7 +90,7 @@ public:
     bool Dispatch(EventFn<T>&& func)
     {
         if (m_Event.GetEventType() == T::GetStaticType() && !m_Event.Handled) {
-            T* CastedEvent = dynamic_cast<T*>(&m_Event);
+            T* const CastedEvent = dynamic_cast<T*>(&m_Event);
             check(CastedEvent);
             m_Event.Handled = func(*CastedEvent);
             return true;

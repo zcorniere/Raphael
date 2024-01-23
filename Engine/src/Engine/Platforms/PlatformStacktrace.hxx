@@ -57,9 +57,9 @@ public:
 };
 
 #if defined(PLATFORM_WINDOWS)
-    #include "Engine/Platforms/Windows/WindowsStacktrace.hxx"
+    #include "Engine/Platforms/Windows/WindowsStacktrace.hxx"    // IWYU pragma: export
 #elif defined(PLATFORM_LINUX)
-    #include "Engine/Platforms/Linux/LinuxStacktrace.hxx"
+    #include "Engine/Platforms/Linux/LinuxStacktrace.hxx"    // IWYU pragma: export
 #else
 static_assert(false, "Unsuported Platform !");
 #endif

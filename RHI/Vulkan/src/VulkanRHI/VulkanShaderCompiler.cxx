@@ -2,7 +2,6 @@
 
 #include "Engine/Misc/Utils.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
-#include "VulkanRHI/VulkanRHI.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 
 #include "VulkanShaderCompiler.hxx"

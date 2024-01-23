@@ -173,7 +173,8 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
 
         const VkQueueFamilyProperties& CurrProps = QueueFamilyProps[CurrQueue.queueFamilyIndex];
         for (std::uint32_t QueueIndex = 0; QueueIndex < CurrProps.queueCount; QueueIndex++) {
-            *CurrentPriorities++ = 1.0f;
+            *CurrentPriorities = 1.0f;
+            CurrentPriorities++;
         }
     }
 

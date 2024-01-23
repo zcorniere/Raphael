@@ -84,7 +84,7 @@ public:
             pFunction->~TUniqueRenderCommand();
         };
 
-        // If we are currently executing that command queue, run the task immediatly
+        // If we are currently executing that command queue, run the task immediately
         if (this->IsCurrentlyExecuting) {
             TUniqueRenderCommand Command(std::forward<TFunction>(Function));
             Command.DoTask();

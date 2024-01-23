@@ -1,5 +1,9 @@
 #pragma once
 
+#include "Engine/Core/Events/ApplicationEvent.hxx"
+#include "Engine/Core/RHI/Resources/RHIViewport.hxx"
+#include "Engine/Core/Window.hxx"
+
 class IApplication
 {
 public:
@@ -16,10 +20,6 @@ public:
     /// @param DeltaTime the time elapsed since last frame
     virtual void Tick(const float DeltaTime) = 0;
 };
-
-#include <Engine/Core/Events/ApplicationEvent.hxx>
-#include <Engine/Core/RHI/Resources/RHIViewport.hxx>
-#include <Engine/Core/Window.hxx>
 
 class BaseApplication : public IApplication
 {

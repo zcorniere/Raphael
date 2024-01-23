@@ -3,8 +3,6 @@
 #include "Engine/Core/Events/Events.hxx"
 #include "Engine/Core/Events/KeyCodes.hxx"
 
-#include <sstream>
-
 class MouseMovedEvent : public Event
 {
 public:

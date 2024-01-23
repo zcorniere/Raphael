@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Platforms/PlatformStacktrace.hxx"
+// IWYU pragma: private, include "PlatformStacktrace.hxx"
 
 class LinuxStacktrace : public GenericStacktrace
 {

@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Engine/Compilers/Compiler.hxx"
-#include "Engine/Misc/SourceLocation.hxx"
+// The following header are used in the macro definitions
+#include "Engine/Compilers/Compiler.hxx"     // IWYU pragma: keep
+#include "Engine/Misc/SourceLocation.hxx"    // IWYU pragma: keep
 #include "Engine/Platforms/Platform.hxx"
 
-#include <atomic>
+#include <atomic>    // IWYU pragma: keep
 
 #define RPH_CHECK_STACKTRACE
 

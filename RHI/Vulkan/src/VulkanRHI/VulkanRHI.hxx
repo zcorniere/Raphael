@@ -19,6 +19,7 @@ namespace VulkanRHI
 class RenderPassManager;
 class VulkanRenderPass;
 class VulkanDevice;
+class VulkanViewport;
 
 extern VkAllocationCallbacks GAllocationCallbacks;
 static FORCEINLINE const VkAllocationCallbacks* GetMemoryAllocator()

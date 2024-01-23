@@ -1,7 +1,12 @@
+#include "VulkanRHI/Resources/VulkanBuffer.hxx"
 #include "VulkanRHI/VulkanRHI.hxx"
 
 #include "VulkanRHI/RenderPass/RenderPassManager.hxx"
 #include "VulkanRHI/RenderPass/VulkanRenderPass.hxx"
+
+#include "VulkanRHI/Resources/VulkanGraphicsPipeline.hxx"
+#include "VulkanRHI/Resources/VulkanViewport.hxx"
+
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 
@@ -115,8 +120,6 @@ void VulkanDynamicRHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
 
 void VulkanDynamicRHI::RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport)
 {
-    // TODO: check if Viewport is inside Viewports (wtf no find in std::vector ?)
-    // TODO: check if we are really on the renderthread once such thing exists
     DrawingViewport = Viewport;
 }
 

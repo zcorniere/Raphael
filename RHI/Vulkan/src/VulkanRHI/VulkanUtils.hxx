@@ -3,7 +3,8 @@
 #include <source_location>
 
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
-#include "Engine/Core/RHI/Resources/RHITexture.hxx"
+#include "Engine/Core/RHI/Resources/RHIShader.hxx"
+
 #include "VulkanRHI/VulkanLoader.hxx"
 
 #define VK_CHECK_RESULT(f)                                  \

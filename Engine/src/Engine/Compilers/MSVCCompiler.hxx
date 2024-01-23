@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Engine/Compilers/Compiler.hxx"
+// IWYU pragma: private, include "Compiler.hxx"
+
 #include "Engine/Platforms/Platform.hxx"
 
 #if !defined(COMPILER_MSVC)
@@ -12,7 +14,7 @@ static_assert(false, "MSVC Compiler header included without compiling with MSVC"
 #include <intrin.h>
 
 #ifndef FORCEINLINE
-    #define FORCEINLINE inline __forceinline   /* Force code to be inline */
+    #define FORCEINLINE inline __forceinline /* Force code to be inline */
 #endif
 
 #ifndef FORCENOINLINE
@@ -22,7 +24,7 @@ static_assert(false, "MSVC Compiler header included without compiling with MSVC"
 #define ASSUME(...) __assume((__VA_ARGS__)) /* Assume code will ALWAYS be true */
 
 ///
-/// @brief Wrapper around MSCV intrisics functions
+/// @brief Wrapper around MSCV intrinsics functions
 ///
 class MSVCCompiler : public GenericCompiler
 {

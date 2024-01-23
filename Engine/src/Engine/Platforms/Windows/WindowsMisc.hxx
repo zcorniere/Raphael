@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Platforms/PlatformMisc.hxx"
+// IWYU pragma: private, include "PlatformMisc.hxx"
 
 class WindowsExternalModule : public IExternalModule
 {

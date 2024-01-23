@@ -3,6 +3,7 @@
 #include <cpplogger/Logger.hpp>
 #include <glm/glm.hpp>
 
+// IWYU pragma: begin_keep
 #include <cstring>
 #include <filesystem>
 #include <mutex>
@@ -10,6 +11,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+// IWYU pragma: end_keep
 
 #include <Engine/Misc/MiscDefines.hxx>
 

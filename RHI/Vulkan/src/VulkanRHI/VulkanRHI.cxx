@@ -6,6 +6,9 @@
 
 #include "VulkanRHI/RenderPass/RenderPassManager.hxx"
 #include "VulkanRHI/RenderPass/VulkanRenderPass.hxx"
+
+#include "VulkanRHI/Resources/VulkanViewport.hxx"
+
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 #include "VulkanRHI/VulkanPlatform.hxx"

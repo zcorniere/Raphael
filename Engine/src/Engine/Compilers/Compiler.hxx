@@ -11,7 +11,7 @@
 #endif
 
 ///
-/// @brief Wrapper arround generic intrinsics function
+/// @brief Wrapper around generic intrinsics function
 ///
 class GenericCompiler
 {
@@ -36,11 +36,11 @@ public:
 };
 
 #if defined(COMPILER_CLANG)
-    #include "Engine/Compilers/ClangCompiler.hxx"
+    #include "Engine/Compilers/ClangCompiler.hxx"    // IWYU pragma: export
 #elif defined(COMPILER_GNU)
-    #include "Engine/Compilers/GNUCompiler.hxx"
+    #include "Engine/Compilers/GNUCompiler.hxx"    // IWYU pragma: export
 #elif defined(COMPILER_MSVC)
-    #include "Engine/Compilers/MSVCCompiler.hxx"
+    #include "Engine/Compilers/MSVCCompiler.hxx"    // IWYU pragma: export
 #else
     #error "Unsuported Compiler !"
 #endif

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Compilers/Compiler.hxx"
+// IWYU pragma: private, include "Compiler.hxx"
 
 #include <cxxabi.h>
 
@@ -16,7 +17,7 @@ static_assert(false, "Clang Compiler header included without compiling with clan
 #define ASSUME(...) __builtin_assume((__VA_ARGS__)) /* Assume code will ALWAYS be true */
 
 ///
-/// @brief Wrapper arround clang intrinsics function
+/// @brief Wrapper around clang intrinsics function
 ///
 class ClangCompiler : public GenericCompiler
 {

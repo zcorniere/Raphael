@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Platforms/Platform.hxx"
+// IWYU pragma: private, include "Platform.hxx"
 
 #include <signal.h>
 #include <sys/param.h>

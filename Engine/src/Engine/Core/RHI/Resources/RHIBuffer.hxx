@@ -1,9 +1,7 @@
 #pragma once
 
 #include "Engine/Containers/ResourceArray.hxx"
-#include "Engine/Core/RHI/RHIDefinitions.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
-#include "Engine/Misc/EnumFlags.hxx"
 
 #include <glm/vec3.hpp>
 

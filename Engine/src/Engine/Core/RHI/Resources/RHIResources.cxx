@@ -1,12 +1,8 @@
 #include "Engine/Core/RHI/RHICommandQueue.hxx"
-#include "Engine/Core/RHI/Resources/RHIShader.hxx"
 #include "Engine/Core/RHI/Resources/RHITexture.hxx"
 #include "Engine/Core/RHI/Resources/RHIViewport.hxx"
 
-#include "Engine/Core/RHI/RHI.hxx"
-
 // Texture
-
 void RHITexture::Resize(const glm::uvec2& Size)
 {
     Description.Extent = Size;

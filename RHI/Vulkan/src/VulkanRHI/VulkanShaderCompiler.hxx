@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VulkanRHI/VulkanResources.hxx"
+#include "VulkanRHI/Resources/VulkanShader.hxx"
 
 namespace VulkanRHI
 {
@@ -10,7 +10,7 @@ class VulkanShader;
 class VulkanShaderCompiler
 {
 public:
-    /// Which optiomization level to use when compiling
+    /// Which optimization level to use when compiling
     enum class OptimizationLevel {
         /// No optimization, enable debug symbols
         None,

@@ -59,9 +59,9 @@ public:
 };
 
 #if defined(PLATFORM_WINDOWS)
-    #include "Engine/Platforms/Windows/WindowsPlatform.hxx"
+    #include "Engine/Platforms/Windows/WindowsPlatform.hxx"    // IWYU pragma: export
 #elif defined(PLATFORM_LINUX)
-    #include "Engine/Platforms/Linux/LinuxPlatform.hxx"
+    #include "Engine/Platforms/Linux/LinuxPlatform.hxx"    // IWYU pragma: export
 #else
 static_assert(false, "Unsuported Platform !");
 #endif

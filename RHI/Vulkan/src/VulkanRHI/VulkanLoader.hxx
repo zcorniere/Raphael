@@ -1,7 +1,7 @@
 #pragma once
 
 #define VK_NO_PROTOTYPES
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.h>    // IWYU pragma: export
 
 #define VK_ENTRYPOINTS_INSTANCE(LoadMacro)                                                                         \
     LoadMacro(PFN_vkDestroyInstance, vkDestroyInstance);                                                           \

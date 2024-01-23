@@ -26,7 +26,7 @@ public:
 namespace Raphael
 {
 
-/// @brief STL-complient allocator
+/// @brief STL-compliant allocator
 /// @tparam T The type of the allocated memory
 template <typename T>
 class Allocator
