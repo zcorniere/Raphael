@@ -139,29 +139,26 @@ void VulkanDynamicRHI::CreateInstance()
 
     if (Result == VK_ERROR_INCOMPATIBLE_DRIVER) {
         PlatformMisc::DisplayMessageBox(
-            EBoxMessageType::Ok,
+            EBoxMessageType::Ok, "Unable to initialize Vulkan.",
             "Unable to load Vulkan library and/or acquire the necessary function pointers. Make sure an "
-            "up-to-date libvulkan.so.1 is installed.",
-            "Unable to initialize Vulkan.");
+            "up-to-date libvulkan.so.1 is installed.");
         LOG(LogVulkanRHI, Fatal, "Cannot find a compatible Vulkan driver.");
         Utils::RequestExit(1);
     } else if (Result == VK_ERROR_EXTENSION_NOT_PRESENT) {
         std::string MissingExtensions = GetMissingExtensions(InstanceExtensions);
 
         PlatformMisc::DisplayMessageBox(
-            EBoxMessageType::Ok,
-            std::format("Vulkan driver doesn't contain specified extensions:\n{:s}\nMake sure your layers "
+            EBoxMessageType::Ok, "Incompatible Vulkan driver found!",
+            std::format("Vulkan driver does not contain specified extensions:\n{:s}\nMake sure your layers "
                         "path is set appropriately.",
-                        MissingExtensions),
-            "Incompatible Vulkan driver found!");
+                        MissingExtensions));
         LOG(LogVulkanRHI, Fatal, "Extension not found : {} !", MissingExtensions);
         Utils::RequestExit(1);
     } else if (Result != VK_SUCCESS) {
         LOG(LogVulkanRHI, Fatal, "Vulkan failed to create instance! {:s}", magic_enum::enum_name(Result));
-        PlatformMisc::DisplayMessageBox(EBoxMessageType::Ok,
+        PlatformMisc::DisplayMessageBox(EBoxMessageType::Ok, "No Vulkan driver found!",
                                         "Vulkan failed to create instance !\n\nDo you have a compatible Vulkan "
-                                        "driver (ICD) installed?",
-                                        "No Vulkan driver found!");
+                                        "driver (ICD) installed?");
         Utils::RequestExit(1);
     }
 
