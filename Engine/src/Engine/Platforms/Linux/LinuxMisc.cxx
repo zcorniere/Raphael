@@ -49,6 +49,7 @@ EBoxReturnType LinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::
 
 // ------------------ Linux External Module --------------------------
 
+static std::mutex s_ModuleStorageMutex;
 static std::unordered_map<std::string, WeakRef<LinuxExternalModule>> s_ModuleStorage;
 
 LinuxExternalModule::LinuxExternalModule(std::string_view ModulePath): IExternalModule(ModulePath)
@@ -59,6 +60,12 @@ LinuxExternalModule::LinuxExternalModule(std::string_view ModulePath): IExternal
 LinuxExternalModule::~LinuxExternalModule()
 {
     dlclose(ModuleHandle);
+
+    {
+        // Remove the module from the storage
+        std::lock_guard Lock(s_ModuleStorageMutex);
+        s_ModuleStorage.erase(GetModuleName());
+    }
 }
 
 void* LinuxExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
@@ -76,6 +83,7 @@ Malloc* LinuxMisc::BaseAllocator()
 
 Ref<IExternalModule> LinuxMisc::LoadExternalModule(const std::string& ModuleName)
 {
+    std::lock_guard Lock(s_ModuleStorageMutex);
     auto Iter = s_ModuleStorage.find(ModuleName);
 
     if (Iter == s_ModuleStorage.end() || !Iter->second.IsValid()) {
