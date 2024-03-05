@@ -143,7 +143,6 @@ VulkanCommandBufferPool::VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanC
 VulkanCommandBufferPool::~VulkanCommandBufferPool()
 {
     m_CmdBuffers.Clear(true);
-    m_FreeCmdBuffers.Clear(true);
 
     VulkanAPI::vkDestroyCommandPool(Device->GetHandle(), m_Handle, VULKAN_CPU_ALLOCATOR);
     m_Handle = VK_NULL_HANDLE;
@@ -167,17 +166,17 @@ void VulkanCommandBufferPool::Initialize(uint32 QueueFamilyIndex)
     VK_CHECK_RESULT(VulkanAPI::vkCreateCommandPool(Device->GetHandle(), &CmdPoolInfo, VULKAN_CPU_ALLOCATOR, &m_Handle));
 }
 
-VulkanCmdBuffer* VulkanCommandBufferPool::CreateCmdBuffer()
+VulkanCmdBuffer* VulkanCommandBufferPool::GetCommandBuffer()
 {
     // Find already allocated buffer ...
-    for (int32 i = m_FreeCmdBuffers.Size() - 1; i >= 0; --i) {
-        VulkanCmdBuffer* const CmdBuffer = m_FreeCmdBuffers[i];
-        m_FreeCmdBuffers.Pop();
-        // ... grab some memory ...
-        CmdBuffer->Allocate();
-        // put it in the "in use" buffers
-        m_CmdBuffers.Add(CmdBuffer);
-        return CmdBuffer;
+    for (uint32 Index = 0; Index < m_CmdBuffers.Size(); Index++) {
+        VulkanCmdBuffer* const CmdBuffer = m_CmdBuffers[Index];
+        CmdBuffer->RefreshFenceStatus();
+
+        if (CmdBuffer->State == VulkanCmdBuffer::EState::ReadyForBegin ||
+            CmdBuffer->State == VulkanCmdBuffer::EState::NeedReset) {
+            return CmdBuffer;
+        }
     }
 
     // No buffer are available, create a new one. It already has memory
@@ -204,7 +203,7 @@ VulkanCommandBufferManager::VulkanCommandBufferManager(VulkanDevice* InDevice, V
     Pool->Initialize(Queue->GetFamilyIndex());
     Pool->SetName("Main.CommandPool");
 
-    ActiveCmdBufferRef = Pool->CreateCmdBuffer();
+    ActiveCmdBufferRef = Pool->GetCommandBuffer();
     ActiveCmdBufferRef->SetName(std::format("Active{:d}.CommandBuffer", GFrameCounter));
     UploadCmdBufferRef = nullptr;
 }
@@ -288,18 +287,7 @@ void VulkanCommandBufferManager::SubmitActiveCmdBufferFromPresent(Ref<Semaphore>
 
 VulkanCmdBuffer* VulkanCommandBufferManager::FindAvailableCmdBuffer()
 {
-    for (uint32 Index = 0; Index < Pool->m_CmdBuffers.Size(); Index++) {
-        VulkanCmdBuffer* const CmdBuffer = Pool->m_CmdBuffers[Index];
-        CmdBuffer->RefreshFenceStatus();
-
-        if (CmdBuffer->State == VulkanCmdBuffer::EState::ReadyForBegin ||
-            CmdBuffer->State == VulkanCmdBuffer::EState::NeedReset) {
-            CmdBuffer->Begin();
-            return CmdBuffer;
-        }
-    }
-
-    VulkanCmdBuffer* const NewBuffer = Pool->CreateCmdBuffer();
+    VulkanCmdBuffer* const NewBuffer = Pool->GetCommandBuffer();
     NewBuffer->Begin();
     return NewBuffer;
 }

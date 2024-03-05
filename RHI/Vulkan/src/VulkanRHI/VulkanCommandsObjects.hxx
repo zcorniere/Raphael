@@ -1,7 +1,5 @@
 #pragma once
 
-#include "VulkanRHI/VulkanLoader.hxx"
-
 #include "VulkanRHI/VulkanSynchronization.hxx"
 
 namespace VulkanRHI
@@ -88,11 +86,12 @@ public:
         return State != EState::NotAllocated;
     }
 
+    /// Check the internal fence has been signaled, meaning the command buffer is ready to be reset
+    void RefreshFenceStatus();
+
 private:
     void Allocate();
     void Free();
-
-    void RefreshFenceStatus();
 
 public:
     /// The current state of the command buffer
@@ -107,8 +106,6 @@ private:
 
     VkCommandBuffer m_CommandBufferHandle;
 
-    friend class VulkanCommandBufferManager;
-    friend class VulkanCommandBufferPool;
     friend class VulkanQueue;
 };
 
@@ -125,8 +122,9 @@ public:
 
     void Initialize(uint32 QueueFamilyIndex);
 
-    /// Allocated the vulkan command pool object
-    [[nodiscard]] VulkanCmdBuffer* CreateCmdBuffer();
+    /// Find a valid command buffer, or create it if needed
+    /// @return A valid command buffer, ready to be used
+    [[nodiscard]] VulkanCmdBuffer* GetCommandBuffer();
 
     VkCommandPool GetHandle() const
     {
@@ -138,11 +136,8 @@ public:
 private:
     VkCommandPool m_Handle;
     Array<VulkanCmdBuffer*> m_CmdBuffers;
-    Array<VulkanCmdBuffer*> m_FreeCmdBuffers;
 
     VulkanCommandBufferManager* p_Manager;
-
-    friend class VulkanCommandBufferManager;
 };
 
 /// @brief Manages the command buffers belonging to a queue
