@@ -18,7 +18,14 @@ class GenericPlatform
 {
 public:
     /// Called before engine init, should the platform required it
-    static void Initialize();
+    static void Initialize()
+    {
+    }
+
+    /// Called after engine shutdown, should the platform required it
+    static void Deinitialize()
+    {
+    }
 
     /// Is a debugger attached to the current process
     static bool isDebuggerPresent()

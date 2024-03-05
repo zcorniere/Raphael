@@ -74,5 +74,6 @@ int main(int, char**)
     check(RObjectUtils::AreThereAnyLiveObject() == false);
 
     Log::Shutdown();
+    Platform::Deinitialize();
     return GuardedReturnValue;
 }
