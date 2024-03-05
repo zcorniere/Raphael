@@ -15,8 +15,11 @@ class VulkanCommandBufferManager;
 class VulkanGraphicsPipeline;
 
 class VulkanCmdBuffer : public RObject, public IDeviceChild
+/// This class encapsulate a Vulkan command buffer
 {
+    RPH_NONCOPYABLE(VulkanCmdBuffer)
 public:
+    /// The state of the command buffer
     enum class EState : uint8 {
         ReadyForBegin = 0,
         IsInsideBegin = 1,
@@ -34,12 +37,15 @@ public:
 
     virtual void SetName(std::string_view InName) override;
 
+    /// Mark the command buffer as ready to be record command
     void Begin();
+    /// End the recording of the command buffer
     void End();
 
     void BeginRenderPass(const VkRenderPassBeginInfo& RenderPassBeginInfo);
     void EndRenderPass();
 
+    /// Adds a pipeline semaphore for the given stage
     void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore> InSemaphore);
 
     inline VkCommandBuffer GetHandle() const
@@ -89,6 +95,7 @@ private:
     void RefreshFenceStatus();
 
 public:
+    /// The current state of the command buffer
     EState State;
 
 private:
@@ -105,8 +112,10 @@ private:
     friend class VulkanQueue;
 };
 
+/// This class encapsulate a Vulkan command buffer pool
 class VulkanCommandBufferPool : public RObject, public IDeviceChild
 {
+    RPH_NONCOPYABLE(VulkanCommandBufferPool)
 public:
     VulkanCommandBufferPool() = delete;
     VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanCommandBufferManager* InManager);
@@ -115,6 +124,8 @@ public:
     virtual void SetName(std::string_view InName) override final;
 
     void Initialize(uint32 QueueFamilyIndex);
+
+    /// Allocated the vulkan command pool object
     [[nodiscard]] Ref<VulkanCmdBuffer> CreateCmdBuffer();
 
     VkCommandPool GetHandle() const
@@ -134,25 +145,42 @@ private:
     friend class VulkanCommandBufferManager;
 };
 
+/// @brief Manages the command buffers belonging to a queue
+/// @details It is responsible for the allocation and submission of command buffers
+///
+/// It manage two command buffers:
+/// - The active command buffer, used for rendering
+/// - The upload command buffer, used for uploading resources to the GPU
 class VulkanCommandBufferManager : public IDeviceChild
 {
+    RPH_NONCOPYABLE(VulkanCommandBufferManager)
 public:
+    VulkanCommandBufferManager() = delete;
+    /// Construct a command buffer manager for the given queue
     VulkanCommandBufferManager(VulkanDevice* InDevice, VulkanQueue* InQueue);
+    /// Destruct the command buffer manager, and all its command buffers as well
     ~VulkanCommandBufferManager();
 
-    // Update the fences of all cmd buffers except SkipCmdBuffer
+    /// Update the fences of all cmd buffers except the one givent as argument
+    /// @arg SkipCmdBuffer the command buffer to skip
     void RefreshFenceStatus(Ref<VulkanCmdBuffer> SkipCmdBuffer = nullptr)
     {
         Pool->RefreshFenceStatus(SkipCmdBuffer);
     }
 
+    /// @brief Return the active command buffer
+    /// @note Calling this function will submit the upload command buffer to the queue
     WeakRef<VulkanCmdBuffer> GetActiveCmdBuffer();
+    /// @brief Return the upload command buffer
     WeakRef<VulkanCmdBuffer> GetUploadCmdBuffer();
 
+    /// Ask the manager to find an available command buffer for the next frame
     void PrepareForNewActiveCommandBuffer();
 
+    /// Submit the upload command buffer to the queue
     void SubmitUploadCmdBuffer(Ref<Semaphore> SignalSemaphore = nullptr);
 
+    /// Submit the active command buffer to the queue
     void SubmitActiveCmdBuffer(Ref<Semaphore> SignalSemaphore = nullptr);
     void SubmitActiveCmdBufferFromPresent(Ref<Semaphore> SignalSemaphore = nullptr);
 
