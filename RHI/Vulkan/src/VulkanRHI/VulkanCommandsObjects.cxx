@@ -10,7 +10,7 @@ namespace VulkanRHI
 {
 
 /// ------------------- VulkanCmdBuffer -------------------
-VulkanCmdBuffer::VulkanCmdBuffer(VulkanDevice* InDevice, WeakRef<VulkanCommandBufferPool> InCommandPool)
+VulkanCmdBuffer::VulkanCmdBuffer(VulkanDevice* InDevice, VulkanCommandBufferPool* InCommandPool)
     : IDeviceChild(InDevice), State(EState::NotAllocated), m_OwnerPool(InCommandPool)
 {
     Allocate();
@@ -35,7 +35,7 @@ VulkanCmdBuffer::~VulkanCmdBuffer()
 
 void VulkanCmdBuffer::SetName(std::string_view InName)
 {
-    RObject::SetName(InName);
+    NamedClass::SetName(InName);
     if (m_CommandBufferHandle) {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_COMMAND_BUFFER, m_CommandBufferHandle, "{:s}", InName);
     }
@@ -142,8 +142,8 @@ VulkanCommandBufferPool::VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanC
 
 VulkanCommandBufferPool::~VulkanCommandBufferPool()
 {
-    m_CmdBuffers.Clear();
-    m_FreeCmdBuffers.Clear();
+    m_CmdBuffers.Clear(true);
+    m_FreeCmdBuffers.Clear(true);
 
     VulkanAPI::vkDestroyCommandPool(Device->GetHandle(), m_Handle, VULKAN_CPU_ALLOCATOR);
     m_Handle = VK_NULL_HANDLE;
@@ -151,7 +151,7 @@ VulkanCommandBufferPool::~VulkanCommandBufferPool()
 
 void VulkanCommandBufferPool::SetName(std::string_view InName)
 {
-    RObject::SetName(InName);
+    NamedClass::SetName(InName);
     if (m_Handle) {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_COMMAND_POOL, m_Handle, "{:s}", InName);
     }
@@ -167,11 +167,11 @@ void VulkanCommandBufferPool::Initialize(uint32 QueueFamilyIndex)
     VK_CHECK_RESULT(VulkanAPI::vkCreateCommandPool(Device->GetHandle(), &CmdPoolInfo, VULKAN_CPU_ALLOCATOR, &m_Handle));
 }
 
-Ref<VulkanCmdBuffer> VulkanCommandBufferPool::CreateCmdBuffer()
+VulkanCmdBuffer* VulkanCommandBufferPool::CreateCmdBuffer()
 {
     // Find already allocated buffer ...
     for (int32 i = m_FreeCmdBuffers.Size() - 1; i >= 0; --i) {
-        Ref<VulkanCmdBuffer> CmdBuffer = m_FreeCmdBuffers[i];
+        VulkanCmdBuffer* const CmdBuffer = m_FreeCmdBuffers[i];
         m_FreeCmdBuffers.Pop();
         // ... grab some memory ...
         CmdBuffer->Allocate();
@@ -181,14 +181,14 @@ Ref<VulkanCmdBuffer> VulkanCommandBufferPool::CreateCmdBuffer()
     }
 
     // No buffer are available, create a new one. It already has memory
-    Ref<VulkanCmdBuffer> NewCmdBuffer = Ref<VulkanCmdBuffer>::Create(Device, this);
+    VulkanCmdBuffer* const NewCmdBuffer = new VulkanCmdBuffer(Device, this);
     m_CmdBuffers.Add(NewCmdBuffer);
     return NewCmdBuffer;
 }
 
-void VulkanCommandBufferPool::RefreshFenceStatus(const Ref<VulkanCmdBuffer>& SkipCmdBuffer)
+void VulkanCommandBufferPool::RefreshFenceStatus(const VulkanCmdBuffer* SkipCmdBuffer)
 {
-    for (Ref<VulkanCmdBuffer>& CmdBuffer: m_CmdBuffers) {
+    for (VulkanCmdBuffer* const CmdBuffer: m_CmdBuffers) {
         if (CmdBuffer == SkipCmdBuffer)
             continue;
         CmdBuffer->RefreshFenceStatus();
@@ -200,95 +200,96 @@ void VulkanCommandBufferPool::RefreshFenceStatus(const Ref<VulkanCmdBuffer>& Ski
 VulkanCommandBufferManager::VulkanCommandBufferManager(VulkanDevice* InDevice, VulkanQueue* InQueue)
     : IDeviceChild(InDevice), Queue(InQueue)
 {
-    Pool = Ref<VulkanCommandBufferPool>::Create(Device, this);
+    Pool = new VulkanCommandBufferPool(Device, this);
     Pool->Initialize(Queue->GetFamilyIndex());
     Pool->SetName("Main.CommandPool");
 
-    ActiveCmdBuffer = Pool->CreateCmdBuffer();
-    ActiveCmdBuffer->SetName(std::format("Active{:d}.CommandBuffer", GFrameCounter));
-    UploadCmdBuffer = nullptr;
+    ActiveCmdBufferRef = Pool->CreateCmdBuffer();
+    ActiveCmdBufferRef->SetName(std::format("Active{:d}.CommandBuffer", GFrameCounter));
+    UploadCmdBufferRef = nullptr;
 }
 
 VulkanCommandBufferManager ::~VulkanCommandBufferManager()
 {
+    delete Pool;
 }
 
-WeakRef<VulkanCmdBuffer> VulkanCommandBufferManager::GetActiveCmdBuffer()
+VulkanCmdBuffer* VulkanCommandBufferManager::GetActiveCmdBuffer()
 {
-    if (UploadCmdBuffer) {
+    if (UploadCmdBufferRef) {
         SubmitUploadCmdBuffer();
     }
-    return ActiveCmdBuffer;
+    return ActiveCmdBufferRef;
 }
-WeakRef<VulkanCmdBuffer> VulkanCommandBufferManager::GetUploadCmdBuffer()
+VulkanCmdBuffer* VulkanCommandBufferManager::GetUploadCmdBuffer()
 {
-    if (!UploadCmdBuffer) {
-        UploadCmdBuffer = FindAvailableCmdBuffer();
-        UploadCmdBuffer->SetName("Upload.CommandBuffer");
+    if (!UploadCmdBufferRef) {
+        UploadCmdBufferRef = FindAvailableCmdBuffer();
+        UploadCmdBufferRef->SetName("Upload.CommandBuffer");
     }
-    return UploadCmdBuffer;
+    return UploadCmdBufferRef;
 }
 
 void VulkanCommandBufferManager::PrepareForNewActiveCommandBuffer()
 {
-    ActiveCmdBuffer = FindAvailableCmdBuffer();
-    ActiveCmdBuffer->SetName(std::format("Active{:d}.CommandBuffer", GFrameCounter));
+    ActiveCmdBufferRef = FindAvailableCmdBuffer();
+    ActiveCmdBufferRef->SetName(std::format("Active{:d}.CommandBuffer", GFrameCounter));
 }
 
 void VulkanCommandBufferManager::SubmitUploadCmdBuffer(Ref<Semaphore> SignalSemaphore)
 {
-    check(UploadCmdBuffer);
+    check(UploadCmdBufferRef);
 
-    if (!UploadCmdBuffer->IsSubmitted() && UploadCmdBuffer->HasBegun()) {
-        check(UploadCmdBuffer->IsOutsideRenderPass());
+    if (!UploadCmdBufferRef->IsSubmitted() && UploadCmdBufferRef->HasBegun()) {
+        check(UploadCmdBufferRef->IsOutsideRenderPass());
 
-        UploadCmdBuffer->End();
+        UploadCmdBufferRef->End();
 
         if (SignalSemaphore) {
-            Queue->Submit(UploadCmdBuffer.Raw(), SignalSemaphore->GetHandle());
+            Queue->Submit(UploadCmdBufferRef, SignalSemaphore->GetHandle());
         } else {
-            Queue->Submit(UploadCmdBuffer.Raw());
+            Queue->Submit(UploadCmdBufferRef);
         }
     }
-    UploadCmdBuffer->SetName("Unused.Buffer");
-    UploadCmdBuffer = nullptr;
+    UploadCmdBufferRef->SetName("Unused.Buffer");
+    UploadCmdBufferRef = nullptr;
 }
 
 void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Ref<Semaphore> SignalSemaphore)
 {
-    check(ActiveCmdBuffer);
+    check(ActiveCmdBufferRef);
 
-    if (!ActiveCmdBuffer->IsSubmitted() && ActiveCmdBuffer->HasBegun()) {
-        if (!ActiveCmdBuffer->IsOutsideRenderPass()) {
+    if (!ActiveCmdBufferRef->IsSubmitted() && ActiveCmdBufferRef->HasBegun()) {
+        if (!ActiveCmdBufferRef->IsOutsideRenderPass()) {
             LOG(LogVulkanRHI, Warning, "Forcing EndRenderPass() for submission");
-            ActiveCmdBuffer->EndRenderPass();
+            ActiveCmdBufferRef->EndRenderPass();
         }
 
-        ActiveCmdBuffer->End();
+        ActiveCmdBufferRef->End();
 
         if (SignalSemaphore) {
-            Queue->Submit(ActiveCmdBuffer.Raw(), SignalSemaphore->GetHandle());
+            Queue->Submit(ActiveCmdBufferRef, SignalSemaphore->GetHandle());
         } else {
-            Queue->Submit(ActiveCmdBuffer.Raw());
+            Queue->Submit(ActiveCmdBufferRef);
         }
     }
-    ActiveCmdBuffer->SetName("Unused.Buffer");
-    ActiveCmdBuffer = nullptr;
+    ActiveCmdBufferRef->SetName("Unused.Buffer");
+    ActiveCmdBufferRef = nullptr;
 }
 
 void VulkanCommandBufferManager::SubmitActiveCmdBufferFromPresent(Ref<Semaphore> SignalSemaphore)
 {
     if (SignalSemaphore) {
-        Queue->Submit(ActiveCmdBuffer.Raw(), SignalSemaphore->GetHandle());
+        Queue->Submit(ActiveCmdBufferRef, SignalSemaphore->GetHandle());
     } else {
-        Queue->Submit(ActiveCmdBuffer.Raw());
+        Queue->Submit(ActiveCmdBufferRef);
     }
 }
 
-Ref<VulkanCmdBuffer> VulkanCommandBufferManager::FindAvailableCmdBuffer()
+VulkanCmdBuffer* VulkanCommandBufferManager::FindAvailableCmdBuffer()
 {
     for (uint32 Index = 0; Index < Pool->m_CmdBuffers.Size(); Index++) {
-        Ref<VulkanCmdBuffer>& CmdBuffer = Pool->m_CmdBuffers[Index];
+        VulkanCmdBuffer* const CmdBuffer = Pool->m_CmdBuffers[Index];
         CmdBuffer->RefreshFenceStatus();
 
         if (CmdBuffer->State == VulkanCmdBuffer::EState::ReadyForBegin ||
@@ -298,7 +299,7 @@ Ref<VulkanCmdBuffer> VulkanCommandBufferManager::FindAvailableCmdBuffer()
         }
     }
 
-    Ref<VulkanCmdBuffer> NewBuffer = Pool->CreateCmdBuffer();
+    VulkanCmdBuffer* const NewBuffer = Pool->CreateCmdBuffer();
     NewBuffer->Begin();
     return NewBuffer;
 }

@@ -14,7 +14,7 @@ class VulkanCommandBufferPool;
 class VulkanCommandBufferManager;
 class VulkanGraphicsPipeline;
 
-class VulkanCmdBuffer : public RObject, public IDeviceChild
+class VulkanCmdBuffer : public NamedClass, public IDeviceChild
 /// This class encapsulate a Vulkan command buffer
 {
     RPH_NONCOPYABLE(VulkanCmdBuffer)
@@ -32,7 +32,7 @@ public:
 
 public:
     VulkanCmdBuffer() = delete;
-    VulkanCmdBuffer(VulkanDevice* InDevice, WeakRef<VulkanCommandBufferPool> InCommandPool);
+    VulkanCmdBuffer(VulkanDevice* InDevice, VulkanCommandBufferPool* InCommandPool);
     ~VulkanCmdBuffer();
 
     virtual void SetName(std::string_view InName) override;
@@ -53,7 +53,7 @@ public:
         return m_CommandBufferHandle;
     }
 
-    inline WeakRef<VulkanCommandBufferPool> GetOwner() const
+    inline VulkanCommandBufferPool* GetOwner() const
     {
         return m_OwnerPool;
     }
@@ -99,7 +99,7 @@ public:
     EState State;
 
 private:
-    WeakRef<VulkanCommandBufferPool> m_OwnerPool;
+    VulkanCommandBufferPool* m_OwnerPool;
 
     Ref<Fence> m_Fence;
     Array<VkPipelineStageFlags> WaitFlags;
@@ -113,7 +113,7 @@ private:
 };
 
 /// This class encapsulate a Vulkan command buffer pool
-class VulkanCommandBufferPool : public RObject, public IDeviceChild
+class VulkanCommandBufferPool : public NamedClass, public IDeviceChild
 {
     RPH_NONCOPYABLE(VulkanCommandBufferPool)
 public:
@@ -126,19 +126,19 @@ public:
     void Initialize(uint32 QueueFamilyIndex);
 
     /// Allocated the vulkan command pool object
-    [[nodiscard]] Ref<VulkanCmdBuffer> CreateCmdBuffer();
+    [[nodiscard]] VulkanCmdBuffer* CreateCmdBuffer();
 
     VkCommandPool GetHandle() const
     {
         return m_Handle;
     }
 
-    void RefreshFenceStatus(const Ref<VulkanCmdBuffer>& SkipCmdBuffer);
+    void RefreshFenceStatus(const VulkanCmdBuffer* SkipCmdBuffer);
 
 private:
     VkCommandPool m_Handle;
-    Array<Ref<VulkanCmdBuffer>> m_CmdBuffers;
-    Array<Ref<VulkanCmdBuffer>> m_FreeCmdBuffers;
+    Array<VulkanCmdBuffer*> m_CmdBuffers;
+    Array<VulkanCmdBuffer*> m_FreeCmdBuffers;
 
     VulkanCommandBufferManager* p_Manager;
 
@@ -163,16 +163,16 @@ public:
 
     /// Update the fences of all cmd buffers except the one givent as argument
     /// @arg SkipCmdBuffer the command buffer to skip
-    void RefreshFenceStatus(Ref<VulkanCmdBuffer> SkipCmdBuffer = nullptr)
+    void RefreshFenceStatus(VulkanCmdBuffer* SkipCmdBuffer = nullptr)
     {
         Pool->RefreshFenceStatus(SkipCmdBuffer);
     }
 
     /// @brief Return the active command buffer
     /// @note Calling this function will submit the upload command buffer to the queue
-    WeakRef<VulkanCmdBuffer> GetActiveCmdBuffer();
+    VulkanCmdBuffer* GetActiveCmdBuffer();
     /// @brief Return the upload command buffer
-    WeakRef<VulkanCmdBuffer> GetUploadCmdBuffer();
+    VulkanCmdBuffer* GetUploadCmdBuffer();
 
     /// Ask the manager to find an available command buffer for the next frame
     void PrepareForNewActiveCommandBuffer();
@@ -185,14 +185,15 @@ public:
     void SubmitActiveCmdBufferFromPresent(Ref<Semaphore> SignalSemaphore = nullptr);
 
 private:
-    Ref<VulkanCmdBuffer> FindAvailableCmdBuffer();
+    VulkanCmdBuffer* FindAvailableCmdBuffer();
 
 private:
     VulkanQueue* Queue;
 
-    Ref<VulkanCommandBufferPool> Pool;
-    Ref<VulkanCmdBuffer> ActiveCmdBuffer;
-    Ref<VulkanCmdBuffer> UploadCmdBuffer;
+    VulkanCommandBufferPool* Pool;
+
+    VulkanCmdBuffer* ActiveCmdBufferRef;
+    VulkanCmdBuffer* UploadCmdBufferRef;
 };
 
 }    // namespace VulkanRHI
