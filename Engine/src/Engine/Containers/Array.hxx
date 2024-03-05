@@ -89,10 +89,9 @@ public:
     void Clear(bool DeletePointer)
     requires std::is_pointer_v<T>
     {
-        return this->Clear([DeletePointer](T Item) {
-            if (DeletePointer)
-                delete Item;
-        });
+        /// Delete pointer is not used, but it's here to make the function signature different
+        (void)DeletePointer;
+        return this->Clear([](T Item) { delete Item; });
     }
 
     /// Same as Clear() but free the memory associated to the Array;
