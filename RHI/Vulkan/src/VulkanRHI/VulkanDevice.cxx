@@ -71,7 +71,7 @@ void VulkanDevice::SetName(std::string_view InName)
     if (Device) {
         VULKAN_SET_DEBUG_NAME(this, VK_OBJECT_TYPE_DEVICE, Device, "{:s}", InName);
         if (Gpu) {
-            VULKAN_SET_DEBUG_NAME(this, VK_OBJECT_TYPE_PHYSICAL_DEVICE, Gpu, "{:s}_Physical", InName);
+            VULKAN_SET_DEBUG_NAME(this, VK_OBJECT_TYPE_PHYSICAL_DEVICE, Gpu, "{:s}.Physical", InName);
         }
     }
 }

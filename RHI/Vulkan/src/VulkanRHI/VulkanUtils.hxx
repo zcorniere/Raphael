@@ -5,8 +5,6 @@
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
 #include "Engine/Core/RHI/Resources/RHIShader.hxx"
 
-#include "VulkanRHI/VulkanLoader.hxx"
-
 #define VK_CHECK_RESULT(f)                                  \
     {                                                       \
         const VkResult ScopedResult = (f);                  \
