@@ -134,6 +134,22 @@ public:
         std::vector<T, Allocation>::push_back(std::forward<T>(Value));
         return Back();
     }
+    constexpr bool AddUnique(T&& Value)
+    {
+        if (Find(Value) == InvalidVectorIndex) {
+            Add(std::forward<T>(Value));
+            return true;
+        }
+        return false;
+    }
+    constexpr bool AddUnique(const T& Value)
+    {
+        if (Find(Value) == InvalidVectorIndex) {
+            Add(Value);
+            return true;
+        }
+        return false;
+    }
     constexpr T Pop()
     {
         T BackType = std::move(std::vector<T, Allocation>::back());
