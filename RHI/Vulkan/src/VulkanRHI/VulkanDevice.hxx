@@ -1,13 +1,12 @@
 #pragma once
 
+#include "VulkanRHI/VulkanPlatform.hxx"
 #include "vulkan/vulkan_core.h"
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
 #include "VulkanRHI/VulkanRHI.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
-
-#include "Engine/Core/Memory/SmartPointers.hxx"
 
 #if VULKAN_DEBUGGING_ENABLED
     #define VULKAN_SET_DEBUG_NAME(Device, Type, Handle, Format, ...) \
@@ -85,7 +84,8 @@ public:
 
 private:
     void Destroy();
-    void CreateDeviceAndQueue(const Array<const char*>& DeviceLayers, const Array<const char*>& DeviceExtensions);
+    void CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
+                              const VulkanDeviceExtensionArray& DeviceExtensions);
 
 public:
     VulkanQueue* GraphicsQueue = nullptr;

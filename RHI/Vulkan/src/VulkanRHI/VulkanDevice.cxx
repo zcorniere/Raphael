@@ -39,8 +39,6 @@ static constexpr std::string GetQueueInfoString(const VkQueueFamilyProperties& P
     return Info;
 };
 
-static const Array<const char*> DefaultDeviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-
 namespace VulkanRHI
 {
 
@@ -89,8 +87,7 @@ void VulkanDevice::InitPhysicalDevice()
     VulkanAPI::vkGetPhysicalDeviceFeatures(Gpu, &PhysicalFeatures);
 
     // Setup layers and extensions
-    Array<const char*> DeviceExtensions = DefaultDeviceExtensions;
-    VulkanPlatform::GetDeviceExtensions(this, DeviceExtensions);
+    VulkanDeviceExtensionArray DeviceExtensions = VulkanPlatform::GetDeviceExtensions();
     CreateDeviceAndQueue({}, DeviceExtensions);
 
     MemoryAllocator = new VulkanMemoryManager(this);
@@ -99,7 +96,7 @@ void VulkanDevice::InitPhysicalDevice()
 }
 
 void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
-                                        const Array<const char*>& DeviceExtensions)
+                                        const VulkanDeviceExtensionArray& Extensions)
 {
     VkDeviceCreateInfo DeviceInfo{
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -108,6 +105,11 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
     DeviceInfo.enabledLayerCount = DeviceLayers.Size();
     DeviceInfo.ppEnabledLayerNames = DeviceLayers.Raw();
 
+    Array<const char*> DeviceExtensions;
+    for (const UniquePtr<IDeviceVulkanExtension>& Extension: Extensions) {
+        Extension->PreDeviceCreated(DeviceInfo);
+        DeviceExtensions.Add(Extension->GetExtensionName());
+    }
     DeviceInfo.enabledExtensionCount = DeviceExtensions.Size();
     DeviceInfo.ppEnabledExtensionNames = DeviceExtensions.Raw();
 

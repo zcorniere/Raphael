@@ -115,16 +115,12 @@ void VulkanDynamicRHI::CreateInstance()
         .pApplicationInfo = &AppInfo,
     };
 
-    // TODO: Wrap it into its own class ?
-    Array<const char*> InstanceExtensions
-    {
-        VK_KHR_SURFACE_EXTENSION_NAME,
-#if VULKAN_DEBUGGING_ENABLED
-            VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
-#endif
-    };
-    VulkanPlatform::GetInstanceExtensions(InstanceExtensions);
-
+    VulkanInstanceExtensionArray Extensions = VulkanPlatform::GetInstanceExtensions();
+    Array<const char*> InstanceExtensions;
+    for (const UniquePtr<IInstanceVulkanExtension>& Extension: Extensions) {
+        Extension->PreInstanceCreated(InstInfo);
+        InstanceExtensions.Add(Extension->GetExtensionName());
+    }
     InstInfo.enabledExtensionCount = InstanceExtensions.Size();
     InstInfo.ppEnabledExtensionNames = InstanceExtensions.Raw();
 
