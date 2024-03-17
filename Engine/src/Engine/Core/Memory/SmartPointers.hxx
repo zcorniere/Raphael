@@ -74,6 +74,14 @@ public:
         return InternalPtr;
     }
 
+    /// Tests if the TUniquePtr currently owns an array.
+    ///
+    /// @return true if the TUniquePtr currently owns an array, false otherwise.
+    [[nodiscard]] bool IsValid() const
+    {
+        return InternalPtr != nullptr;
+    }
+
     FORCEINLINE Type* operator->() const
     {
         return InternalPtr;
@@ -87,6 +95,24 @@ public:
     FORCEINLINE explicit operator bool() const
     {
         return InternalPtr != nullptr;
+    }
+
+    template <typename RhsT>
+    [[nodiscard]] FORCEINLINE bool operator==(const UniquePtr<RhsT>& Rhs) const
+    {
+        return Get() == Rhs.Get();
+    }
+
+    /**
+     * Equality comparison operator against nullptr.
+     *
+     * @param Lhs The UniquePtr to compare.
+     *
+     * @return true if the UniquePtr is null, false otherwise.
+     */
+    [[nodiscard]] FORCEINLINE bool operator==(std::nullptr_t) const
+    {
+        return !IsValid();
     }
 
 private:
