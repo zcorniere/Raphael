@@ -136,7 +136,7 @@ void VulkanCmdBuffer::RefreshFenceStatus()
 /// ------------------- VulkanCommandBufferPool -------------------
 
 VulkanCommandBufferPool::VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanCommandBufferManager* InManager)
-    : IDeviceChild(InDevice), m_Handle(VK_NULL_HANDLE), p_Manager(InManager)
+    : IDeviceChild(InDevice), p_Manager(InManager), m_Handle(VK_NULL_HANDLE)
 {
 }
 

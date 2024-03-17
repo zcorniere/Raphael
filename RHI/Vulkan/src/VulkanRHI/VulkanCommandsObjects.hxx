@@ -98,13 +98,14 @@ public:
     EState State;
 
 private:
-    VulkanCommandBufferPool* m_OwnerPool;
+    VulkanCommandBufferPool* m_OwnerPool = nullptr;
+    ;
 
-    Ref<Fence> m_Fence;
+    Ref<Fence> m_Fence = nullptr;
     Array<VkPipelineStageFlags> WaitFlags;
     Array<Ref<Semaphore>> WaitSemaphore;
 
-    VkCommandBuffer m_CommandBufferHandle;
+    VkCommandBuffer m_CommandBufferHandle = VK_NULL_HANDLE;
 
     friend class VulkanQueue;
 };
@@ -134,10 +135,10 @@ public:
     void RefreshFenceStatus(const VulkanCmdBuffer* SkipCmdBuffer);
 
 private:
-    VkCommandPool m_Handle;
-    Array<VulkanCmdBuffer*> m_CmdBuffers;
+    VulkanCommandBufferManager* p_Manager = nullptr;
 
-    VulkanCommandBufferManager* p_Manager;
+    VkCommandPool m_Handle = VK_NULL_HANDLE;
+    Array<VulkanCmdBuffer*> m_CmdBuffers;
 };
 
 /// @brief Manages the command buffers belonging to a queue
@@ -183,12 +184,12 @@ private:
     VulkanCmdBuffer* FindAvailableCmdBuffer();
 
 private:
-    VulkanQueue* Queue;
+    VulkanQueue* Queue = nullptr;
 
-    VulkanCommandBufferPool* Pool;
+    VulkanCommandBufferPool* Pool = nullptr;
 
-    VulkanCmdBuffer* ActiveCmdBufferRef;
-    VulkanCmdBuffer* UploadCmdBufferRef;
+    VulkanCmdBuffer* ActiveCmdBufferRef = nullptr;
+    VulkanCmdBuffer* UploadCmdBufferRef = nullptr;
 };
 
 }    // namespace VulkanRHI
