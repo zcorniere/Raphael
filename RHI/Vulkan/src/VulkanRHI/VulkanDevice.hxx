@@ -74,13 +74,13 @@ public:
     inline VulkanMemoryManager* GetMemoryManager()
     {
         check(MemoryAllocator);
-        return MemoryAllocator.Get();
+        return MemoryAllocator;
     }
 
     inline VulkanCommandBufferManager* GetCommandManager()
     {
         check(CommandManager);
-        return CommandManager.Get();
+        return CommandManager;
     }
 
 private:
@@ -88,14 +88,15 @@ private:
     void CreateDeviceAndQueue(const Array<const char*>& DeviceLayers, const Array<const char*>& DeviceExtensions);
 
 public:
-    UniquePtr<VulkanQueue> GraphicsQueue = nullptr;
-    UniquePtr<VulkanQueue> ComputeQueue = nullptr;
-    UniquePtr<VulkanQueue> TransferQueue = nullptr;
+    VulkanQueue* GraphicsQueue = nullptr;
+    VulkanQueue* ComputeQueue = nullptr;
+    VulkanQueue* TransferQueue = nullptr;
+    // Present queue is not a dedicated object, it's just a reference to one of the above queues
     VulkanQueue* PresentQueue = nullptr;
 
 private:
-    UniquePtr<VulkanMemoryManager> MemoryAllocator = nullptr;
-    UniquePtr<VulkanCommandBufferManager> CommandManager = nullptr;
+    VulkanMemoryManager* MemoryAllocator = nullptr;
+    VulkanCommandBufferManager* CommandManager = nullptr;
 
     VkDevice Device = VK_NULL_HANDLE;
     VkPhysicalDevice Gpu = VK_NULL_HANDLE;
