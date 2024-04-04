@@ -9,16 +9,14 @@
 
 #define RPH_CHECK_STACKTRACE
 
-#define RPH_DEBUG_SECTION PLATFORM_CODE_SECTION(".rph_debug")
-
 namespace Raphael
 {
 
 /// Collect and print the callstack
-void RPH_DEBUG_SECTION CollectAndPrintStackTrace(void* ReturnAddress);
+void CollectAndPrintStackTrace(void* ReturnAddress);
 
 /// Whether or not the check should print the stacktrace
-consteval RPH_DEBUG_SECTION bool ShouldCheckPrintStackTrace()
+consteval bool ShouldCheckPrintStackTrace()
 {
 #if defined(RPH_CHECK_STACKTRACE)
     return true;
@@ -37,10 +35,10 @@ consteval RPH_DEBUG_SECTION bool ShouldCheckPrintStackTrace()
 #ifndef NDEBUG
 
     #define RAPHAEL_ENSURE_IMPL(Always, Expression, Format, ...)                                                  \
-        (((Expression)) || (([__VA_OPT__(&)] RPH_DEBUG_SECTION {                                                  \
+        (((Expression)) || (([__VA_OPT__(&)] {                                                                    \
                                 static std::atomic_bool bExecuted = false;                                        \
                                 if (!bExecuted || Always) {                                                       \
-                                    bExecuted = true;                                                             \
+                                    bExecuted.exchange(true, std::memory_order_release);                          \
                                     /* TODO: Check if another assertion is in progress */                         \
                                     if constexpr (Raphael::ShouldCheckPrintStackTrace())                          \
                                         Raphael::CollectAndPrintStackTrace(Compiler::ReturnAddress());            \
@@ -53,7 +51,7 @@ consteval RPH_DEBUG_SECTION bool ShouldCheckPrintStackTrace()
                                 }                                                                                 \
                                 return false;                                                                     \
                             }()) &&                                                                               \
-                            ([] RPH_DEBUG_SECTION {                                                               \
+                            ([] {                                                                                 \
                                 PLATFORM_BREAK();                                                                 \
                                 return false;                                                                     \
                             }())))

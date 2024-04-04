@@ -77,8 +77,8 @@ public:
     }
 
     template <typename Function>
-    requires std::invocable<Function, T&>
     void Clear(Function&& Func)
+    requires std::invocable<Function, T&>
     {
         for (TSize i = 0; i < TSize(Size()); i++) {
             Func((*this)[i]);
@@ -119,8 +119,8 @@ public:
     }
 
     template <typename... ArgsTypes>
-    requires std::constructible_from<T, ArgsTypes...>
     constexpr T& Emplace(ArgsTypes&&... args)
+    requires std::constructible_from<T, ArgsTypes...>
     {
         return std::vector<T, Allocation>::emplace_back(std::forward<ArgsTypes>(args)...);
     }
@@ -222,8 +222,8 @@ public:
 };
 
 template <typename T, typename Allocation, typename TSize>
-requires std::is_signed_v<TSize>
 std::ostream& operator<<(std::ostream& os, const Array<T, Allocation, TSize>& m)
+requires std::is_signed_v<TSize>
 {
     os << std::formatter<decltype(m)>::format(m);
     return os;

@@ -78,7 +78,7 @@ public:
     /// Get the current ref count
     std::uint32_t GetRefCount() const
     {
-        return m_RefCount.load(std::memory_order_acq_rel);
+        return m_RefCount.load(std::memory_order_relaxed);
     }
 
 private:

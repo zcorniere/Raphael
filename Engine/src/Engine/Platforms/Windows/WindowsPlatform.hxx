@@ -15,8 +15,6 @@ static_assert(false, "Windows Platform header included on a non windows platform
 
 #define PLATFORM_BREAK() (__nop(), __debugbreak())
 
-#define PLATFORM_CODE_SECTION(Name) __declspec(code_seg(Name))
-
 ///
 /// @brief Windows-specific function and commands
 ///
