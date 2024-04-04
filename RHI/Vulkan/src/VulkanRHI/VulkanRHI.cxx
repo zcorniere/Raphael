@@ -29,7 +29,7 @@ static std::string GetMissingExtensions(Array<const char*> VulkanExtensions);
 namespace VulkanRHI
 {
 
-VulkanDynamicRHI::VulkanDynamicRHI()
+VulkanDynamicRHI::VulkanDynamicRHI(): Device(nullptr), ShaderCompiler(nullptr), RPassManager(nullptr)
 {
     LOG(LogVulkanRHI, Info, "Built with Vulkan header version {}.{}.{}",
         VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
@@ -66,8 +66,15 @@ void VulkanDynamicRHI::Init()
 {
     RPH_PROFILE_FUNC()
 
-    CreateInstance();
-    SelectDevice();
+    m_Instance = CreateInstance(DebugLayer.GetSupportedInstanceLayers());
+
+#if VULKAN_DEBUGGING_ENABLED
+    LOG(LogVulkanRHI, Warning, "Vulkan Debugging is enabled {}!",
+        (DebugLayer.IsValidationLayersMissing()) ? ("but some instance layers are missing ") : (""));
+    DebugLayer.SetupDebugLayer(m_Instance);
+#endif
+
+    Device.reset(SelectDevice(m_Instance));
 
     Device->InitPhysicalDevice();
     Device->SetName("Main Vulkan Device");
@@ -97,14 +104,14 @@ void VulkanDynamicRHI::Shutdown()
     Device = nullptr;
 
 #if VULKAN_DEBUGGING_ENABLED
-    RemoveDebugLayerCallback();
+    DebugLayer.RemoveDebugLayer(m_Instance);
 #endif
 
     VulkanAPI::vkDestroyInstance(m_Instance, VULKAN_CPU_ALLOCATOR);
     m_Instance = VK_NULL_HANDLE;
 }
 
-void VulkanDynamicRHI::CreateInstance()
+VkInstance VulkanDynamicRHI::CreateInstance(const Array<const char*>& ValidationLayers)
 {
     VkApplicationInfo AppInfo{
         .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -127,13 +134,12 @@ void VulkanDynamicRHI::CreateInstance()
     InstInfo.ppEnabledExtensionNames = InstanceExtensions.Raw();
 
 #if VULKAN_DEBUGGING_ENABLED
-    Array<const char*> ValidationLayers = GetSupportedInstanceLayers();
-
     InstInfo.enabledLayerCount = ValidationLayers.Size();
     InstInfo.ppEnabledLayerNames = ValidationLayers.Raw();
 #endif
 
-    VkResult Result = VulkanAPI::vkCreateInstance(&InstInfo, VULKAN_CPU_ALLOCATOR, &m_Instance);
+    VkInstance Instance = VK_NULL_HANDLE;
+    VkResult Result = VulkanAPI::vkCreateInstance(&InstInfo, VULKAN_CPU_ALLOCATOR, &Instance);
 
     if (Result == VK_ERROR_INCOMPATIBLE_DRIVER) {
         PlatformMisc::DisplayMessageBox(
@@ -162,7 +168,7 @@ void VulkanDynamicRHI::CreateInstance()
 
     VK_CHECK_RESULT(Result);
 
-    if (!VulkanPlatform::LoadVulkanInstanceFunctions(m_Instance)) {
+    if (!VulkanPlatform::LoadVulkanInstanceFunctions(Instance)) {
         LOG(LogVulkanRHI, Fatal, "Couldn't find some of Vulkan's entry points !");
         PlatformMisc::DisplayMessageBox(EBoxMessageType::Ok,
                                         "Failed to find all required Vulkan entry points! Try updating your driver.",
@@ -176,26 +182,22 @@ void VulkanDynamicRHI::CreateInstance()
         LOG(LogVulkanRHI, Info, "* {}", Layer);
     }
 
-#if VULKAN_DEBUGGING_ENABLED
-    LOG(LogVulkanRHI, Warning, "Vulkan Debugging is enabled {}!",
-        (bValidationLayersAreMissing) ? ("but some instance layers are missing ") : (""));
-    SetupDebugLayerCallback();
-#endif
+    return Instance;
 }
 
-void VulkanDynamicRHI::SelectDevice()
+VulkanDevice* VulkanDynamicRHI::SelectDevice(VkInstance Instance)
 {
     std::uint32_t GpuCount = 0;
-    VkResult Result = VulkanAPI::vkEnumeratePhysicalDevices(m_Instance, &GpuCount, nullptr);
+    VkResult Result = VulkanAPI::vkEnumeratePhysicalDevices(Instance, &GpuCount, nullptr);
     if (Result == VK_ERROR_INITIALIZATION_FAILED) {
         LOG(LogVulkanRHI, Fatal, "Vulkan failed to find enumerate device!");
-        return;
+        return nullptr;
     }
     VK_CHECK_RESULT_EXPANDED(Result);
     checkMsg(GpuCount >= 1, "No GPU(s)/Driver(s) that support Vulkan were found!");
 
     Array<VkPhysicalDevice> PhysicalDevices(GpuCount);
-    VK_CHECK_RESULT_EXPANDED(VulkanAPI::vkEnumeratePhysicalDevices(m_Instance, &GpuCount, PhysicalDevices.Raw()));
+    VK_CHECK_RESULT_EXPANDED(VulkanAPI::vkEnumeratePhysicalDevices(Instance, &GpuCount, PhysicalDevices.Raw()));
     checkMsg(GpuCount >= 1, "Couldn't enumerate physical devices!");
 
     struct DeviceInfo {
@@ -228,20 +230,28 @@ void VulkanDynamicRHI::SelectDevice()
     uint32 DeviceIndex = (uint32)-1;
     DiscreteDevice.Append(IntegratedDevice);
 
+    VulkanDevice* SelectedDevice = nullptr;
     if (DiscreteDevice.Size() > 0) {
-        Device.Reset(DiscreteDevice[0].Device);
+        SelectedDevice = DiscreteDevice[0].Device;
         DeviceIndex = DiscreteDevice[0].DeviceIndex;
     } else if (IntegratedDevice.Size() > 0) {
-        Device.Reset(IntegratedDevice[0].Device);
+        SelectedDevice = IntegratedDevice[0].Device;
         DeviceIndex = IntegratedDevice[0].DeviceIndex;
-    } else {
-        LOG(LogVulkanRHI, Info, "Cannot find compatible Vulkan device");
-        return;
     }
-    Devices.Remove(Device.Get());
-    Devices.Clear(true);
 
+    // Remove all the other devices
+    for (VulkanDevice* const Device: Devices) {
+        if (Device != SelectedDevice) {
+            delete Device;
+        }
+    }
+
+    if (SelectedDevice == nullptr) {
+        LOG(LogVulkanRHI, Info, "Cannot find compatible Vulkan device");
+        return nullptr;
+    }
     LOG(LogVulkanRHI, Info, "Chosen device index: {}", DeviceIndex);
+    return SelectedDevice;
 }
 
 }    // namespace VulkanRHI

@@ -2,9 +2,9 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Trace);
 
-#include "Engine/Core/Memory/SmartPointers.hxx"
 #include "Engine/Core/RHI/GenericRHI.hxx"
 
+#include "VulkanRHI/VulkanRHI_Debug.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 
 #define VK_NO_PROTOTYPES
@@ -76,27 +76,21 @@ public:
 
     VulkanDevice* GetDevice()
     {
-        return Device.Get();
+        return Device.get();
     }
 
 private:
-    void CreateInstance();
-    void SelectDevice();
-
-#if VULKAN_DEBUGGING_ENABLED
-    VkDebugUtilsMessengerEXT Messenger = VK_NULL_HANDLE;
-    bool bValidationLayersAreMissing = false;
-
-    Array<const char*> GetSupportedInstanceLayers();
-    void SetupDebugLayerCallback();
-    void RemoveDebugLayerCallback();
-#endif
+    static VkInstance CreateInstance(const Array<const char*>& ValidationLayers);
+    static VulkanDevice* SelectDevice(VkInstance Instance);
 
 private:
     friend class VulkanViewport;
     void RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport);
 
 private:
+#if VULKAN_DEBUGGING_ENABLED
+    VulkanRHI_Debug DebugLayer;
+#endif
     VkInstance m_Instance = VK_NULL_HANDLE;
     std::unique_ptr<VulkanDevice> Device;
 
