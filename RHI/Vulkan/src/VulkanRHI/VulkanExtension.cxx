@@ -33,8 +33,8 @@ private:
 };
 
 #define ADD_SIMPLE_EXTENSION(Array, ExtensionType, ExtensionName) \
-    Array.AddUnique(MakeUnique<ExtensionType>(ExtensionName))
-#define ADD_COMPLEX_ENTENSION(Array, ExtensionType) Array.AddUnique(MakeUnique<ExtensionType>())
+    Array.AddUnique(std::make_unique<ExtensionType>(ExtensionName))
+#define ADD_COMPLEX_ENTENSION(Array, ExtensionType) Array.AddUnique(std::make_unique<ExtensionType>())
 
 VulkanInstanceExtensionArray VulkanPlatform::GetInstanceExtensions()
 {

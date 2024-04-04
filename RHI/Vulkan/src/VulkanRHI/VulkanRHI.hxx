@@ -98,9 +98,10 @@ private:
 
 private:
     VkInstance m_Instance = VK_NULL_HANDLE;
-    UniquePtr<VulkanDevice> Device = nullptr;
-    UniquePtr<VulkanShaderCompiler> ShaderCompiler = nullptr;
-    UniquePtr<RenderPassManager> RPassManager = nullptr;
+    std::unique_ptr<VulkanDevice> Device;
+
+    std::unique_ptr<VulkanShaderCompiler> ShaderCompiler;
+    std::unique_ptr<RenderPassManager> RPassManager;
 
     // Used during runtime //
     WeakRef<VulkanViewport> DrawingViewport = nullptr;

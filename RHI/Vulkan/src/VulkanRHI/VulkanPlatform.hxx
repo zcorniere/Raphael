@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Engine/Core/Memory/SmartPointers.hxx"
 #include "VulkanRHI/VulkanExtension.hxx"
 
 class Window;
@@ -10,8 +9,8 @@ namespace VulkanRHI
 
 class VulkanDevice;
 
-using VulkanDeviceExtensionArray = Array<UniquePtr<IDeviceVulkanExtension>>;
-using VulkanInstanceExtensionArray = Array<UniquePtr<IInstanceVulkanExtension>>;
+using VulkanDeviceExtensionArray = Array<std::unique_ptr<IDeviceVulkanExtension>>;
+using VulkanInstanceExtensionArray = Array<std::unique_ptr<IInstanceVulkanExtension>>;
 
 class VulkanPlatform
 {

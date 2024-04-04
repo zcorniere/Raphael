@@ -3,7 +3,6 @@
 #include "Engine/Compilers/Compiler.hxx"
 // IWYU pragma: private, include "Compiler.hxx"
 
-#include "Engine/Misc/UniquePtr.hxx"
 #include "Engine/Platforms/Platform.hxx"
 
 #include <cxxabi.h>

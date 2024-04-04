@@ -106,7 +106,7 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
     DeviceInfo.ppEnabledLayerNames = DeviceLayers.Raw();
 
     Array<const char*> DeviceExtensions;
-    for (const UniquePtr<IDeviceVulkanExtension>& Extension: Extensions) {
+    for (const std::unique_ptr<IDeviceVulkanExtension>& Extension: Extensions) {
         Extension->PreDeviceCreated(DeviceInfo);
         DeviceExtensions.Add(Extension->GetExtensionName());
     }

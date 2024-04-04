@@ -72,8 +72,8 @@ void VulkanDynamicRHI::Init()
     Device->InitPhysicalDevice();
     Device->SetName("Main Vulkan Device");
 
-    RPassManager = MakeUnique<RenderPassManager>(Device.Get());
-    ShaderCompiler = MakeUnique<VulkanShaderCompiler>();
+    RPassManager = std::make_unique<RenderPassManager>(Device.get());
+    ShaderCompiler = std::make_unique<VulkanShaderCompiler>();
 
 #if VULKAN_DEBUGGING_ENABLED
     ShaderCompiler->SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::PerfWithDebug);
@@ -92,6 +92,7 @@ void VulkanDynamicRHI::Shutdown()
         Device->WaitUntilIdle();
     }
     RPassManager = nullptr;
+    ShaderCompiler = nullptr;
 
     Device = nullptr;
 
@@ -100,6 +101,7 @@ void VulkanDynamicRHI::Shutdown()
 #endif
 
     VulkanAPI::vkDestroyInstance(m_Instance, VULKAN_CPU_ALLOCATOR);
+    m_Instance = VK_NULL_HANDLE;
 }
 
 void VulkanDynamicRHI::CreateInstance()
@@ -117,7 +119,7 @@ void VulkanDynamicRHI::CreateInstance()
 
     VulkanInstanceExtensionArray Extensions = VulkanPlatform::GetInstanceExtensions();
     Array<const char*> InstanceExtensions;
-    for (const UniquePtr<IInstanceVulkanExtension>& Extension: Extensions) {
+    for (const std::unique_ptr<IInstanceVulkanExtension>& Extension: Extensions) {
         Extension->PreInstanceCreated(InstInfo);
         InstanceExtensions.Add(Extension->GetExtensionName());
     }
