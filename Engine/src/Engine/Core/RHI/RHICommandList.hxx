@@ -89,7 +89,6 @@ public:
     void BeginFrame();
     void EndFrame();
 
-    void ResizeViewport(RHIViewport* Viewport, uint32_t Width, uint32_t Height);
     void BeginRenderingViewport(RHIViewport* Viewport);
     void EndRenderingViewport(RHIViewport* Viewport, bool bPresent);
 

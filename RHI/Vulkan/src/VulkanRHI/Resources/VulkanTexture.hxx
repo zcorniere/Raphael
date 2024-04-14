@@ -25,7 +25,6 @@ public:
     VkImageViewType GetViewType() const;
 
     VkImageLayout GetLayout() const;
-    void SetLayout(VkImageLayout NewLayout);
     void SetLayout(VulkanCmdBuffer* CommandBuffer, VkImageLayout NewLayout);
 
 private:

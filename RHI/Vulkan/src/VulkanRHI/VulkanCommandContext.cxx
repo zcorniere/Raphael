@@ -42,20 +42,6 @@ void VulkanCommandContext::RHIEndDrawningViewport(RHIViewport* const Viewport)
     GetVulkanDynamicRHI()->DrawingViewport = nullptr;
 }
 
-void VulkanCommandContext::RHIResizeViewport(RHIViewport* const Viewport, uint32_t Width, uint32_t Height)
-{
-    VulkanViewport* const VKViewport = dynamic_cast<VulkanViewport*>(Viewport);
-
-    VKViewport->SetSize({Width, Height});
-
-    Ref<VulkanTexture> Backbuffer = Viewport->GetBackbuffer().As<VulkanTexture>();
-
-    VkImageLayout Layout = Backbuffer->GetLayout();
-    Backbuffer->Resize({Width, Height});
-
-    SetLayout(Backbuffer.Raw(), Layout);
-}
-
 void VulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Description)
 {
     auto RenderTargetToAttachmentInfo = [](const RHIRenderTarget& Target) -> VkRenderingAttachmentInfo {

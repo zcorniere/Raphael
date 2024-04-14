@@ -22,11 +22,6 @@ void RHICommandList::EndFrame()
     Enqueue(new RHIEndFrame());
 }
 
-void RHICommandList::ResizeViewport(RHIViewport* Viewport, uint32_t Width, uint32_t Height)
-{
-    Enqueue(new RHIResizeViewport(Viewport, Width, Height));
-}
-
 void RHICommandList::BeginRenderingViewport(RHIViewport* Viewport)
 {
     Enqueue(new RHIBeginDrawingViewport(Viewport));

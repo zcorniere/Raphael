@@ -57,6 +57,13 @@ void VulkanViewport::SetName(std::string_view InName)
     }
 }
 
+void VulkanViewport::ResizeViewport(uint32_t Width, uint32_t Height)
+{
+    Size = {Width, Height};
+    // Just recreate the swapchain, the backbuffer will be reset as well
+    RecreateSwapchain(WindowHandle);
+}
+
 static void CopyImageToBackBuffer(VulkanCmdBuffer* CmdBuffer, VulkanTexture* SrcSurface, VkImage DstSurface,
                                   glm::uvec2 Size, glm::uvec2 WindowSize)
 {
@@ -143,7 +150,7 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
 void VulkanViewport::RecreateSwapchain(Ref<Window> NewNativeWindow)
 {
     ENQUEUE_RENDER_COMMAND(RecreateSwapchainCommand)
-    ([this, &NewNativeWindow](RHICommandList&) {
+    ([this, NewNativeWindow](RHICommandList&) {
         VulkanSwapChainRecreateInfo RecreateInfo = {VK_NULL_HANDLE, VK_NULL_HANDLE};
         DeleteSwapchain(&RecreateInfo);
         WindowHandle = NewNativeWindow;
@@ -157,6 +164,7 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
 {
     VulkanDynamicRHI* RHI = GetVulkanDynamicRHI();
 
+    RenderingBackbuffer = nullptr;
     SwapChain = Ref<VulkanSwapChain>::Create(RHI->GetInstance(), Device, WindowHandle.Raw(), 0, BackBufferImages, true,
                                              RecreateInfo);
 

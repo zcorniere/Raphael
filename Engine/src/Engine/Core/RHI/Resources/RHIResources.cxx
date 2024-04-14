@@ -31,14 +31,3 @@ void RHIViewport::EndDrawViewport()
         CommandList.EndRenderingViewport(instance, true);
     });
 }
-
-void RHIViewport::ResizeViewport(uint32 Width, uint32 Height)
-{
-    ENQUEUE_RENDER_COMMAND(ResizeViewport)
-    ([instance = WeakRef(this), Width, Height](RHICommandList& CommandList) -> void {
-        if (!instance.IsValid()) {
-            return;
-        }
-        CommandList.ResizeViewport(instance, Width, Height);
-    });
-}

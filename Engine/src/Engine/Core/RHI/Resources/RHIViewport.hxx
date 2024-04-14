@@ -23,12 +23,9 @@ public:
     void EndDrawViewport();
 
     /// @brief The current viewport will be resized
-    ///
-    /// Will be queued in the RHI command, and be executed later
-    void ResizeViewport(uint32 Width, uint32 Height);
+    virtual void ResizeViewport(uint32 Width, uint32 Height) = 0;
 
     virtual Ref<RHITexture> GetBackbuffer() const = 0;
 
     virtual glm::uvec2 GetSize() const = 0;
-    virtual void SetSize(const glm::uvec2& Size) = 0;
 };

@@ -26,8 +26,6 @@ public:
     virtual void RHIBeginDrawingViewport(RHIViewport* const Viewport) override;
     /// @brief Indicate the RHI that we are done drawing in the given viewport
     virtual void RHIEndDrawningViewport(RHIViewport* const Viewport) override;
-    /// @brief Resize the given viewport
-    virtual void RHIResizeViewport(RHIViewport* const Viewport, uint32_t Width, uint32_t Height) override;
 
     virtual void RHIBeginRendering(const RHIRenderPassDescription& Description) override;
     virtual void RHIEndRendering() override;

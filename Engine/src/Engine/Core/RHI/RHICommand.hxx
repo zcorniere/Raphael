@@ -56,21 +56,6 @@ public:
     const bool bPresent = false;
 };
 
-RHICOMMAND_MACRO(RHIResizeViewport)
-{
-public:
-    RHIResizeViewport() = delete;
-    RHIResizeViewport(Ref<RHIViewport> InViewport, uint32_t InWidth, uint32_t InHeight);
-    virtual ~RHIResizeViewport() = default;
-
-    virtual void Execute(RHICommandList & CommandList) override;
-
-public:
-    Ref<RHIViewport> Viewport = nullptr;
-    const uint32_t Width = 0;
-    const uint32_t Height = 0;
-};
-
 RHICOMMAND_MACRO(RHIBeginRendering)
 {
 public:

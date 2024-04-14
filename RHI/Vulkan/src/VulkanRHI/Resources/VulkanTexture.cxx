@@ -1,6 +1,7 @@
 #include "VulkanRHI/Resources/VulkanTexture.hxx"
 
 #include "Engine/Core/RHI/RHICommandList.hxx"
+#include "VulkanRHI/VulkanCommandContext.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanMemoryManager.hxx"
@@ -42,9 +43,13 @@ void VulkanTexture::SetName(std::string_view InName)
 void VulkanTexture::Invalidate()
 {
     ENQUEUE_RENDER_COMMAND(InvalidateTexture)
-    ([instance = WeakRef(this)](RHICommandList&) mutable {
+    ([instance = WeakRef(this)](RHICommandList& CommandList) mutable {
+        const VkImageLayout Layout = instance->GetLayout();
         instance->DestroyTexture();
         instance->CreateTexture();
+
+        VulkanCommandContext* Context = dynamic_cast<VulkanCommandContext*>(CommandList.GetContext());
+        Context->SetLayout(instance.Raw(), Layout);
     });
 }
 
@@ -87,11 +92,6 @@ VkImageLayout VulkanTexture::GetLayout() const
     return Layout;
 }
 
-void VulkanTexture::SetLayout(VkImageLayout NewLayout)
-{
-    Layout = NewLayout;
-}
-
 void VulkanTexture::SetLayout(VulkanCmdBuffer* CmdBuffer, VkImageLayout NewLayout)
 {
     VkImageAspectFlags AspectMask = 0;
@@ -107,7 +107,7 @@ void VulkanTexture::SetLayout(VulkanCmdBuffer* CmdBuffer, VkImageLayout NewLayou
     }
     VkImageSubresourceRange Range = Barrier::MakeSubresourceRange(AspectMask, 0, Description.NumMips);
     VulkanSetImageLayout(CmdBuffer->GetHandle(), Image, Layout, NewLayout, Range);
-    SetLayout(NewLayout);
+    Layout = NewLayout;
 }
 
 void VulkanTexture::CreateTexture()

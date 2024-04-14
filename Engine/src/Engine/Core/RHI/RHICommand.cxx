@@ -27,15 +27,6 @@ void RHIEndDrawningViewport::Execute(RHICommandList& CommandList)
     CommandList.GetContext()->RHIEndDrawningViewport(Viewport.Raw());
 }
 
-RHIResizeViewport::RHIResizeViewport(Ref<RHIViewport> InViewport, uint32_t InWidth, uint32_t InHeight)
-    : Viewport(std::move(InViewport)), Width(InWidth), Height(InHeight)
-{
-}
-void RHIResizeViewport::Execute(RHICommandList& CommandList)
-{
-    CommandList.GetContext()->RHIResizeViewport(Viewport.Raw(), Width, Height);
-}
-
 RHIBeginRendering::RHIBeginRendering(const RHIRenderPassDescription& InDescription): Description(InDescription)
 {
 }

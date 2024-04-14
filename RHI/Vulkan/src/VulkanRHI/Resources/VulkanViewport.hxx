@@ -24,12 +24,9 @@ public:
 
     virtual glm::uvec2 GetSize() const override
     {
-        return Size;
+        return RenderingBackbuffer->GetDescription().Extent;
     }
-    virtual void SetSize(const glm::uvec2& InSize) override
-    {
-        Size = InSize;
-    }
+    virtual void ResizeViewport(uint32 Width, uint32 Height) override;
 
     void SetName(std::string_view InName) override;
     bool Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, VulkanQueue* PresentQueue);
