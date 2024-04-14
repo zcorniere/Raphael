@@ -49,19 +49,20 @@ void VulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Des
 
         VkClearColorValue ClearColor;
         std::memset(&ClearColor, 0, sizeof(VkClearColorValue));
-        ClearColor.uint32[0] = Target.ClearColor.r;
-        ClearColor.uint32[1] = Target.ClearColor.g;
-        ClearColor.uint32[2] = Target.ClearColor.b;
-        ClearColor.uint32[3] = Target.ClearColor.a;
+        ClearColor.float32[0] = Target.ClearColor.r;
+        ClearColor.float32[1] = Target.ClearColor.g;
+        ClearColor.float32[2] = Target.ClearColor.b;
+        ClearColor.float32[3] = Target.ClearColor.a;
 
         return VkRenderingAttachmentInfo{
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
             .pNext = nullptr,
             .imageView = Texture->GetImageView(),
             .imageLayout = Texture->GetLayout(),
+            .resolveMode = VK_RESOLVE_MODE_NONE,
             .loadOp = RenderTargetLoadActionToVkAttachmentLoadOp(Target.LoadAction),
             .storeOp = RenderTargetStoreActionToVkAttachmentStoreOp(Target.StoreAction),
-            .clearValue = {ClearColor},
+            .clearValue = {.color = ClearColor},
         };
     };
     VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
@@ -79,6 +80,7 @@ void VulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Des
     VkRenderingInfo RenderingInfo{
         .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
         .pNext = nullptr,
+        .flags = 0,
         .renderArea =
             {
                 .offset = {Description.RenderAreaLocation.x, Description.RenderAreaLocation.y},

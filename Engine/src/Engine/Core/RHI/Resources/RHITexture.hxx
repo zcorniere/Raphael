@@ -58,7 +58,7 @@ struct RHIRenderTarget {
     Ref<RHITexture> Texture;
 
     /// The color to clear the texture with
-    glm::uvec4 ClearColor = glm::uvec4(0.0f);
+    glm::vec4 ClearColor = glm::vec4(0.0f);
 
     /// How the RHI should handle the texture load operation
     ERenderTargetLoadAction LoadAction = ERenderTargetLoadAction::NoAction;
