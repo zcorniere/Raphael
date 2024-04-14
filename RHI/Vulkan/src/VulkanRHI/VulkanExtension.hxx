@@ -20,7 +20,7 @@ public:
     }
 
 private:
-    const char* ExtensionName = nullptr;
+    const char* const ExtensionName = nullptr;
 };
 
 /// Interface for Vulkan extensions that require device-level initialization
@@ -34,7 +34,7 @@ public:
     virtual void PreDeviceCreated(VkDeviceCreateInfo& Info)
     {
         (void)Info;
-    };
+    }
 };
 
 /// Interface for Vulkan extensions that require instance-level initialization
@@ -48,7 +48,7 @@ public:
     virtual void PreInstanceCreated(VkInstanceCreateInfo& Info)
     {
         (void)Info;
-    };
+    }
 };
 
 }    // namespace VulkanRHI

@@ -31,15 +31,12 @@ static FORCEINLINE const VkAllocationCallbacks* GetMemoryAllocator()
 class VulkanDynamicRHI : public GenericRHI
 {
 public:
-    // ---------------------- RHI Operations --------------------- //
-    virtual void BeginFrame() override;
     virtual void Tick(float fDeltaTime) override;
-    virtual void EndFrame() override;
-    virtual void BeginRenderPass(const RHIRenderPassDescription& Renderpass,
-                                 const RHIFramebufferDefinition& Framebuffer) override;
-    virtual void EndRenderPass() override;
 
-    virtual void Draw(Ref<RHIGraphicsPipeline>& Pipeline) override;
+    // ---------------------- RHI Operations --------------------- //
+    virtual void RHISubmitCommandLists(RHICommandList* const CommandLists, std::uint32_t NumCommandLists) override;
+    virtual RHIContext* RHIGetCommandContext() override;
+    virtual void RHIReleaseCommandContext(RHIContext* Context) override;
 
     virtual Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize) override;
     virtual Ref<RHITexture> CreateTexture(const RHITextureSpecification& InDesc) override;
@@ -84,8 +81,7 @@ private:
     static VulkanDevice* SelectDevice(VkInstance Instance);
 
 private:
-    friend class VulkanViewport;
-    void RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport);
+    friend class VulkanCommandContext;
 
 private:
 #if VULKAN_DEBUGGING_ENABLED
@@ -98,8 +94,7 @@ private:
     std::unique_ptr<RenderPassManager> RPassManager;
 
     // Used during runtime //
-    WeakRef<VulkanViewport> DrawingViewport = nullptr;
-    WeakRef<VulkanRenderPass> CurrentRenderPass = nullptr;
+    VulkanViewport* DrawingViewport = nullptr;
 };
 
 }    // namespace VulkanRHI

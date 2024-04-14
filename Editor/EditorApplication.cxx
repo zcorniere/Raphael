@@ -2,6 +2,7 @@
 
 #include <Engine/Core/FrameGraph/FrameGraph.hxx>
 #include <Engine/Core/Log.hxx>
+#include <Engine/Core/RHI/RHICommandList.hxx>
 #include <Engine/Core/RHI/Resources/RHIViewport.hxx>
 #include <Engine/Platforms/PlatformMisc.hxx>
 
@@ -96,6 +97,7 @@ void EditorApplication::OnEngineDestruction()
 void EditorApplication::Tick(const float DeltaTime)
 {
     RPH_PROFILE_FUNC()
+    ENQUEUE_RENDER_COMMAND(BeginFrame)([](RHICommandList& CommandList) { CommandList.BeginFrame(); });
 
     BaseApplication::Tick(DeltaTime);
 
@@ -103,36 +105,37 @@ void EditorApplication::Tick(const float DeltaTime)
 
     MainViewport->BeginDrawViewport();
 
-    ENQUEUE_RENDER_COMMAND(MainApplicationTick)
-    ([this] {
-        RHIRenderPassDescription Description{
-            .ColorTarget =
-                {
-                    {
-                        .Format = MainViewport->GetBackbuffer()->GetDescription().Format,
-                        .Flags = ETextureUsageFlags::RenderTargetable,
-                    },
-                },
-            .DepthTarget = std::nullopt,
-            // .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
-            //     .Format = EImageFormat::D32_SFLOAT,
-            // }),
-        };
-        RHIFramebufferDefinition Definition{
-            .ColorTarget =
-                {
-                    MainViewport->GetBackbuffer(),
-                },
-            .DepthTarget = nullptr,
-            .Offset = {0, 0},
-            .Extent = MainViewport->GetBackbuffer()->GetDescription().Extent,
-        };
-        RHI::BeginRenderPass(Description, Definition);
-        RHI::Draw(Pipeline);
-        RHI::EndRenderPass();
-    });
+    // ENQUEUE_RENDER_COMMAND(MainApplicationTick)
+    // ([this] {
+    //     RHIRenderPassDescription Description{
+    //         .ColorTarget =
+    //             {
+    //                 {
+    //                     .Format = MainViewport->GetBackbuffer()->GetDescription().Format,
+    //                     .Flags = ETextureUsageFlags::RenderTargetable,
+    //                 },
+    //             },
+    //         .DepthTarget = std::nullopt,
+    //         // .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
+    //         //     .Format = EImageFormat::D32_SFLOAT,
+    //         // }),
+    //     };
+    //     RHIFramebufferDefinition Definition{
+    //         .ColorTarget =
+    //             {
+    //                 MainViewport->GetBackbuffer(),
+    //             },
+    //         .DepthTarget = nullptr,
+    //         .Offset = {0, 0},
+    //         .Extent = MainViewport->GetBackbuffer()->GetDescription().Extent,
+    //     };
+    //     RHI::BeginRendering(Description, Definition);
+    //     RHI::Draw(Pipeline);
+    //     RHI::EndRendering();
+    // });
 
     MainViewport->EndDrawViewport();
+    ENQUEUE_RENDER_COMMAND(EndFrame)([](RHICommandList& CommandList) { CommandList.EndFrame(); });
 }
 
 // Not really extern "C" but I use it to mark that this function will be called by an external unit

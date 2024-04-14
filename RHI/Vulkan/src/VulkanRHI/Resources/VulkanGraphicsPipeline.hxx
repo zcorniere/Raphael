@@ -44,6 +44,15 @@ struct GraphicsPipelineDescription {
     };
     Rasterizer Rasterizer;
 
+    struct AttachmentFormats {
+        Array<EImageFormat> ColorFormats;
+        std::optional<EImageFormat> DepthFormat = std::nullopt;
+        std::optional<EImageFormat> StencilFormat = std::nullopt;
+
+        bool operator==(const AttachmentFormats& In) const = default;
+    };
+    AttachmentFormats AttachmentFormats;
+
     Ref<VulkanShader> VertexShader;
     Ref<VulkanShader> PixelShader;
 

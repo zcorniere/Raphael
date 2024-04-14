@@ -78,7 +78,7 @@ FORCEINLINE VkFormat VertexElementToFormat(const EVertexElementType Type)
     checkNoEntry();
 }
 
-/// Transform RHI Image Format to VC_FORMAT_*
+/// Transform RHI Image Format to VK_FORMAT_*
 FORCEINLINE VkFormat ImageFormatToFormat(const EImageFormat Format)
 {
     switch (Format) {
@@ -93,7 +93,7 @@ FORCEINLINE VkFormat ImageFormatToFormat(const EImageFormat Format)
     }
     checkNoEntry();
 }
-/// Transform RHI Image Format to VC_FORMAT_*
+/// Transform RHI Image Format to VK_FORMAT_*
 FORCEINLINE EImageFormat VkFormatToImageFormat(const VkFormat Format)
 {
     switch (Format) {

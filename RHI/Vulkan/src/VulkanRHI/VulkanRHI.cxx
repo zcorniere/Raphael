@@ -52,6 +52,11 @@ VulkanDynamicRHI::~VulkanDynamicRHI()
     VulkanPlatform::FreeVulkanLibrary();
 }
 
+void VulkanDynamicRHI::Tick(float fDeltaTime)
+{
+    (void)fDeltaTime;
+}
+
 VkDevice VulkanDynamicRHI::RHIGetVkDevice() const
 {
     return Device->GetHandle();

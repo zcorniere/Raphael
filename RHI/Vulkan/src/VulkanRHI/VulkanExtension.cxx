@@ -19,6 +19,7 @@ class DynamicRenderingExtension : public IDeviceVulkanExtension
 public:
     DynamicRenderingExtension(): IDeviceVulkanExtension(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME)
     {
+        std::memset(&DynamicRenderingFeature, 0, sizeof(DynamicRenderingFeature));
         DynamicRenderingFeature.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
         DynamicRenderingFeature.dynamicRendering = VK_TRUE;
     }

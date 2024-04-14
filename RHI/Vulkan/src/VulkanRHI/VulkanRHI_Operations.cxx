@@ -1,4 +1,5 @@
 #include "VulkanRHI/Resources/VulkanBuffer.hxx"
+#include "VulkanRHI/VulkanCommandContext.hxx"
 #include "VulkanRHI/VulkanRHI.hxx"
 
 #include "VulkanRHI/RenderPass/RenderPassManager.hxx"
@@ -16,112 +17,95 @@
 namespace VulkanRHI
 {
 
-// RHI Operation default function
-void VulkanDynamicRHI::BeginFrame()
+void VulkanDynamicRHI::RHISubmitCommandLists(RHICommandList* const CommandLists, std::uint32_t NumCommandLists)
 {
-    GetDevice()->CommandManager->PrepareForNewActiveCommandBuffer();
+    GetDevice()->GetCommandManager()->SubmitActiveCmdBuffer();
 }
 
-void VulkanDynamicRHI::Tick(float fDeltaTime)
+RHIContext* VulkanDynamicRHI::RHIGetCommandContext()
 {
-    (void)fDeltaTime;
+    return new VulkanCommandContext(Device.get(), Device->GraphicsQueue.get(), Device->PresentQueue);
 }
 
-void VulkanDynamicRHI::EndFrame()
+void VulkanDynamicRHI::RHIReleaseCommandContext(RHIContext* Context)
 {
-    ENQUEUE_RENDER_COMMAND(EndFrame)
-    ([this] {
-        if (DrawingViewport.IsValid()) {
-            LOG(LogVulkanRHI, Error, "Viewport \"{}\"draw session was not ended properly !",
-                DrawingViewport->GetName());
-            DrawingViewport->RT_EndDrawViewport();
-        }
-
-        GetDevice()->GetCommandManager()->SubmitActiveCmdBuffer();
-    });
-
-    RHI::GetRHICommandQueue()->Execute();
+    delete Context;
 }
 
-void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Renderpass,
-                                       const RHIFramebufferDefinition& Framebuffer)
-{
-    ENQUEUE_RENDER_COMMAND(BeginRenderPass)
-    ([this, Renderpass, Framebuffer] {
-        CurrentRenderPass = RPassManager->GetRenderPass(Renderpass);
-        check(CurrentRenderPass);
+// void VulkanDynamicRHI::BeginRenderPass(const RHIRenderPassDescription& Renderpass,
+//                                        const RHIFramebufferDefinition& Framebuffer)
+// {
+//     ENQUEUE_RENDER_COMMAND(BeginRenderPass)
+//     ([this, Renderpass, Framebuffer] {
+//         CurrentRenderPass = RPassManager->GetRenderPass(Renderpass);
+//         check(CurrentRenderPass);
 
-        WeakRef<VulkanFramebuffer> FramebufferRef = RPassManager->GetFrameBuffer(CurrentRenderPass.Raw(), Framebuffer);
-        check(FramebufferRef);
+//         WeakRef<VulkanFramebuffer> FramebufferRef = RPassManager->GetFrameBuffer(CurrentRenderPass.Raw(),
+//         Framebuffer); check(FramebufferRef);
 
-        VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
-        CurrentRenderPass->Begin(CmdBuffer, FramebufferRef,
-                                 {
-                                     .offset =
-                                         {
-                                             .x = Framebuffer.Offset.x,
-                                             .y = Framebuffer.Offset.y,
-                                         },
-                                     .extent =
-                                         {
-                                             .width = FramebufferRef->GetExtent().x,
-                                             .height = FramebufferRef->GetExtent().y,
-                                         },
-                                 });
-    });
-}
+//         VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
+//         CurrentRenderPass->Begin(CmdBuffer, FramebufferRef,
+//                                  {
+//                                      .offset =
+//                                          {
+//                                              .x = Framebuffer.Offset.x,
+//                                              .y = Framebuffer.Offset.y,
+//                                          },
+//                                      .extent =
+//                                          {
+//                                              .width = FramebufferRef->GetExtent().x,
+//                                              .height = FramebufferRef->GetExtent().y,
+//                                          },
+//                                  });
+//     });
+// }
 
-void VulkanDynamicRHI::EndRenderPass()
-{
-    ENQUEUE_RENDER_COMMAND(EndRenderPass)
-    ([this] {
-        check(CurrentRenderPass.IsValid());
-        VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
+// void VulkanDynamicRHI::EndRenderPass()
+// {
+//     ENQUEUE_RENDER_COMMAND(EndRenderPass)
+//     ([this] {
+//         check(CurrentRenderPass.IsValid());
+//         VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
 
-        CurrentRenderPass->End(CmdBuffer);
-    });
-}
+//         CurrentRenderPass->End(CmdBuffer);
+//     });
+// }
 
-void VulkanDynamicRHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
-{
-    ENQUEUE_RENDER_COMMAND(Draw)
-    ([this, Pipeline] {
-        VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
+// void VulkanDynamicRHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
+// {
+//     ENQUEUE_RENDER_COMMAND(Draw)
+//     ([this, Pipeline] {
+//         VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
 
-        Ref<VulkanGraphicsPipeline> VulkanPipeline = Pipeline.As<VulkanGraphicsPipeline>();
-        VulkanPipeline->Bind(CmdBuffer->GetHandle());
+//         Ref<VulkanGraphicsPipeline> VulkanPipeline = Pipeline.As<VulkanGraphicsPipeline>();
+//         VulkanPipeline->Bind(CmdBuffer->GetHandle());
 
-        VkViewport viewport{
-            .x = 0.0f,
-            .y = 0.0f,
-            .width = static_cast<float>(DrawingViewport->GetSize().x),
-            .height = static_cast<float>(DrawingViewport->GetSize().y),
-            .minDepth = 0.0f,
-            .maxDepth = 1.0f,
-        };
-        VkRect2D scissor{
-            .offset =
-                {
-                    .x = 0,
-                    .y = 0,
-                },
-            .extent =
-                {
-                    .width = DrawingViewport->GetSize().x,
-                    .height = DrawingViewport->GetSize().y,
-                },
-        };
-        VulkanAPI::vkCmdSetViewport(CmdBuffer->GetHandle(), 0, 1, &viewport);
-        VulkanAPI::vkCmdSetScissor(CmdBuffer->GetHandle(), 0, 1, &scissor);
-        // DELETE ME
-        VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), 3, 1, 0, 0);
-    });
-}
-
-void VulkanDynamicRHI::RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport)
-{
-    DrawingViewport = Viewport;
-}
+//         VkViewport viewport{
+//             .x = 0.0f,
+//             .y = 0.0f,
+//             .width = static_cast<float>(DrawingViewport->GetSize().x),
+//             .height = static_cast<float>(DrawingViewport->GetSize().y),
+//             .minDepth = 0.0f,
+//             .maxDepth = 1.0f,
+//         };
+//         VkRect2D scissor{
+//             .offset =
+//                 {
+//                     .x = 0,
+//                     .y = 0,
+//                 },
+//             .extent =
+//                 {
+//                     .width = DrawingViewport->GetSize().x,
+//                     .height = DrawingViewport->GetSize().y,
+//                 },
+//         };
+//         VulkanAPI::vkCmdSetViewport(CmdBuffer->GetHandle(), 0, 1, &viewport);
+//         VulkanAPI::vkCmdSetScissor(CmdBuffer->GetHandle(), 0, 1, &scissor);
+//         // DELETE ME
+//         VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), 3, 1, 0, 0);
+//     });
+// }
 
 //
 //  -------------------- RHI Create resources --------------------

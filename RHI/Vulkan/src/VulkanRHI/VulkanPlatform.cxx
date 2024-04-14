@@ -119,4 +119,5 @@ void VulkanPlatform::CreateSurface(Window* WindowHandle, VkInstance Instance, Vk
 
     VK_CHECK_RESULT(glfwCreateWindowSurface(Instance, WindowHandle->GetHandle(), VULKAN_CPU_ALLOCATOR, OutSurface));
 }
+
 }    // namespace VulkanRHI

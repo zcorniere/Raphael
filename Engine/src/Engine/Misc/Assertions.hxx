@@ -27,11 +27,6 @@ consteval bool ShouldCheckPrintStackTrace()
 
 }    // namespace Raphael
 
-#define __MACRO_EXPENDER_INTERNAL(X, Y) X##Y
-#define MACRO_EXPENDER(X, Y) __MACRO_EXPENDER_INTERNAL(X, Y)
-
-#define STR(x) #x
-
 #ifndef NDEBUG
 
     #define RAPHAEL_ENSURE_IMPL(Always, Expression, Format, ...)                                                  \

@@ -28,9 +28,5 @@ public:
     virtual Ref<RHITexture> GetBackbuffer() const = 0;
 
     virtual glm::uvec2 GetSize() const = 0;
-
-private:
-    virtual void RT_BeginDrawViewport() = 0;
-    virtual void RT_EndDrawViewport() = 0;
-    virtual void RT_ResizeViewport(uint32 Width, uint32 Height) = 0;
+    virtual void SetSize(const glm::uvec2& Size) = 0;
 };

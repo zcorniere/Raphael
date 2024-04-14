@@ -107,7 +107,7 @@ private:
     }
 
 private:
-    std::string_view m_TypeName;
+    std::string m_TypeName;
     mutable std::atomic<std::uint32_t> m_RefCount = 0;
 
     // Allow Refs to access private members

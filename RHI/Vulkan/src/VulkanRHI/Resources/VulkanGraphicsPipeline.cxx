@@ -188,9 +188,29 @@ bool VulkanGraphicsPipeline::Create()
         .pDynamicStates = DynamicState,
     };
 
+    // Dynamic rendering
+    Array<VkFormat> ColorFormats(Desc.AttachmentFormats.ColorFormats.Size());
+    for (unsigned i = 0; i < Desc.AttachmentFormats.ColorFormats.Size(); i++) {
+        ColorFormats[i] = ImageFormatToFormat(Desc.AttachmentFormats.ColorFormats[i]);
+    }
+    VkPipelineRenderingCreateInfo PipelineRenderingCreateInfo{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
+        .pNext = nullptr,
+        .colorAttachmentCount = ColorFormats.Size(),
+        .pColorAttachmentFormats = ColorFormats.Raw(),
+        .depthAttachmentFormat = Desc.AttachmentFormats.DepthFormat.has_value()
+                                     ? ImageFormatToFormat(Desc.AttachmentFormats.DepthFormat.value())
+                                     : VK_FORMAT_UNDEFINED,
+        .stencilAttachmentFormat = Desc.AttachmentFormats.StencilFormat.has_value()
+                                       ? ImageFormatToFormat(Desc.AttachmentFormats.StencilFormat.value())
+                                       : VK_FORMAT_UNDEFINED,
+
+    };
+    // Dynamic rendering
+
     VkGraphicsPipelineCreateInfo PipelineCreateInfo{
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
-        .pNext = nullptr,
+        .pNext = &PipelineRenderingCreateInfo,
         .flags = 0,
         .stageCount = ShaderStage.Size(),
         .pStages = ShaderStage.Raw(),
@@ -202,7 +222,7 @@ bool VulkanGraphicsPipeline::Create()
         .pColorBlendState = &colorBlending,
         .pDynamicState = &DynamicStateCreateInfo,
         .layout = PipelineLayout,
-        .renderPass = Desc.RenderPass->GetRenderPass(),
+        .renderPass = VK_NULL_HANDLE,
     };
     if (Desc.RenderPass->HasDepthTarget()) {
         PipelineCreateInfo.pDepthStencilState = &StencilState;

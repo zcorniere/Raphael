@@ -135,8 +135,8 @@ void VulkanCmdBuffer::RefreshFenceStatus()
 
 /// ------------------- VulkanCommandBufferPool -------------------
 
-VulkanCommandBufferPool::VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanCommandBufferManager* InManager)
-    : IDeviceChild(InDevice), p_Manager(InManager), m_Handle(VK_NULL_HANDLE)
+VulkanCommandBufferPool::VulkanCommandBufferPool(VulkanDevice* InDevice)
+    : IDeviceChild(InDevice), m_Handle(VK_NULL_HANDLE)
 {
 }
 
@@ -199,7 +199,7 @@ void VulkanCommandBufferPool::RefreshFenceStatus(const VulkanCmdBuffer* SkipCmdB
 VulkanCommandBufferManager::VulkanCommandBufferManager(VulkanDevice* InDevice, VulkanQueue* InQueue)
     : IDeviceChild(InDevice), Queue(InQueue)
 {
-    Pool = new VulkanCommandBufferPool(Device, this);
+    Pool = new VulkanCommandBufferPool(Device);
     Pool->Initialize(Queue->GetFamilyIndex());
     Pool->SetName("Main.CommandPool");
 
@@ -208,7 +208,7 @@ VulkanCommandBufferManager::VulkanCommandBufferManager(VulkanDevice* InDevice, V
     UploadCmdBufferRef = nullptr;
 }
 
-VulkanCommandBufferManager ::~VulkanCommandBufferManager()
+VulkanCommandBufferManager::~VulkanCommandBufferManager()
 {
     delete Pool;
 }

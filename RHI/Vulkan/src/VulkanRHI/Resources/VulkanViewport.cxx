@@ -1,5 +1,7 @@
 #include "VulkanRHI/Resources/VulkanViewport.hxx"
 
+#include "Engine/Core/RHI/RHICommand.hxx"
+
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanQueue.hxx"
@@ -33,36 +35,6 @@ VulkanViewport::~VulkanViewport()
     }
     TexturesViews.Clear();
     RenderingDoneSemaphores.Clear();
-}
-
-void VulkanViewport::RT_BeginDrawViewport()
-{
-    GetVulkanDynamicRHI()->RT_SetDrawingViewport(this);
-}
-void VulkanViewport::RT_EndDrawViewport()
-{
-    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
-    check(!CmdBuffer->HasEnded() && !CmdBuffer->IsInsideRenderPass());
-
-    this->Present(CmdBuffer, Device->GraphicsQueue, Device->PresentQueue);
-    GetVulkanDynamicRHI()->RT_SetDrawingViewport(nullptr);
-}
-
-void VulkanViewport::RT_ResizeViewport(uint32 Width, uint32 Height)
-{
-    GetVulkanDynamicRHI()->RPassManager->ClearFramebuffers();
-
-    Size.x = Width;
-    Size.y = Height;
-
-    VkImageLayout Layout = RenderingBackbuffer->GetLayout();
-    RenderingBackbuffer->Resize(Size);
-    ENQUEUE_RENDER_COMMAND(PostResizeLayoutReset)
-    ([this, Layout] {
-        VulkanCmdBuffer* const CmdBuffer =
-            GetVulkanDynamicRHI()->GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
-        RenderingBackbuffer->SetLayout(CmdBuffer, Layout);
-    });
 }
 
 void VulkanViewport::SetName(std::string_view InName)
@@ -172,8 +144,8 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
 
 void VulkanViewport::RecreateSwapchain(Ref<Window> NewNativeWindow)
 {
-    ENQUEUE_RENDER_COMMAND(RecreateSwapchain)
-    ([this, &NewNativeWindow] {
+    ENQUEUE_RENDER_COMMAND(RecreateSwapchainCommand)
+    ([this, &NewNativeWindow](RHICommandList&) {
         VulkanSwapChainRecreateInfo RecreateInfo = {VK_NULL_HANDLE, VK_NULL_HANDLE};
         DeleteSwapchain(&RecreateInfo);
         WindowHandle = NewNativeWindow;

@@ -116,7 +116,7 @@ class VulkanCommandBufferPool : public NamedClass, public IDeviceChild
     RPH_NONCOPYABLE(VulkanCommandBufferPool)
 public:
     VulkanCommandBufferPool() = delete;
-    VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanCommandBufferManager* InManager);
+    VulkanCommandBufferPool(VulkanDevice* InDevice);
     ~VulkanCommandBufferPool();
 
     virtual void SetName(std::string_view InName) override final;
@@ -135,8 +135,6 @@ public:
     void RefreshFenceStatus(const VulkanCmdBuffer* SkipCmdBuffer);
 
 private:
-    VulkanCommandBufferManager* p_Manager = nullptr;
-
     VkCommandPool m_Handle = VK_NULL_HANDLE;
     Array<VulkanCmdBuffer*> m_CmdBuffers;
 };

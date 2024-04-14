@@ -26,6 +26,10 @@ public:
     {
         return Size;
     }
+    virtual void SetSize(const glm::uvec2& InSize) override
+    {
+        Size = InSize;
+    }
 
     void SetName(std::string_view InName) override;
     bool Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, VulkanQueue* PresentQueue);
@@ -36,12 +40,6 @@ public:
         check(RenderingBackbuffer);
         return RenderingBackbuffer.As<RHITexture>();
     }
-
-private:
-    // Override from RHIViewport
-    virtual void RT_BeginDrawViewport() override;
-    virtual void RT_EndDrawViewport() override;
-    virtual void RT_ResizeViewport(uint32 Width, uint32 Height) override;
 
 private:
     void CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo);

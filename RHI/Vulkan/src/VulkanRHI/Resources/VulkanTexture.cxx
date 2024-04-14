@@ -1,6 +1,6 @@
 #include "VulkanRHI/Resources/VulkanTexture.hxx"
 
-#include "Engine/Core/RHI/RHICommandQueue.hxx"
+#include "Engine/Core/RHI/RHICommandList.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanMemoryManager.hxx"
@@ -42,7 +42,7 @@ void VulkanTexture::SetName(std::string_view InName)
 void VulkanTexture::Invalidate()
 {
     ENQUEUE_RENDER_COMMAND(InvalidateTexture)
-    ([instance = Ref(this)] mutable {
+    ([instance = WeakRef(this)](RHICommandList&) mutable {
         instance->DestroyTexture();
         instance->CreateTexture();
     });

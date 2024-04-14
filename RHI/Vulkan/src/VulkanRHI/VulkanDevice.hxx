@@ -73,13 +73,13 @@ public:
     inline VulkanMemoryManager* GetMemoryManager()
     {
         check(MemoryAllocator);
-        return MemoryAllocator;
+        return MemoryAllocator.get();
     }
 
     inline VulkanCommandBufferManager* GetCommandManager()
     {
         check(CommandManager);
-        return CommandManager;
+        return CommandManager.get();
     }
 
 private:
@@ -88,15 +88,15 @@ private:
                               const VulkanDeviceExtensionArray& DeviceExtensions);
 
 public:
-    VulkanQueue* GraphicsQueue = nullptr;
-    VulkanQueue* ComputeQueue = nullptr;
-    VulkanQueue* TransferQueue = nullptr;
+    std::unique_ptr<VulkanQueue> GraphicsQueue;
+    std::unique_ptr<VulkanQueue> ComputeQueue;
+    std::unique_ptr<VulkanQueue> TransferQueue;
     // Present queue is not a dedicated object, it's just a reference to one of the above queues
     VulkanQueue* PresentQueue = nullptr;
 
 private:
-    VulkanMemoryManager* MemoryAllocator = nullptr;
-    VulkanCommandBufferManager* CommandManager = nullptr;
+    std::unique_ptr<VulkanMemoryManager> MemoryAllocator;
+    std::unique_ptr<VulkanCommandBufferManager> CommandManager;
 
     VkDevice Device = VK_NULL_HANDLE;
     VkPhysicalDevice Gpu = VK_NULL_HANDLE;
