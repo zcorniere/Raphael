@@ -7,7 +7,6 @@
 namespace VulkanRHI
 {
 class VulkanShader;
-class VulkanRenderPass;
 
 struct GraphicsPipelineDescription {
     struct VertexBinding {
@@ -55,8 +54,6 @@ struct GraphicsPipelineDescription {
 
     Ref<VulkanShader> VertexShader;
     Ref<VulkanShader> PixelShader;
-
-    Ref<VulkanRenderPass> RenderPass;
 
     bool Validate() const;
     bool operator==(const GraphicsPipelineDescription&) const = default;

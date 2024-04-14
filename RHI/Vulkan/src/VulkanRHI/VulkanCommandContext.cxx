@@ -56,6 +56,63 @@ void VulkanCommandContext::RHIResizeViewport(RHIViewport* const Viewport, uint32
     SetLayout(Backbuffer.Raw(), Layout);
 }
 
+void VulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Description)
+{
+    auto RenderTargetToAttachmentInfo = [](const RHIRenderTarget& Target) -> VkRenderingAttachmentInfo {
+        Ref<VulkanTexture> const Texture = Target.Texture.As<VulkanTexture>();
+
+        VkClearColorValue ClearColor;
+        std::memset(&ClearColor, 0, sizeof(VkClearColorValue));
+        ClearColor.uint32[0] = Target.ClearColor.r;
+        ClearColor.uint32[1] = Target.ClearColor.g;
+        ClearColor.uint32[2] = Target.ClearColor.b;
+        ClearColor.uint32[3] = Target.ClearColor.a;
+
+        return VkRenderingAttachmentInfo{
+            .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+            .pNext = nullptr,
+            .imageView = Texture->GetImageView(),
+            .imageLayout = Texture->GetLayout(),
+            .loadOp = RenderTargetLoadActionToVkAttachmentLoadOp(Target.LoadAction),
+            .storeOp = RenderTargetStoreActionToVkAttachmentStoreOp(Target.StoreAction),
+            .clearValue = {ClearColor},
+        };
+    };
+    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
+
+    Array<VkRenderingAttachmentInfo> ColorAttachments;
+    ColorAttachments.Reserve(Description.ColorTargets.Size());
+    for (const RHIRenderTarget& ColorTarget: Description.ColorTargets) {
+        ColorAttachments.Add(RenderTargetToAttachmentInfo(ColorTarget));
+    }
+    std::optional<VkRenderingAttachmentInfo> DepthAttachment = std::nullopt;
+    if (Description.DepthTarget) {
+        DepthAttachment = RenderTargetToAttachmentInfo(Description.DepthTarget.value());
+    }
+
+    VkRenderingInfo RenderingInfo{
+        .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
+        .pNext = nullptr,
+        .renderArea =
+            {
+                .offset = {Description.RenderAreaLocation.x, Description.RenderAreaLocation.y},
+                .extent = {Description.RenderAreaSize.x, Description.RenderAreaSize.y},
+            },
+        .layerCount = 1,
+        .colorAttachmentCount = ColorAttachments.Size(),
+        .pColorAttachments = ColorAttachments.Raw(),
+        .pDepthAttachment = DepthAttachment.has_value() ? &DepthAttachment.value() : nullptr,
+    };
+    CmdBuffer->BeginRendering(RenderingInfo);
+}
+
+void VulkanCommandContext::RHIEndRendering()
+{
+    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
+
+    CmdBuffer->EndRendering();
+}
+
 void VulkanCommandContext::SetLayout(VulkanTexture* const Texture, VkImageLayout Layout)
 {
     Texture->SetLayout(Device->GetCommandManager()->GetActiveCmdBuffer(), Layout);

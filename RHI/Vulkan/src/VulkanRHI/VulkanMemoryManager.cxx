@@ -114,7 +114,7 @@ VulkanMemoryManager::VulkanMemoryManager(VulkanDevice* InDevice)
 
 VulkanMemoryManager::~VulkanMemoryManager()
 {
-    checkMsg(AllocationCount == 0, "Some memory allocation are still in flight !");
+    checkMsg(AllocationCount == 0, "Some memory allocation ({}) are still in flight !", AllocationCount);
     vmaDestroyAllocator(Allocator);
     Allocator = VK_NULL_HANDLE;
 }

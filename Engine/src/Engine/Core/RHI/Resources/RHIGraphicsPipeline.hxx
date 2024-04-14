@@ -14,7 +14,6 @@ struct RHIGraphicsPipelineSpecification {
         EFrontFace FrontFaceCulling;
     };
     RasterizerDesc Rasterizer;
-    RHIRenderPassDescription RenderPass;
 };
 
 /// @brief Represent a shader used by the RHI

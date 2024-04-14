@@ -11,8 +11,6 @@
 
 #include "Engine/Core/Window.hxx"
 
-#include "VulkanRHI/RenderPass/RenderPassManager.hxx"
-
 namespace VulkanRHI
 {
 

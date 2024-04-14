@@ -2,6 +2,8 @@
 
 #include "Engine/Core/RHI/RHIResource.hxx"
 
+class RHITexture;
+
 /// @brief Represent a viewport used by the RHI to be drawn on
 class RHIViewport : public RHIResource
 {

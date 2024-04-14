@@ -16,8 +16,6 @@ class RHIResource;
 namespace VulkanRHI
 {
 
-class RenderPassManager;
-class VulkanRenderPass;
 class VulkanDevice;
 class VulkanViewport;
 
@@ -91,7 +89,6 @@ private:
     std::unique_ptr<VulkanDevice> Device;
 
     std::unique_ptr<VulkanShaderCompiler> ShaderCompiler;
-    std::unique_ptr<RenderPassManager> RPassManager;
 
     // Used during runtime //
     VulkanViewport* DrawingViewport = nullptr;

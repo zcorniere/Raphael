@@ -39,12 +39,6 @@ public:
     virtual RHIContext* RHIGetCommandContext() = 0;
     virtual void RHIReleaseCommandContext(RHIContext*) = 0;
 
-    // /// @copydoc RHI::BeginRenderPass
-    // virtual void BeginRenderPass(const RHIRenderPassDescription& Renderpass,
-    //                              const RHIFramebufferDefinition& Framebuffer) = 0;
-    // /// @copydoc RHI::EndRenderPass
-    // virtual void EndRenderPass() = 0;
-
     // virtual void Draw(Ref<RHIGraphicsPipeline>& Pipeline) = 0;
 
     /// @copydoc RHI::CreateViewport

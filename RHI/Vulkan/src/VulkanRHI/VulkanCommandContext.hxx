@@ -29,6 +29,9 @@ public:
     /// @brief Resize the given viewport
     virtual void RHIResizeViewport(RHIViewport* const Viewport, uint32_t Width, uint32_t Height) override;
 
+    virtual void RHIBeginRendering(const RHIRenderPassDescription& Description) override;
+    virtual void RHIEndRendering() override;
+
     /// @brief VulkanRHI only, set the layout of the given texture
     void SetLayout(VulkanTexture* const Texture, VkImageLayout Layout);
 

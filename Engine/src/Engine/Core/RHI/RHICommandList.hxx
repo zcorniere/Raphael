@@ -26,7 +26,8 @@ public:
 
 public:
     /// @brief Pointer to the next command
-    std::unique_ptr<RHIRenderCommandBase> p_Next = nullptr;
+    /// @note The current object own the next object
+    RHIRenderCommandBase* p_Next = nullptr;
 };
 
 struct MissingNameCommand {
@@ -52,6 +53,9 @@ public:
     }
 
     virtual void Execute(RHICommandList&) = 0;
+
+private:
+    int m_Dummy[1'000] = {0};
 };
 
 template <typename TTypeString, typename TLambda>
@@ -89,6 +93,9 @@ public:
     void BeginRenderingViewport(RHIViewport* Viewport);
     void EndRenderingViewport(RHIViewport* Viewport, bool bPresent);
 
+    void BeginRendering(const RHIRenderPassDescription& Description);
+    void EndRendering();
+
     /// @brief Add a command to the back of the queue
     template <typename TSTR, typename TFunction>
     requires std::is_invocable_v<TFunction, RHICommandList&>
@@ -96,10 +103,6 @@ public:
     {
         return Enqueue(new TLambdaRenderCommandType<TSTR, TFunction>(std::forward<TFunction>(Function)));
     }
-
-    /// @brief Add a command to the back of the queue
-    /// @note Take ownership of the command
-    void Enqueue(RHIRenderCommandBase* RenderCommand);
 
     /// @brief Execute the command in the given context
     void Execute(RHIContext* const Context);
@@ -110,6 +113,10 @@ public:
     }
 
 private:
+    /// @brief Add a command to the back of the queue
+    /// @note Take ownership of the command
+    void Enqueue(RHIRenderCommandBase* RenderCommand);
+
     /// @brief Reset the command list, deleting all the commands
     void Reset();
 
@@ -118,7 +125,11 @@ private:
 
     bool bIsExecuting = false;
     /// @brief Head of the command queue
-    std::unique_ptr<RHIRenderCommandBase> m_CommandList = nullptr;
+    /// @note "this" has ownership of the object. Can't use unique_ptr because of some ""issues"" with destroying the
+    /// list without stack overflow
+    RHIRenderCommandBase* m_CommandList = nullptr;
+
+    /// @brief Tail of the command queue
     RHIRenderCommandBase* m_CommandListTail = nullptr;
 };
 

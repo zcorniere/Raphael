@@ -1,6 +1,5 @@
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 
-#include "VulkanRHI/RenderPass/VulkanRenderPass.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanQueue.hxx"
 
@@ -70,21 +69,21 @@ void VulkanCmdBuffer::End()
     State = EState::HasEnded;
 }
 
-void VulkanCmdBuffer::BeginRenderPass(const VkRenderPassBeginInfo& RenderPassBeginInfo)
+void VulkanCmdBuffer::BeginRendering(const VkRenderingInfo& RenderingInfo)
 {
     State = EState::IsInsideRenderPass;
-    VulkanAPI::vkCmdBeginRenderPass(m_CommandBufferHandle, &RenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+    VulkanAPI::vkCmdBeginRenderingKHR(m_CommandBufferHandle, &RenderingInfo);
 }
 
-void VulkanCmdBuffer::EndRenderPass()
+void VulkanCmdBuffer::EndRendering()
 {
     checkMsg(IsInsideRenderPass(), "Can't EndRenderPass as we're NOT inside one! CmdBuffer {:p} State={:s}",
              (void*)m_CommandBufferHandle, magic_enum::enum_name(State));
-    VulkanAPI::vkCmdEndRenderPass(m_CommandBufferHandle);
+    VulkanAPI::vkCmdEndRenderingKHR(m_CommandBufferHandle);
     State = EState::IsInsideBegin;
 }
 
-void VulkanCmdBuffer::AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore> InSemaphore)
+void VulkanCmdBuffer::AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, const Ref<Semaphore>& InSemaphore)
 {
     if (!WaitFlags.Contains(InWaitFlags)) {
         WaitFlags.Add(InWaitFlags);
@@ -204,7 +203,7 @@ VulkanCommandBufferManager::VulkanCommandBufferManager(VulkanDevice* InDevice, V
     Pool->SetName("Main.CommandPool");
 
     ActiveCmdBufferRef = Pool->GetCommandBuffer();
-    ActiveCmdBufferRef->SetName(std::format("Active{:d}.CommandBuffer", GFrameCounter));
+    ActiveCmdBufferRef->SetName("Active.CommandBuffer");
     UploadCmdBufferRef = nullptr;
 }
 
@@ -235,7 +234,7 @@ void VulkanCommandBufferManager::PrepareForNewActiveCommandBuffer()
     ActiveCmdBufferRef->SetName(std::format("Active{:d}.CommandBuffer", GFrameCounter));
 }
 
-void VulkanCommandBufferManager::SubmitUploadCmdBuffer(Ref<Semaphore> SignalSemaphore)
+void VulkanCommandBufferManager::SubmitUploadCmdBuffer(const Ref<Semaphore>& SignalSemaphore)
 {
     check(UploadCmdBufferRef);
 
@@ -254,14 +253,14 @@ void VulkanCommandBufferManager::SubmitUploadCmdBuffer(Ref<Semaphore> SignalSema
     UploadCmdBufferRef = nullptr;
 }
 
-void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Ref<Semaphore> SignalSemaphore)
+void VulkanCommandBufferManager::SubmitActiveCmdBuffer(const Ref<Semaphore>& SignalSemaphore)
 {
     check(ActiveCmdBufferRef);
 
     if (!ActiveCmdBufferRef->IsSubmitted() && ActiveCmdBufferRef->HasBegun()) {
         if (!ActiveCmdBufferRef->IsOutsideRenderPass()) {
             LOG(LogVulkanRHI, Warning, "Forcing EndRenderPass() for submission");
-            ActiveCmdBufferRef->EndRenderPass();
+            ActiveCmdBufferRef->EndRendering();
         }
 
         ActiveCmdBufferRef->End();
@@ -276,7 +275,7 @@ void VulkanCommandBufferManager::SubmitActiveCmdBuffer(Ref<Semaphore> SignalSema
     ActiveCmdBufferRef = nullptr;
 }
 
-void VulkanCommandBufferManager::SubmitActiveCmdBufferFromPresent(Ref<Semaphore> SignalSemaphore)
+void VulkanCommandBufferManager::SubmitActiveCmdBufferFromPresent(const Ref<Semaphore>& SignalSemaphore)
 {
     if (SignalSemaphore) {
         Queue->Submit(ActiveCmdBufferRef, SignalSemaphore->GetHandle());

@@ -188,8 +188,8 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, 
     VK_CHECK_RESULT_EXPANDED(
         VulkanAPI::vkGetSwapchainImagesKHR(Device->GetHandle(), SwapChain, &NumSwapchainImages, nullptr));
     OutImages.Resize(NumSwapchainImages);
-    VK_CHECK_RESULT_EXPANDED(VulkanAPI::vkGetSwapchainImagesKHR(Device->GetHandle(), SwapChain,
-                                                                &NumSwapchainImages, OutImages.Raw()));
+    VK_CHECK_RESULT_EXPANDED(
+        VulkanAPI::vkGetSwapchainImagesKHR(Device->GetHandle(), SwapChain, &NumSwapchainImages, OutImages.Raw()));
 
     ImageAcquiredSemaphore.Resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
@@ -275,7 +275,7 @@ int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore>& OutSemaphore)
     const int32 PrevSemaphoreIndex = SemaphoreIndex;
     SemaphoreIndex = (SemaphoreIndex + 1) % ImageAcquiredSemaphore.Size();
 
-    Ref<Fence> AcquiredFence = ImageInUseFence[SemaphoreIndex];
+    Ref<Fence>& AcquiredFence = ImageInUseFence[SemaphoreIndex];
     AcquiredFence->Reset();
 
     VkResult Result = VulkanAPI::vkAcquireNextImageKHR(Device->GetHandle(), SwapChain, UINT64_MAX,

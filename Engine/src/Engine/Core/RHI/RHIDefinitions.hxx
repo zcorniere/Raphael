@@ -68,46 +68,23 @@ enum class ETextureUsageFlags {
 };
 ENUM_CLASS_FLAGS(ETextureUsageFlags)
 
-class RHITexture;
-class RHIGraphicsPipeline;
+/// Action to take when a render target is set.
+enum class ERenderTargetLoadAction : uint8 {
+    /// Untouched contents of the render target are undefined. Any existing content is not preserved.
+    NoAction,
 
-struct RHIRenderPassTarget {
-    EImageFormat Format;
-    ETextureUsageFlags Flags;
+    /// Existing contents are preserved.
+    Load,
 
-    bool operator==(const RHIRenderPassTarget&) const = default;
+    /// The render target is cleared to the fast clear value specified on the resource.
+    Clear,
 };
 
-struct RHIRenderPassDescription {
-    Array<RHIRenderPassTarget> ColorTarget = {};
-    Array<RHIRenderPassTarget> ResolveTarget = {};
-    std::optional<RHIRenderPassTarget> DepthTarget = std::nullopt;
+/// Action to take when a render target is unset or at the end of a pass.
+enum class ERenderTargetStoreAction : uint8 {
+    /// Contents of the render target emitted during the pass are not stored back to memory.
+    NoAction,
 
-    bool operator==(const RHIRenderPassDescription&) const = default;
+    /// Contents of the render target emitted during the pass are stored back to memory.
+    Store,
 };
-
-struct RHIFramebufferDefinition {
-    Array<Ref<RHITexture>> ColorTarget = {};
-    Array<Ref<RHITexture>> ResolveTarget = {};
-    Ref<RHITexture> DepthTarget = nullptr;
-
-    glm::ivec2 Offset;
-    glm::uvec2 Extent;
-
-    bool operator==(const RHIFramebufferDefinition&) const = default;
-};
-
-namespace std
-{
-
-template <>
-struct hash<RHIRenderPassDescription> {
-    size_t operator()(const RHIRenderPassDescription& Desc) const;
-};
-
-template <>
-struct hash<RHIFramebufferDefinition> {
-    size_t operator()(const RHIFramebufferDefinition& Desc) const;
-};
-
-}    // namespace std

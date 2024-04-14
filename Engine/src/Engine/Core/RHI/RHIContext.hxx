@@ -18,4 +18,9 @@ public:
     virtual void RHIEndDrawningViewport(RHIViewport* const Viewport) = 0;
     /// @brief Resize the given viewport
     virtual void RHIResizeViewport(RHIViewport* const Viewport, uint32_t Width, uint32_t Height) = 0;
+
+    /// @brief Begin rendering a new render pass
+    virtual void RHIBeginRendering(const RHIRenderPassDescription& Description) = 0;
+    /// @brief End rendering the current render pass
+    virtual void RHIEndRendering() = 0;
 };

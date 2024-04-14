@@ -36,21 +36,31 @@ void RHICommandList::EndRenderingViewport(RHIViewport* Viewport, bool bPresent)
     Enqueue(new RHIEndDrawningViewport(Viewport, bPresent));
 }
 
+void RHICommandList::BeginRendering(const RHIRenderPassDescription& Description)
+{
+    Enqueue(new RHIBeginRendering(Description));
+}
+void RHICommandList::EndRendering()
+{
+    Enqueue(new RHIEndRendering());
+}
+
 void RHICommandList::Enqueue(RHIRenderCommandBase* RenderCommand)
 {
     // If we are executing the command list, we need to execute the command immediately
     if (bIsExecuting) {
         check(m_Context != nullptr);
         RenderCommand->DoTask(*this);
+        delete RenderCommand;
         return;
     }
 
     if (m_CommandList == nullptr) {
-        m_CommandList.reset(RenderCommand);
-        m_CommandListTail = m_CommandList.get();
+        m_CommandList = RenderCommand;
+        m_CommandListTail = m_CommandList;
     } else {
-        m_CommandListTail->p_Next.reset(RenderCommand);
-        m_CommandListTail = m_CommandListTail->p_Next.get();
+        m_CommandListTail->p_Next = RenderCommand;
+        m_CommandListTail = m_CommandListTail->p_Next;
     }
     check(m_CommandListTail != nullptr);
 }
@@ -72,14 +82,18 @@ void RHICommandList::Execute(RHIContext* const InContext)
 
     // Execute all the commands
     bIsExecuting = true;
-    RHIRenderCommandBase* Command = m_CommandList.get();
-    while (Command != nullptr) {
-        Command->DoTask(*this);
-        Command = Command->p_Next.get();
+    m_CommandListTail = nullptr;
+    while (m_CommandList != nullptr) {
+        m_CommandList->DoTask(*this);
+
+        // Delete the object after grabbing a ref to the next one
+        RHIRenderCommandBase* const Next = m_CommandList->p_Next;
+        delete m_CommandList;
+        m_CommandList = Next;
     }
     bIsExecuting = false;
 
-    // TODO: reset the list during iteration
+    // Should not do anything, but just in case
     Reset();
     m_Context = nullptr;
 }
@@ -88,8 +102,13 @@ void RHICommandList::Reset()
 {
     // We need to be very careful with deleting the chained list
     // By doing it that way we are to destroy one node at a time
+
     while (m_CommandList != nullptr) {
-        m_CommandList = std::move(m_CommandList->p_Next);
+        RHIRenderCommandBase* const Next = m_CommandList->p_Next;
+
+        delete m_CommandList;
+        m_CommandList = Next;
     }
+    m_CommandList = nullptr;
     m_CommandListTail = nullptr;
 }

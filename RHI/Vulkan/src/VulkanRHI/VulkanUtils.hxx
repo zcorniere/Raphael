@@ -133,6 +133,30 @@ FORCEINLINE VkImageAspectFlags TextureUsageFlagToVkImageAspectFlags(ETextureUsag
     return ReturnFlag;
 }
 
+FORCEINLINE VkAttachmentLoadOp RenderTargetLoadActionToVkAttachmentLoadOp(ERenderTargetLoadAction Action)
+{
+    switch (Action) {
+        case ERenderTargetLoadAction::Load:
+            return VK_ATTACHMENT_LOAD_OP_LOAD;
+        case ERenderTargetLoadAction::Clear:
+            return VK_ATTACHMENT_LOAD_OP_CLEAR;
+        case ERenderTargetLoadAction::NoAction:
+            return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    }
+    checkNoEntry();
+}
+
+FORCEINLINE VkAttachmentStoreOp RenderTargetStoreActionToVkAttachmentStoreOp(ERenderTargetStoreAction Action)
+{
+    switch (Action) {
+        case ERenderTargetStoreAction::Store:
+            return VK_ATTACHMENT_STORE_OP_STORE;
+        case ERenderTargetStoreAction::NoAction:
+            return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    }
+    checkNoEntry();
+}
+
 FORCEINLINE VkImageUsageFlags TextureUsageFlagsToVkImageUsageFlags(ETextureUsageFlags CreateFlags)
 {
     VkImageUsageFlags ReturnFlag = 0;

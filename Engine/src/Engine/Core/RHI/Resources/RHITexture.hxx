@@ -51,3 +51,29 @@ public:
 protected:
     RHITextureSpecification Description;
 };
+
+/// @brief Group up information about the textures that is about to be used in a render
+struct RHIRenderTarget {
+    /// The texture to render to
+    Ref<RHITexture> Texture;
+
+    /// The color to clear the texture with
+    glm::uvec4 ClearColor = glm::uvec4(0.0f);
+
+    /// How the RHI should handle the texture load operation
+    ERenderTargetLoadAction LoadAction = ERenderTargetLoadAction::NoAction;
+    /// How the RHI should handle the texture store operation
+    ERenderTargetStoreAction StoreAction = ERenderTargetStoreAction::NoAction;
+
+    bool operator==(const RHIRenderTarget&) const = default;
+};
+
+struct RHIRenderPassDescription {
+    glm::ivec2 RenderAreaLocation = glm::ivec2(0);
+    glm::uvec2 RenderAreaSize;
+
+    Array<RHIRenderTarget> ColorTargets = {};
+    std::optional<RHIRenderTarget> DepthTarget = std::nullopt;
+
+    bool operator==(const RHIRenderPassDescription&) const = default;
+};

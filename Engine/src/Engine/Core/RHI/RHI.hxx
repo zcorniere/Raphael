@@ -50,14 +50,6 @@ void BeginFrame();
 void EndFrame();
 void RHISubmitCommandLists(RHICommandList* const* CommandLists, std::uint32_t NumCommandLists);
 
-/// @brief Indicate the RHI that we are starting drawing
-void BeginRendering(const RHIRenderPassDescription& Renderpass, const RHIFramebufferDefinition& Framebuffer);
-/// @brief Indicate the RHI that we are done rendering for now
-void EndRendering();
-
-/// Temp
-void Draw(Ref<RHIGraphicsPipeline>& Pipeline);
-
 /// Create a new RHI viewport - through the current RHI
 Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize);
 /// Create a new RHI texture - through the current RHI

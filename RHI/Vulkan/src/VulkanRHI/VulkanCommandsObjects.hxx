@@ -40,11 +40,11 @@ public:
     /// End the recording of the command buffer
     void End();
 
-    void BeginRenderPass(const VkRenderPassBeginInfo& RenderPassBeginInfo);
-    void EndRenderPass();
+    void BeginRendering(const VkRenderingInfo& RenderingInfo);
+    void EndRendering();
 
     /// Adds a pipeline semaphore for the given stage
-    void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore> InSemaphore);
+    void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, const Ref<Semaphore>& InSemaphore);
 
     inline VkCommandBuffer GetHandle() const
     {
@@ -172,11 +172,11 @@ public:
     void PrepareForNewActiveCommandBuffer();
 
     /// Submit the upload command buffer to the queue
-    void SubmitUploadCmdBuffer(Ref<Semaphore> SignalSemaphore = nullptr);
+    void SubmitUploadCmdBuffer(const Ref<Semaphore>& SignalSemaphore = nullptr);
 
     /// Submit the active command buffer to the queue
-    void SubmitActiveCmdBuffer(Ref<Semaphore> SignalSemaphore = nullptr);
-    void SubmitActiveCmdBufferFromPresent(Ref<Semaphore> SignalSemaphore = nullptr);
+    void SubmitActiveCmdBuffer(const Ref<Semaphore>& SignalSemaphore = nullptr);
+    void SubmitActiveCmdBufferFromPresent(const Ref<Semaphore>& SignalSemaphore = nullptr);
 
 private:
     VulkanCmdBuffer* FindAvailableCmdBuffer();

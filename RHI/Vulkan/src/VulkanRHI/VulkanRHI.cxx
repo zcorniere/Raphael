@@ -4,9 +4,6 @@
 
 #include "Engine/Platforms/PlatformMisc.hxx"
 
-#include "VulkanRHI/RenderPass/RenderPassManager.hxx"
-#include "VulkanRHI/RenderPass/VulkanRenderPass.hxx"
-
 #include "VulkanRHI/Resources/VulkanViewport.hxx"
 
 #include "VulkanRHI/VulkanDevice.hxx"
@@ -29,7 +26,7 @@ static std::string GetMissingExtensions(Array<const char*> VulkanExtensions);
 namespace VulkanRHI
 {
 
-VulkanDynamicRHI::VulkanDynamicRHI(): Device(nullptr), ShaderCompiler(nullptr), RPassManager(nullptr)
+VulkanDynamicRHI::VulkanDynamicRHI(): Device(nullptr), ShaderCompiler(nullptr)
 {
     LOG(LogVulkanRHI, Info, "Built with Vulkan header version {}.{}.{}",
         VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
@@ -84,7 +81,6 @@ void VulkanDynamicRHI::Init()
     Device->InitPhysicalDevice();
     Device->SetName("Main Vulkan Device");
 
-    RPassManager = std::make_unique<RenderPassManager>(Device.get());
     ShaderCompiler = std::make_unique<VulkanShaderCompiler>();
 
 #if VULKAN_DEBUGGING_ENABLED
@@ -103,10 +99,9 @@ void VulkanDynamicRHI::Shutdown()
     if (Device) {
         Device->WaitUntilIdle();
     }
-    RPassManager = nullptr;
-    ShaderCompiler = nullptr;
+    ShaderCompiler.reset();
 
-    Device = nullptr;
+    Device.reset();
 
 #if VULKAN_DEBUGGING_ENABLED
     DebugLayer.RemoveDebugLayer(m_Instance);

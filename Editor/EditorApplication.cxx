@@ -62,16 +62,7 @@ bool EditorApplication::OnEngineInitialization()
         .ResourceArray = &TestArray,
         .DebugName = "Test",
     });
-    RHIRenderPassDescription Description{
-        .ColorTarget =
-            {
-                {
-                    .Format = MainViewport->GetBackbuffer()->GetDescription().Format,
-                    .Flags = ETextureUsageFlags::RenderTargetable,
-                },
-            },
-        .DepthTarget = std::nullopt,
-    };
+
     Pipeline = RHI::CreateGraphicsPipeline(RHIGraphicsPipelineSpecification{
         .VertexShader = "DefaultTriangle.vert",
         .PixelShader = "DefaultTriangle.frag",
@@ -81,7 +72,6 @@ bool EditorApplication::OnEngineInitialization()
                 .CullMode = ECullMode::None,
                 .FrontFaceCulling = EFrontFace::Clockwise,
             },
-        .RenderPass = Description,
     });
     return true;
 }
@@ -103,8 +93,29 @@ void EditorApplication::Tick(const float DeltaTime)
 
     MainWindow->SetText(std::to_string(1.0f / DeltaTime));
 
-    MainViewport->BeginDrawViewport();
+    ENQUEUE_RENDER_COMMAND(EmptyRender)
+    ([this](RHICommandList& CommandList) {
+        CommandList.BeginRenderingViewport(MainViewport.Raw());
 
+        RHIRenderPassDescription Description{
+            .RenderAreaLocation = {0, 0},
+            .RenderAreaSize = MainViewport->GetSize(),
+            .ColorTargets =
+                {
+                    RHIRenderTarget{
+                        .Texture = MainViewport->GetBackbuffer(),
+                        .ClearColor = {1.0f, 0.0f, 0.0f, 1.0f},
+                        .LoadAction = ERenderTargetLoadAction::Clear,
+                        .StoreAction = ERenderTargetStoreAction::Store,
+                    },
+                },
+            .DepthTarget = std::nullopt,
+        };
+        CommandList.BeginRendering(Description);
+
+        CommandList.EndRendering();
+        CommandList.EndRenderingViewport(MainViewport.Raw(), true);
+    });
     // ENQUEUE_RENDER_COMMAND(MainApplicationTick)
     // ([this] {
     //     RHIRenderPassDescription Description{
@@ -134,7 +145,6 @@ void EditorApplication::Tick(const float DeltaTime)
     //     RHI::EndRendering();
     // });
 
-    MainViewport->EndDrawViewport();
     ENQUEUE_RENDER_COMMAND(EndFrame)([](RHICommandList& CommandList) { CommandList.EndFrame(); });
 }
 
