@@ -29,55 +29,54 @@ consteval bool ShouldCheckPrintStackTrace()
 
 #ifndef NDEBUG
 
-    #define RAPHAEL_ENSURE_IMPL(Always, Expression, Format, ...)                                                  \
-        (((Expression)) || (([__VA_OPT__(&)] {                                                                    \
-                                static std::atomic_bool bExecuted = false;                                        \
-                                if (!bExecuted || Always) {                                                       \
-                                    bExecuted.exchange(true, std::memory_order_release);                          \
-                                    /* TODO: Check if another assertion is in progress */                         \
-                                    if constexpr (Raphael::ShouldCheckPrintStackTrace())                          \
-                                        Raphael::CollectAndPrintStackTrace(Compiler::ReturnAddress());            \
-                                    const std::string Message = std::format(                                      \
-                                        "Assertion failed: " STR(#Expression) " in {}" __VA_OPT__(" :: " Format), \
-                                        file_position() __VA_OPT__(, ) __VA_ARGS__);                              \
-                                    fprintf(stderr, "%s\n", Message.c_str());                                     \
-                                    fflush(stderr);                                                               \
-                                    return Platform::isDebuggerPresent();                                         \
-                                }                                                                                 \
-                                return false;                                                                     \
-                            }()) &&                                                                               \
-                            ([] {                                                                                 \
-                                PLATFORM_BREAK();                                                                 \
-                                return false;                                                                     \
+    #define RAPHAEL_ENSURE_IMPL(Always, Expression, Format, ...)                                           \
+        (((Expression)) || (([__VA_OPT__(&)] {                                                             \
+                                static std::atomic_bool bExecuted = false;                                 \
+                                if (!bExecuted || Always) {                                                \
+                                    bExecuted.exchange(true, std::memory_order_release);                   \
+                                    /* TODO: Check if another assertion is in progress */                  \
+                                    if constexpr (Raphael::ShouldCheckPrintStackTrace())                   \
+                                        Raphael::CollectAndPrintStackTrace(Compiler::ReturnAddress());     \
+                                    const std::string Message =                                            \
+                                        std::format("Assertion failed: " STR(#Expression) " in {}" Format, \
+                                                    file_position() __VA_OPT__(, ) __VA_ARGS__);           \
+                                    fprintf(stderr, "%s\n", Message.c_str());                              \
+                                    fflush(stderr);                                                        \
+                                    return Platform::isDebuggerPresent();                                  \
+                                }                                                                          \
+                                return false;                                                              \
+                            }()) &&                                                                        \
+                            ([] {                                                                          \
+                                PLATFORM_BREAK();                                                          \
+                                return false;                                                              \
                             }())))
 
     #define ensure(Expression) RAPHAEL_ENSURE_IMPL(false, Expression, )
-    #define ensureMsg(Expression, Format, ...) RAPHAEL_ENSURE_IMPL(false, Expression, Format, ##__VA_ARGS__)
+    #define ensureMsg(Expression, Format, ...) RAPHAEL_ENSURE_IMPL(false, Expression, " :: " Format, ##__VA_ARGS__)
     #define ensureAlways(Expression) RAPHAEL_ENSURE_IMPL(true, Expression, )
-    #define ensureAlwaysMsg(Expression, Format, ...) RAPHAEL_ENSURE_IMPL(true, Expression, Format, ##__VA_ARGS__)
+    #define ensureAlwaysMsg(Expression, Format, ...) RAPHAEL_ENSURE_IMPL(true, Expression, " :: " Format, ##__VA_ARGS__)
 
-    #define RAPHAEL_CHECK_IMPL(Expression, Format, ...)                                                   \
-        {                                                                                                 \
-            if (!(Expression)) [[unlikely]] {                                                             \
-                using namespace Raphael;                                                                  \
-                if constexpr (Raphael::ShouldCheckPrintStackTrace())                                      \
-                    CollectAndPrintStackTrace(Compiler::ReturnAddress());                                 \
-                const std::string Message =                                                               \
-                    std::format("Assertion failed: " STR(#Expression) " in {}" __VA_OPT__(" :: " Format), \
-                                file_position() __VA_OPT__(, ) __VA_ARGS__);                              \
-                fprintf(stderr, "%s\n", Message.c_str());                                                 \
-                fflush(stderr);                                                                           \
-                if (Platform::isDebuggerPresent()) {                                                      \
-                    PLATFORM_BREAK();                                                                     \
-                } else {                                                                                  \
-                    std::abort();                                                                         \
-                }                                                                                         \
-            }                                                                                             \
+    #define RAPHAEL_CHECK_IMPL(Expression, Format, ...)                                                        \
+        {                                                                                                      \
+            if (!(Expression)) [[unlikely]] {                                                                  \
+                using namespace Raphael;                                                                       \
+                if constexpr (Raphael::ShouldCheckPrintStackTrace())                                           \
+                    CollectAndPrintStackTrace(Compiler::ReturnAddress());                                      \
+                const std::string Message = std::format("Assertion failed: " STR(#Expression) " in {}" Format, \
+                                                        file_position() __VA_OPT__(, ) __VA_ARGS__);           \
+                fprintf(stderr, "%s\n", Message.c_str());                                                      \
+                fflush(stderr);                                                                                \
+                if (Platform::isDebuggerPresent()) {                                                           \
+                    PLATFORM_BREAK();                                                                          \
+                } else {                                                                                       \
+                    std::abort();                                                                              \
+                }                                                                                              \
+            }                                                                                                  \
         }
 
     #define check(Expression) RAPHAEL_CHECK_IMPL(Expression, )
     #define checkSlow(Expression) check(Expression)
-    #define checkMsg(Expression, Format, ...) RAPHAEL_CHECK_IMPL(Expression, Format, ##__VA_ARGS__)
+    #define checkMsg(Expression, Format, ...) RAPHAEL_CHECK_IMPL(Expression, " :: " Format, ##__VA_ARGS__)
     #define checkNoEntry()                                             \
         {                                                              \
             checkMsg(false, "Enclosing block should never be called"); \
