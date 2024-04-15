@@ -12,7 +12,7 @@ public:
     virtual void* GetSymbol_Internal(std::string_view SymbolName) const override;
 
 private:
-    HMODULE ModuleHandle;
+    void* ModuleHandle = nullptr;
 };
 
 class WindowsMisc : public GenericMisc
