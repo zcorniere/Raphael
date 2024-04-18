@@ -1,6 +1,5 @@
 #include "EditorApplication.hxx"
 
-#include <Engine/Core/FrameGraph/FrameGraph.hxx>
 #include <Engine/Core/Log.hxx>
 #include <Engine/Core/RHI/RHICommandList.hxx>
 #include <Engine/Core/RHI/Resources/RHIViewport.hxx>
@@ -33,26 +32,6 @@ bool EditorApplication::OnEngineInitialization()
 
     BaseApplication::OnEngineInitialization();
 
-#if 0
-    struct FrameData {
-        FrameGraphResource Texture;
-        FrameGraphResource Shader;
-    };
-    FrameGraph Graph;
-    Graph.AddCallbackPass<FrameData>(
-        "Test pass",
-        [](FrameGraphBuilder& Builder, FrameData& Data) {
-            RHITextureSpecification Description{};
-            Data.Texture = Builder.Create<RHIResourceType::Texture>("Test_Texture", Description);
-            Data.Shader = Builder.Create<RHIResourceType::Shader>("Triangle_shader",
-                                                                  std::filesystem::path("DefaultTriangle.vert"), false);
-
-            LOG(LogApplication, Info, "Setup");
-        },
-        [](const FrameData&, FrameGraphPassResources&) { LOG(LogApplication, Info, "Execution"); });
-    Graph.Compile();
-    Graph.Execute();
-#endif
     ResourceArray<uint32> TestArray;
     TestArray.Append({11, 22, 33, 44, 55});
     Buffer = RHI::CreateBuffer(RHIBufferDesc{
