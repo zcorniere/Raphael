@@ -28,7 +28,7 @@ class RHITexture : public RHIResource
 {
 public:
     explicit RHITexture(const RHITextureSpecification& InDesc)
-        : RHIResource(RHIResourceType::Texture), Description(InDesc)
+        : RHIResource(ERHIResourceType::Texture), Description(InDesc)
     {
     }
     virtual ~RHITexture() = default;

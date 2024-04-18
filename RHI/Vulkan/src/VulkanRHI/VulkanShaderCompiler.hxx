@@ -36,7 +36,7 @@ private:
     struct ShaderCompileResult {
         CompilationStatus Status = CompilationStatus::None;
         std::filesystem::path Path;
-        RHIShaderType ShaderType;
+        ERHIShaderType ShaderType;
         std::string SourceCode;
         Array<uint32> CompiledCode;
         VulkanShader::ReflectionData Reflection;

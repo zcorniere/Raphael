@@ -33,7 +33,7 @@ struct RHIGraphicsPipelineSpecification {
 class RHIGraphicsPipeline : public RHIResource
 {
 public:
-    RHIGraphicsPipeline(): RHIResource(RHIResourceType::GraphicsPipeline)
+    RHIGraphicsPipeline(): RHIResource(ERHIResourceType::GraphicsPipeline)
     {
     }
 

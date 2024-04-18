@@ -1,7 +1,7 @@
 #pragma once
 
 /// The type of RHI resource
-enum class RHIResourceType {
+enum class ERHIResourceType {
     None = 0,
 
     Texture,
@@ -18,14 +18,14 @@ class RHIResource : public RObject
 {
 public:
     RHIResource() = delete;
-    explicit RHIResource(RHIResourceType InResourceType): ResourceType(InResourceType)
+    explicit RHIResource(ERHIResourceType InResourceType): ResourceType(InResourceType)
     {
     }
 
     virtual ~RHIResource() = default;
 
 protected:
-    const RHIResourceType ResourceType;
+    const ERHIResourceType ResourceType;
 };
 
 // IWYU pragma: begin_exports

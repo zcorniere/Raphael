@@ -8,7 +8,7 @@ class RHITexture;
 class RHIViewport : public RHIResource
 {
 public:
-    RHIViewport(): RHIResource(RHIResourceType::Viewport)
+    RHIViewport(): RHIResource(ERHIResourceType::Viewport)
     {
     }
     virtual ~RHIViewport() = default;

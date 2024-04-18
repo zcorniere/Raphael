@@ -51,7 +51,7 @@ public:
     };
 
 public:
-    VulkanShader(RHIShaderType Type, const Array<uint32>& InSPRIVCode, const ReflectionData& InReflectionData);
+    VulkanShader(ERHIShaderType Type, const Array<uint32>& InSPRIVCode, const ReflectionData& InReflectionData);
 
     virtual void SetName(std::string_view Name) override;
 
@@ -62,7 +62,7 @@ public:
 
     Ref<ShaderHandle> GetHandle(VulkanDevice* InDevice);
 
-    constexpr RHIShaderType GetShaderType() const
+    constexpr ERHIShaderType GetShaderType() const
     {
         return Type;
     }
@@ -71,7 +71,7 @@ private:
     const Array<uint32> SPIRVCode;
     const ReflectionData m_ReflectionData;
 
-    RHIShaderType Type;
+    ERHIShaderType Type;
 
     Ref<ShaderHandle> m_ShaderHandle;
 

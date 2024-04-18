@@ -3,7 +3,7 @@
 #include "Engine/Core/RHI/RHIResource.hxx"
 
 /// @brief The type of the shader
-enum class RHIShaderType : uint8 {
+enum class ERHIShaderType : uint8 {
     Vertex = 0,
     Pixel = 1,
 
@@ -14,18 +14,18 @@ enum class RHIShaderType : uint8 {
 class RHIShader : public RHIResource
 {
 public:
-    explicit RHIShader(RHIShaderType Type): RHIResource(RHIResourceType::Shader), ShaderType(Type)
+    explicit RHIShader(ERHIShaderType Type): RHIResource(ERHIResourceType::Shader), ShaderType(Type)
     {
     }
 
     virtual ~RHIShader() = default;
 
     /// @brief Return the type of the shader
-    RHIShaderType GetShaderType() const
+    ERHIShaderType GetShaderType() const
     {
         return ShaderType;
     }
 
 private:
-    const RHIShaderType ShaderType;
+    const ERHIShaderType ShaderType;
 };

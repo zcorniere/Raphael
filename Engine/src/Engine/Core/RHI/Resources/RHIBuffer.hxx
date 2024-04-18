@@ -36,7 +36,7 @@ struct RHIBufferDesc {
 class RHIBuffer : public RHIResource
 {
 public:
-    RHIBuffer(const RHIBufferDesc& InDescription): RHIResource(RHIResourceType::Buffer), Description(InDescription)
+    RHIBuffer(const RHIBufferDesc& InDescription): RHIResource(ERHIResourceType::Buffer), Description(InDescription)
     {
     }
     virtual ~RHIBuffer() = default;

@@ -54,7 +54,7 @@ TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
         CHECK(ShaderResult == CachedResult);
     }
 
-    CHECK(ShaderResult->GetShaderType() == RHIShaderType::Vertex);
+    CHECK(ShaderResult->GetShaderType() == ERHIShaderType::Vertex);
 
     const VulkanShader::ReflectionData ExpectedReflection{
         .StageInput =
@@ -98,7 +98,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
     Ref<VulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
     REQUIRE(ShaderResult);
 
-    CHECK(ShaderResult->GetShaderType() == RHIShaderType::Pixel);
+    CHECK(ShaderResult->GetShaderType() == ERHIShaderType::Pixel);
 
     struct ShaderPushConstantStruct {
         uint32 pointLightCount;
