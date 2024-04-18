@@ -48,7 +48,8 @@ void Destroy();
 void BeginFrame();
 /// @brief Mark the end of the current frame
 void EndFrame();
-void RHISubmitCommandLists(RHICommandList* const* CommandLists, std::uint32_t NumCommandLists);
+
+void RHIWaitUntilIdle();
 
 /// Create a new RHI viewport - through the current RHI
 Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize);

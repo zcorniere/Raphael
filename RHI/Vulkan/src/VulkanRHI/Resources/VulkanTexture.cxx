@@ -170,6 +170,7 @@ void VulkanTexture::CreateTexture()
     }
 
     VK_CHECK_RESULT(VulkanAPI::vkCreateImage(Device->GetHandle(), &ImageCreateInfo, VULKAN_CPU_ALLOCATOR, &Image));
+
     VulkanAPI::vkGetImageMemoryRequirements(Device->GetHandle(), Image, &MemoryRequirements);
 
     Allocation = Device->GetMemoryManager()->Alloc(MemoryRequirements, VMA_MEMORY_USAGE_GPU_ONLY, false);
@@ -187,6 +188,22 @@ void VulkanTexture::DestroyTexture()
     VulkanAPI::vkDestroyImage(Device->GetHandle(), Image, VULKAN_CPU_ALLOCATOR);
     Image = VK_NULL_HANDLE;
     Layout = VK_IMAGE_LAYOUT_UNDEFINED;
+}
+
+VkImageLayout VulkanTexture::GetDefaultLayout() const
+{
+    switch (Description.Flags) {
+        case ETextureUsageFlags::RenderTargetable:
+            return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        case ETextureUsageFlags::DepthStencilTargetable:
+            return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        case ETextureUsageFlags::SampleTargetable:
+            return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        case ETextureUsageFlags::TransferTargetable:
+            return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        default:
+            return VK_IMAGE_LAYOUT_UNDEFINED;
+    }
 }
 
 //////////////////// VulkanTextureView ////////////////////

@@ -30,6 +30,8 @@ public:
     virtual void RHIBeginRendering(const RHIRenderPassDescription& Description) override;
     virtual void RHIEndRendering() override;
 
+    virtual void TmpDraw(Ref<RHIGraphicsPipeline>& Pipeline) override;
+
     /// @brief VulkanRHI only, set the layout of the given texture
     void SetLayout(VulkanTexture* const Texture, VkImageLayout Layout);
 

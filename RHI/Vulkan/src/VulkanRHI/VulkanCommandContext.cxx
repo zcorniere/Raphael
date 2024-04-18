@@ -1,5 +1,6 @@
 #include "VulkanRHI/VulkanCommandContext.hxx"
 
+#include "VulkanRHI/Resources/VulkanGraphicsPipeline.hxx"
 #include "VulkanRHI/Resources/VulkanViewport.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
@@ -65,18 +66,32 @@ void VulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Des
             .clearValue = {.color = ClearColor},
         };
     };
-    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
+    auto TransitionToCorrectLayout = [this](const RHIRenderTarget& Target) -> bool {
+        Ref<VulkanTexture> Texture = Target.Texture.As<VulkanTexture>();
+        VkImageLayout ExpectedLayout = Texture->GetDefaultLayout();
+        if (ExpectedLayout != VK_IMAGE_LAYOUT_UNDEFINED && ExpectedLayout != Texture->GetLayout()) {
+            Texture->SetLayout(Device->GetCommandManager()->GetUploadCmdBuffer(), ExpectedLayout);
+            return true;
+        }
+        return false;
+    };
 
+    bool bNeedTransition = false;
     Array<VkRenderingAttachmentInfo> ColorAttachments;
     ColorAttachments.Reserve(Description.ColorTargets.Size());
     for (const RHIRenderTarget& ColorTarget: Description.ColorTargets) {
+        bNeedTransition |= TransitionToCorrectLayout(ColorTarget);
         ColorAttachments.Add(RenderTargetToAttachmentInfo(ColorTarget));
     }
     std::optional<VkRenderingAttachmentInfo> DepthAttachment = std::nullopt;
     if (Description.DepthTarget) {
+        bNeedTransition |= TransitionToCorrectLayout(Description.DepthTarget.value());
         DepthAttachment = RenderTargetToAttachmentInfo(Description.DepthTarget.value());
     }
 
+    if (bNeedTransition) {
+        Device->GetCommandManager()->SubmitUploadCmdBuffer();
+    }
     VkRenderingInfo RenderingInfo{
         .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
         .pNext = nullptr,
@@ -91,6 +106,8 @@ void VulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Des
         .pColorAttachments = ColorAttachments.Raw(),
         .pDepthAttachment = DepthAttachment.has_value() ? &DepthAttachment.value() : nullptr,
     };
+
+    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
     CmdBuffer->BeginRendering(RenderingInfo);
 }
 
@@ -99,6 +116,39 @@ void VulkanCommandContext::RHIEndRendering()
     VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
 
     CmdBuffer->EndRendering();
+}
+
+void VulkanCommandContext::TmpDraw(Ref<RHIGraphicsPipeline>& Pipeline)
+{
+    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
+
+    Ref<VulkanGraphicsPipeline> VulkanPipeline = Pipeline.As<VulkanGraphicsPipeline>();
+    VulkanPipeline->Bind(CmdBuffer->GetHandle());
+
+    VkViewport viewport{
+        .x = 0.0f,
+        .y = 0.0f,
+        .width = static_cast<float>(GetVulkanDynamicRHI()->DrawingViewport->GetSize().x),
+        .height = static_cast<float>(GetVulkanDynamicRHI()->DrawingViewport->GetSize().y),
+        .minDepth = 0.0f,
+        .maxDepth = 1.0f,
+    };
+    VkRect2D scissor{
+        .offset =
+            {
+                .x = 0,
+                .y = 0,
+            },
+        .extent =
+            {
+                .width = GetVulkanDynamicRHI()->DrawingViewport->GetSize().x,
+                .height = GetVulkanDynamicRHI()->DrawingViewport->GetSize().y,
+            },
+    };
+    VulkanAPI::vkCmdSetViewport(CmdBuffer->GetHandle(), 0, 1, &viewport);
+    VulkanAPI::vkCmdSetScissor(CmdBuffer->GetHandle(), 0, 1, &scissor);
+    // DELETE ME
+    VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), 3, 1, 0, 0);
 }
 
 void VulkanCommandContext::SetLayout(VulkanTexture* const Texture, VkImageLayout Layout)

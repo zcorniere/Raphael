@@ -51,6 +51,7 @@ int EngineLoop()
     }
     // Only destroy if the return value is ok
     if (ExitStatus == 0) {
+        RHI::RHIWaitUntilIdle();
         Application->OnEngineDestruction();
         RHI::Destroy();
         GEngine->Destroy();

@@ -40,3 +40,12 @@ void RHIEndRendering::Execute(RHICommandList& CommandList)
 {
     CommandList.GetContext()->RHIEndRendering();
 }
+
+RHIDraw::RHIDraw(Ref<RHIGraphicsPipeline> InPipeline): Pipeline(std::move(InPipeline))
+{
+}
+
+void RHIDraw::Execute(RHICommandList& CommandList)
+{
+    CommandList.GetContext()->TmpDraw(Pipeline);
+}

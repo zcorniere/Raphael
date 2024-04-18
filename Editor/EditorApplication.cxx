@@ -72,6 +72,12 @@ bool EditorApplication::OnEngineInitialization()
                 .CullMode = ECullMode::None,
                 .FrontFaceCulling = EFrontFace::Clockwise,
             },
+        .AttachmentFormats =
+            {
+                .ColorFormats = {MainViewport->GetBackbuffer()->GetDescription().Format},
+                .DepthFormat = std::nullopt,
+                .StencilFormat = std::nullopt,
+            },
     });
     return true;
 }
@@ -95,8 +101,6 @@ void EditorApplication::Tick(const float DeltaTime)
 
     ENQUEUE_RENDER_COMMAND(EmptyRender)
     ([this](RHICommandList& CommandList) {
-        CommandList.BeginRenderingViewport(MainViewport.Raw());
-
         RHIRenderPassDescription Description{
             .RenderAreaLocation = {0, 0},
             .RenderAreaSize = MainViewport->GetSize(),
@@ -104,46 +108,21 @@ void EditorApplication::Tick(const float DeltaTime)
                 {
                     RHIRenderTarget{
                         .Texture = MainViewport->GetBackbuffer(),
-                        .ClearColor = {1.0f, 0.0f, 0.0f, 1.0f},
+                        .ClearColor = {0.0f, 0.0f, 0.0f, 1.0f},
                         .LoadAction = ERenderTargetLoadAction::Clear,
                         .StoreAction = ERenderTargetStoreAction::Store,
                     },
                 },
             .DepthTarget = std::nullopt,
         };
+        CommandList.BeginRenderingViewport(MainViewport.Raw());
         CommandList.BeginRendering(Description);
+
+        CommandList.TmpDraw(Pipeline);
 
         CommandList.EndRendering();
         CommandList.EndRenderingViewport(MainViewport.Raw(), true);
     });
-    // ENQUEUE_RENDER_COMMAND(MainApplicationTick)
-    // ([this] {
-    //     RHIRenderPassDescription Description{
-    //         .ColorTarget =
-    //             {
-    //                 {
-    //                     .Format = MainViewport->GetBackbuffer()->GetDescription().Format,
-    //                     .Flags = ETextureUsageFlags::RenderTargetable,
-    //                 },
-    //             },
-    //         .DepthTarget = std::nullopt,
-    //         // .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
-    //         //     .Format = EImageFormat::D32_SFLOAT,
-    //         // }),
-    //     };
-    //     RHIFramebufferDefinition Definition{
-    //         .ColorTarget =
-    //             {
-    //                 MainViewport->GetBackbuffer(),
-    //             },
-    //         .DepthTarget = nullptr,
-    //         .Offset = {0, 0},
-    //         .Extent = MainViewport->GetBackbuffer()->GetDescription().Extent,
-    //     };
-    //     RHI::BeginRendering(Description, Definition);
-    //     RHI::Draw(Pipeline);
-    //     RHI::EndRendering();
-    // });
 
     ENQUEUE_RENDER_COMMAND(EndFrame)([](RHICommandList& CommandList) { CommandList.EndFrame(); });
 }

@@ -40,6 +40,11 @@ void RHICommandList::EndRendering()
     Enqueue(new RHIEndRendering());
 }
 
+void RHICommandList::TmpDraw(Ref<RHIGraphicsPipeline>& Pipeline)
+{
+    Enqueue(new RHIDraw(Pipeline));
+}
+
 void RHICommandList::Enqueue(RHIRenderCommandBase* RenderCommand)
 {
     // If we are executing the command list, we need to execute the command immediately

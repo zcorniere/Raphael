@@ -27,16 +27,18 @@ public:
     VkImageLayout GetLayout() const;
     void SetLayout(VulkanCmdBuffer* CommandBuffer, VkImageLayout NewLayout);
 
+    VkImageLayout GetDefaultLayout() const;
+
 private:
     void CreateTexture();
     void DestroyTexture();
 
 private:
-    Ref<VulkanMemoryAllocation> Allocation;
+    Ref<VulkanMemoryAllocation> Allocation = nullptr;
     VkMemoryRequirements MemoryRequirements;
-    VkImage Image;
-    VkImageLayout Layout;
-    mutable VkImageView View;
+    VkImage Image = VK_NULL_HANDLE;
+    VkImageLayout Layout = VK_IMAGE_LAYOUT_UNDEFINED;
+    mutable VkImageView View = VK_NULL_HANDLE;
 };
 
 struct VulkanTextureView {

@@ -194,13 +194,13 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, 
     ImageAcquiredSemaphore.Resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
         ImageAcquiredSemaphore[BufferIndex] = Ref<Semaphore>::Create(Device);
-        ImageAcquiredSemaphore[BufferIndex]->SetName(std::format("Swapchain Semaphore Image Acquired {}", BufferIndex));
+        ImageAcquiredSemaphore[BufferIndex]->SetName(std::format("{}.SwapchainImageAcquired", BufferIndex));
     }
 
     ImageInUseFence.Resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
         ImageInUseFence[BufferIndex] = Ref<Fence>::Create(Device, true);
-        ImageInUseFence[BufferIndex]->SetName(std::format("Swapchain Fence Image In Use {}", BufferIndex));
+        ImageInUseFence[BufferIndex]->SetName(std::format("{}.SwapchainImageInUse", BufferIndex));
     }
 }
 

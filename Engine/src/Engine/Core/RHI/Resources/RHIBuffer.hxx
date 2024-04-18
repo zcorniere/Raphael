@@ -24,6 +24,7 @@ enum class EBufferUsageFlags {
 };
 
 struct RHIBufferDesc {
+    /// Size in bytes of the buffer
     uint32 Size = 0;
     uint32 Stride = 0;
     EBufferUsageFlags Usage = EBufferUsageFlags::None;

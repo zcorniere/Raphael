@@ -149,6 +149,8 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
 
 void VulkanViewport::RecreateSwapchain(Ref<Window> NewNativeWindow)
 {
+    RHI::RHIWaitUntilIdle();
+
     ENQUEUE_RENDER_COMMAND(RecreateSwapchainCommand)
     ([this, NewNativeWindow](RHICommandList&) {
         VulkanSwapChainRecreateInfo RecreateInfo = {VK_NULL_HANDLE, VK_NULL_HANDLE};

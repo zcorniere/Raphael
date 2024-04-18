@@ -37,6 +37,12 @@ void RHI::EndFrame()
 
     GFrameCounter += 1;
 }
+
+void RHI::RHIWaitUntilIdle()
+{
+    RHI::Get()->WaitUntilIdle();
+}
+
 //
 //  -------------------- RHI Create resources --------------------
 //

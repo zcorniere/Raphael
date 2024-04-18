@@ -76,3 +76,17 @@ public:
 
     virtual void Execute(RHICommandList & CommandList) override final;
 };
+
+RHICOMMAND_MACRO(RHIDraw)
+{
+public:
+    RHIDraw(Ref<RHIGraphicsPipeline> InPipeline);
+    virtual ~RHIDraw() = default;
+
+    virtual void Execute(RHICommandList & CommandList) override final;
+
+public:
+    Ref<RHIGraphicsPipeline> Pipeline = nullptr;
+};
+
+#undef RHICOMMAND_MACRO

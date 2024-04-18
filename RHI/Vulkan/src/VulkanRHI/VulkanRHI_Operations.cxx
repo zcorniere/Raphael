@@ -31,6 +31,11 @@ void VulkanDynamicRHI::RHIReleaseCommandContext(RHIContext* Context)
     delete Context;
 }
 
+void VulkanDynamicRHI::WaitUntilIdle()
+{
+    Device->WaitUntilIdle();
+}
+
 // void VulkanDynamicRHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
 // {
 //     ENQUEUE_RENDER_COMMAND(Draw)
@@ -105,6 +110,7 @@ VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineSpe
     Desc.Rasterizer.CullMode = ConvertToVulkanType(Config.Rasterizer.CullMode);
     Desc.Rasterizer.FrontFaceCulling = ConvertToVulkanType(Config.Rasterizer.FrontFaceCulling);
     Desc.Rasterizer.PolygonMode = ConvertToVulkanType(Config.Rasterizer.PolygonMode);
+    Desc.AttachmentFormats = Config.AttachmentFormats;
     check(Desc.Validate());
 
     return Ref<VulkanGraphicsPipeline>::Create(Device.get(), Desc);

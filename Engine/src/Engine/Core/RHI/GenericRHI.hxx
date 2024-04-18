@@ -32,6 +32,8 @@ public:
         return RHIInterfaceType::Null;
     }
 
+    virtual void WaitUntilIdle() = 0;
+
     // ---------------------- RHI Operations --------------------- //
 
     /// @brief Submit a list of command lists to the RHI

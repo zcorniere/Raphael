@@ -55,11 +55,13 @@ public:
     virtual void PostInit() final override;
     virtual void Shutdown() final override;
 
+    virtual void WaitUntilIdle() final override;
+
     virtual const char* GetName() const final override
     {
         return "Vulkan";
     }
-    RHIInterfaceType GetInterfaceType() const final
+    RHIInterfaceType GetInterfaceType() const final override
     {
         return RHIInterfaceType::Vulkan;
     }

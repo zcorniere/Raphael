@@ -21,4 +21,6 @@ public:
     virtual void RHIBeginRendering(const RHIRenderPassDescription& Description) = 0;
     /// @brief End rendering the current render pass
     virtual void RHIEndRendering() = 0;
+
+    virtual void TmpDraw(Ref<RHIGraphicsPipeline>& Pipeline) = 0;
 };

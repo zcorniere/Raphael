@@ -95,6 +95,8 @@ public:
     void BeginRendering(const RHIRenderPassDescription& Description);
     void EndRendering();
 
+    void TmpDraw(Ref<RHIGraphicsPipeline>& Pipeline);
+
     /// @brief Add a command to the back of the queue
     template <typename TSTR, typename TFunction>
     requires std::is_invocable_v<TFunction, RHICommandList&>
