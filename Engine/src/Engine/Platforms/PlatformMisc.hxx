@@ -27,7 +27,7 @@ public:
     /// @param  Name The name of the shared library
     IExternalModule(std::string_view Name)
     {
-        ModuleName = Name;
+        SetName(Name);
     }
     virtual ~IExternalModule()
     {
@@ -43,16 +43,8 @@ public:
         return (T)GetSymbol_Internal(SymbolName);
     }
 
-    const std::string& GetModuleName() const
-    {
-        return ModuleName;
-    }
-
 private:
     virtual void* GetSymbol_Internal(std::string_view SymbolName) const = 0;
-
-private:
-    std::string ModuleName;
 };
 
 DECLARE_LOGGER_CATEGORY(Core, LogPlatformMisc, Info);
