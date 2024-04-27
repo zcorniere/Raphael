@@ -34,6 +34,7 @@ void RHI::EndFrame()
     // Run the command list
     RHIContext* const Context = RHI::Get()->RHIGetCommandContext();
     RHICommandListExecutor::Get().GetCommandList().Execute(Context);
+    RHI::Get()->RHIReleaseCommandContext(Context);
 
     GFrameCounter += 1;
 }
