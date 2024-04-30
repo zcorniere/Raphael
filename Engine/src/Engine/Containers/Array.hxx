@@ -365,7 +365,7 @@ private:
 
     void SeeIfNeedToIncreaseCapacity(TSize Increase)
     {
-        if (ArraySize + Increase >= ArrayCapacity) {
+        if (ArraySize + Increase > ArrayCapacity) {
             ArrayCapacity = GetAllocationIncrease();
             Allocator.Resize(ArrayCapacity, sizeof(T));
         }
