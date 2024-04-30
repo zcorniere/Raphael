@@ -36,42 +36,6 @@ void VulkanDynamicRHI::WaitUntilIdle()
     Device->WaitUntilIdle();
 }
 
-// void VulkanDynamicRHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
-// {
-//     ENQUEUE_RENDER_COMMAND(Draw)
-//     ([this, Pipeline] {
-//         VulkanCmdBuffer* CmdBuffer = GetDevice()->GetCommandManager()->GetActiveCmdBuffer();
-
-//         Ref<VulkanGraphicsPipeline> VulkanPipeline = Pipeline.As<VulkanGraphicsPipeline>();
-//         VulkanPipeline->Bind(CmdBuffer->GetHandle());
-
-//         VkViewport viewport{
-//             .x = 0.0f,
-//             .y = 0.0f,
-//             .width = static_cast<float>(DrawingViewport->GetSize().x),
-//             .height = static_cast<float>(DrawingViewport->GetSize().y),
-//             .minDepth = 0.0f,
-//             .maxDepth = 1.0f,
-//         };
-//         VkRect2D scissor{
-//             .offset =
-//                 {
-//                     .x = 0,
-//                     .y = 0,
-//                 },
-//             .extent =
-//                 {
-//                     .width = DrawingViewport->GetSize().x,
-//                     .height = DrawingViewport->GetSize().y,
-//                 },
-//         };
-//         VulkanAPI::vkCmdSetViewport(CmdBuffer->GetHandle(), 0, 1, &viewport);
-//         VulkanAPI::vkCmdSetScissor(CmdBuffer->GetHandle(), 0, 1, &scissor);
-//         // DELETE ME
-//         VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), 3, 1, 0, 0);
-//     });
-// }
-
 //
 //  -------------------- RHI Create resources --------------------
 //
