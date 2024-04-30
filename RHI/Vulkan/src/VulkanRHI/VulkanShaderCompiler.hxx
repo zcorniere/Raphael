@@ -63,7 +63,7 @@ private:
     bool GenerateReflection(ShaderCompileResult& Result);
 
 private:
-    OptimizationLevel Level;
+    OptimizationLevel Level = OptimizationLevel::Performance;
 
     std::mutex m_ShaderCacheMutex;
     std::unordered_map<std::string, WeakRef<VulkanShader>> m_ShaderCache;
