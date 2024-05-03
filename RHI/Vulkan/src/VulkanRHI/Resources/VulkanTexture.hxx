@@ -34,7 +34,7 @@ private:
     void DestroyTexture();
 
 private:
-    Ref<VulkanMemoryAllocation> Allocation = nullptr;
+    Ref<VulkanMemoryAllocation> Allocation;
     VkMemoryRequirements MemoryRequirements;
     VkImage Image = VK_NULL_HANDLE;
     VkImageLayout Layout = VK_IMAGE_LAYOUT_UNDEFINED;
