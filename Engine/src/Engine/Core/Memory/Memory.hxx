@@ -36,6 +36,8 @@ public:
 
     constexpr Allocator() = default;
     constexpr ~Allocator() = default;
+    constexpr Allocator(const Allocator&) noexcept = default;
+    constexpr Allocator(Allocator&&) noexcept = default;
 
     template <class U>
     constexpr Allocator(const Allocator<U>&) noexcept

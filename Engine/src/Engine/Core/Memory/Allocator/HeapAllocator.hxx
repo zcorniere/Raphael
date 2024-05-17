@@ -8,6 +8,28 @@ public:
     using SizeType = TSizeType;
 
 public:
+    HeapAllocator() = default;
+
+    HeapAllocator(SizeType NumElements, SizeType ElementSize, SizeType Alignment = 0)
+    {
+        Resize(NumElements, ElementSize, Alignment);
+    }
+
+    HeapAllocator(const HeapAllocator& Other)
+    {
+        uint32 MemorySize = 0;
+        check(Memory::GetAllocationSize(Other.Data, MemorySize));
+        const uint32 Size = MemorySize / sizeof(T);
+
+        Resize(Size, sizeof(T));
+        CopyItems(Data, Other.Data, Size);
+    }
+
+    HeapAllocator(HeapAllocator&& Other)
+    {
+        MoveFrom(Other);
+    }
+
     ~HeapAllocator()
     {
         if (Data) {
