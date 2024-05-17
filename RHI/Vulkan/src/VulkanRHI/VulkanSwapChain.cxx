@@ -104,16 +104,17 @@ VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool Loc
     }
 }
 
-VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent() const noexcept
+VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const glm::uvec2& InSize) const noexcept
 {
-    check(Capabilities.currentExtent.width != UINT32_MAX);
-    // Always return the current extent of the swapchain
-    return Capabilities.currentExtent;
+    return {
+        .width = std::min(InSize.x, Capabilities.maxImageExtent.width),
+        .height = std::min(InSize.y, Capabilities.maxImageExtent.height),
+    };
 }
 
-VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, Window* WindowHandle,
-                                 uint32 InDesiredNumBackBuffers, Array<VkImage>& OutImages, bool LockToVSync,
-                                 VulkanSwapChainRecreateInfo* RecreateInfo)
+VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, const glm::uvec2& InSize,
+                                 Window* WindowHandle, uint32 InDesiredNumBackBuffers, Array<VkImage>& OutImages,
+                                 bool LockToVSync, VulkanSwapChainRecreateInfo* RecreateInfo)
     : IDeviceChild(InDevice),
       CurrentImageIndex(-1),
       SemaphoreIndex(0),
@@ -133,7 +134,7 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, 
     const SupportDetails SwapChainSupport = SupportDetails::QuerySwapChainSupport(Device, Surface);
     VkSurfaceFormatKHR SurfaceFormat = SwapChainSupport.ChooseSwapSurfaceFormat();
     VkPresentModeKHR PresentMode = SwapChainSupport.ChooseSwapPresentMode(LockToVSync);
-    VkExtent2D Extent = SwapChainSupport.ChooseSwapExtent();
+    VkExtent2D Extent = SwapChainSupport.ChooseSwapExtent(InSize);
 
     uint32 ImageCount = std::max(SwapChainSupport.Capabilities.minImageCount + 1, InDesiredNumBackBuffers);
     if (SwapChainSupport.Capabilities.maxImageCount > 0 && ImageCount > SwapChainSupport.Capabilities.maxImageCount) {
