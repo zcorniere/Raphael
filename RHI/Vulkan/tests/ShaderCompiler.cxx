@@ -95,6 +95,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
 
     std::filesystem::path SimpleShaderPath = GetCurrentFilePath() / "test_shaders/TestComplex.frag";
     VulkanShaderCompiler Compiler;
+    Compiler.SetOptimizationLevel(VulkanRHI::VulkanShaderCompiler::OptimizationLevel::None);
 
     Ref<VulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
     REQUIRE(ShaderResult);
