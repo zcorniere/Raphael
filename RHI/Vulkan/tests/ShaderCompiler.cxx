@@ -43,6 +43,7 @@ TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
 
     std::filesystem::path SimpleShaderPath = GetCurrentFilePath() / "test_shaders/SimpleShader.vert";
     VulkanShaderCompiler Compiler;
+    Compiler.SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::None);
 
     Ref<VulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
     REQUIRE(ShaderResult);
@@ -54,7 +55,7 @@ TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
         CHECK(ShaderResult == CachedResult);
     }
 
-    CHECK(ShaderResult->GetShaderType() == RHIShaderType::Vertex);
+    CHECK(ShaderResult->GetShaderType() == ERHIShaderType::Vertex);
 
     const VulkanShader::ReflectionData ExpectedReflection{
         .StageInput =
@@ -94,11 +95,12 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
 
     std::filesystem::path SimpleShaderPath = GetCurrentFilePath() / "test_shaders/TestComplex.frag";
     VulkanShaderCompiler Compiler;
+    Compiler.SetOptimizationLevel(VulkanRHI::VulkanShaderCompiler::OptimizationLevel::None);
 
     Ref<VulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
     REQUIRE(ShaderResult);
 
-    CHECK(ShaderResult->GetShaderType() == RHIShaderType::Pixel);
+    CHECK(ShaderResult->GetShaderType() == ERHIShaderType::Pixel);
 
     struct ShaderPushConstantStruct {
         uint32 pointLightCount;

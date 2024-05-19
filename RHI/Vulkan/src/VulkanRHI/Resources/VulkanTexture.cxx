@@ -1,6 +1,7 @@
 #include "VulkanRHI/Resources/VulkanTexture.hxx"
 
-#include "Engine/Core/RHI/RHICommandQueue.hxx"
+#include "Engine/Core/RHI/RHICommandList.hxx"
+#include "VulkanRHI/VulkanCommandContext.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanMemoryManager.hxx"
@@ -42,9 +43,13 @@ void VulkanTexture::SetName(std::string_view InName)
 void VulkanTexture::Invalidate()
 {
     ENQUEUE_RENDER_COMMAND(InvalidateTexture)
-    ([instance = Ref(this)] mutable {
+    ([instance = WeakRef(this)](RHICommandList& CommandList) mutable {
+        const VkImageLayout Layout = instance->GetLayout();
         instance->DestroyTexture();
         instance->CreateTexture();
+
+        VulkanCommandContext* Context = dynamic_cast<VulkanCommandContext*>(CommandList.GetContext());
+        Context->SetLayout(instance.Raw(), Layout);
     });
 }
 
@@ -87,11 +92,6 @@ VkImageLayout VulkanTexture::GetLayout() const
     return Layout;
 }
 
-void VulkanTexture::SetLayout(VkImageLayout NewLayout)
-{
-    Layout = NewLayout;
-}
-
 void VulkanTexture::SetLayout(VulkanCmdBuffer* CmdBuffer, VkImageLayout NewLayout)
 {
     VkImageAspectFlags AspectMask = 0;
@@ -107,7 +107,7 @@ void VulkanTexture::SetLayout(VulkanCmdBuffer* CmdBuffer, VkImageLayout NewLayou
     }
     VkImageSubresourceRange Range = Barrier::MakeSubresourceRange(AspectMask, 0, Description.NumMips);
     VulkanSetImageLayout(CmdBuffer->GetHandle(), Image, Layout, NewLayout, Range);
-    SetLayout(NewLayout);
+    Layout = NewLayout;
 }
 
 void VulkanTexture::CreateTexture()
@@ -170,6 +170,7 @@ void VulkanTexture::CreateTexture()
     }
 
     VK_CHECK_RESULT(VulkanAPI::vkCreateImage(Device->GetHandle(), &ImageCreateInfo, VULKAN_CPU_ALLOCATOR, &Image));
+
     VulkanAPI::vkGetImageMemoryRequirements(Device->GetHandle(), Image, &MemoryRequirements);
 
     Allocation = Device->GetMemoryManager()->Alloc(MemoryRequirements, VMA_MEMORY_USAGE_GPU_ONLY, false);
@@ -187,6 +188,22 @@ void VulkanTexture::DestroyTexture()
     VulkanAPI::vkDestroyImage(Device->GetHandle(), Image, VULKAN_CPU_ALLOCATOR);
     Image = VK_NULL_HANDLE;
     Layout = VK_IMAGE_LAYOUT_UNDEFINED;
+}
+
+VkImageLayout VulkanTexture::GetDefaultLayout() const
+{
+    switch (Description.Flags) {
+        case ETextureUsageFlags::RenderTargetable:
+            return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        case ETextureUsageFlags::DepthStencilTargetable:
+            return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        case ETextureUsageFlags::SampleTargetable:
+            return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        case ETextureUsageFlags::TransferTargetable:
+            return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        default:
+            return VK_IMAGE_LAYOUT_UNDEFINED;
+    }
 }
 
 //////////////////// VulkanTextureView ////////////////////

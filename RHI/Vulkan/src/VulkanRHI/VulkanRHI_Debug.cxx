@@ -1,9 +1,10 @@
+#include "VulkanRHI/VulkanRHI_Debug.hxx"
+
 #include "VulkanRHI/VulkanRHI.hxx"
 
 #include "VulkanRHI/VulkanLoader.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
 
-#include "VulkanRHI.hxx"
 #include <ranges>
 
 #if VULKAN_DEBUGGING_ENABLED
@@ -81,7 +82,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
 namespace VulkanRHI
 {
 
-Array<const char*> VulkanDynamicRHI::GetSupportedInstanceLayers()
+Array<const char*> VulkanRHI_Debug::GetSupportedInstanceLayers()
 {
     static const Array<const char*> ExpectedValidationLayers{"VK_LAYER_KHRONOS_validation"};
     Array<const char*> FoundLayers;
@@ -110,7 +111,6 @@ Array<const char*> VulkanDynamicRHI::GetSupportedInstanceLayers()
         };
         Array<const char*> MissingLayer;
         LOG(LogVulkanRHI, Error, "Some Validation layers was not found !");
-        // @WATCHME: LLVM 16 should fix the compilation error
         for (const char* Layer: ExpectedValidationLayers | std::views::filter(FilterLambda)) {
             LOG(LogVulkanRHI, Error, "- {}", Layer);
         }
@@ -118,7 +118,7 @@ Array<const char*> VulkanDynamicRHI::GetSupportedInstanceLayers()
     return FoundLayers;
 }
 
-void VulkanDynamicRHI::SetupDebugLayerCallback()
+void VulkanRHI_Debug::SetupDebugLayer(VkInstance Instance)
 {
     VkDebugUtilsMessengerCreateInfoEXT CreateInfo{
         .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
@@ -129,17 +129,17 @@ void VulkanDynamicRHI::SetupDebugLayerCallback()
         .pfnUserCallback = VulkanDebugUtilsMessengerCallback,
     };
     VkResult Result =
-        VulkanAPI::vkCreateDebugUtilsMessengerEXT(m_Instance, &CreateInfo, VULKAN_CPU_ALLOCATOR, &Messenger);
+        VulkanAPI::vkCreateDebugUtilsMessengerEXT(Instance, &CreateInfo, VULKAN_CPU_ALLOCATOR, &Messenger);
     ensure(Result == VK_SUCCESS);
 }
 
-void VulkanDynamicRHI::RemoveDebugLayerCallback()
+void VulkanRHI_Debug::RemoveDebugLayer(VkInstance Instance)
 {
     if (Messenger != VK_NULL_HANDLE) {
-        VulkanAPI::vkDestroyDebugUtilsMessengerEXT(m_Instance, Messenger, VULKAN_CPU_ALLOCATOR);
+        VulkanAPI::vkDestroyDebugUtilsMessengerEXT(Instance, Messenger, VULKAN_CPU_ALLOCATOR);
     }
 }
 
 }    // namespace VulkanRHI
 
-#endif
+#endif    // VULKAN_DEBUGGING_ENABLED

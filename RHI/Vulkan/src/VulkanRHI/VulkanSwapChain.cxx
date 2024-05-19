@@ -104,16 +104,17 @@ VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool Loc
     }
 }
 
-VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent() const noexcept
+VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const glm::uvec2& InSize) const noexcept
 {
-    check(Capabilities.currentExtent.width != UINT32_MAX);
-    // Always return the current extent of the swapchain
-    return Capabilities.currentExtent;
+    return {
+        .width = std::min(InSize.x, Capabilities.maxImageExtent.width),
+        .height = std::min(InSize.y, Capabilities.maxImageExtent.height),
+    };
 }
 
-VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, Window* WindowHandle,
-                                 uint32 InDesiredNumBackBuffers, Array<VkImage>& OutImages, bool LockToVSync,
-                                 VulkanSwapChainRecreateInfo* RecreateInfo)
+VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, const glm::uvec2& InSize,
+                                 Window* WindowHandle, uint32 InDesiredNumBackBuffers, Array<VkImage>& OutImages,
+                                 bool LockToVSync, VulkanSwapChainRecreateInfo* RecreateInfo)
     : IDeviceChild(InDevice),
       CurrentImageIndex(-1),
       SemaphoreIndex(0),
@@ -133,7 +134,7 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, 
     const SupportDetails SwapChainSupport = SupportDetails::QuerySwapChainSupport(Device, Surface);
     VkSurfaceFormatKHR SurfaceFormat = SwapChainSupport.ChooseSwapSurfaceFormat();
     VkPresentModeKHR PresentMode = SwapChainSupport.ChooseSwapPresentMode(LockToVSync);
-    VkExtent2D Extent = SwapChainSupport.ChooseSwapExtent();
+    VkExtent2D Extent = SwapChainSupport.ChooseSwapExtent(InSize);
 
     uint32 ImageCount = std::max(SwapChainSupport.Capabilities.minImageCount + 1, InDesiredNumBackBuffers);
     if (SwapChainSupport.Capabilities.maxImageCount > 0 && ImageCount > SwapChainSupport.Capabilities.maxImageCount) {
@@ -188,19 +189,19 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, 
     VK_CHECK_RESULT_EXPANDED(
         VulkanAPI::vkGetSwapchainImagesKHR(Device->GetHandle(), SwapChain, &NumSwapchainImages, nullptr));
     OutImages.Resize(NumSwapchainImages);
-    VK_CHECK_RESULT_EXPANDED(VulkanAPI::vkGetSwapchainImagesKHR(Device->GetHandle(), SwapChain,
-                                                                &NumSwapchainImages, OutImages.Raw()));
+    VK_CHECK_RESULT_EXPANDED(
+        VulkanAPI::vkGetSwapchainImagesKHR(Device->GetHandle(), SwapChain, &NumSwapchainImages, OutImages.Raw()));
 
     ImageAcquiredSemaphore.Resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
         ImageAcquiredSemaphore[BufferIndex] = Ref<Semaphore>::Create(Device);
-        ImageAcquiredSemaphore[BufferIndex]->SetName(std::format("Swapchain Semaphore Image Acquired {}", BufferIndex));
+        ImageAcquiredSemaphore[BufferIndex]->SetName(std::format("{}.SwapchainImageAcquired", BufferIndex));
     }
 
     ImageInUseFence.Resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
         ImageInUseFence[BufferIndex] = Ref<Fence>::Create(Device, true);
-        ImageInUseFence[BufferIndex]->SetName(std::format("Swapchain Fence Image In Use {}", BufferIndex));
+        ImageInUseFence[BufferIndex]->SetName(std::format("{}.SwapchainImageInUse", BufferIndex));
     }
 }
 
@@ -275,7 +276,7 @@ int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore>& OutSemaphore)
     const int32 PrevSemaphoreIndex = SemaphoreIndex;
     SemaphoreIndex = (SemaphoreIndex + 1) % ImageAcquiredSemaphore.Size();
 
-    Ref<Fence> AcquiredFence = ImageInUseFence[SemaphoreIndex];
+    Ref<Fence>& AcquiredFence = ImageInUseFence[SemaphoreIndex];
     AcquiredFence->Reset();
 
     VkResult Result = VulkanAPI::vkAcquireNextImageKHR(Device->GetHandle(), SwapChain, UINT64_MAX,

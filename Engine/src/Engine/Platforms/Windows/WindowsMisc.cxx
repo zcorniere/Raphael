@@ -2,9 +2,11 @@
 
 #include "Engine/Core/Memory/MiMalloc.hxx"
 
+#include <windows.h>
+
 #include <libloaderapi.h>
 #include <shlobj_core.h>
-#include <winuser.h>
+
 
 EBoxReturnType WindowsMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
                                               const std::string_view Caption)
@@ -49,12 +51,12 @@ WindowsExternalModule::WindowsExternalModule(std::string_view ModulePath): IExte
 
 WindowsExternalModule::~WindowsExternalModule()
 {
-    ::FreeLibrary(ModuleHandle);
+    ::FreeLibrary(HMODULE(ModuleHandle));
 }
 
 void* WindowsExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
 {
-    return ::GetProcAddress(ModuleHandle, SymbolName.data());
+    return ::GetProcAddress(HMODULE(ModuleHandle), SymbolName.data());
 }
 
 Malloc* WindowsMisc::BaseAllocator()

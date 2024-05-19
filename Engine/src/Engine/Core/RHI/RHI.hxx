@@ -11,7 +11,7 @@ enum class RHIInterfaceType {
     Vulkan,
 };
 
-class RHICommandQueue;
+class RHICommandList;
 
 class GenericRHI;
 
@@ -42,22 +42,14 @@ void Tick(float fDeltaTime);
 /// @brief Delete the current RHI
 void Destroy();
 
-/// @brief Return the command queue of the RHI
-RHICommandQueue* GetRHICommandQueue();
-
 /// -------------- RHI Operations --------------
 
 /// @brief Mark the beginning of a new frame
 void BeginFrame();
 /// @brief Mark the end of the current frame
 void EndFrame();
-/// @brief Indicate the RHI that we are starting drawing
-void BeginRenderPass(const RHIRenderPassDescription& Renderpass, const RHIFramebufferDefinition& Framebuffer);
-/// @brief Indicate the RHI that we are done rendering for now
-void EndRenderPass();
 
-/// Temp
-void Draw(Ref<RHIGraphicsPipeline>& Pipeline);
+void RHIWaitUntilIdle();
 
 /// Create a new RHI viewport - through the current RHI
 Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize);

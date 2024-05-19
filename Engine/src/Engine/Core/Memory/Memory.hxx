@@ -34,7 +34,10 @@ class Allocator
 public:
     using value_type = T;
 
-    Allocator() = default;
+    constexpr Allocator() = default;
+    constexpr ~Allocator() = default;
+    constexpr Allocator(const Allocator&) noexcept = default;
+    constexpr Allocator(Allocator&&) noexcept = default;
 
     template <class U>
     constexpr Allocator(const Allocator<U>&) noexcept
@@ -68,6 +71,11 @@ public:
         (void)n;
         if (pPointer)
             Memory::Free(pPointer);
+    }
+
+    bool operator==(const Allocator&) const
+    {
+        return true;
     }
 };
 

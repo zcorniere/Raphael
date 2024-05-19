@@ -1,4 +1,4 @@
-#version 460
+#version 450
 
 struct PointLight {
     vec4 position;
@@ -259,6 +259,9 @@ void main()
     color = color / (color + vec3(1.0));
     // gamma correct
     color = pow(color, vec3(1.0 / 2.2));
+
+    // Just to not have the input stage deleted
+    outColor = fragTangent;
 
     outColor = vec4(color, baseColor.a);
 }

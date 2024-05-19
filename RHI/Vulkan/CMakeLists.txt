@@ -52,6 +52,7 @@ build_tests(${PROJECT_NAME} tests/ShaderCompiler.cxx)
 target_include_directories(${PROJECT_NAME}_Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_precompile_headers(${PROJECT_NAME}_Test PRIVATE VulkanRHI.pch.hxx)
 target_link_libraries(${PROJECT_NAME}_Test PRIVATE Vulkan::Headers)
+target_compile_definitions(${PROJECT_NAME}_Test PRIVATE VK_NO_PROTOTYPES=1)
 
 if(RPH_ENABLE_PROFILING)
     target_compile_definitions(${PROJECT_NAME} PUBLIC RPH_ENABLE_PROFILING=1)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/RHI/RHICommandQueue.hxx"
+#include "Engine/Core/RHI/RHIContext.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
 
 #include "Engine/Core/RHI/RHI.hxx"
@@ -10,9 +10,7 @@ DECLARE_LOGGER_CATEGORY(Core, LogRHI, Info);
 class GenericRHI
 {
 public:
-    virtual ~GenericRHI()
-    {
-    }
+    virtual ~GenericRHI() = default;
 
     /// Initialize the RHI
     virtual void Init() = 0;
@@ -34,19 +32,16 @@ public:
         return RHIInterfaceType::Null;
     }
 
+    virtual void WaitUntilIdle() = 0;
+
     // ---------------------- RHI Operations --------------------- //
-    /// @copydoc RHI::BeginFrame
-    virtual void BeginFrame() = 0;
-    /// @copydoc RHI::EndFrame
-    virtual void EndFrame() = 0;
 
-    /// @copydoc RHI::BeginRenderPass
-    virtual void BeginRenderPass(const RHIRenderPassDescription& Renderpass,
-                                 const RHIFramebufferDefinition& Framebuffer) = 0;
-    /// @copydoc RHI::EndRenderPass
-    virtual void EndRenderPass() = 0;
+    /// @brief Submit a list of command lists to the RHI
+    virtual void RHISubmitCommandLists(RHICommandList* const CommandLists, std::uint32_t NumCommandLists) = 0;
+    virtual RHIContext* RHIGetCommandContext() = 0;
+    virtual void RHIReleaseCommandContext(RHIContext*) = 0;
 
-    virtual void Draw(Ref<RHIGraphicsPipeline>& Pipeline) = 0;
+    // virtual void Draw(Ref<RHIGraphicsPipeline>& Pipeline) = 0;
 
     /// @copydoc RHI::CreateViewport
     virtual Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize) = 0;

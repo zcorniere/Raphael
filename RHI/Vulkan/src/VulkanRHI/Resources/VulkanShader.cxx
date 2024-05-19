@@ -23,7 +23,8 @@ void VulkanShader::ShaderHandle::SetName(std::string_view Name)
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SHADER_MODULE, Handle, "{:s}", Name);
 }
 
-VulkanShader::VulkanShader(RHIShaderType Type, const Array<uint32>& InSPIRVCode, const ReflectionData& InReflectionData)
+VulkanShader::VulkanShader(ERHIShaderType Type, const Array<uint32>& InSPIRVCode,
+                           const ReflectionData& InReflectionData)
     : RHIShader(Type), SPIRVCode(InSPIRVCode), m_ReflectionData(InReflectionData), Type(Type), m_ShaderHandle(nullptr)
 {
 }

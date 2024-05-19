@@ -2,6 +2,11 @@
 
 #include <magic_enum.hpp>
 
+#define __MACRO_EXPENDER_INTERNAL(X, Y) X##Y
+#define MACRO_EXPENDER(X, Y) __MACRO_EXPENDER_INTERNAL(X, Y)
+
+#define STR(x) #x
+
 #define RPH_NONCOPYABLE(Name)              \
     Name(Name&&) = delete;                 \
     Name(const Name&) = delete;            \
@@ -46,10 +51,10 @@ constexpr std::false_type AlwaysFalse{};
 template <typename T>
 /// Only accept hashable type
 concept CHashable = requires(T a) {
-                        {
-                            std::hash<T>{}(a)
-                            } -> std::convertible_to<std::size_t>;
-                    };
+    {
+        std::hash<T>{}(a)
+    } -> std::convertible_to<std::size_t>;
+};
 
 /// Is the template argument a function pointer ?
 template <typename T>

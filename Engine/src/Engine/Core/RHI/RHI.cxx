@@ -1,17 +1,13 @@
 #include "Engine/Core/RHI/RHI.hxx"
 
 #include "Engine/Core/RHI/GenericRHI.hxx"
-#include "Engine/Core/RHI/RHICommandQueue.hxx"
+#include "Engine/Core/RHI/RHICommandList.hxx"
 #include "Engine/Core/Window.hxx"
-
-static RHICommandQueue* s_CommandQueue = nullptr;
 
 GenericRHI* GDynamicRHI = nullptr;
 
 void RHI::Create()
 {
-    s_CommandQueue = new RHICommandQueue;
-
     GDynamicRHI = RHI_CreateRHI();
 }
 
@@ -19,23 +15,13 @@ void RHI::Destroy()
 {
     GDynamicRHI->Shutdown();
 
-    delete s_CommandQueue;
-    s_CommandQueue = nullptr;
-
     delete GDynamicRHI;
     GDynamicRHI = nullptr;
-}
-
-RHICommandQueue* RHI::GetRHICommandQueue()
-{
-    check(s_CommandQueue);
-    return s_CommandQueue;
 }
 
 /// RHI Forwarding
 void RHI::BeginFrame()
 {
-    return RHI::Get()->BeginFrame();
 }
 
 void RHI::Tick(float fDeltaTime)
@@ -45,24 +31,17 @@ void RHI::Tick(float fDeltaTime)
 
 void RHI::EndFrame()
 {
-    RHI::Get()->EndFrame();
+    // Run the command list
+    RHIContext* const Context = RHI::Get()->RHIGetCommandContext();
+    RHICommandListExecutor::Get().GetCommandList().Execute(Context);
+    RHI::Get()->RHIReleaseCommandContext(Context);
 
     GFrameCounter += 1;
 }
 
-void RHI::BeginRenderPass(const RHIRenderPassDescription& Renderpass, const RHIFramebufferDefinition& Framebuffer)
+void RHI::RHIWaitUntilIdle()
 {
-    return RHI::Get()->BeginRenderPass(Renderpass, Framebuffer);
-}
-
-void RHI::EndRenderPass()
-{
-    return RHI::Get()->EndRenderPass();
-}
-
-void RHI::Draw(Ref<RHIGraphicsPipeline>& Pipeline)
-{
-    return RHI::Get()->Draw(Pipeline);
+    RHI::Get()->WaitUntilIdle();
 }
 
 //

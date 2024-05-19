@@ -5,8 +5,6 @@
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
 #include "Engine/Core/RHI/Resources/RHIShader.hxx"
 
-#include "VulkanRHI/VulkanLoader.hxx"
-
 #define VK_CHECK_RESULT(f)                                  \
     {                                                       \
         const VkResult ScopedResult = (f);                  \
@@ -80,7 +78,7 @@ FORCEINLINE VkFormat VertexElementToFormat(const EVertexElementType Type)
     checkNoEntry();
 }
 
-/// Transform RHI Image Format to VC_FORMAT_*
+/// Transform RHI Image Format to VK_FORMAT_*
 FORCEINLINE VkFormat ImageFormatToFormat(const EImageFormat Format)
 {
     switch (Format) {
@@ -95,7 +93,7 @@ FORCEINLINE VkFormat ImageFormatToFormat(const EImageFormat Format)
     }
     checkNoEntry();
 }
-/// Transform RHI Image Format to VC_FORMAT_*
+/// Transform RHI Image Format to VK_FORMAT_*
 FORCEINLINE EImageFormat VkFormatToImageFormat(const VkFormat Format)
 {
     switch (Format) {
@@ -133,6 +131,30 @@ FORCEINLINE VkImageAspectFlags TextureUsageFlagToVkImageAspectFlags(ETextureUsag
         ReturnFlag |= VK_IMAGE_ASPECT_DEPTH_BIT;
     }
     return ReturnFlag;
+}
+
+FORCEINLINE VkAttachmentLoadOp RenderTargetLoadActionToVkAttachmentLoadOp(ERenderTargetLoadAction Action)
+{
+    switch (Action) {
+        case ERenderTargetLoadAction::Load:
+            return VK_ATTACHMENT_LOAD_OP_LOAD;
+        case ERenderTargetLoadAction::Clear:
+            return VK_ATTACHMENT_LOAD_OP_CLEAR;
+        case ERenderTargetLoadAction::NoAction:
+            return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    }
+    checkNoEntry();
+}
+
+FORCEINLINE VkAttachmentStoreOp RenderTargetStoreActionToVkAttachmentStoreOp(ERenderTargetStoreAction Action)
+{
+    switch (Action) {
+        case ERenderTargetStoreAction::Store:
+            return VK_ATTACHMENT_STORE_OP_STORE;
+        case ERenderTargetStoreAction::NoAction:
+            return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    }
+    checkNoEntry();
 }
 
 FORCEINLINE VkImageUsageFlags TextureUsageFlagsToVkImageUsageFlags(ETextureUsageFlags CreateFlags)
@@ -177,14 +199,14 @@ FORCEINLINE VkPolygonMode ConvertToVulkanType(EPolygonMode Mode)
 }
 
 /// Convert the ShaderType to VK_SHADER_STAGE*
-FORCEINLINE VkShaderStageFlagBits ConvertToVulkanType(RHIShaderType Type)
+FORCEINLINE VkShaderStageFlagBits ConvertToVulkanType(ERHIShaderType Type)
 {
     switch (Type) {
-        case RHIShaderType::Vertex:
+        case ERHIShaderType::Vertex:
             return VK_SHADER_STAGE_VERTEX_BIT;
-        case RHIShaderType::Pixel:
+        case ERHIShaderType::Pixel:
             return VK_SHADER_STAGE_FRAGMENT_BIT;
-        case RHIShaderType::Compute:
+        case ERHIShaderType::Compute:
             return VK_SHADER_STAGE_COMPUTE_BIT;
     }
     checkNoEntry();

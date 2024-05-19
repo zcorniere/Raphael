@@ -78,7 +78,7 @@ public:
     /// Get the current ref count
     std::uint32_t GetRefCount() const
     {
-        return m_RefCount.load(std::memory_order_acq_rel);
+        return m_RefCount.load(std::memory_order_relaxed);
     }
 
 private:
@@ -107,7 +107,7 @@ private:
     }
 
 private:
-    std::string_view m_TypeName;
+    std::string m_TypeName;
     mutable std::atomic<std::uint32_t> m_RefCount = 0;
 
     // Allow Refs to access private members
@@ -308,6 +308,8 @@ private:
             return;
 
         m_ObjPtr->IncrementRefCount();
+        LOG(RObjectUtils::LogRObject, Trace, "Increment RObject {:s} refcount: {}", m_ObjPtr->ToString(),
+            m_ObjPtr->GetRefCount());
         RObjectUtils::AddToLiveReferences(m_ObjPtr);
     }
 
@@ -319,6 +321,8 @@ private:
             return;
 
         m_ObjPtr->DecrementRefCount();
+        LOG(RObjectUtils::LogRObject, Trace, "Decrement RObject {:s} refcount: {}", m_ObjPtr->ToString(),
+            m_ObjPtr->GetRefCount());
 
         if (m_ObjPtr->GetRefCount() > 0)
             return;

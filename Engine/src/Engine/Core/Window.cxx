@@ -10,7 +10,7 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogWindow, Info);
 
-bool GGLFWInitialized = false;
+int GLFWInitializedCount = 0;
 
 bool Window::EnsureGLFWInit()
 {
@@ -35,6 +35,8 @@ Window::~Window()
 
 void Window::Initialize(const WindowDefinition& InDefinition)
 {
+    GLFWInitializedCount += 1;
+
     Definition = InDefinition;
     checkMsg(Definition.EventCallback, "You must provide an event callback !");
 
@@ -90,6 +92,12 @@ void Window::Destroy()
     LOG(LogWindow, Info, "Destroying GLFW Window '{:p}'", (void*)p_Handle);
     glfwDestroyWindow(p_Handle);
     p_Handle = nullptr;
+
+    GLFWInitializedCount -= 1;
+    if (GLFWInitializedCount == 0) {
+        LOG(LogWindow, Info, "Terminating GLFW.");
+        glfwTerminate();
+    }
 }
 
 void Window::Minimize()
@@ -179,7 +187,7 @@ void Window::ProcessEvents()
 
 bool Window::InitializeGLFW()
 {
-    if (GGLFWInitialized) {
+    if (GLFWInitializedCount > 0) {
         return true;
     }
     LOG(LogWindow, Info, "Initializing GLFW.");
@@ -205,7 +213,6 @@ bool Window::InitializeGLFW()
     LOG(LogWindow, Info, "Initialized GLFW {:d}.{:d}.{:d}  (compiled against {:d}.{:d}.{:d})", Major, Minor, Revision,
         GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION);
 
-    GGLFWInitialized = true;
     return true;
 }
 

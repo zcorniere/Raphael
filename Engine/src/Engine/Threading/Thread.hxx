@@ -3,8 +3,6 @@
 #include <string>
 #include <thread>
 
-#include "Engine/Core/Memory/SmartPointers.hxx"
-
 #include "Engine/Threading/ThreadRuntime.hxx"
 
 ///
@@ -37,7 +35,7 @@ public:
     ///
     /// @param name the name of the new thread
     /// @param threadCode The runtime to be executed in the thread
-    void Create(const std::string& name, UniquePtr<ThreadRuntime> threadCode);
+    void Create(const std::string& name, std::unique_ptr<ThreadRuntime> threadCode);
 
 protected:
     /// Executed from the thread when started
@@ -53,5 +51,5 @@ private:
 private:
     std::string m_name;
     std::jthread m_managedThread;
-    UniquePtr<ThreadRuntime> m_internalRuntime;
+    std::unique_ptr<ThreadRuntime> m_internalRuntime;
 };

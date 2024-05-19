@@ -1,5 +1,4 @@
 #include "VulkanRHI/VulkanPlatform.hxx"
-#include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 #include "VulkanRHI/VulkanRHI.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
@@ -114,27 +113,11 @@ void VulkanPlatform::FreeVulkanLibrary()
     }
 }
 
-void VulkanPlatform::GetInstanceExtensions(Array<const char*>& OutExtensions)
-{
-    Window::EnsureGLFWInit();
-
-    uint32 glfwExtensionCount = 0;
-    const char** glfwExtentsions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-    for (uint32 i = 0; i < glfwExtensionCount; i++) {
-        OutExtensions.Add(glfwExtentsions[i]);
-    }
-}
-
-void VulkanPlatform::GetDeviceExtensions([[maybe_unused]] VulkanDevice* Device,
-                                         [[maybe_unused]] Array<const char*>& OutExtensions)
-{
-}
-
 void VulkanPlatform::CreateSurface(Window* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface)
 {
     Window::EnsureGLFWInit();
 
     VK_CHECK_RESULT(glfwCreateWindowSurface(Instance, WindowHandle->GetHandle(), VULKAN_CPU_ALLOCATOR, OutSurface));
 }
+
 }    // namespace VulkanRHI

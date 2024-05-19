@@ -1,7 +1,5 @@
 #pragma once
 
-#include "VulkanRHI/VulkanLoader.hxx"
-
 #include "VulkanRHI/VulkanSynchronization.hxx"
 
 namespace VulkanRHI
@@ -14,9 +12,12 @@ class VulkanCommandBufferPool;
 class VulkanCommandBufferManager;
 class VulkanGraphicsPipeline;
 
-class VulkanCmdBuffer : public RObject, public IDeviceChild
+class VulkanCmdBuffer : public NamedClass, public IDeviceChild
+/// This class encapsulate a Vulkan command buffer
 {
+    RPH_NONCOPYABLE(VulkanCmdBuffer)
 public:
+    /// The state of the command buffer
     enum class EState : uint8 {
         ReadyForBegin = 0,
         IsInsideBegin = 1,
@@ -29,25 +30,28 @@ public:
 
 public:
     VulkanCmdBuffer() = delete;
-    VulkanCmdBuffer(VulkanDevice* InDevice, WeakRef<VulkanCommandBufferPool> InCommandPool);
+    VulkanCmdBuffer(VulkanDevice* InDevice, VulkanCommandBufferPool* InCommandPool);
     ~VulkanCmdBuffer();
 
     virtual void SetName(std::string_view InName) override;
 
+    /// Mark the command buffer as ready to be record command
     void Begin();
+    /// End the recording of the command buffer
     void End();
 
-    void BeginRenderPass(const VkRenderPassBeginInfo& RenderPassBeginInfo);
-    void EndRenderPass();
+    void BeginRendering(const VkRenderingInfo& RenderingInfo);
+    void EndRendering();
 
-    void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, Ref<Semaphore> InSemaphore);
+    /// Adds a pipeline semaphore for the given stage
+    void AddWaitSemaphore(VkPipelineStageFlags InWaitFlags, const Ref<Semaphore>& InSemaphore);
 
     inline VkCommandBuffer GetHandle() const
     {
         return m_CommandBufferHandle;
     }
 
-    inline WeakRef<VulkanCommandBufferPool> GetOwner() const
+    inline VulkanCommandBufferPool* GetOwner() const
     {
         return m_OwnerPool;
     }
@@ -82,89 +86,108 @@ public:
         return State != EState::NotAllocated;
     }
 
+    /// Check the internal fence has been signaled, meaning the command buffer is ready to be reset
+    void RefreshFenceStatus();
+
 private:
     void Allocate();
     void Free();
 
-    void RefreshFenceStatus();
-
 public:
+    /// The current state of the command buffer
     EState State;
 
 private:
-    WeakRef<VulkanCommandBufferPool> m_OwnerPool;
+    VulkanCommandBufferPool* m_OwnerPool = nullptr;
+    ;
 
-    Ref<Fence> m_Fence;
+    Ref<Fence> m_Fence = nullptr;
     Array<VkPipelineStageFlags> WaitFlags;
     Array<Ref<Semaphore>> WaitSemaphore;
 
-    VkCommandBuffer m_CommandBufferHandle;
+    VkCommandBuffer m_CommandBufferHandle = VK_NULL_HANDLE;
 
-    friend class VulkanCommandBufferManager;
-    friend class VulkanCommandBufferPool;
     friend class VulkanQueue;
 };
 
-class VulkanCommandBufferPool : public RObject, public IDeviceChild
+/// This class encapsulate a Vulkan command buffer pool
+class VulkanCommandBufferPool : public NamedClass, public IDeviceChild
 {
+    RPH_NONCOPYABLE(VulkanCommandBufferPool)
 public:
     VulkanCommandBufferPool() = delete;
-    VulkanCommandBufferPool(VulkanDevice* InDevice, VulkanCommandBufferManager* InManager);
+    VulkanCommandBufferPool(VulkanDevice* InDevice);
     ~VulkanCommandBufferPool();
 
     virtual void SetName(std::string_view InName) override final;
 
     void Initialize(uint32 QueueFamilyIndex);
-    [[nodiscard]] Ref<VulkanCmdBuffer> CreateCmdBuffer();
+
+    /// Find a valid command buffer, or create it if needed
+    /// @return A valid command buffer, ready to be used
+    [[nodiscard]] VulkanCmdBuffer* GetCommandBuffer();
 
     VkCommandPool GetHandle() const
     {
         return m_Handle;
     }
 
-    void RefreshFenceStatus(const Ref<VulkanCmdBuffer>& SkipCmdBuffer);
+    void RefreshFenceStatus(const VulkanCmdBuffer* SkipCmdBuffer);
 
 private:
-    VkCommandPool m_Handle;
-    Array<Ref<VulkanCmdBuffer>> m_CmdBuffers;
-    Array<Ref<VulkanCmdBuffer>> m_FreeCmdBuffers;
-
-    VulkanCommandBufferManager* p_Manager;
-
-    friend class VulkanCommandBufferManager;
+    VkCommandPool m_Handle = VK_NULL_HANDLE;
+    Array<VulkanCmdBuffer*> m_CmdBuffers;
 };
 
+/// @brief Manages the command buffers belonging to a queue
+/// @details It is responsible for the allocation and submission of command buffers
+///
+/// It manage two command buffers:
+/// - The active command buffer, used for rendering
+/// - The upload command buffer, used for uploading resources to the GPU
 class VulkanCommandBufferManager : public IDeviceChild
 {
+    RPH_NONCOPYABLE(VulkanCommandBufferManager)
 public:
+    VulkanCommandBufferManager() = delete;
+    /// Construct a command buffer manager for the given queue
     VulkanCommandBufferManager(VulkanDevice* InDevice, VulkanQueue* InQueue);
+    /// Destruct the command buffer manager, and all its command buffers as well
     ~VulkanCommandBufferManager();
 
-    // Update the fences of all cmd buffers except SkipCmdBuffer
-    void RefreshFenceStatus(Ref<VulkanCmdBuffer> SkipCmdBuffer = nullptr)
+    /// Update the fences of all cmd buffers except the one givent as argument
+    /// @arg SkipCmdBuffer the command buffer to skip
+    void RefreshFenceStatus(VulkanCmdBuffer* SkipCmdBuffer = nullptr)
     {
         Pool->RefreshFenceStatus(SkipCmdBuffer);
     }
 
-    WeakRef<VulkanCmdBuffer> GetActiveCmdBuffer();
-    WeakRef<VulkanCmdBuffer> GetUploadCmdBuffer();
+    /// @brief Return the active command buffer
+    /// @note Calling this function will submit the upload command buffer to the queue
+    VulkanCmdBuffer* GetActiveCmdBuffer();
+    /// @brief Return the upload command buffer
+    VulkanCmdBuffer* GetUploadCmdBuffer();
 
+    /// Ask the manager to find an available command buffer for the next frame
     void PrepareForNewActiveCommandBuffer();
 
-    void SubmitUploadCmdBuffer(Ref<Semaphore> SignalSemaphore = nullptr);
+    /// Submit the upload command buffer to the queue
+    void SubmitUploadCmdBuffer(const Ref<Semaphore>& SignalSemaphore = nullptr);
 
-    void SubmitActiveCmdBuffer(Ref<Semaphore> SignalSemaphore = nullptr);
-    void SubmitActiveCmdBufferFromPresent(Ref<Semaphore> SignalSemaphore = nullptr);
+    /// Submit the active command buffer to the queue
+    void SubmitActiveCmdBuffer(const Ref<Semaphore>& SignalSemaphore = nullptr);
+    void SubmitActiveCmdBufferFromPresent(const Ref<Semaphore>& SignalSemaphore = nullptr);
 
 private:
-    Ref<VulkanCmdBuffer> FindAvailableCmdBuffer();
+    VulkanCmdBuffer* FindAvailableCmdBuffer();
 
 private:
-    VulkanQueue* Queue;
+    VulkanQueue* Queue = nullptr;
 
-    Ref<VulkanCommandBufferPool> Pool;
-    Ref<VulkanCmdBuffer> ActiveCmdBuffer;
-    Ref<VulkanCmdBuffer> UploadCmdBuffer;
+    VulkanCommandBufferPool* Pool = nullptr;
+
+    VulkanCmdBuffer* ActiveCmdBufferRef = nullptr;
+    VulkanCmdBuffer* UploadCmdBufferRef = nullptr;
 };
 
 }    // namespace VulkanRHI

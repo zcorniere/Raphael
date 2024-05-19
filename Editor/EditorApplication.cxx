@@ -1,7 +1,7 @@
 #include "EditorApplication.hxx"
 
-#include <Engine/Core/FrameGraph/FrameGraph.hxx>
 #include <Engine/Core/Log.hxx>
+#include <Engine/Core/RHI/RHICommandList.hxx>
 #include <Engine/Core/RHI/Resources/RHIViewport.hxx>
 #include <Engine/Platforms/PlatformMisc.hxx>
 
@@ -32,26 +32,6 @@ bool EditorApplication::OnEngineInitialization()
 
     BaseApplication::OnEngineInitialization();
 
-#if 0
-    struct FrameData {
-        FrameGraphResource Texture;
-        FrameGraphResource Shader;
-    };
-    FrameGraph Graph;
-    Graph.AddCallbackPass<FrameData>(
-        "Test pass",
-        [](FrameGraphBuilder& Builder, FrameData& Data) {
-            RHITextureSpecification Description{};
-            Data.Texture = Builder.Create<RHIResourceType::Texture>("Test_Texture", Description);
-            Data.Shader = Builder.Create<RHIResourceType::Shader>("Triangle_shader",
-                                                                  std::filesystem::path("DefaultTriangle.vert"), false);
-
-            LOG(LogApplication, Info, "Setup");
-        },
-        [](const FrameData&, FrameGraphPassResources&) { LOG(LogApplication, Info, "Execution"); });
-    Graph.Compile();
-    Graph.Execute();
-#endif
     ResourceArray<uint32> TestArray;
     TestArray.Append({11, 22, 33, 44, 55});
     Buffer = RHI::CreateBuffer(RHIBufferDesc{
@@ -61,16 +41,7 @@ bool EditorApplication::OnEngineInitialization()
         .ResourceArray = &TestArray,
         .DebugName = "Test",
     });
-    RHIRenderPassDescription Description{
-        .ColorTarget =
-            {
-                {
-                    .Format = MainViewport->GetBackbuffer()->GetDescription().Format,
-                    .Flags = ETextureUsageFlags::RenderTargetable,
-                },
-            },
-        .DepthTarget = std::nullopt,
-    };
+
     Pipeline = RHI::CreateGraphicsPipeline(RHIGraphicsPipelineSpecification{
         .VertexShader = "DefaultTriangle.vert",
         .PixelShader = "DefaultTriangle.frag",
@@ -80,7 +51,12 @@ bool EditorApplication::OnEngineInitialization()
                 .CullMode = ECullMode::None,
                 .FrontFaceCulling = EFrontFace::Clockwise,
             },
-        .RenderPass = Description,
+        .AttachmentFormats =
+            {
+                .ColorFormats = {MainViewport->GetBackbuffer()->GetDescription().Format},
+                .DepthFormat = std::nullopt,
+                .StencilFormat = std::nullopt,
+            },
     });
     return true;
 }
@@ -96,43 +72,38 @@ void EditorApplication::OnEngineDestruction()
 void EditorApplication::Tick(const float DeltaTime)
 {
     RPH_PROFILE_FUNC()
+    ENQUEUE_RENDER_COMMAND(BeginFrame)([](RHICommandList& CommandList) { CommandList.BeginFrame(); });
 
     BaseApplication::Tick(DeltaTime);
 
     MainWindow->SetText(std::to_string(1.0f / DeltaTime));
 
-    MainViewport->BeginDrawViewport();
-
-    ENQUEUE_RENDER_COMMAND(MainApplicationTick)
-    ([this] {
+    ENQUEUE_RENDER_COMMAND(EmptyRender)
+    ([this](RHICommandList& CommandList) {
         RHIRenderPassDescription Description{
-            .ColorTarget =
+            .RenderAreaLocation = {0, 0},
+            .RenderAreaSize = MainViewport->GetSize(),
+            .ColorTargets =
                 {
-                    {
-                        .Format = MainViewport->GetBackbuffer()->GetDescription().Format,
-                        .Flags = ETextureUsageFlags::RenderTargetable,
+                    RHIRenderTarget{
+                        .Texture = MainViewport->GetBackbuffer(),
+                        .ClearColor = {0.0f, 0.0f, 0.0f, 1.0f},
+                        .LoadAction = ERenderTargetLoadAction::Clear,
+                        .StoreAction = ERenderTargetStoreAction::Store,
                     },
                 },
             .DepthTarget = std::nullopt,
-            // .DepthTarget = std::make_optional(RHIRenderPassDescription::RenderingTargetInfo{
-            //     .Format = EImageFormat::D32_SFLOAT,
-            // }),
         };
-        RHIFramebufferDefinition Definition{
-            .ColorTarget =
-                {
-                    MainViewport->GetBackbuffer(),
-                },
-            .DepthTarget = nullptr,
-            .Offset = {0, 0},
-            .Extent = MainViewport->GetBackbuffer()->GetDescription().Extent,
-        };
-        RHI::BeginRenderPass(Description, Definition);
-        RHI::Draw(Pipeline);
-        RHI::EndRenderPass();
+        CommandList.BeginRenderingViewport(MainViewport.Raw());
+        CommandList.BeginRendering(Description);
+
+        CommandList.TmpDraw(Pipeline);
+
+        CommandList.EndRendering();
+        CommandList.EndRenderingViewport(MainViewport.Raw(), true);
     });
 
-    MainViewport->EndDrawViewport();
+    ENQUEUE_RENDER_COMMAND(EndFrame)([](RHICommandList& CommandList) { CommandList.EndFrame(); });
 }
 
 // Not really extern "C" but I use it to mark that this function will be called by an external unit

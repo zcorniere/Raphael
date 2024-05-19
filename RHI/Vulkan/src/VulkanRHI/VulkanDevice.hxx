@@ -1,13 +1,12 @@
 #pragma once
 
+#include "VulkanRHI/VulkanPlatform.hxx"
 #include "vulkan/vulkan_core.h"
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
 #include "VulkanRHI/VulkanRHI.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
-
-#include "Engine/Core/Memory/SmartPointers.hxx"
 
 #if VULKAN_DEBUGGING_ENABLED
     #define VULKAN_SET_DEBUG_NAME(Device, Type, Handle, Format, ...) \
@@ -74,28 +73,30 @@ public:
     inline VulkanMemoryManager* GetMemoryManager()
     {
         check(MemoryAllocator);
-        return MemoryAllocator.Get();
+        return MemoryAllocator.get();
     }
 
     inline VulkanCommandBufferManager* GetCommandManager()
     {
         check(CommandManager);
-        return CommandManager.Get();
+        return CommandManager.get();
     }
 
 private:
     void Destroy();
-    void CreateDeviceAndQueue(const Array<const char*>& DeviceLayers, const Array<const char*>& DeviceExtensions);
+    void CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
+                              const VulkanDeviceExtensionArray& DeviceExtensions);
 
 public:
-    UniquePtr<VulkanQueue> GraphicsQueue = nullptr;
-    UniquePtr<VulkanQueue> ComputeQueue = nullptr;
-    UniquePtr<VulkanQueue> TransferQueue = nullptr;
+    std::unique_ptr<VulkanQueue> GraphicsQueue;
+    std::unique_ptr<VulkanQueue> ComputeQueue;
+    std::unique_ptr<VulkanQueue> TransferQueue;
+    // Present queue is not a dedicated object, it's just a reference to one of the above queues
     VulkanQueue* PresentQueue = nullptr;
 
 private:
-    UniquePtr<VulkanMemoryManager> MemoryAllocator = nullptr;
-    UniquePtr<VulkanCommandBufferManager> CommandManager = nullptr;
+    std::unique_ptr<VulkanMemoryManager> MemoryAllocator;
+    std::unique_ptr<VulkanCommandBufferManager> CommandManager;
 
     VkDevice Device = VK_NULL_HANDLE;
     VkPhysicalDevice Gpu = VK_NULL_HANDLE;

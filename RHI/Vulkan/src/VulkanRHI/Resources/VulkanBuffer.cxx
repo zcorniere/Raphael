@@ -3,7 +3,6 @@
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanMemoryManager.hxx"
 
-
 namespace VulkanRHI
 {
 
@@ -47,6 +46,7 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const RHIBufferDesc& InDescri
     Memory->BindBuffer(BufferHandle);
     if (Description.ResourceArray) {
         void* const MappedPtr = Memory->Map(Description.ResourceArray->GetByteSize());
+        std::memset(MappedPtr, 0, Description.Size);
         std::memcpy(MappedPtr, Description.ResourceArray->GetData(), Description.ResourceArray->GetByteSize());
         Memory->Unmap();
     }

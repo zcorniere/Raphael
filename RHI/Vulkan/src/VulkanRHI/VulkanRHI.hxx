@@ -2,9 +2,9 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Trace);
 
-#include "Engine/Core/Memory/SmartPointers.hxx"
 #include "Engine/Core/RHI/GenericRHI.hxx"
 
+#include "VulkanRHI/VulkanRHI_Debug.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 
 #define VK_NO_PROTOTYPES
@@ -16,8 +16,6 @@ class RHIResource;
 namespace VulkanRHI
 {
 
-class RenderPassManager;
-class VulkanRenderPass;
 class VulkanDevice;
 class VulkanViewport;
 
@@ -31,15 +29,12 @@ static FORCEINLINE const VkAllocationCallbacks* GetMemoryAllocator()
 class VulkanDynamicRHI : public GenericRHI
 {
 public:
-    // ---------------------- RHI Operations --------------------- //
-    virtual void BeginFrame() override;
     virtual void Tick(float fDeltaTime) override;
-    virtual void EndFrame() override;
-    virtual void BeginRenderPass(const RHIRenderPassDescription& Renderpass,
-                                 const RHIFramebufferDefinition& Framebuffer) override;
-    virtual void EndRenderPass() override;
 
-    virtual void Draw(Ref<RHIGraphicsPipeline>& Pipeline) override;
+    // ---------------------- RHI Operations --------------------- //
+    virtual void RHISubmitCommandLists(RHICommandList* const CommandLists, std::uint32_t NumCommandLists) override;
+    virtual RHIContext* RHIGetCommandContext() override;
+    virtual void RHIReleaseCommandContext(RHIContext* Context) override;
 
     virtual Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize) override;
     virtual Ref<RHITexture> CreateTexture(const RHITextureSpecification& InDesc) override;
@@ -60,11 +55,13 @@ public:
     virtual void PostInit() final override;
     virtual void Shutdown() final override;
 
+    virtual void WaitUntilIdle() final override;
+
     virtual const char* GetName() const final override
     {
         return "Vulkan";
     }
-    RHIInterfaceType GetInterfaceType() const final
+    RHIInterfaceType GetInterfaceType() const final override
     {
         return RHIInterfaceType::Vulkan;
     }
@@ -76,35 +73,27 @@ public:
 
     VulkanDevice* GetDevice()
     {
-        return Device.Get();
+        return Device.get();
     }
 
 private:
-    void CreateInstance();
-    void SelectDevice();
+    static VkInstance CreateInstance(const Array<const char*>& ValidationLayers);
+    static VulkanDevice* SelectDevice(VkInstance Instance);
 
+private:
+    friend class VulkanCommandContext;
+
+private:
 #if VULKAN_DEBUGGING_ENABLED
-    VkDebugUtilsMessengerEXT Messenger = VK_NULL_HANDLE;
-    bool bValidationLayersAreMissing = false;
-
-    Array<const char*> GetSupportedInstanceLayers();
-    void SetupDebugLayerCallback();
-    void RemoveDebugLayerCallback();
+    VulkanRHI_Debug DebugLayer;
 #endif
-
-private:
-    friend class VulkanViewport;
-    void RT_SetDrawingViewport(WeakRef<VulkanViewport> Viewport);
-
-private:
     VkInstance m_Instance = VK_NULL_HANDLE;
-    UniquePtr<VulkanDevice> Device = nullptr;
-    UniquePtr<VulkanShaderCompiler> ShaderCompiler = nullptr;
-    UniquePtr<RenderPassManager> RPassManager = nullptr;
+    std::unique_ptr<VulkanDevice> Device;
+
+    std::unique_ptr<VulkanShaderCompiler> ShaderCompiler;
 
     // Used during runtime //
-    WeakRef<VulkanViewport> DrawingViewport = nullptr;
-    WeakRef<VulkanRenderPass> CurrentRenderPass = nullptr;
+    VulkanViewport* DrawingViewport = nullptr;
 };
 
 }    // namespace VulkanRHI

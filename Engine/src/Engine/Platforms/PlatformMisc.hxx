@@ -27,7 +27,7 @@ public:
     /// @param  Name The name of the shared library
     IExternalModule(std::string_view Name)
     {
-        (void)Name;
+        SetName(Name);
     }
     virtual ~IExternalModule()
     {

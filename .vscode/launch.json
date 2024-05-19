@@ -1,5 +1,4 @@
 {
-
     "version": "0.2.0",
     "configurations": [
         {
@@ -9,7 +8,14 @@
             "program": "${workspaceFolder}/build/Editor/RaphaelEditor",
             "args": [],
             "cwd": "${workspaceFolder}/build"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Launch Vulkan RHI Tests",
+            "program": "${workspaceFolder}/build/RHI/Vulkan/RaphaelRHIVulkan_Test",
+            "args": [],
+            "cwd": "${workspaceFolder}/build"
         }
     ]
-    
 }

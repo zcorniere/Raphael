@@ -1,9 +1,14 @@
 #pragma once
 
 #define VK_NO_PROTOTYPES
-#include <vulkan/vulkan.h>    // IWYU pragma: export
+#include <vulkan/vulkan.h>
+
+#define VK_ENTRYPOINT_DYNAMIC_RENDERING(LoadMacro)                 \
+    LoadMacro(PFN_vkCmdBeginRenderingKHR, vkCmdBeginRenderingKHR); \
+    LoadMacro(PFN_vkCmdEndRenderingKHR, vkCmdEndRenderingKHR);
 
 #define VK_ENTRYPOINTS_INSTANCE(LoadMacro)                                                                         \
+    VK_ENTRYPOINT_DYNAMIC_RENDERING(LoadMacro);                                                                    \
     LoadMacro(PFN_vkDestroyInstance, vkDestroyInstance);                                                           \
     LoadMacro(PFN_vkEnumeratePhysicalDevices, vkEnumeratePhysicalDevices);                                         \
     LoadMacro(PFN_vkGetPhysicalDeviceFeatures, vkGetPhysicalDeviceFeatures);                                       \

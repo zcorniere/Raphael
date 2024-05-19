@@ -103,7 +103,9 @@ TEST_CASE("Array: Test Advanced Type")
         {
             Value += 1;
         }
-        ComplexType(const ComplexType &Other):  ComplexType(Other.Value) {}
+        ComplexType(const ComplexType& Other): ComplexType(Other.Value)
+        {
+        }
         ~ComplexType()
         {
             Value -= 1;
@@ -131,7 +133,6 @@ TEST_CASE("Array: Test Advanced Type")
 
         TestVec2.Clear();
         REQUIRE(DtorCounter == 4);
-
     }
 
     Vec2.Clear();
@@ -162,5 +163,15 @@ TEST_CASE("Array: Test Find function")
 
         // 10000 is not in the Vector
         CHECK(TestVec.Find(10000) == InvalidVectorIndex);
+    }
+
+    SECTION("Test AddUnique()")
+    {
+        CHECK(TestVec.AddUnique(Value1) == false);
+        CHECK(TestVec.AddUnique(Value2) == false);
+        CHECK(TestVec.AddUnique(Value3) == false);
+
+        // 10000 is not in the Vector
+        CHECK(TestVec.AddUnique(10000) == true);
     }
 }

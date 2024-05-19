@@ -1,7 +1,5 @@
 #pragma once
 
-#include "VulkanRHI/VulkanUtils.hxx"
-
 namespace VulkanRHI
 {
 

@@ -49,8 +49,6 @@ EBoxReturnType LinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::
 
 // ------------------ Linux External Module --------------------------
 
-static std::unordered_map<std::string, WeakRef<LinuxExternalModule>> s_ModuleStorage;
-
 LinuxExternalModule::LinuxExternalModule(std::string_view ModulePath): IExternalModule(ModulePath)
 {
     ModuleHandle = dlopen(ModulePath.data(), RTLD_NOW | RTLD_LOCAL);
@@ -76,15 +74,7 @@ Malloc* LinuxMisc::BaseAllocator()
 
 Ref<IExternalModule> LinuxMisc::LoadExternalModule(const std::string& ModuleName)
 {
-    auto Iter = s_ModuleStorage.find(ModuleName);
-
-    if (Iter == s_ModuleStorage.end() || !Iter->second.IsValid()) {
-        Ref<LinuxExternalModule> Module = Ref<LinuxExternalModule>::CreateNamed(ModuleName, ModuleName);
-        s_ModuleStorage[ModuleName] = Module;
-        return Module;
-    }
-
-    return Ref(Iter->second);
+    return Ref<LinuxExternalModule>::CreateNamed(ModuleName, ModuleName);
 }
 
 std::filesystem::path LinuxMisc::GetConfigPath()

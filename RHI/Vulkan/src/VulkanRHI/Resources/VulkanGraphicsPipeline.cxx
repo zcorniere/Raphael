@@ -1,7 +1,5 @@
 #include "VulkanRHI/Resources/VulkanGraphicsPipeline.hxx"
 
-#include "VulkanGraphicsPipeline.hxx"
-#include "VulkanRHI/RenderPass/VulkanRenderPass.hxx"
 #include "VulkanRHI/Resources/VulkanShader.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 
@@ -46,9 +44,6 @@ bool GraphicsPipelineDescription::Validate() const
         return false;
     // If there is a pixel shader, it must be valid
     if (PixelShader != nullptr && !PixelShader.IsValid())
-        return false;
-
-    if (!RenderPass.IsValid())
         return false;
 
     return true;
@@ -155,19 +150,6 @@ bool VulkanGraphicsPipeline::Create()
         .pAttachments = &ColorBlendAttachment,
     };
 
-    VkPipelineDepthStencilStateCreateInfo StencilState{
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
-        .depthTestEnable = VK_TRUE,
-        .depthWriteEnable = VK_TRUE,
-        .depthCompareOp = VK_COMPARE_OP_LESS,
-        .depthBoundsTestEnable = VK_FALSE,
-        .stencilTestEnable = VK_FALSE,
-        .front = {},
-        .back = {},
-        .minDepthBounds = 0.0f,
-        .maxDepthBounds = 1.0f,
-    };
-
     VkPipelineMultisampleStateCreateInfo MultiSampling{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
         .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,    // TODO: Support for Multisample
@@ -188,9 +170,29 @@ bool VulkanGraphicsPipeline::Create()
         .pDynamicStates = DynamicState,
     };
 
+    // Dynamic rendering
+    Array<VkFormat> ColorFormats(Desc.AttachmentFormats.ColorFormats.Size());
+    for (unsigned i = 0; i < Desc.AttachmentFormats.ColorFormats.Size(); i++) {
+        ColorFormats[i] = ImageFormatToFormat(Desc.AttachmentFormats.ColorFormats[i]);
+    }
+    VkPipelineRenderingCreateInfo PipelineRenderingCreateInfo{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
+        .pNext = nullptr,
+        .colorAttachmentCount = ColorFormats.Size(),
+        .pColorAttachmentFormats = ColorFormats.Raw(),
+        .depthAttachmentFormat = Desc.AttachmentFormats.DepthFormat.has_value()
+                                     ? ImageFormatToFormat(Desc.AttachmentFormats.DepthFormat.value())
+                                     : VK_FORMAT_UNDEFINED,
+        .stencilAttachmentFormat = Desc.AttachmentFormats.StencilFormat.has_value()
+                                       ? ImageFormatToFormat(Desc.AttachmentFormats.StencilFormat.value())
+                                       : VK_FORMAT_UNDEFINED,
+
+    };
+    // Dynamic rendering
+
     VkGraphicsPipelineCreateInfo PipelineCreateInfo{
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
-        .pNext = nullptr,
+        .pNext = &PipelineRenderingCreateInfo,
         .flags = 0,
         .stageCount = ShaderStage.Size(),
         .pStages = ShaderStage.Raw(),
@@ -202,11 +204,8 @@ bool VulkanGraphicsPipeline::Create()
         .pColorBlendState = &colorBlending,
         .pDynamicState = &DynamicStateCreateInfo,
         .layout = PipelineLayout,
-        .renderPass = Desc.RenderPass->GetRenderPass(),
+        .renderPass = VK_NULL_HANDLE,
     };
-    if (Desc.RenderPass->HasDepthTarget()) {
-        PipelineCreateInfo.pDepthStencilState = &StencilState;
-    }
 
     VK_CHECK_RESULT(VulkanAPI::vkCreateGraphicsPipelines(Device->GetHandle(), nullptr, 1, &PipelineCreateInfo,
                                                          VULKAN_CPU_ALLOCATOR, &VulkanPipeline));

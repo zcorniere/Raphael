@@ -1,5 +1,7 @@
 #include "Engine/Platforms/Windows/WindowsPlatform.hxx"
 
+#include <windows.h>
+
 #include <debugapi.h>
 #include <libloaderapi.h>
 #include <processthreadsapi.h>

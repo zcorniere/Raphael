@@ -56,27 +56,27 @@ namespace Utils
         return Options;
     }
 
-    static std::optional<RHIShaderType> GetShaderKind(const std::filesystem::path& File)
+    static std::optional<ERHIShaderType> GetShaderKind(const std::filesystem::path& File)
     {
         const auto stage = File.extension();
         if (stage == ".vert")
-            return RHIShaderType::Vertex;
+            return ERHIShaderType::Vertex;
         if (stage == ".frag")
-            return RHIShaderType::Pixel;
+            return ERHIShaderType::Pixel;
         if (stage == ".comp")
-            return RHIShaderType::Compute;
+            return ERHIShaderType::Compute;
         else
             return std::nullopt;
     }
 
-    static shaderc_shader_kind ShaderKindToShaderc(RHIShaderType Kind)
+    static shaderc_shader_kind ShaderKindToShaderc(ERHIShaderType Kind)
     {
         switch (Kind) {
-            case RHIShaderType::Compute:
+            case ERHIShaderType::Compute:
                 return shaderc_compute_shader;
-            case RHIShaderType::Vertex:
+            case ERHIShaderType::Vertex:
                 return shaderc_vertex_shader;
-            case RHIShaderType::Pixel:
+            case ERHIShaderType::Pixel:
                 return shaderc_fragment_shader;
         }
         checkNoEntry();
@@ -189,7 +189,7 @@ bool VulkanShaderCompiler::LoadShaderSourceFile(ShaderCompileResult& Result)
 
     Result.Status = CompilationStatus::Loading;
 
-    std::optional<RHIShaderType> ShaderType = Utils::GetShaderKind(Result.Path);
+    std::optional<ERHIShaderType> ShaderType = Utils::GetShaderKind(Result.Path);
     if (!ShaderType.has_value()) {
         LOG(LogVulkanShaderCompiler, Error, "Can't recognise the shader type ! {}", Result.Path.filename().string());
         return false;
