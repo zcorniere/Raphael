@@ -107,8 +107,8 @@ VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool Loc
 VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const glm::uvec2& InSize) const noexcept
 {
     return {
-        .width = std::min(InSize.x, Capabilities.maxImageExtent.width),
-        .height = std::min(InSize.y, Capabilities.maxImageExtent.height),
+        .width = std::clamp(InSize.x, Capabilities.minImageExtent.width, Capabilities.maxImageExtent.width),
+        .height = std::clamp(InSize.y, Capabilities.minImageExtent.height, Capabilities.maxImageExtent.height),
     };
 }
 
