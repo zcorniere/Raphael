@@ -53,9 +53,6 @@ public:
     }
 
     virtual void Execute(RHICommandList&) = 0;
-
-private:
-    int m_Dummy[1'000] = {0};
 };
 
 template <typename TTypeString, typename TLambda>

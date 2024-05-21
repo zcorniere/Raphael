@@ -82,12 +82,7 @@ void VulkanDynamicRHI::Init()
     Device->SetName("Main Vulkan Device");
 
     ShaderCompiler = std::make_unique<VulkanShaderCompiler>();
-
-#if VULKAN_DEBUGGING_ENABLED
     ShaderCompiler->SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::PerfWithDebug);
-#else
-    ShaderCompiler->SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::Performance);
-#endif
 }
 
 void VulkanDynamicRHI::PostInit()
