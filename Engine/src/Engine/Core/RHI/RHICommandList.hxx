@@ -92,7 +92,10 @@ public:
     void BeginRendering(const RHIRenderPassDescription& Description);
     void EndRendering();
 
-    void TmpDraw(Ref<RHIGraphicsPipeline>& Pipeline);
+    void SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline);
+    void SetViewport(glm::vec3 Min, glm::vec3 Max);
+    void SetScissor(glm::ivec2 Offset, glm::uvec2 Size);
+    void Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances);
 
     /// @brief Add a command to the back of the queue
     template <typename TSTR, typename TFunction>

@@ -40,9 +40,24 @@ void RHICommandList::EndRendering()
     Enqueue(new RHIEndRendering());
 }
 
-void RHICommandList::TmpDraw(Ref<RHIGraphicsPipeline>& Pipeline)
+void RHICommandList::SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline)
 {
-    Enqueue(new RHIDraw(Pipeline));
+    Enqueue(new RHISetPipeline(Pipeline));
+}
+
+void RHICommandList::SetViewport(glm::vec3 Min, glm::vec3 Max)
+{
+    Enqueue(new RHISetViewport(Min, Max));
+}
+
+void RHICommandList::SetScissor(glm::ivec2 Offset, glm::uvec2 Size)
+{
+    Enqueue(new RHISetScissor(Offset, Size));
+}
+
+void RHICommandList::Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances)
+{
+    Enqueue(new RHIDraw(BaseVertexIndex, NumPrimitives, NumInstances));
 }
 
 void RHICommandList::Enqueue(RHIRenderCommandBase* RenderCommand)

@@ -7,6 +7,7 @@ namespace VulkanRHI
 
 class VulkanDevice;
 class VulkanQueue;
+class VulkanPendingState;
 
 class VulkanTexture;
 
@@ -30,12 +31,19 @@ public:
     virtual void RHIBeginRendering(const RHIRenderPassDescription& Description) override;
     virtual void RHIEndRendering() override;
 
-    virtual void TmpDraw(Ref<RHIGraphicsPipeline>& Pipeline) override;
+    virtual void SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline) override;
+
+    virtual void SetViewport(glm::vec3 Min, glm::vec3 Max) override;
+    virtual void SetScissor(glm::ivec2 Offset, glm::uvec2 Size) override;
+
+    virtual void Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances) override;
 
     /// @brief VulkanRHI only, set the layout of the given texture
     void SetLayout(VulkanTexture* const Texture, VkImageLayout Layout);
 
 private:
+    std::unique_ptr<VulkanPendingState> PendingState;
+
     VulkanDevice* const Device = nullptr;
     VulkanQueue* const GfxQueue = nullptr;
     VulkanQueue* const PresentQueue = nullptr;

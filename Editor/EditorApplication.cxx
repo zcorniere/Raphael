@@ -97,7 +97,12 @@ void EditorApplication::Tick(const float DeltaTime)
         CommandList.BeginRenderingViewport(MainViewport.Raw());
         CommandList.BeginRendering(Description);
 
-        CommandList.TmpDraw(Pipeline);
+        CommandList.SetPipeline(Pipeline);
+
+        CommandList.SetViewport({0, 0, 0}, {MainViewport->GetSize().x, MainViewport->GetSize().y, 1.0f});
+        CommandList.SetScissor({0, 0}, {MainViewport->GetSize().x, MainViewport->GetSize().y});
+
+        CommandList.Draw(3, 1, 0);
 
         CommandList.EndRendering();
         CommandList.EndRenderingViewport(MainViewport.Raw(), true);

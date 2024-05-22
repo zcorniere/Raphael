@@ -22,5 +22,12 @@ public:
     /// @brief End rendering the current render pass
     virtual void RHIEndRendering() = 0;
 
-    virtual void TmpDraw(Ref<RHIGraphicsPipeline>& Pipeline) = 0;
+    /// @brief Set the pipeline to use for the next draw calls
+    virtual void SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline) = 0;
+
+    virtual void SetViewport(glm::vec3 Min, glm::vec3 Max) = 0;
+    virtual void SetScissor(glm::ivec2 Offset, glm::uvec2 Size) = 0;
+
+    /// @brief Send a draw call to the RHI
+    virtual void Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances) = 0;
 };

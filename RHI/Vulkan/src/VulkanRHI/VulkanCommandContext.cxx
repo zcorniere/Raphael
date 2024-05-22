@@ -4,6 +4,7 @@
 #include "VulkanRHI/Resources/VulkanViewport.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
+#include "VulkanRHI/VulkanPendingState.hxx"
 #include "VulkanRHI/VulkanRHI.hxx"
 
 namespace VulkanRHI
@@ -13,6 +14,7 @@ VulkanCommandContext::VulkanCommandContext(VulkanDevice* InDevice, VulkanQueue* 
                                            VulkanQueue* InPresentQueue)
     : Device(InDevice), GfxQueue(InGraphicsQueue), PresentQueue(InPresentQueue)
 {
+    PendingState = std::make_unique<VulkanPendingState>(Device, *this);
 }
 
 VulkanCommandContext::~VulkanCommandContext()
@@ -118,37 +120,28 @@ void VulkanCommandContext::RHIEndRendering()
     CmdBuffer->EndRendering();
 }
 
-void VulkanCommandContext::TmpDraw(Ref<RHIGraphicsPipeline>& Pipeline)
+void VulkanCommandContext::SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline)
 {
-    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
-
     Ref<VulkanGraphicsPipeline> VulkanPipeline = Pipeline.As<VulkanGraphicsPipeline>();
-    VulkanPipeline->Bind(CmdBuffer->GetHandle());
+    PendingState->SetGraphicsPipeline(VulkanPipeline);
+}
 
-    VkViewport viewport{
-        .x = 0.0f,
-        .y = 0.0f,
-        .width = static_cast<float>(GetVulkanDynamicRHI()->DrawingViewport->GetSize().x),
-        .height = static_cast<float>(GetVulkanDynamicRHI()->DrawingViewport->GetSize().y),
-        .minDepth = 0.0f,
-        .maxDepth = 1.0f,
-    };
-    VkRect2D scissor{
-        .offset =
-            {
-                .x = 0,
-                .y = 0,
-            },
-        .extent =
-            {
-                .width = GetVulkanDynamicRHI()->DrawingViewport->GetSize().x,
-                .height = GetVulkanDynamicRHI()->DrawingViewport->GetSize().y,
-            },
-    };
-    VulkanAPI::vkCmdSetViewport(CmdBuffer->GetHandle(), 0, 1, &viewport);
-    VulkanAPI::vkCmdSetScissor(CmdBuffer->GetHandle(), 0, 1, &scissor);
-    // DELETE ME
-    VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), 3, 1, 0, 0);
+void VulkanCommandContext::SetViewport(glm::vec3 Min, glm::vec3 Max)
+{
+    PendingState->SetViewport(Min, Max);
+}
+
+void VulkanCommandContext::SetScissor(glm::ivec2 Offset, glm::uvec2 Size)
+{
+    PendingState->SetScissor(Offset, Size);
+}
+
+void VulkanCommandContext::Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances)
+{
+
+    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
+    PendingState->PrepareForDraw(CmdBuffer);
+    VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), BaseVertexIndex, NumPrimitives, NumInstances, 0);
 }
 
 void VulkanCommandContext::SetLayout(VulkanTexture* const Texture, VkImageLayout Layout)

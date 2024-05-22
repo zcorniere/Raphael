@@ -77,16 +77,56 @@ public:
     virtual void Execute(RHICommandList & CommandList) override final;
 };
 
+RHICOMMAND_MACRO(RHISetPipeline)
+{
+public:
+    RHISetPipeline(Ref<RHIGraphicsPipeline> InPipeline);
+    virtual ~RHISetPipeline() = default;
+
+    virtual void Execute(RHICommandList & CommandList) override final;
+
+private:
+    Ref<RHIGraphicsPipeline> Pipeline = nullptr;
+};
+
+RHICOMMAND_MACRO(RHISetViewport)
+{
+public:
+    RHISetViewport(glm::vec3 Min, glm::vec3 Max);
+    virtual ~RHISetViewport() = default;
+
+    virtual void Execute(RHICommandList & CommandList) override final;
+
+private:
+    glm::vec3 Min;
+    glm::vec3 Max;
+};
+
+RHICOMMAND_MACRO(RHISetScissor)
+{
+public:
+    RHISetScissor(glm::ivec2 Offset, glm::uvec2 Size);
+    virtual ~RHISetScissor() = default;
+
+    virtual void Execute(RHICommandList & CommandList) override final;
+
+private:
+    glm::ivec2 Offset;
+    glm::uvec2 Size;
+};
+
 RHICOMMAND_MACRO(RHIDraw)
 {
 public:
-    RHIDraw(Ref<RHIGraphicsPipeline> InPipeline);
+    RHIDraw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances);
     virtual ~RHIDraw() = default;
 
     virtual void Execute(RHICommandList & CommandList) override final;
 
 public:
-    Ref<RHIGraphicsPipeline> Pipeline = nullptr;
+    uint32 BaseVertexIndex = 0;
+    uint32 NumPrimitives = 0;
+    uint32 NumInstances = 0;
 };
 
 #undef RHICOMMAND_MACRO
