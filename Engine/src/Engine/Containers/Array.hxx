@@ -296,12 +296,21 @@ public:
         return Index != InvalidVectorIndex;
     }
     /// Find the index of the given element
+    /// @note Support char* strings with strcmp
+    ///
+    /// @arg Item The element to find
     /// @return The index of the element if found, InvalidVectorIndex otherwise
     [[nodiscard]] TSize Find(const T& Item) const
     {
         for (TSize i = 0; i < TSize(Size()); i++) {
-            if (Item == (*this)[i]) {
-                return i;
+            if constexpr (std::is_same_v<std::remove_cv<T>, char*>) {
+                if (strcmp(Item, (*this)[i]) == 0) {
+                    return i;
+                }
+            } else {
+                if (Item == (*this)[i]) {
+                    return i;
+                }
             }
         }
         return InvalidVectorIndex;
