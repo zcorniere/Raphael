@@ -212,6 +212,24 @@ bool VulkanGraphicsPipeline::Create()
     return false;
 }
 
+VulkanShader* VulkanGraphicsPipeline::GetShader(ERHIShaderType Type)
+{
+    switch (Type) {
+        case ERHIShaderType::Vertex:
+            return Desc.VertexShader.AsRaw<VulkanShader>();
+        case ERHIShaderType::Pixel:
+            return Desc.PixelShader.AsRaw<VulkanShader>();
+        case ERHIShaderType::Compute: {
+            checkNoEntry();
+            return nullptr;
+        }
+    }
+}
+VulkanShader* VulkanGraphicsPipeline::GetShader(ERHIShaderType Type) const
+{
+    return const_cast<VulkanGraphicsPipeline*>(this)->GetShader(Type);
+}
+
 static VkPushConstantRange GetConstantRangeFromShader(Array<VkPushConstantRange>& OutPushRanges,
                                                       Ref<VulkanShader>& InShader, const VkShaderStageFlags ShaderStage)
 {

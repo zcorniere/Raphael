@@ -2,6 +2,8 @@
 
 #include "Engine/Core/RHI/Resources/RHIShader.hxx"
 
+#include "VulkanRHI/Resources/VulkanGraphicsPipeline.hxx"
+
 namespace VulkanRHI
 {
 
@@ -19,6 +21,7 @@ namespace ShaderResource
     struct StageIO {
         std::string Name;
         EVertexElementType Type;
+        uint32 Binding;
         uint32 Location;
 
         bool operator==(const StageIO&) const = default;
@@ -33,6 +36,9 @@ public:
         Array<ShaderResource::StageIO> StageInput;
         Array<ShaderResource::StageIO> StageOutput;
         Array<ShaderResource::PushConstantRange> PushConstants;
+
+        Array<GraphicsPipelineDescription::VertexBinding> GetInputVertexBindings() const;
+        Array<GraphicsPipelineDescription::VertexAttribute> GetInputVertexAttributes() const;
 
         bool operator==(const ReflectionData&) const = default;
     };
@@ -83,5 +89,6 @@ private:
 DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::PushConstantRange, "PushConstantRange {{ Offset: {0}, Size: {1} }}",
                       Value.Offset, Value.Size)
 
-DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::StageIO, "StageIO {{ Name: \"{0}\", Type: {1}, Location: {2} }}",
-                      Value.Name, magic_enum::enum_name(Value.Type), Value.Location)
+DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::StageIO,
+                      "StageIO {{ Name: \"{0}\", Type: {1}, Binding: {2}, Location: {3} }}", Value.Name,
+                      magic_enum::enum_name(Value.Type), Value.Binding, Value.Location)

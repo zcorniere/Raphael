@@ -23,6 +23,15 @@ void VulkanPendingState::Reset()
     CurrentPipeline = nullptr;
 }
 
+void VulkanPendingState::SetVertexBuffer(Ref<VulkanBuffer>& Buffer, uint32 BufferIndex, uint32 Offset)
+{
+    check(EnumHasAnyFlags(EBufferUsageFlags::VertexBuffer, Buffer->GetUsage()));
+    if (VertexSources.Size() <= BufferIndex) {
+        VertexSources.Resize(BufferIndex + 1);
+    }
+    VertexSources[BufferIndex] = {Buffer, Offset};
+}
+
 bool VulkanPendingState::SetGraphicsPipeline(Ref<VulkanGraphicsPipeline>& InPipeline, bool bForceReset)
 {
     bool bNeedReset = bForceReset;
@@ -48,9 +57,20 @@ void VulkanPendingState::PrepareForDraw(VulkanCmdBuffer* CommandBuffer)
 
     CurrentPipeline->Bind(CommandBuffer->GetHandle());
 
+    Array<VkBuffer> VertexBuffers;
+    VertexBuffers.Reserve(VertexSources.Size());
+    Array<VkDeviceSize> Offsets;
+    Offsets.Reserve(VertexSources.Size());
+
+    for (const FVertexSource& VertexSource: VertexSources) {
+        VertexBuffers.Add(VertexSource.Buffer->GetHandle());
+        Offsets.Add(VertexSource.Offset);
+    }
+    VulkanAPI::vkCmdBindVertexBuffers(CommandBuffer->GetHandle(), 0, VertexBuffers.Size(), VertexBuffers.Raw(),
+                                      Offsets.Raw());
+
     // TODO: bind descriptor sets
     // TODO: bind pipeline layout
-    // TODO: bind Vertex/index buffers
 }
 
 }    // namespace VulkanRHI

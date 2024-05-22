@@ -1,9 +1,9 @@
 #pragma once
 
+#include "Engine/Misc/EnumFlags.hxx"
+
 #include "Engine/Containers/ResourceArray.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
-
-#include <glm/vec3.hpp>
 
 enum class EBufferUsageFlags {
     None = 0,
@@ -22,6 +22,7 @@ enum class EBufferUsageFlags {
     IndexBuffer = BIT(7),
     StructuredBuffer = BIT(8),
 };
+ENUM_CLASS_FLAGS(EBufferUsageFlags);
 
 struct RHIBufferDesc {
     /// Size in bytes of the buffer

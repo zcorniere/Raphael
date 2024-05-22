@@ -25,6 +25,7 @@ template <typename Type>
 class ResourceArray : public ResourceArrayInterface, public Array<Type>
 {
 public:
+    using Array<Type>::Array;
     ResourceArray() = default;
     ResourceArray(ResourceArray&&) = default;
     ResourceArray(const ResourceArray&) = default;

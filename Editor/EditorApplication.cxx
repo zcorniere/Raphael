@@ -32,14 +32,13 @@ bool EditorApplication::OnEngineInitialization()
 
     BaseApplication::OnEngineInitialization();
 
-    ResourceArray<uint32> TestArray;
-    TestArray.Append({11, 22, 33, 44, 55});
+    ResourceArray<glm::vec2> Vertices({{0.0, -0.5}, {0.5, 0.5}, {-0.5, 0.5}});
     Buffer = RHI::CreateBuffer(RHIBufferDesc{
         .Size = 200,
         .Stride = 0,
-        .Usage = EBufferUsageFlags::KeepCPUAccessible,
-        .ResourceArray = &TestArray,
-        .DebugName = "Test",
+        .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::KeepCPUAccessible,
+        .ResourceArray = &Vertices,
+        .DebugName = "Vertex Buffer",
     });
 
     Pipeline = RHI::CreateGraphicsPipeline(RHIGraphicsPipelineSpecification{
@@ -98,6 +97,7 @@ void EditorApplication::Tick(const float DeltaTime)
         CommandList.BeginRendering(Description);
 
         CommandList.SetPipeline(Pipeline);
+        CommandList.SetVertexBuffer(Buffer);
 
         CommandList.SetViewport({0, 0, 0}, {MainViewport->GetSize().x, MainViewport->GetSize().y, 1.0f});
         CommandList.SetScissor({0, 0}, {MainViewport->GetSize().x, MainViewport->GetSize().y});

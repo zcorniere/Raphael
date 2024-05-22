@@ -69,6 +69,9 @@ public:
         VulkanAPI::vkCmdBindPipeline(CmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VulkanPipeline);
     }
 
+    VulkanShader* GetShader(ERHIShaderType Type) const;
+    VulkanShader* GetShader(ERHIShaderType Type);
+
     VkPipeline GetVulkanPipeline() const
     {
         return VulkanPipeline;

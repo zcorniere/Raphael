@@ -1,5 +1,6 @@
 #pragma once
 
+#include "VulkanRHI/Resources/VulkanBuffer.hxx"
 #include "VulkanRHI/VulkanCommandContext.hxx"
 
 #include "VulkanRHI/Resources/VulkanGraphicsPipeline.hxx"
@@ -36,6 +37,8 @@ public:
         };
     }
 
+    void SetVertexBuffer(Ref<VulkanBuffer>& Buffer, uint32 BufferIndex = 0, uint32 Offset = 0);
+
     void Bind(VkCommandBuffer CmdBuffer)
     {
         CurrentPipeline->Bind(CmdBuffer);
@@ -47,6 +50,12 @@ public:
 private:
     Array<VkViewport> Viewports;
     Array<VkRect2D> Scissors;
+
+    struct FVertexSource {
+        Ref<VulkanBuffer> Buffer = nullptr;
+        uint32 Offset = 0;
+    };
+    Array<FVertexSource> VertexSources;
 
     Ref<VulkanGraphicsPipeline> CurrentPipeline = nullptr;
     VulkanCommandContext& CmdContext;

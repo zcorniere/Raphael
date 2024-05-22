@@ -75,6 +75,14 @@ VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineSpe
     Desc.Rasterizer.FrontFaceCulling = ConvertToVulkanType(Config.Rasterizer.FrontFaceCulling);
     Desc.Rasterizer.PolygonMode = ConvertToVulkanType(Config.Rasterizer.PolygonMode);
     Desc.AttachmentFormats = Config.AttachmentFormats;
+
+    if (Desc.VertexAttributes.IsEmpty()) {
+        Desc.VertexAttributes = Desc.VertexShader->GetReflectionData().GetInputVertexAttributes();
+    }
+    if (Desc.VertexBindings.IsEmpty()) {
+        Desc.VertexBindings = Desc.VertexShader->GetReflectionData().GetInputVertexBindings();
+    }
+
     check(Desc.Validate());
 
     return Ref<VulkanGraphicsPipeline>::Create(Device.get(), Desc);

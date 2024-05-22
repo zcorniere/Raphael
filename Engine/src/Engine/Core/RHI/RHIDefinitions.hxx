@@ -88,3 +88,5 @@ enum class ERenderTargetStoreAction : uint8 {
     /// Contents of the render target emitted during the pass are stored back to memory.
     Store,
 };
+
+uint32 GetSizeOfElementType(EVertexElementType Type);

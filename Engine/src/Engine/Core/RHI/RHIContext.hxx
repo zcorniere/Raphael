@@ -25,6 +25,8 @@ public:
     /// @brief Set the pipeline to use for the next draw calls
     virtual void SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline) = 0;
 
+    virtual void SetVertexBuffer(Ref<RHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset) = 0;
+
     virtual void SetViewport(glm::vec3 Min, glm::vec3 Max) = 0;
     virtual void SetScissor(glm::ivec2 Offset, glm::uvec2 Size) = 0;
 

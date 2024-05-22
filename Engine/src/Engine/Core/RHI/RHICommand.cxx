@@ -50,6 +50,17 @@ void RHISetPipeline::Execute(RHICommandList& CommandList)
     CommandList.GetContext()->SetPipeline(Pipeline);
 }
 
+RHISetVertexBuffer::RHISetVertexBuffer(Ref<RHIBuffer> InVertexBuffer, uint32 BufferIndex, uint32 Offset)
+    : VertexBuffer(std::move(InVertexBuffer)), BufferIndex(BufferIndex), Offset(Offset)
+{
+    check(EnumHasAnyFlags(EBufferUsageFlags::VertexBuffer, VertexBuffer->GetUsage()));
+}
+
+void RHISetVertexBuffer::Execute(RHICommandList& CommandList)
+{
+    CommandList.GetContext()->SetVertexBuffer(VertexBuffer, BufferIndex, Offset);
+}
+
 RHISetViewport::RHISetViewport(glm::vec3 Min, glm::vec3 Max): Min(Min), Max(Max)
 {
 }

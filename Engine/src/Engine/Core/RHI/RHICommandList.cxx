@@ -45,6 +45,11 @@ void RHICommandList::SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline)
     Enqueue(new RHISetPipeline(Pipeline));
 }
 
+void RHICommandList::SetVertexBuffer(Ref<RHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset)
+{
+    Enqueue(new RHISetVertexBuffer(VertexBuffer, BufferIndex, Offset));
+}
+
 void RHICommandList::SetViewport(glm::vec3 Min, glm::vec3 Max)
 {
     Enqueue(new RHISetViewport(Min, Max));

@@ -89,6 +89,20 @@ private:
     Ref<RHIGraphicsPipeline> Pipeline = nullptr;
 };
 
+RHICOMMAND_MACRO(RHISetVertexBuffer)
+{
+public:
+    RHISetVertexBuffer(Ref<RHIBuffer> InVertexBuffer, uint32 BufferIndex = 0, uint32 Offset = 0);
+    virtual ~RHISetVertexBuffer() = default;
+
+    virtual void Execute(RHICommandList & CommandList) override final;
+
+private:
+    Ref<RHIBuffer> VertexBuffer = nullptr;
+    uint32 BufferIndex = 0;
+    uint32 Offset = 0;
+};
+
 RHICOMMAND_MACRO(RHISetViewport)
 {
 public:

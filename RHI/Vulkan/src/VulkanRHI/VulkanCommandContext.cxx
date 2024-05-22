@@ -1,5 +1,6 @@
 #include "VulkanRHI/VulkanCommandContext.hxx"
 
+#include "VulkanRHI/Resources/VulkanBuffer.hxx"
 #include "VulkanRHI/Resources/VulkanGraphicsPipeline.hxx"
 #include "VulkanRHI/Resources/VulkanViewport.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
@@ -124,6 +125,12 @@ void VulkanCommandContext::SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline)
 {
     Ref<VulkanGraphicsPipeline> VulkanPipeline = Pipeline.As<VulkanGraphicsPipeline>();
     PendingState->SetGraphicsPipeline(VulkanPipeline);
+}
+
+void VulkanCommandContext::SetVertexBuffer(Ref<RHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset)
+{
+    Ref<VulkanBuffer> VulkanBufferRef = VertexBuffer.As<VulkanBuffer>();
+    PendingState->SetVertexBuffer(VulkanBufferRef, BufferIndex, Offset);
 }
 
 void VulkanCommandContext::SetViewport(glm::vec3 Min, glm::vec3 Max)

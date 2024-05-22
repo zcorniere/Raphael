@@ -33,6 +33,8 @@ public:
 
     virtual void SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline) override;
 
+    virtual void SetVertexBuffer(Ref<RHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset) override;
+
     virtual void SetViewport(glm::vec3 Min, glm::vec3 Max) override;
     virtual void SetScissor(glm::ivec2 Offset, glm::uvec2 Size) override;
 
