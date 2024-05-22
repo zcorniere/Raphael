@@ -90,7 +90,12 @@ private:
     VmaAllocator Allocator;
 
     VkPhysicalDeviceMemoryProperties MemoryProperties;
-    uint32 AllocationCount;
+    std::atomic<uint32> AllocationCount;
+
+#if VULKAN_DEBUGGING_ENABLED
+    Array<WeakRef<VulkanMemoryAllocation>> MemoryAllocationArray;
+    std::mutex MemoryAllocationArrayMutex;
+#endif    // VULKAN_DEBUGGING_ENABLED
 
     friend VulkanMemoryAllocation;
 };

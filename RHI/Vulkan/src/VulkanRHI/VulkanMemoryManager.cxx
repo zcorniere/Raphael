@@ -114,7 +114,22 @@ VulkanMemoryManager::VulkanMemoryManager(VulkanDevice* InDevice)
 
 VulkanMemoryManager::~VulkanMemoryManager()
 {
-    checkMsg(AllocationCount == 0, "Some memory allocation ({}) are still in flight !", AllocationCount);
+    if (AllocationCount > 0) {
+        LOG(LogVulkanMemoryAllocator, Error, "Some memory allocation ({}) are still in flight !",
+            AllocationCount.load());
+
+        std::unique_lock Lock(MemoryAllocationArrayMutex);
+
+        for (WeakRef<VulkanMemoryAllocation>& Alloc: MemoryAllocationArray) {
+            if (Alloc.IsValid()) {
+                LOG(LogVulkanMemoryAllocator, Error, "Allocation: \"{:s}\" ({})", Alloc->GetName(),
+                    Alloc->GetRefCount());
+            } else {
+                LOG(LogVulkanMemoryAllocator, Error, "Allocation: nullptr");
+            }
+        }
+    }
+    checkMsg(AllocationCount == 0, "Some memory allocation ({}) are still in flight !", AllocationCount.load());
     vmaDestroyAllocator(Allocator);
     Allocator = VK_NULL_HANDLE;
 }
@@ -127,6 +142,14 @@ Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(const VkMemoryRequirement
     }
     VmaAllocationCreateInfo CreateInfo = GetCreateInfo(MemUsage, Mappable);
     Ref<VulkanMemoryAllocation> Alloc = Ref<VulkanMemoryAllocation>::Create(*this);
+
+#if VULKAN_DEBUGGING_ENABLED
+    {
+        std::unique_lock Lock(MemoryAllocationArrayMutex);
+        MemoryAllocationArray.Add(Alloc);
+    }
+#endif    // VULKAN_DEBUGGING_ENABLED
+
     VK_CHECK_RESULT(
         vmaAllocateMemory(Allocator, &MemoryRequirement, &CreateInfo, &(Alloc->GetHandle()), &Alloc->AllocationInfo));
     Alloc->Size = MemoryRequirement.size;
@@ -140,6 +163,13 @@ void VulkanMemoryManager::Free(Ref<VulkanMemoryAllocation>& Allocation)
 {
     // Allocator should be removed after this call
     check(Allocation->GetRefCount() == 1);
+
+#if VULKAN_DEBUGGING_ENABLED
+    {
+        std::unique_lock Lock(MemoryAllocationArrayMutex);
+        MemoryAllocationArray.Remove(Allocation);
+    }
+#endif    // VULKAN_DEBUGGING_ENABLED
 
     vmaFreeMemory(Allocator, Allocation->GetHandle());
     AllocationCount -= 1;
