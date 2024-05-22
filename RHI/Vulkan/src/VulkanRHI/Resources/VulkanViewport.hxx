@@ -16,6 +16,8 @@ class VulkanQueue;
 class VulkanCmdBuffer;
 struct VulkanSwapChainRecreateInfo;
 
+class VulkanCommandContext;
+
 class VulkanViewport : public RHIViewport, public IDeviceChild
 {
 public:
@@ -29,7 +31,8 @@ public:
     virtual void ResizeViewport(uint32 Width, uint32 Height) override;
 
     void SetName(std::string_view InName) override;
-    bool Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, VulkanQueue* PresentQueue);
+    bool Present(VulkanCommandContext* Context, VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue,
+                 VulkanQueue* PresentQueue);
     void RecreateSwapchain(Ref<Window> NewNativeWindow);
 
     virtual Ref<RHITexture> GetBackbuffer() const override

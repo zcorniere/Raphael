@@ -1,10 +1,11 @@
 #pragma once
 
-#include "VulkanRHI/VulkanPlatform.hxx"
 #include "vulkan/vulkan_core.h"
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
+#include "VulkanRHI/VulkanCommandContext.hxx"
+#include "VulkanRHI/VulkanPlatform.hxx"
 #include "VulkanRHI/VulkanRHI.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
 
@@ -76,10 +77,9 @@ public:
         return MemoryAllocator.get();
     }
 
-    inline VulkanCommandBufferManager* GetCommandManager()
+    VulkanCommandContext* GetImmediateContext() const
     {
-        check(CommandManager);
-        return CommandManager.get();
+        return ImmediateContext;
     }
 
 private:
@@ -94,9 +94,10 @@ public:
     // Present queue is not a dedicated object, it's just a reference to one of the above queues
     VulkanQueue* PresentQueue = nullptr;
 
+    VulkanCommandContext* ImmediateContext = nullptr;
+
 private:
     std::unique_ptr<VulkanMemoryManager> MemoryAllocator;
-    std::unique_ptr<VulkanCommandBufferManager> CommandManager;
 
     VkDevice Device = VK_NULL_HANDLE;
     VkPhysicalDevice Gpu = VK_NULL_HANDLE;

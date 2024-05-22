@@ -8,6 +8,7 @@ namespace VulkanRHI
 class VulkanDevice;
 class VulkanQueue;
 class VulkanPendingState;
+class VulkanCommandBufferManager;
 
 class VulkanTexture;
 
@@ -16,6 +17,8 @@ class VulkanCommandContext : public RHIContext
 public:
     VulkanCommandContext(VulkanDevice* InDevice, VulkanQueue* InGraphicsQueue, VulkanQueue* InPresentQueue);
     ~VulkanCommandContext();
+
+    void Reset() override;
 
 public:
     /// @brief Mark the beginning of a new frame
@@ -43,8 +46,14 @@ public:
     /// @brief VulkanRHI only, set the layout of the given texture
     void SetLayout(VulkanTexture* const Texture, VkImageLayout Layout);
 
+    VulkanCommandBufferManager* GetCommandManager() const
+    {
+        return CommandManager.get();
+    }
+
 private:
     std::unique_ptr<VulkanPendingState> PendingState;
+    std::unique_ptr<VulkanCommandBufferManager> CommandManager;
 
     VulkanDevice* const Device = nullptr;
     VulkanQueue* const GfxQueue = nullptr;

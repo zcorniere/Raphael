@@ -153,4 +153,3 @@ public:
 private:
     RHICommandList m_CommandList;
 };
-extern RHICommandListExecutor GCommandListExecutor;

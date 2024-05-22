@@ -181,7 +181,7 @@ public:
             return false;
 
         // Move element after Index to the left
-        MoveElements(Raw() + Index, Raw() + Index + 1, Size() - Index - 1);
+        MoveItems(Raw() + Index, Raw() + Index + 1, Size() - Index - 1);
         ArraySize--;
         return true;
     }

@@ -48,7 +48,6 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice InGpu)
       TransferQueue(nullptr),
       PresentQueue(nullptr),
       MemoryAllocator(nullptr),
-      CommandManager(nullptr),
       Device(VK_NULL_HANDLE),
       Gpu(InGpu)
 {
@@ -100,7 +99,7 @@ void VulkanDevice::InitPhysicalDevice()
 
     MemoryAllocator = std::make_unique<VulkanMemoryManager>(this);
 
-    CommandManager = std::make_unique<VulkanCommandBufferManager>(this, GraphicsQueue.get());
+    ImmediateContext = static_cast<VulkanCommandContext*>(RHI::Get()->RHIGetCommandContext());
 }
 
 void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
@@ -265,8 +264,7 @@ void VulkanDevice::Destroy()
 {
     WaitUntilIdle();
 
-    CommandManager = nullptr;
-    MemoryAllocator = nullptr;
+    MemoryAllocator.reset();
 
     GraphicsQueue = nullptr;
     ComputeQueue = nullptr;
@@ -284,7 +282,6 @@ void VulkanDevice::Destroy()
 void VulkanDevice::WaitUntilIdle()
 {
     VK_CHECK_RESULT(VulkanAPI::vkDeviceWaitIdle(Device));
-    CommandManager->RefreshFenceStatus();
 }
 
 }    // namespace VulkanRHI

@@ -423,6 +423,16 @@ public:
         return m_Instance;
     }
 
+    bool operator==(const Ref<T>& other) const
+    {
+        return IsValid() && m_Instance == other.m_ObjPtr;
+    }
+
+    bool operator==(const WeakRef<T>& other) const
+    {
+        return IsValid() && other.IsValid() && m_Instance == other.m_Instance;
+    }
+
 private:
     T* m_Instance = nullptr;
 

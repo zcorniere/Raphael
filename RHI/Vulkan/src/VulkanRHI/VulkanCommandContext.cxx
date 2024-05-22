@@ -16,15 +16,29 @@ VulkanCommandContext::VulkanCommandContext(VulkanDevice* InDevice, VulkanQueue* 
     : Device(InDevice), GfxQueue(InGraphicsQueue), PresentQueue(InPresentQueue)
 {
     PendingState = std::make_unique<VulkanPendingState>(Device, *this);
+
+    // TODO: Differentiate between immediate context and frame context to use the transfer Queue
+    CommandManager = std::make_unique<VulkanCommandBufferManager>(Device, GfxQueue);
 }
 
 VulkanCommandContext::~VulkanCommandContext()
 {
 }
 
+void VulkanCommandContext::Reset()
+{
+    VulkanDevice* const ODevice = this->Device;
+    VulkanQueue* const OGfxQueue = this->GfxQueue;
+    VulkanQueue* const OPresentQueue = this->PresentQueue;
+
+    // Not the best to do it, but I find it funnier to do it this way
+    VulkanCommandContext::~VulkanCommandContext();
+    new (this) VulkanCommandContext(ODevice, OGfxQueue, OPresentQueue);    // Placement new (reconstruct the object
+}
+
 void VulkanCommandContext::BeginFrame()
 {
-    Device->GetCommandManager()->PrepareForNewActiveCommandBuffer();
+    CommandManager->PrepareForNewActiveCommandBuffer();
 }
 
 void VulkanCommandContext::EndFrame()
@@ -40,7 +54,7 @@ void VulkanCommandContext::RHIBeginDrawingViewport(RHIViewport* const Viewport)
 void VulkanCommandContext::RHIEndDrawningViewport(RHIViewport* const Viewport)
 {
     VulkanViewport* const VKViewport = dynamic_cast<VulkanViewport*>(Viewport);
-    VKViewport->Present(Device->GetCommandManager()->GetActiveCmdBuffer(), GfxQueue, PresentQueue);
+    VKViewport->Present(this, CommandManager->GetActiveCmdBuffer(), GfxQueue, PresentQueue);
 
     check(GetVulkanDynamicRHI()->DrawingViewport == Viewport);
     GetVulkanDynamicRHI()->DrawingViewport = nullptr;
@@ -73,7 +87,7 @@ void VulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Des
         Ref<VulkanTexture> Texture = Target.Texture.As<VulkanTexture>();
         VkImageLayout ExpectedLayout = Texture->GetDefaultLayout();
         if (ExpectedLayout != VK_IMAGE_LAYOUT_UNDEFINED && ExpectedLayout != Texture->GetLayout()) {
-            Texture->SetLayout(Device->GetCommandManager()->GetUploadCmdBuffer(), ExpectedLayout);
+            Texture->SetLayout(CommandManager->GetUploadCmdBuffer(), ExpectedLayout);
             return true;
         }
         return false;
@@ -93,7 +107,7 @@ void VulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Des
     }
 
     if (bNeedTransition) {
-        Device->GetCommandManager()->SubmitUploadCmdBuffer();
+        CommandManager->SubmitUploadCmdBuffer();
     }
     VkRenderingInfo RenderingInfo{
         .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
@@ -110,13 +124,13 @@ void VulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Des
         .pDepthAttachment = DepthAttachment.has_value() ? &DepthAttachment.value() : nullptr,
     };
 
-    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
+    VulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
     CmdBuffer->BeginRendering(RenderingInfo);
 }
 
 void VulkanCommandContext::RHIEndRendering()
 {
-    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
+    VulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
 
     CmdBuffer->EndRendering();
 }
@@ -146,14 +160,14 @@ void VulkanCommandContext::SetScissor(glm::ivec2 Offset, glm::uvec2 Size)
 void VulkanCommandContext::Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances)
 {
 
-    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetActiveCmdBuffer();
+    VulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
     PendingState->PrepareForDraw(CmdBuffer);
     VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), BaseVertexIndex, NumPrimitives, NumInstances, 0);
 }
 
 void VulkanCommandContext::SetLayout(VulkanTexture* const Texture, VkImageLayout Layout)
 {
-    Texture->SetLayout(Device->GetCommandManager()->GetActiveCmdBuffer(), Layout);
+    Texture->SetLayout(CommandManager->GetActiveCmdBuffer(), Layout);
 }
 
 }    // namespace VulkanRHI

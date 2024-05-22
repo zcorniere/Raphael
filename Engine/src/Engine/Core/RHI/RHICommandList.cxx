@@ -2,8 +2,6 @@
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "Engine/Core/RHI/RHICommand.hxx"
 
-RHICommandListExecutor GCommandListExecutor;
-
 RHICommandList::RHICommandList()
 {
 }
@@ -11,6 +9,11 @@ RHICommandList::RHICommandList()
 RHICommandList::~RHICommandList()
 {
     Reset();
+
+    /// Don't forget to release the context
+    if (m_Context != nullptr) {
+        RHI::Get()->RHIReleaseCommandContext(m_Context);
+    }
 }
 
 void RHICommandList::BeginFrame()

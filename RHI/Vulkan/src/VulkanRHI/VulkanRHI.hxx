@@ -18,6 +18,7 @@ namespace VulkanRHI
 
 class VulkanDevice;
 class VulkanViewport;
+class VulkanCommandContext;
 
 extern VkAllocationCallbacks GAllocationCallbacks;
 static FORCEINLINE const VkAllocationCallbacks* GetMemoryAllocator()
@@ -93,6 +94,8 @@ private:
     std::unique_ptr<VulkanShaderCompiler> ShaderCompiler;
 
     // Used during runtime //
+    Array<VulkanCommandContext*> CommandContexts;
+    Array<VulkanCommandContext*> AvailableCommandContexts;
     VulkanViewport* DrawingViewport = nullptr;
 };
 

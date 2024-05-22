@@ -7,6 +7,8 @@ class RHIContext
 public:
     virtual ~RHIContext() = default;
 
+    virtual void Reset() = 0;
+
     /// @brief Mark the beginning of a new frame
     virtual void BeginFrame() = 0;
     /// @brief Mark the end of the current frame

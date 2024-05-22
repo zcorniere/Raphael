@@ -2,6 +2,7 @@
 
 #include "Engine/Core/RHI/RHICommand.hxx"
 
+#include "VulkanRHI/VulkanCommandContext.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanQueue.hxx"
@@ -116,7 +117,8 @@ static void CopyImageToBackBuffer(VulkanCmdBuffer* CmdBuffer, VulkanTexture* Src
     SrcSurface->SetLayout(CmdBuffer, OldLayout);
 }
 
-bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, VulkanQueue* PresentQueue)
+bool VulkanViewport::Present(VulkanCommandContext* Context, VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue,
+                             VulkanQueue* PresentQueue)
 {
     check(CmdBuffer->IsOutsideRenderPass());
 
@@ -131,7 +133,7 @@ bool VulkanViewport::Present(VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue, Vul
         CmdBuffer->AddWaitSemaphore(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, AcquiredSemaphore);
         Ref<Semaphore> SignalSemaphore =
             (AcquiredImageIndex >= 0) ? RenderingDoneSemaphores[AcquiredImageIndex] : nullptr;
-        Device->GetCommandManager()->SubmitActiveCmdBufferFromPresent(SignalSemaphore);
+        Context->GetCommandManager()->SubmitActiveCmdBufferFromPresent(SignalSemaphore);
     } else [[unlikely]] {
         LOG(LogVulkanRHI, Info, "AcquireNextImage() failed due to outdated swapchain, recreating");
         Queue->Submit(CmdBuffer);
@@ -175,7 +177,7 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
         RenderingDoneSemaphores[i] = Ref<Semaphore>::Create(Device);
     }
 
-    VulkanCmdBuffer* CmdBuffer = Device->GetCommandManager()->GetUploadCmdBuffer();
+    VulkanCmdBuffer* CmdBuffer = Device->GetImmediateContext()->GetCommandManager()->GetUploadCmdBuffer();
     check(CmdBuffer);
     ensureAlways(CmdBuffer->IsOutsideRenderPass());
 
@@ -213,15 +215,15 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &ClearColor, 1, &Range);
     RenderingBackbuffer->SetLayout(CmdBuffer, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-    Device->GetCommandManager()->SubmitUploadCmdBuffer();
-    Device->WaitUntilIdle();
+    Device->GetImmediateContext()->GetCommandManager()->SubmitUploadCmdBuffer();
+    RHI::RHIWaitUntilIdle();
 
     AcquiredImageIndex = -1;
 }
 
 void VulkanViewport::DeleteSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
 {
-    Device->WaitUntilIdle();
+    RHI::RHIWaitUntilIdle();
 
     for (unsigned Index = 0; Index < BackBufferImages.Size(); Index++) {
         TexturesViews[Index].Destroy(Device);
@@ -260,7 +262,7 @@ bool VulkanViewport::TryPresenting(VulkanQueue* PresentQueue)
             checkNoEntry();
         }
 
-        Device->WaitUntilIdle();
+        RHI::RHIWaitUntilIdle();
         RecreateSwapchain(WindowHandle);
 
         if (AcquiredImageIndex == -1) {

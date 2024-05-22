@@ -209,6 +209,7 @@ VulkanCommandBufferManager::VulkanCommandBufferManager(VulkanDevice* InDevice, V
 
 VulkanCommandBufferManager::~VulkanCommandBufferManager()
 {
+    RefreshFenceStatus();
     delete Pool;
 }
 

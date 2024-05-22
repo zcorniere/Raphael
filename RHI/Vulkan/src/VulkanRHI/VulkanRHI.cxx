@@ -6,6 +6,7 @@
 
 #include "VulkanRHI/Resources/VulkanViewport.hxx"
 
+#include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 #include "VulkanRHI/VulkanPlatform.hxx"
@@ -91,11 +92,14 @@ void VulkanDynamicRHI::PostInit()
 
 void VulkanDynamicRHI::Shutdown()
 {
-    if (Device) {
-        Device->WaitUntilIdle();
-    }
+    WaitUntilIdle();
+
     ShaderCompiler.reset();
 
+    /// Release the command contexts
+    RHIReleaseCommandContext(Device->GetImmediateContext());
+    AvailableCommandContexts.Clear(true);
+    check(CommandContexts.IsEmpty());
     Device.reset();
 
 #if VULKAN_DEBUGGING_ENABLED

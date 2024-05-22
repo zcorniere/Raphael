@@ -5,9 +5,11 @@
 #include "VulkanRHI/Resources/VulkanGraphicsPipeline.hxx"
 #include "VulkanRHI/Resources/VulkanViewport.hxx"
 
+#include "VulkanRHI/VulkanCommandContext.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 
+#include "Engine/Core/RHI/RHICommandList.hxx"
 #include "Engine/Core/Window.hxx"
 #include "Engine/Misc/DataLocation.hxx"
 
@@ -16,24 +18,39 @@ namespace VulkanRHI
 
 void VulkanDynamicRHI::RHISubmitCommandLists(RHICommandList* const CommandLists, std::uint32_t NumCommandLists)
 {
-    (void)CommandLists;
-    (void)NumCommandLists;
-    GetDevice()->GetCommandManager()->SubmitActiveCmdBuffer();
+    for (std::uint32_t i = 0; i < NumCommandLists; ++i) {
+        VulkanCommandContext* Context = static_cast<VulkanCommandContext*>(CommandLists[i].GetContext());
+        Context->GetCommandManager()->SubmitActiveCmdBuffer();
+    }
 }
 
 RHIContext* VulkanDynamicRHI::RHIGetCommandContext()
 {
-    return new VulkanCommandContext(Device.get(), Device->GraphicsQueue.get(), Device->PresentQueue);
+    VulkanCommandContext* Context = nullptr;
+    if (AvailableCommandContexts.IsEmpty()) {
+        Context = new VulkanCommandContext(Device.get(), Device->GraphicsQueue.get(), Device->PresentQueue);
+    } else {
+        Context = AvailableCommandContexts.Pop();
+        Context->GetCommandManager()->RefreshFenceStatus();
+    }
+    CommandContexts.Add(Context);
+
+    return Context;
 }
 
 void VulkanDynamicRHI::RHIReleaseCommandContext(RHIContext* Context)
 {
-    delete Context;
+    VulkanCommandContext* VulkanContext = static_cast<VulkanCommandContext*>(Context);
+    CommandContexts.Remove(VulkanContext);
+    AvailableCommandContexts.Add(VulkanContext);
 }
 
 void VulkanDynamicRHI::WaitUntilIdle()
 {
     Device->WaitUntilIdle();
+    for (VulkanCommandContext* Context: CommandContexts) {
+        Context->GetCommandManager()->RefreshFenceStatus();
+    }
 }
 
 //
