@@ -250,6 +250,7 @@ static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resou
 
         OutResource.Name = resource.name;
         OutResource.Type = ElementType.value();
+        OutResource.Binding = Compiler.get_decoration(resource.id, spv::DecorationBinding);
         OutResource.Location = Compiler.get_decoration(resource.id, spv::DecorationLocation);
     }
     std::sort(StageIO.begin(), StageIO.end(), [](const ShaderResource::StageIO& A, const ShaderResource::StageIO& B) {
