@@ -123,7 +123,7 @@ VkInstance VulkanDynamicRHI::CreateInstance(const Array<const char*>& Validation
     Array<const char*> InstanceExtensions;
     for (const std::unique_ptr<IInstanceVulkanExtension>& Extension: Extensions) {
         Extension->PreInstanceCreated(InstInfo);
-        InstanceExtensions.Add(Extension->GetExtensionName());
+        InstanceExtensions.AddUnique(Extension->GetExtensionName());
     }
     InstInfo.enabledExtensionCount = InstanceExtensions.Size();
     InstInfo.ppEnabledExtensionNames = InstanceExtensions.Raw();
