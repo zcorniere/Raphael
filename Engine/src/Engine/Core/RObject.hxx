@@ -281,6 +281,13 @@ public:
         return Ref<Other>(*this);
     }
 
+    template <typename Other>
+    requires std::convertible_to<T*, Other*> || std::derived_from<Other, T>
+    Other* AsRaw() const
+    {
+        return dynamic_cast<Other*>(this->Raw());
+    }
+
     bool operator==(const Ref<T>& other) const
     {
         return m_ObjPtr == other.m_ObjPtr;
