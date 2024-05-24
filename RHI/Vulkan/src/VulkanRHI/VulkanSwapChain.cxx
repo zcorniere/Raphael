@@ -93,10 +93,10 @@ VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool Loc
 
     if (bFoundPresentModeImmediate && !LockToVSync) {
         return VK_PRESENT_MODE_IMMEDIATE_KHR;
-    } else if (bFoundPresentModeMailbox) {
-        return VK_PRESENT_MODE_MAILBOX_KHR;
     } else if (bFoundPresentModeFIFO) {
         return VK_PRESENT_MODE_FIFO_KHR;
+    } else if (bFoundPresentModeMailbox) {
+        return VK_PRESENT_MODE_MAILBOX_KHR;
     } else {
         LOG(LogVulkanSwapchain, Warning, "Couldn't find desired PresentMode! Using {}",
             VK_TYPE_TO_STRING(VkPresentModeKHR, PresentModes[0]));
