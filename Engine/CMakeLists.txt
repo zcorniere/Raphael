@@ -53,6 +53,7 @@ add_library(
     src/Engine/Misc/DataLocation.cxx
     src/Engine/Misc/Utils.cxx
     src/Engine/Misc/Assertions.cxx
+    src/Engine/Misc/CommandLine.cxx
     src/Engine/Threading/Thread.cxx
     src/Engine/Threading/ThreadPool.cxx
     ${PLATFORM_SOURCE_FILES}

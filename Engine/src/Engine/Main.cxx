@@ -3,6 +3,7 @@
 #include "Engine/Core/Log.hxx"
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "Engine/Core/RHI/RHI.hxx"
+#include "Engine/Misc/CommandLine.hxx"
 #include "Engine/Misc/Utils.hxx"
 
 extern "C" IApplication* GetApplication();
@@ -63,8 +64,16 @@ int EngineLoop()
     return ExitStatus;
 }
 
-int main(int, char**)
+int main(int ac, char** av)
 {
+    CommandLine::Set(ac, av);
+
+    if (CommandLine::Param("-waitfordebugger")) {
+        while (!Platform::isDebuggerPresent()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        PLATFORM_BREAK();
+    }
     Platform::Initialize();
     Log::Init();
 
