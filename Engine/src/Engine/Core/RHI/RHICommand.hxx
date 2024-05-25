@@ -143,4 +143,21 @@ public:
     uint32 NumInstances = 0;
 };
 
+RHICOMMAND_MACRO(RHICopyBufferToBuffer)
+{
+public:
+    RHICopyBufferToBuffer(const Ref<RHIBuffer> Source, Ref<RHIBuffer> Destination, uint64 SourceOffset,
+                          uint64 DestinationOffset, uint64 Size);
+    virtual ~RHICopyBufferToBuffer() = default;
+
+    virtual void Execute(RHICommandList & CommandList) override final;
+
+private:
+    const Ref<RHIBuffer> SourceBuffer = nullptr;
+    Ref<RHIBuffer> DestinationBuffer = nullptr;
+    uint64 Size = 0;
+    uint64 SourceOffset = 0;
+    uint64 DestinationOffset = 0;
+};
+
 #undef RHICOMMAND_MACRO

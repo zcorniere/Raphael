@@ -165,6 +165,20 @@ void VulkanCommandContext::Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, ui
     VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), BaseVertexIndex, NumPrimitives, NumInstances, 0);
 }
 
+void VulkanCommandContext::CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<RHIBuffer>& Destination,
+                                              uint64 SourceOffset, uint64 DestinationOffset, uint64 Size)
+{
+    const VulkanBuffer* const SrcBuffer = Source.AsRaw<VulkanBuffer>();
+    VulkanBuffer* const DstBuffer = Destination.AsRaw<VulkanBuffer>();
+    const VkBufferCopy copyRegion{
+        .srcOffset = SourceOffset,
+        .dstOffset = DestinationOffset,
+        .size = Size,
+    };
+    VulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
+    VulkanAPI::vkCmdCopyBuffer(CmdBuffer->GetHandle(), SrcBuffer->GetHandle(), DstBuffer->GetHandle(), 1, &copyRegion);
+}
+
 void VulkanCommandContext::SetLayout(VulkanTexture* const Texture, VkImageLayout Layout)
 {
     Texture->SetLayout(CommandManager->GetActiveCmdBuffer(), Layout);

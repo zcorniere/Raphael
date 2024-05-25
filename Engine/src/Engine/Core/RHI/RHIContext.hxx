@@ -34,4 +34,8 @@ public:
 
     /// @brief Send a draw call to the RHI
     virtual void Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances) = 0;
+
+    /// @brief Copy the content of a buffer to another buffer
+    virtual void CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<RHIBuffer>& Destination, uint64 SourceOffset,
+                                    uint64 DestinationOffset, uint64 Size) = 0;
 };

@@ -43,6 +43,9 @@ public:
 
     virtual void Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances) override;
 
+    virtual void CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<RHIBuffer>& Destination, uint64 SourceOffset,
+                                    uint64 DestinationOffset, uint64 Size) override;
+
     /// @brief VulkanRHI only, set the layout of the given texture
     void SetLayout(VulkanTexture* const Texture, VkImageLayout Layout);
 

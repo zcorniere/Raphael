@@ -12,11 +12,11 @@ namespace VulkanRHI
 {
 
 VulkanMemoryAllocation::VulkanMemoryAllocation(VulkanMemoryManager& InManager)
-    : Allocation(VK_NULL_HANDLE),
+    : ManagerHandle(InManager),
+      Allocation(VK_NULL_HANDLE),
       AllocationInfo(),
       Size(0),
       MappedPointer(nullptr),
-      ManagerHandle(InManager),
       bCanBeMapped(false),
       bIsCoherent(false)
 {
@@ -39,6 +39,9 @@ void VulkanMemoryAllocation::SetName(std::string_view InName)
 void* VulkanMemoryAllocation::Map(VkDeviceSize InSize, VkDeviceSize Offset)
 {
     check(bCanBeMapped);
+    if (AllocationInfo.pMappedData) {
+        return AllocationInfo.pMappedData;
+    }
     if (!MappedPointer) {
         check(!MappedPointer);
         checkMsg(InSize + Offset <= Size, "Can't to Map {} bytes, Offset {}, AllocSize {} bytes", InSize, Offset, Size);
@@ -49,9 +52,10 @@ void* VulkanMemoryAllocation::Map(VkDeviceSize InSize, VkDeviceSize Offset)
 
 void VulkanMemoryAllocation::Unmap()
 {
-    check(MappedPointer);
-    vmaUnmapMemory(ManagerHandle.GetAllocator(), Allocation);
-    MappedPointer = nullptr;
+    if (MappedPointer) {
+        vmaUnmapMemory(ManagerHandle.GetAllocator(), Allocation);
+        MappedPointer = nullptr;
+    }
 }
 
 void VulkanMemoryAllocation::FlushMappedMemory(VkDeviceSize InOffset, VkDeviceSize InSize)
@@ -155,8 +159,40 @@ Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(const VkMemoryRequirement
     Alloc->Size = MemoryRequirement.size;
     Alloc->bCanBeMapped = Mappable;
 
+    VkMemoryPropertyFlags memPropFlags;
+    vmaGetAllocationMemoryProperties(Allocator, Alloc->GetHandle(), &memPropFlags);
+    Alloc->bIsCoherent = memPropFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    Alloc->bCanBeMapped = memPropFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+
     AllocationCount += 1;
     return Alloc;
+}
+
+std::pair<VkBuffer, Ref<VulkanMemoryAllocation>>
+VulkanMemoryManager::Alloc(const VkBufferCreateInfo& BufferCreateInfo, const VmaAllocationCreateInfo& AllocCreateInfo)
+{
+    Ref<VulkanMemoryAllocation> Alloc = Ref<VulkanMemoryAllocation>::Create(*this);
+
+#if VULKAN_DEBUGGING_ENABLED
+    {
+        std::unique_lock Lock(MemoryAllocationArrayMutex);
+        MemoryAllocationArray.Add(Alloc);
+    }
+#endif    // VULKAN_DEBUGGING_ENABLED
+
+    VkBuffer Buffer = VK_NULL_HANDLE;
+    VK_CHECK_RESULT(vmaCreateBuffer(Allocator, &BufferCreateInfo, &AllocCreateInfo, &Buffer, &(Alloc->GetHandle()),
+                                    &Alloc->AllocationInfo));
+
+    VkMemoryPropertyFlags memPropFlags;
+    vmaGetAllocationMemoryProperties(Allocator, Alloc->GetHandle(), &memPropFlags);
+
+    Alloc->Size = BufferCreateInfo.size;
+    Alloc->bCanBeMapped = memPropFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+    Alloc->bIsCoherent = memPropFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+    AllocationCount += 1;
+    return {Buffer, Alloc};
 }
 
 void VulkanMemoryManager::Free(Ref<VulkanMemoryAllocation>& Allocation)

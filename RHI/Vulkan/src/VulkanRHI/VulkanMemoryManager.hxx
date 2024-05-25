@@ -26,11 +26,14 @@ public:
     }
     bool IsMapped() const
     {
-        return MappedPointer;
+        return AllocationInfo.pMappedData || MappedPointer;
     }
     void* GetMappedPointer()
     {
         check(IsMapped());
+        if (AllocationInfo.pMappedData) {
+            return AllocationInfo.pMappedData;
+        }
         return MappedPointer;
     }
     bool IsCoherent() const
@@ -53,14 +56,15 @@ public:
     }
 
 private:
-    VmaAllocation Allocation;
+    VulkanMemoryManager& ManagerHandle;
+
+    VmaAllocation Allocation = VK_NULL_HANDLE;
     VmaAllocationInfo AllocationInfo;
 
-    VkDeviceSize Size;
+    VkDeviceSize Size = 0;
     void* MappedPointer = nullptr;
-    VulkanMemoryManager& ManagerHandle;
-    bool bCanBeMapped;
-    bool bIsCoherent;
+    bool bCanBeMapped = false;
+    bool bIsCoherent = false;
 
     friend class VulkanMemoryManager;
 };
@@ -71,8 +75,11 @@ public:
     explicit VulkanMemoryManager(VulkanDevice* InDevice);
     ~VulkanMemoryManager();
 
-    Ref<VulkanMemoryAllocation> Alloc(const VkMemoryRequirements& MemoryRequirement, VmaMemoryUsage MemUsage,
-                                      bool Mappable);
+    [[nodiscard]] Ref<VulkanMemoryAllocation> Alloc(const VkMemoryRequirements& MemoryRequirement,
+                                                    VmaMemoryUsage MemUsage, bool Mappable);
+    [[nodiscard]] std::pair<VkBuffer, Ref<VulkanMemoryAllocation>>
+    Alloc(const VkBufferCreateInfo& BufferCreateInfo, const VmaAllocationCreateInfo& AllocCreateInfo);
+
     void Free(Ref<VulkanMemoryAllocation>& Allocation);
 
     uint64 GetTotalMemory(bool bGPUOnly) const;

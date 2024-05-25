@@ -283,9 +283,9 @@ public:
 
     template <typename Other>
     requires std::convertible_to<T*, Other*> || std::derived_from<Other, T>
-    Other* AsRaw() const
+    const Other* AsRaw() const
     {
-        return dynamic_cast<Other*>(this->Raw());
+        return dynamic_cast<const Other*>(this->Raw());
     }
 
     template <typename Other>

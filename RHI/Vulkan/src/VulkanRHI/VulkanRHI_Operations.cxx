@@ -70,7 +70,9 @@ Ref<RHITexture> VulkanDynamicRHI::CreateTexture(const RHITextureSpecification& I
 Ref<RHIBuffer> VulkanDynamicRHI::CreateBuffer(const RHIBufferDesc& InDesc)
 {
     Ref<VulkanBuffer> Buffer = Ref<VulkanBuffer>::Create(GetDevice(), InDesc);
-    Buffer->SetName(InDesc.DebugName.empty() ? "Unknown buffer" : InDesc.DebugName);
+    if (!InDesc.DebugName.empty()) {
+        Buffer->SetName(InDesc.DebugName);
+    }
     return Buffer;
 }
 

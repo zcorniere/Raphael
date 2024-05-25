@@ -68,6 +68,12 @@ void RHICommandList::Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 N
     Enqueue(new RHIDraw(BaseVertexIndex, NumPrimitives, NumInstances));
 }
 
+void RHICommandList::CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<RHIBuffer>& Destination, uint64 SourceOffset,
+                                        uint64 DestinationOffset, uint64 Size)
+{
+    Enqueue(new RHICopyBufferToBuffer(Source, Destination, SourceOffset, DestinationOffset, Size));
+}
+
 void RHICommandList::Enqueue(RHIRenderCommandBase* RenderCommand)
 {
     // If we are executing the command list, we need to execute the command immediately

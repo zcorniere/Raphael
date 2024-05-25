@@ -33,14 +33,24 @@ bool EditorApplication::OnEngineInitialization()
     BaseApplication::OnEngineInitialization();
 
     ResourceArray<glm::vec2> Vertices({{0.0, -0.5}, {0.5, 0.5}, {-0.5, 0.5}});
-    Buffer = RHI::CreateBuffer(RHIBufferDesc{
-        .Size = 200,
+    Ref<RHIBuffer> TmpBuffer = RHI::CreateBuffer(RHIBufferDesc{
+        .Size = Vertices.GetByteSize(),
         .Stride = 0,
-        .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::KeepCPUAccessible,
+        .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::SourceCopy | EBufferUsageFlags::KeepCPUAccessible,
         .ResourceArray = &Vertices,
-        .DebugName = "Vertex Buffer",
+        .DebugName = "Staging Vertex Buffer",
     });
-
+    ENQUEUE_RENDER_COMMAND(CopyBuffer)
+    ([this, TmpBuffer](RHICommandList& CommandList) {
+        Buffer = RHI::CreateBuffer(RHIBufferDesc{
+            .Size = TmpBuffer->GetSize(),
+            .Stride = 0,
+            .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::DestinationCopy,
+            .ResourceArray = nullptr,
+            .DebugName = "Vertex Buffer",
+        });
+        CommandList.CopyBufferToBuffer(TmpBuffer, Buffer, 0, 0, TmpBuffer->GetSize());
+    });
     Pipeline = RHI::CreateGraphicsPipeline(RHIGraphicsPipelineSpecification{
         .VertexShader = "DefaultTriangle.vert",
         .PixelShader = "DefaultTriangle.frag",

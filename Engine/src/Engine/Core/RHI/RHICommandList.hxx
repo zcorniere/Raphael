@@ -99,6 +99,9 @@ public:
     void SetScissor(glm::ivec2 Offset, glm::uvec2 Size);
     void Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances);
 
+    void CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<RHIBuffer>& Destination, uint64 SourceOffset,
+                            uint64 DestinationOffset, uint64 Size);
+
     /// @brief Add a command to the back of the queue
     template <typename TSTR, typename TFunction>
     requires std::is_invocable_v<TFunction, RHICommandList&>

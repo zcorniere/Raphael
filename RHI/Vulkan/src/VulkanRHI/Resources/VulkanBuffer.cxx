@@ -6,7 +6,7 @@
 namespace VulkanRHI
 {
 
-static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage, bool bZeroSize)
+static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage)
 {
     VkBufferUsageFlags OutUsage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     auto TranslateFlags = [&OutUsage, &InUsage](EBufferUsageFlags SearchFlag, VkBufferUsageFlags AddedIfFound,
@@ -17,10 +17,10 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage, bool bZ
     TranslateFlags(EBufferUsageFlags::VertexBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     TranslateFlags(EBufferUsageFlags::IndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
     TranslateFlags(EBufferUsageFlags::StructuredBuffer, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    TranslateFlags(EBufferUsageFlags::SourceCopy, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+    TranslateFlags(EBufferUsageFlags::DestinationCopy, VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+    TranslateFlags(EBufferUsageFlags::DrawIndirect, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
 
-    if (!bZeroSize) {
-        TranslateFlags(EBufferUsageFlags::DrawIndirect, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
-    }
     return OutUsage;
 }
 
@@ -35,16 +35,26 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const RHIBufferDesc& InDescri
     VkBufferCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         .size = Description.Size,
-        .usage = ConvertToVulkanType(Description.Usage, Description.Size == 0),
+        .usage = ConvertToVulkanType(Description.Usage),
     };
-    VK_CHECK_RESULT(VulkanAPI::vkCreateBuffer(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &BufferHandle));
+    VmaAllocationCreateInfo AllocationInfo{
+        .usage = VMA_MEMORY_USAGE_AUTO,
+    };
 
-    VulkanAPI::vkGetBufferMemoryRequirements(Device->GetHandle(), BufferHandle, &MemoryRequirements);
-    Memory =
-        Device->GetMemoryManager()->Alloc(MemoryRequirements, VMA_MEMORY_USAGE_CPU_TO_GPU,
-                                          EnumHasAnyFlags(Description.Usage, EBufferUsageFlags::KeepCPUAccessible));
-    Memory->BindBuffer(BufferHandle);
+    if (EnumHasAnyFlags(Description.Usage, EBufferUsageFlags::KeepCPUAccessible)) {
+        AllocationInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
+                               VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT |
+                               VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    }
+
+    std::tie(BufferHandle, Memory) = Device->GetMemoryManager()->Alloc(CreateInfo, AllocationInfo);
+
     if (Description.ResourceArray) {
+        if (!ensure(EnumHasAnyFlags(Description.Usage, EBufferUsageFlags::KeepCPUAccessible))) {
+            return;
+        }
+
+        Memory->FlushMappedMemory(0, Description.ResourceArray->GetByteSize());
         void* const MappedPtr = Memory->Map(Description.ResourceArray->GetByteSize());
         std::memset(MappedPtr, 0, Description.Size);
         std::memcpy(MappedPtr, Description.ResourceArray->GetData(), Description.ResourceArray->GetByteSize());

@@ -16,18 +16,18 @@ public:
 
 public:
     /// Initialize the array to the minimal size
-    Array()
+    constexpr Array()
     {
         Reserve(MinimalSize);
     }
     /// Initialize the array to the given size
-    Array(const TSize Count)
+    constexpr Array(const TSize Count)
     {
         Resize(Count);
     }
     /// Initialize the array by copying the given array
     /// The copy will be done according to the type stored so copy constructors will be called if needed
-    Array(const T* const Ptr, const TSize Count): Array(Count)
+    constexpr Array(const T* const Ptr, const TSize Count): Array(Count)
     {
         if (Count > 0) {
             CopyItems((T*)Allocator.GetAllocation(), Ptr, ArraySize);
@@ -35,20 +35,20 @@ public:
     }
     /// Initialize the array by copying the memory between the two pointers
     /// The copy will be done according to the type stored so copy constructors will be called if needed
-    Array(const T* const Start, const T* const End): Array(Start, End - Start)
+    constexpr Array(const T* const Start, const T* const End): Array(Start, End - Start)
     {
     }
 
     /// Initialize the array by copying the initializer list
-    Array(std::initializer_list<T> InitList): Array(InitList.begin(), InitList.end())
+    constexpr Array(std::initializer_list<T> InitList): Array(InitList.begin(), InitList.end())
     {
     }
 
-    Array(const Array& Other): Array(Other.Raw(), Other.Size())
+    constexpr Array(const Array& Other): Array(Other.Raw(), Other.Size())
     {
     }
 
-    Array(Array&& Other) noexcept
+    constexpr Array(Array&& Other) noexcept
     {
         Allocator.MoveFrom(Other.Allocator);
         ArraySize = Other.ArraySize;
@@ -57,12 +57,12 @@ public:
         Other.ArrayCapacity = 0;
     }
 
-    ~Array()
+    constexpr ~Array()
     {
         Clear();
     }
 
-    Array& operator=(const Array& Other)
+    constexpr Array& operator=(const Array& Other)
     {
         if (this == &Other) {
             return *this;
@@ -74,7 +74,7 @@ public:
         return *this;
     }
 
-    Array& operator=(Array&& Other) noexcept
+    constexpr Array& operator=(Array&& Other) noexcept
     {
         if (this == &Other) {
             return *this;
@@ -127,14 +127,14 @@ public:
 
     /// Array access operator
     /// The validity of the index is checked
-    [[nodiscard]] FORCEINLINE T& operator[](const TSize Index)
+    [[nodiscard]] constexpr T& operator[](const TSize Index)
     {
         checkMsg((Index >= 0) & (Index < TSize(Size())), "Index is out of bounds.");
         return ((T*)Allocator.GetAllocation())[Index];
     }
     /// Array operators
     /// The validity of the index is checked
-    [[nodiscard]] FORCEINLINE const T& operator[](const TSize Index) const
+    [[nodiscard]] constexpr const T& operator[](const TSize Index) const
     {
         checkMsg((Index >= 0) & (Index < TSize(Size())), "Index is out of bounds.");
         return ((T*)Allocator.GetAllocation())[Index];

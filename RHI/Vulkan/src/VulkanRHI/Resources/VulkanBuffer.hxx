@@ -33,7 +33,6 @@ public:
     }
 
 private:
-    VkMemoryRequirements MemoryRequirements;
     VkBuffer BufferHandle;
     Ref<VulkanMemoryAllocation> Memory;
 };

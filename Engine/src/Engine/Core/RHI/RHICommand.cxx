@@ -88,3 +88,21 @@ void RHIDraw::Execute(RHICommandList& CommandList)
 {
     CommandList.GetContext()->Draw(BaseVertexIndex, NumPrimitives, NumInstances);
 }
+
+RHICopyBufferToBuffer::RHICopyBufferToBuffer(const Ref<RHIBuffer> InSourceBuffer, Ref<RHIBuffer> InDestinationBuffer,
+                                             uint64 InSourceOffset, uint64 InDestinationOffset, uint64 InSize)
+    : SourceBuffer(std::move(InSourceBuffer)),
+      DestinationBuffer(std::move(InDestinationBuffer)),
+      Size(InSize),
+      SourceOffset(InSourceOffset),
+      DestinationOffset(InDestinationOffset)
+{
+    check(EnumHasAnyFlags(EBufferUsageFlags::SourceCopy, SourceBuffer->GetUsage()));
+    check(EnumHasAnyFlags(EBufferUsageFlags::DestinationCopy, DestinationBuffer->GetUsage()));
+}
+
+void RHICopyBufferToBuffer::Execute(RHICommandList& CommandList)
+{
+    CommandList.GetContext()->CopyBufferToBuffer(SourceBuffer, DestinationBuffer, SourceOffset, DestinationOffset,
+                                                 Size);
+}
