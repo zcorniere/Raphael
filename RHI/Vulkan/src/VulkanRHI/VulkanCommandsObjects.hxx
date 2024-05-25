@@ -51,6 +51,11 @@ public:
         return m_CommandBufferHandle;
     }
 
+    inline Fence* GetFence()
+    {
+        return m_Fence.Raw();
+    }
+
     inline VulkanCommandBufferPool* GetOwner() const
     {
         return m_OwnerPool;
@@ -161,6 +166,8 @@ public:
     {
         Pool->RefreshFenceStatus(SkipCmdBuffer);
     }
+
+    void WaitForCmdBuffer(VulkanCmdBuffer* CmdBuffer, float TimeInSecondsToWait = 10.0f);
 
     /// @brief Return the active command buffer
     /// @note Calling this function will submit the upload command buffer to the queue

@@ -213,6 +213,14 @@ VulkanCommandBufferManager::~VulkanCommandBufferManager()
     delete Pool;
 }
 
+void VulkanCommandBufferManager::WaitForCmdBuffer(VulkanCmdBuffer* CmdBuffer, float TimeInSecondsToWait)
+{
+    check(CmdBuffer->IsSubmitted());
+    bool bSuccess = CmdBuffer->GetFence()->Wait((uint64)(TimeInSecondsToWait * 1e9));
+    check(bSuccess);
+    CmdBuffer->RefreshFenceStatus();
+}
+
 VulkanCmdBuffer* VulkanCommandBufferManager::GetActiveCmdBuffer()
 {
     if (UploadCmdBufferRef) {
