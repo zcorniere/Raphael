@@ -175,8 +175,9 @@ void VulkanCommandContext::CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<
         .dstOffset = DestinationOffset,
         .size = Size,
     };
-    VulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
+    VulkanCmdBuffer* CmdBuffer = CommandManager->GetUploadCmdBuffer();
     VulkanAPI::vkCmdCopyBuffer(CmdBuffer->GetHandle(), SrcBuffer->GetHandle(), DstBuffer->GetHandle(), 1, &copyRegion);
+    CommandManager->SubmitUploadCmdBuffer();
 }
 
 void VulkanCommandContext::SetLayout(VulkanTexture* const Texture, VkImageLayout Layout)
