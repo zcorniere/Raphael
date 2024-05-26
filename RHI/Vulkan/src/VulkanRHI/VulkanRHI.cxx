@@ -1,5 +1,8 @@
 #include "VulkanRHI/VulkanRHI.hxx"
 
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_vulkan.h>
+
 #include "Engine/Misc/Utils.hxx"
 
 #include "Engine/Platforms/PlatformMisc.hxx"
@@ -88,6 +91,7 @@ void VulkanDynamicRHI::Init()
 
 void VulkanDynamicRHI::PostInit()
 {
+    IMGUI_CHECKVERSION();
 }
 
 void VulkanDynamicRHI::Shutdown()

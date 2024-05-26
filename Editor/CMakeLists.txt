@@ -10,7 +10,7 @@ endif(RPH_ENABLE_PROFILING)
 
 add_executable(${PROJECT_NAME} EditorApplication.cxx)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelEngine)
+target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelEngine imgui)
 target_precompile_headers(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/Engine/src/Engine/Raphael.hxx)
 target_compile_options(
     ${PROJECT_NAME}

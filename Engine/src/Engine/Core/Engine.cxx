@@ -1,6 +1,7 @@
 #include "Engine/Core/Engine.hxx"
 
 #include "Engine/Core/Log.hxx"
+#include "Engine/Core/Window.hxx"
 
 uint64 GFrameCounter = 0;
 
@@ -21,6 +22,8 @@ bool Engine::ShouldExit() const
 
 bool Engine::Initialisation()
 {
+    Window::EnsureGLFWInit();
+
     m_ThreadPool.Start();
 
     return true;

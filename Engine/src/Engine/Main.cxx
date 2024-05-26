@@ -26,6 +26,8 @@ int EngineLoop()
         return -1;
     }
 
+    GDynamicRHI->PostInit();
+
     int ExitStatus = 0;
     float DeltaTime = 0.0f;
     while (!Utils::HasRequestedExit(ExitStatus) || GEngine->ShouldExit()) {
