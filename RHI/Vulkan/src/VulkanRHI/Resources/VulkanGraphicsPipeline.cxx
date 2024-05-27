@@ -224,6 +224,8 @@ VulkanShader* VulkanGraphicsPipeline::GetShader(ERHIShaderType Type)
             return nullptr;
         }
     }
+    checkNoEntry();
+    return nullptr;
 }
 VulkanShader* VulkanGraphicsPipeline::GetShader(ERHIShaderType Type) const
 {

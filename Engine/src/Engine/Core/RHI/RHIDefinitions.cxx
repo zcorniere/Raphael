@@ -30,4 +30,6 @@ uint32 GetSizeOfElementType(EVertexElementType Type)
         case EVertexElementType::Int4:
             return sizeof(int32) * 4;
     }
+    checkNoEntry();
+    return 0;
 }

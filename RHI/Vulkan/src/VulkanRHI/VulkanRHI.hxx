@@ -7,9 +7,6 @@ DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Trace);
 #include "VulkanRHI/VulkanRHI_Debug.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 
-#define VK_NO_PROTOTYPES
-#include <vulkan/vulkan.h>
-
 // Raphael classes
 class RHIResource;
 

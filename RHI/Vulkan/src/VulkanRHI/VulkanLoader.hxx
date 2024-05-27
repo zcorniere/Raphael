@@ -1,7 +1,5 @@
 #pragma once
 
-#define VK_NO_PROTOTYPES
-#include <vulkan/vulkan.h>
 
 #define VK_ENTRYPOINT_DYNAMIC_RENDERING(LoadMacro)                 \
     LoadMacro(PFN_vkCmdBeginRenderingKHR, vkCmdBeginRenderingKHR); \

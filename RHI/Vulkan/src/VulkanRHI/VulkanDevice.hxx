@@ -1,9 +1,5 @@
 #pragma once
 
-#include "vulkan/vulkan_core.h"
-#define VK_NO_PROTOTYPES
-#include <vulkan/vulkan.h>
-
 #include "VulkanRHI/VulkanCommandContext.hxx"
 #include "VulkanRHI/VulkanPlatform.hxx"
 #include "VulkanRHI/VulkanRHI.hxx"

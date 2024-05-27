@@ -89,6 +89,7 @@ target_compile_options(
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/)
 target_precompile_headers(${PROJECT_NAME} PRIVATE src/Engine/Raphael.hxx)
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:RPH_POISON_ALLOCATION>)
+target_compile_definitions(${PROJECT_NAME} PUBLIC _CRT_SECURE_NO_WARNINGS)
 
 if(UNIX)
     target_link_libraries(${PROJECT_NAME} PUBLIC xdgpp)

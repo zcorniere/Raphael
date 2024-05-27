@@ -5,7 +5,7 @@
 #include "Engine/Core/Memory/MemoryOperations.hxx"
 #include "Engine/Misc/MiscDefines.hxx"
 
-constexpr static inline auto InvalidVectorIndex = -1;
+constexpr static inline unsigned InvalidVectorIndex = static_cast<unsigned>(-1);
 
 /// Simple array class that uses a custom allocator
 template <typename T, typename AllocationType = HeapAllocator<T, uint32>, AllocationType::SizeType MinimalSize = 10>

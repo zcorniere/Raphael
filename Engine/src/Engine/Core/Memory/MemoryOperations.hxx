@@ -10,8 +10,7 @@ FORCEINLINE void ConstructItems(ElementType* Ptr, SizeType Count)
     // Nothing to do if the type is trivially destructible
     if constexpr (std::is_trivially_default_constructible_v<ElementType>) {
         return;
-    }
-    if constexpr (std::is_default_constructible_v<ElementType>) {
+    } else if constexpr (std::is_default_constructible_v<ElementType>) {
         while (Count) {
             new (Ptr) ElementType();
             ++Ptr;
@@ -29,11 +28,12 @@ FORCEINLINE void DestructItems(ElementType* Ptr, SizeType Count)
     // Nothing to do if the type is trivially destructible
     if constexpr (std::is_trivially_destructible_v<ElementType>) {
         return;
-    }
-    while (Count) {
-        Ptr->ElementType::~ElementType();
-        ++Ptr;
-        --Count;
+    } else {
+        while (Count) {
+            Ptr->ElementType::~ElementType();
+            ++Ptr;
+            --Count;
+        }
     }
 }
 
