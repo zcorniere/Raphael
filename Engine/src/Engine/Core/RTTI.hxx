@@ -73,13 +73,13 @@ namespace details
 
 /// @brief Return the name of the type given as template arguments
 template <typename T>
-consteval auto TypeName() -> std::string_view
+consteval std::string_view TypeName()
 {
     constexpr auto& value = details::type_name_holder<T>::value;
     return std::string_view{value.data(), value.size()};
 }
 
-consteval std::string_view FunctionName(const std::source_location& location = std::source_location::current())
+consteval const char* FunctionName(const std::source_location& location = std::source_location::current())
 {
     return location.function_name();
 }

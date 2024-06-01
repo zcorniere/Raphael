@@ -2,8 +2,8 @@
 
 #ifdef RPH_ENABLE_PROFILING
     #define TracyFunction ::RTTI::FunctionName()
-// #define TracyFile __FILE__
-// #define TracyLine __LINE__
+    #define TracyFile __FILE__
+    #define TracyLine __LINE__
 
     #include <tracy/Tracy.hpp>
 
