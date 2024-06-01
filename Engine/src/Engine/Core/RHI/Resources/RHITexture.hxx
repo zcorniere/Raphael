@@ -26,6 +26,8 @@ struct RHITextureSpecification {
 /// @brief Represent a Texture used by the RHI
 class RHITexture : public RHIResource
 {
+    RTTI_DECLARE_TYPEINFO(RHITexture, RHIResource);
+
 public:
     explicit RHITexture(const RHITextureSpecification& InDesc)
         : RHIResource(ERHIResourceType::Texture), Description(InDesc)

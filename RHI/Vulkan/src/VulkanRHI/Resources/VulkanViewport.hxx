@@ -20,6 +20,8 @@ class VulkanCommandContext;
 
 class VulkanViewport : public RHIViewport, public IDeviceChild
 {
+    RTTI_DECLARE_TYPEINFO(VulkanViewport, RHIViewport);
+
 public:
     VulkanViewport(VulkanDevice* InDevice, Ref<Window> InWindowHandle, glm::uvec2 InSize);
     ~VulkanViewport();

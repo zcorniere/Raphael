@@ -2,8 +2,10 @@
 
 #include "Engine/Core/RHI/Resources/RHIViewport.hxx"
 
-class RHIContext
+class RHIContext : public RTTI::Enable
 {
+    RTTI_DECLARE_TYPEINFO(RHIContext);
+
 public:
     virtual ~RHIContext() = default;
 

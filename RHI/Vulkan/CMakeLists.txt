@@ -32,6 +32,7 @@ target_link_libraries(
             Vulkan::Headers
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelEngine)
+target_disable_rtti(${PROJECT_NAME})
 
 target_compile_options(
     ${PROJECT_NAME}

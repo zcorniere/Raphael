@@ -28,6 +28,7 @@ target_compile_options(
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 set_target_properties(${PROJECT_NAME} PROPERTIES ENABLE_EXPORTS 1)
+target_disable_rtti(${PROJECT_NAME})
 
 if(MSVC)
     set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})

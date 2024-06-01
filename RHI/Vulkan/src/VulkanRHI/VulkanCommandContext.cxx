@@ -47,13 +47,13 @@ void VulkanCommandContext::EndFrame()
 
 void VulkanCommandContext::RHIBeginDrawingViewport(RHIViewport* const Viewport)
 {
-    VulkanViewport* const VKViewport = dynamic_cast<VulkanViewport*>(Viewport);
+    VulkanViewport* const VKViewport = Viewport->cast<VulkanViewport>();
     GetVulkanDynamicRHI()->DrawingViewport = VKViewport;
 }
 
 void VulkanCommandContext::RHIEndDrawningViewport(RHIViewport* const Viewport)
 {
-    VulkanViewport* const VKViewport = dynamic_cast<VulkanViewport*>(Viewport);
+    VulkanViewport* const VKViewport = Viewport->cast<VulkanViewport>();
     VKViewport->Present(this, CommandManager->GetActiveCmdBuffer(), GfxQueue, PresentQueue);
 
     check(GetVulkanDynamicRHI()->DrawingViewport == Viewport);

@@ -12,6 +12,8 @@ class VulkanMemoryAllocation;
 
 class VulkanTexture : public RHITexture, public IDeviceChild
 {
+    RTTI_DECLARE_TYPEINFO(VulkanTexture, RHITexture);
+
 public:
     VulkanTexture(VulkanDevice* InDevice, const RHITextureSpecification& InDesc);
     virtual ~VulkanTexture();

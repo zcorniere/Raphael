@@ -28,8 +28,10 @@ bool AreThereAnyLiveObject(bool bPrintObjects = true);
 
 }    // namespace RObjectUtils
 
-class NamedClass
+class NamedClass : public RTTI::Enable
 {
+    RTTI_DECLARE_TYPEINFO(NamedClass);
+
 public:
     virtual ~NamedClass() = default;
 
@@ -52,6 +54,8 @@ private:
 /// Custom Ref Counting class
 class RObject : public NamedClass
 {
+    RTTI_DECLARE_TYPEINFO(RObject, NamedClass);
+
 public:
     virtual ~RObject()
     {
@@ -60,7 +64,7 @@ public:
     /// Return the typename
     std::string_view GetTypeName() const
     {
-        return m_TypeName;
+        return TypeInfo().Name();
     }
 
     /// Return a string representing the RObject
@@ -82,15 +86,6 @@ public:
     }
 
 private:
-    /// Set the typename of the RObject (should NOT be called by the user)
-    template <typename T>
-    constexpr void SetTypeName()
-    {
-        // Should not be called multiple time
-        check(m_TypeName.empty());
-        m_TypeName = type_name<T>();
-    }
-
     /// Increment the ref count of the RObject
     void IncrementRefCount() const
     {
@@ -107,7 +102,6 @@ private:
     }
 
 private:
-    std::string m_TypeName;
     mutable std::atomic<std::uint32_t> m_RefCount = 0;
 
     // Allow Refs to access private members
@@ -144,8 +138,6 @@ private:
     FORCEINLINE static Ref<T> CreateInternal(Args&&... args)
     {
         T* const NewRef = new T(std::forward<Args>(args)...);
-        NewRef->template SetTypeName<T>();
-
         LOG(RObjectUtils::LogRObject, Trace, "Creating RObject {:s}", NewRef->ToString());
 
         return Ref<T>(NewRef);
@@ -285,14 +277,14 @@ public:
     requires std::convertible_to<T*, Other*> || std::derived_from<Other, T>
     const Other* AsRaw() const
     {
-        return dynamic_cast<const Other*>(this->Raw());
+        return Raw()->template cast<const Other>();
     }
 
     template <typename Other>
     requires std::convertible_to<T*, Other*> || std::derived_from<Other, T>
     Other* AsRaw()
     {
-        return dynamic_cast<Other*>(this->Raw());
+        return Raw()->template cast<Other>();
     }
 
     bool operator==(const Ref<T>& other) const

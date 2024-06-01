@@ -9,6 +9,7 @@ include(cmake/tests.cmake)
 include(cmake/find_linker.cmake)
 include(cmake/CompileShaders.cmake)
 include(cmake/StripDebugFile.cmake)
+include(cmake/disable_rtti.cmake)
 
 # Option to force colored output of the compiler
 option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." TRUE)
@@ -44,12 +45,7 @@ if(BUILD_DOCUMENTATION)
         set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
         set(DOXYGEN_WARN_LOGFILE ${CMAKE_BINARY_DIR}/doxygen-warnings.log)
         set(DOXYGEN_PREDEFINED DOXYGEN_SHOULD_SKIP_THIS)
-        doxygen_add_docs(
-            doc
-            Engine/src/
-            RHI/Vulkan/src/
-            README.md
-        )
+        doxygen_add_docs(doc Engine/src/ RHI/Vulkan/src/ README.md)
     else()
         message(SEND_ERROR "Doxygen needs to be installed to build the documentation")
     endif()

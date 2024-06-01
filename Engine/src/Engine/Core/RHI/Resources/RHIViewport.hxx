@@ -7,6 +7,8 @@ class RHITexture;
 /// @brief Represent a viewport used by the RHI to be drawn on
 class RHIViewport : public RHIResource
 {
+    RTTI_DECLARE_TYPEINFO(RHIViewport, RHIResource);
+
 public:
     RHIViewport(): RHIResource(ERHIResourceType::Viewport)
     {

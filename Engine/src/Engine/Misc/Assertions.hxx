@@ -1,8 +1,7 @@
 #pragma once
 
 // The following header are used in the macro definitions
-#include "Engine/Compilers/Compiler.hxx"     // IWYU pragma: keep
-#include "Engine/Misc/SourceLocation.hxx"    // IWYU pragma: keep
+#include "Engine/Compilers/Compiler.hxx"    // IWYU pragma: keep
 #include "Engine/Platforms/Platform.hxx"
 
 #include <atomic>    // IWYU pragma: keep
@@ -39,7 +38,7 @@ consteval bool ShouldCheckPrintStackTrace()
                                         Raphael::CollectAndPrintStackTrace(Compiler::ReturnAddress());     \
                                     const std::string Message =                                            \
                                         std::format("Assertion failed: " STR(#Expression) " in {}" Format, \
-                                                    file_position() __VA_OPT__(, ) __VA_ARGS__);           \
+                                                    ::RTTI::FilePosition() __VA_OPT__(, ) __VA_ARGS__);    \
                                     fprintf(stderr, "%s\n", Message.c_str());                              \
                                     fflush(stderr);                                                        \
                                     return Platform::isDebuggerPresent();                                  \
@@ -63,7 +62,7 @@ consteval bool ShouldCheckPrintStackTrace()
                 if constexpr (Raphael::ShouldCheckPrintStackTrace())                                           \
                     CollectAndPrintStackTrace(Compiler::ReturnAddress());                                      \
                 const std::string Message = std::format("Assertion failed: " STR(#Expression) " in {}" Format, \
-                                                        file_position() __VA_OPT__(, ) __VA_ARGS__);           \
+                                                        ::RTTI::FilePosition() __VA_OPT__(, ) __VA_ARGS__);    \
                 fprintf(stderr, "%s\n", Message.c_str());                                                      \
                 fflush(stderr);                                                                                \
                 if (Platform::isDebuggerPresent()) {                                                           \

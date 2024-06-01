@@ -10,6 +10,8 @@ class VulkanMemoryAllocation;
 
 class VulkanBuffer : public RHIBuffer, public IDeviceChild
 {
+    RTTI_DECLARE_TYPEINFO(VulkanBuffer, RHIBuffer);
+
 public:
     VulkanBuffer(VulkanDevice* InDevice, const RHIBufferDesc& InDescription);
     ~VulkanBuffer();

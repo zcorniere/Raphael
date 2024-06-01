@@ -16,6 +16,8 @@ enum class ERHIResourceType {
 /// Represent and abstract above RHI resources
 class RHIResource : public RObject
 {
+    RTTI_DECLARE_TYPEINFO(RHIResource, RObject);
+
 public:
     RHIResource() = delete;
     explicit RHIResource(ERHIResourceType InResourceType): ResourceType(InResourceType)

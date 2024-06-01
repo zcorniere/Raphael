@@ -32,6 +32,8 @@ struct RHIGraphicsPipelineSpecification {
 /// @brief Represent a shader used by the RHI
 class RHIGraphicsPipeline : public RHIResource
 {
+    RTTI_DECLARE_TYPEINFO(RHIGraphicsPipeline, RHIResource);
+
 public:
     RHIGraphicsPipeline(): RHIResource(ERHIResourceType::GraphicsPipeline)
     {

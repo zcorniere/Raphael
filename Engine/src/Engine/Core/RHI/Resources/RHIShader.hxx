@@ -13,6 +13,8 @@ enum class ERHIShaderType : uint8 {
 /// @brief Represent a shader used by the RHI
 class RHIShader : public RHIResource
 {
+    RTTI_DECLARE_TYPEINFO(RHIShader, RHIResource);
+
 public:
     explicit RHIShader(ERHIShaderType Type): RHIResource(ERHIResourceType::Shader), ShaderType(Type)
     {

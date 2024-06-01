@@ -13,6 +13,7 @@
 #include <vector>
 // IWYU pragma: end_keep
 
+#include <Engine/Core/RTTI.hxx>
 #include <Engine/Misc/MiscDefines.hxx>
 
 #include <Engine/Core/Memory/Memory.hxx>

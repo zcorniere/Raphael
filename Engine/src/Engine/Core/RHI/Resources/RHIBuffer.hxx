@@ -36,6 +36,8 @@ struct RHIBufferDesc {
 /// @brief Represent a Buffer used by the RHI
 class RHIBuffer : public RHIResource
 {
+    RTTI_DECLARE_TYPEINFO(RHIBuffer, RHIResource);
+
 public:
     RHIBuffer(const RHIBufferDesc& InDescription): RHIResource(ERHIResourceType::Buffer), Description(InDescription)
     {

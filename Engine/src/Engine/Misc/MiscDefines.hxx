@@ -1,6 +1,7 @@
 #pragma once
 
 #include <magic_enum.hpp>
+#include <magic_enum_utility.hpp>
 
 #define __MACRO_EXPENDER_INTERNAL(X, Y) X##Y
 #define MACRO_EXPENDER(X, Y) __MACRO_EXPENDER_INTERNAL(X, Y)

@@ -57,6 +57,8 @@ class VulkanShader;
 
 class VulkanGraphicsPipeline : public RHIGraphicsPipeline, public IDeviceChild
 {
+    RTTI_DECLARE_TYPEINFO(VulkanGraphicsPipeline, RHIGraphicsPipeline);
+
 public:
     VulkanGraphicsPipeline(VulkanDevice* InDevice, const GraphicsPipelineDescription& Description);
     ~VulkanGraphicsPipeline();

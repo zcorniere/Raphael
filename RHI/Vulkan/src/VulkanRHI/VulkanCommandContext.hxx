@@ -14,6 +14,8 @@ class VulkanTexture;
 
 class VulkanCommandContext : public RHIContext
 {
+    RTTI_DECLARE_TYPEINFO(VulkanCommandContext, RHIContext);
+
 public:
     VulkanCommandContext(VulkanDevice* InDevice, VulkanQueue* InGraphicsQueue, VulkanQueue* InPresentQueue);
     ~VulkanCommandContext();

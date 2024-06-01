@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef RPH_ENABLE_PROFILING
-    #define TracyFunction function_name()
+    #define TracyFunction ::RTTI::FunctionName()
 // #define TracyFile __FILE__
 // #define TracyLine __LINE__
 

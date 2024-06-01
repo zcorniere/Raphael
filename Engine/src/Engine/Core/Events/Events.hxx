@@ -49,8 +49,10 @@ enum EventCategory {
         return category;                          \
     }
 
-class Event
+class Event : public RTTI::Enable
 {
+    RTTI_DECLARE_TYPEINFO(Event);
+
 public:
     virtual ~Event()
     {
@@ -90,7 +92,7 @@ public:
     bool Dispatch(EventFn<T>&& func)
     {
         if (m_Event.GetEventType() == T::GetStaticType() && !m_Event.Handled) {
-            T* const CastedEvent = dynamic_cast<T*>(&m_Event);
+            T* const CastedEvent = m_Event.cast<T>();
             check(CastedEvent);
             m_Event.Handled = func(*CastedEvent);
             return true;

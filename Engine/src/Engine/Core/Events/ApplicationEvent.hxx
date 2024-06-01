@@ -4,6 +4,8 @@
 
 class WindowResizeEvent : public Event
 {
+    RTTI_DECLARE_TYPEINFO(WindowResizeEvent, Event);
+
 public:
     WindowResizeEvent(uint32 width, uint32 height): m_Width(width), m_Height(height)
     {
@@ -27,6 +29,8 @@ private:
 
 class WindowMinimizeEvent : public Event
 {
+    RTTI_DECLARE_TYPEINFO(WindowMinimizeEvent, Event);
+
 public:
     WindowMinimizeEvent(bool minimized): m_Minimized(minimized)
     {
@@ -45,6 +49,8 @@ private:
 
 class WindowCloseEvent : public Event
 {
+    RTTI_DECLARE_TYPEINFO(WindowCloseEvent, Event);
+
 public:
     WindowCloseEvent()
     {

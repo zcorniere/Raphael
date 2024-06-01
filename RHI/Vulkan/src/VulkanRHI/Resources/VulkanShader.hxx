@@ -31,6 +31,8 @@ namespace ShaderResource
 
 class VulkanShader : public RHIShader
 {
+    RTTI_DECLARE_TYPEINFO(VulkanShader, RHIShader);
+
 public:
     struct ReflectionData {
         Array<ShaderResource::StageIO> StageInput;

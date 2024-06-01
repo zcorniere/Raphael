@@ -48,7 +48,7 @@ void VulkanTexture::Invalidate()
         instance->DestroyTexture();
         instance->CreateTexture();
 
-        VulkanCommandContext* Context = dynamic_cast<VulkanCommandContext*>(CommandList.GetContext());
+        VulkanCommandContext* Context = CommandList.GetContext()->cast<VulkanCommandContext>();
         Context->SetLayout(instance.Raw(), Layout);
     });
 }

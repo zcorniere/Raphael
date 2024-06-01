@@ -5,6 +5,8 @@
 
 class MouseMovedEvent : public Event
 {
+    RTTI_DECLARE_TYPEINFO(MouseMovedEvent, Event);
+
 public:
     MouseMovedEvent(float x, float y): m_MouseX(x), m_MouseY(y)
     {
@@ -22,11 +24,14 @@ public:
     EVENT_CLASS_TYPE(MouseMoved)
     EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 private:
-    float m_MouseX, m_MouseY;
+    float m_MouseX = 0.0f;
+    float m_MouseY = 0.0f;
 };
 
 class MouseScrolledEvent : public Event
 {
+    RTTI_DECLARE_TYPEINFO(MouseScrolledEvent, Event);
+
 public:
     MouseScrolledEvent(float xOffset, float yOffset): m_XOffset(xOffset), m_YOffset(yOffset)
     {
@@ -44,11 +49,14 @@ public:
     EVENT_CLASS_TYPE(MouseScrolled)
     EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 private:
-    float m_XOffset, m_YOffset;
+    float m_XOffset = 0.0f;
+    float m_YOffset = 0.0f;
 };
 
 class MouseButtonEvent : public Event
 {
+    RTTI_DECLARE_TYPEINFO(MouseButtonEvent, Event);
+
 public:
     inline MouseButton GetMouseButton() const
     {
@@ -66,6 +74,7 @@ protected:
 
 class MouseButtonPressedEvent : public MouseButtonEvent
 {
+    RTTI_DECLARE_TYPEINFO(MouseButtonPressedEvent, MouseButtonEvent)
 public:
     MouseButtonPressedEvent(MouseButton button): MouseButtonEvent(button)
     {
@@ -76,6 +85,7 @@ public:
 
 class MouseButtonReleasedEvent : public MouseButtonEvent
 {
+    RTTI_DECLARE_TYPEINFO(MouseButtonReleasedEvent, MouseButtonEvent)
 public:
     MouseButtonReleasedEvent(MouseButton button): MouseButtonEvent(button)
     {
@@ -86,6 +96,7 @@ public:
 
 class MouseButtonDownEvent : public MouseButtonEvent
 {
+    RTTI_DECLARE_TYPEINFO(MouseButtonDownEvent, MouseButtonEvent)
 public:
     MouseButtonDownEvent(MouseButton button): MouseButtonEvent(button)
     {
