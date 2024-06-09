@@ -13,8 +13,14 @@
         ZoneScoped;                         \
         ZoneName(Name, strlen(Name));
     #define RPH_PROFILE_THREAD(...) tracy::SetThreadName(__VA_ARGS__);
-    #define RPH_PROFILE_ALLOC(Pointer, Size) TracyAlloc(Pointer, Size);
-    #define RPH_PROFILE_FREE(Pointer) TracyFree(Pointer);
+
+    #ifdef RPH_ENABLE_MEMORY_PROFILING
+        #define RPH_PROFILE_ALLOC(Pointer, Size) TracyAlloc(Pointer, Size);
+        #define RPH_PROFILE_FREE(Pointer) TracyFree(Pointer);
+    #else
+        #define RPH_PROFILE_ALLOC(Pointer, Size)
+        #define RPH_PROFILE_FREE(Pointer)
+    #endif    //! RPH_ENABLE_MEMORY_PROFILING
 
 #else
     #define RPH_PROFILE_MARK_FRAME
@@ -23,4 +29,4 @@
     #define RPH_PROFILE_THREAD(...)
     #define RPH_PROFILE_ALLOC(Pointer, Size)
     #define RPH_PROFILE_FREE(Pointer)
-#endif
+#endif    //! RPH_ENABLE_PROFILING
