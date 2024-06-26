@@ -64,29 +64,19 @@ VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool Loc
     LOG(LogVulkanSwapchain, Info, "Found {} Surface present modes:", PresentModes.Size());
 
     for (const auto& availablePresentMode: PresentModes) {
+        LOG(LogVulkanSwapchain, Info, "- {}({})", magic_enum::enum_name(availablePresentMode),
+            magic_enum::enum_index(availablePresentMode).value());
         switch (availablePresentMode) {
             case VK_PRESENT_MODE_MAILBOX_KHR:
                 bFoundPresentModeMailbox = true;
-                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_MAILBOX_KHR ({})",
-                    static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_MAILBOX_KHR));
                 break;
             case VK_PRESENT_MODE_IMMEDIATE_KHR:
                 bFoundPresentModeImmediate = true;
-                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_IMMEDIATE_KHR ({})",
-                    static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_IMMEDIATE_KHR));
                 break;
             case VK_PRESENT_MODE_FIFO_KHR:
                 bFoundPresentModeFIFO = true;
-                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_FIFO_KHR ({})",
-                    static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_FIFO_KHR));
-                break;
-            case VK_PRESENT_MODE_FIFO_RELAXED_KHR:
-                LOG(LogVulkanSwapchain, Info, "- VK_PRESENT_MODE_FIFO_RELAXED_KHR ({})",
-                    static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_FIFO_RELAXED_KHR));
                 break;
             default:
-                LOG(LogVulkanSwapchain, Info, "- VkPresentModeKHR {}",
-                    static_cast<std::underlying_type_t<VkPresentModeKHR>>(VK_PRESENT_MODE_FIFO_RELAXED_KHR));
                 break;
         }
     }

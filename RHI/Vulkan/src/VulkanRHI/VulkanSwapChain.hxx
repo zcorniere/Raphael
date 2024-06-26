@@ -1,7 +1,5 @@
 #pragma once
 
-#include "VulkanRHI/VulkanLoader.hxx"
-
 class Window;
 
 namespace VulkanRHI
