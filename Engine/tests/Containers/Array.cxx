@@ -105,37 +105,54 @@ TEST_CASE("Array: Test Advanced Type")
         }
         ComplexType(const ComplexType& Other): ComplexType(Other.Value)
         {
+            Value += 1;
         }
-        ~ComplexType()
+        ComplexType(ComplexType&& Other) noexcept: Value(Other.Value)
+        {
+            Value += 1;
+        }
+        ~ComplexType() noexcept
         {
             Value -= 1;
         }
     };
 
+    static_assert(std::is_trivially_destructible<ComplexType>::value == false,
+                  "ComplexType is not trivially destructible");
+
+    REQUIRE(DtorCounter == 0);
+    ComplexType* TestType = new ComplexType(DtorCounter);
+    REQUIRE(DtorCounter == 1);
+
     Array<ComplexType> Vec2;
-    Vec2.Emplace(ComplexType(DtorCounter));
-    Vec2.Add(ComplexType(DtorCounter));
+    Vec2.Emplace(DtorCounter);
+    Vec2.Add(*TestType);
 
     CHECK_NOTHROW(Vec2.Size() == 2);
-    REQUIRE(DtorCounter == 2);
+    REQUIRE(DtorCounter == 1 + 2);    // 1 for TestType, 2 for Vec2 (1 for the copy during the Add)
 
     SECTION("Test Append")
     {
         Array<ComplexType> TestVec2;
 
-        TestVec2.Emplace(ComplexType(DtorCounter));
-        TestVec2.Emplace(ComplexType(DtorCounter));
-        REQUIRE(DtorCounter == 4);
+        TestVec2.Emplace(DtorCounter);
+        TestVec2.Emplace(DtorCounter);
+        REQUIRE(DtorCounter == 1 + 2 + 2);    // 1 for TestType, 2 for Vec2, and 2 for TestVec2
 
         Vec2.Append(TestVec2);
-        REQUIRE(DtorCounter == 6);
+        REQUIRE(DtorCounter ==
+                1 + 4 + 2 + 2    // 1 for TestType, 4 for Vec2, 2 for TestVec2, and 2 for the copy during the append
+        );
         CHECK(Vec2.Size() == 4);
 
         TestVec2.Clear();
-        REQUIRE(DtorCounter == 4);
+        REQUIRE(DtorCounter == 1 + 4 + 2);
     }
 
     Vec2.Clear();
+    REQUIRE(Vec2.IsEmpty());
+    // REQUIRE(DtorCounter == 1);
+    delete TestType;
     REQUIRE(DtorCounter == 0);
 }
 

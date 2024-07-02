@@ -13,6 +13,7 @@ class Array
 {
 public:
     using TSize = AllocationType::SizeType;
+    static const TSize DefaultCapacity = MinimalSize;
 
 public:
     /// Initialize the array to the minimal size
@@ -25,6 +26,13 @@ public:
     {
         Resize(Count);
     }
+    constexpr Array(const TSize Count, T DefaultValue): Array(Count)
+    {
+        for (TSize i = 0; i < Count; i++) {
+            (*this)[i] = DefaultValue;
+        }
+    }
+
     /// Initialize the array by copying the given array
     /// The copy will be done according to the type stored so copy constructors will be called if needed
     constexpr Array(const T* const Ptr, const TSize Count): Array(Count)
@@ -94,6 +102,13 @@ public:
     {
         return ArraySize;
     }
+
+    /// Get the capacity of the array
+    [[nodiscard]] constexpr auto Capacity() const -> typename std::make_unsigned<TSize>::type
+    {
+        return ArrayCapacity;
+    }
+
     /// Get the byte size of the array
     ///
     /// @code return Size() * sizeof(T); @endcode
@@ -150,7 +165,9 @@ public:
     constexpr void Clear(TSize ExpectedCapacity = 0)
     {
         Resize(0);
-        Reserve(ExpectedCapacity);
+        if (ExpectedCapacity > 0) {
+            Reserve(ExpectedCapacity);
+        }
     }
 
     /// Call the given function on each element and clear the array
@@ -178,6 +195,18 @@ public:
     {
         TSize Index = Find(Value);
         if (Index == InvalidVectorIndex)
+            return false;
+
+        // Move element after Index to the left
+        MoveItems(Raw() + Index, Raw() + Index + 1, Size() - Index - 1);
+        ArraySize--;
+        return true;
+    }
+
+    /// Remove the given element from the array
+    constexpr bool RemoveAt(const TSize Index)
+    {
+        if (Index >= Size() || Index == InvalidVectorIndex)
             return false;
 
         // Move element after Index to the left
@@ -314,6 +343,12 @@ public:
             }
         }
         return InvalidVectorIndex;
+    }
+
+    /// Check if the given index is valid within the array
+    [[nodiscard]] FORCEINLINE bool IsValidIndex(const TSize Index) const
+    {
+        return Index < Size();
     }
 
     /// Check if the array contains the given element
