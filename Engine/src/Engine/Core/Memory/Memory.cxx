@@ -32,7 +32,9 @@ void* Memory::Realloc(void* Original, uint32 Size, uint32 Alignment)
 {
     EnsureAllocatorIsSetup();
 
-    RPH_PROFILE_FREE(Original);
+    if (!Original) {
+        RPH_PROFILE_FREE(Original);
+    }
     void* const Memory = GMalloc->Realloc(Original, Size, Alignment);
     RPH_PROFILE_ALLOC(Memory, Size);
     return Memory;
@@ -41,8 +43,8 @@ void* Memory::Realloc(void* Original, uint32 Size, uint32 Alignment)
 void Memory::Free(void* Ptr)
 {
     EnsureAllocatorIsSetup();
-    RPH_PROFILE_FREE(Ptr);
 
+    RPH_PROFILE_FREE(Ptr);
     return GMalloc->Free(Ptr);
 }
 
@@ -73,7 +75,6 @@ void operator delete(void* p) noexcept
     if (p == nullptr)
         return;
 
-    RPH_PROFILE_FREE(p);
     Memory::Free((uint8*)p);
 }
 
@@ -83,7 +84,6 @@ void operator delete(void* p, std::size_t n) noexcept
     if (p == nullptr)
         return;
 
-    RPH_PROFILE_FREE(p);
     Memory::Free(p);
 }
 
@@ -92,7 +92,6 @@ void operator delete[](void* p) noexcept
     if (p == nullptr)
         return;
 
-    RPH_PROFILE_FREE(p);
     Memory::Free(p);
 }
 
@@ -102,6 +101,5 @@ void operator delete[](void* p, std::size_t n) noexcept
     if (p == nullptr)
         return;
 
-    RPH_PROFILE_FREE(p);
     Memory::Free(p);
 }
