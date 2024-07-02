@@ -355,6 +355,7 @@ class WeakRef
 {
 public:
     WeakRef() = default;
+    ~WeakRef() = default;
 
     WeakRef(Ref<T> ref)
     {
@@ -431,3 +432,23 @@ private:
     template <typename Other>
     friend class Ref;
 };
+
+namespace std
+{
+template <typename T>
+struct hash<Ref<T>> {
+    std::size_t operator()(const Ref<T>& ref) const
+    {
+        return std::hash<const T*>{}(ref.Raw());
+    }
+};
+
+template <typename T>
+struct hash<WeakRef<T>> {
+    std::size_t operator()(const WeakRef<T>& ref) const
+    {
+        return std::hash<const T*>{}(ref.Raw());
+    }
+};
+
+}    // namespace std
