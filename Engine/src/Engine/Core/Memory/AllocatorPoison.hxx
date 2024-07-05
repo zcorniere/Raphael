@@ -39,6 +39,8 @@ public:
 
         if (Result != nullptr && OldSize > 0 && OldSize < Size) {
             std::memset(static_cast<uint8*>(Result) + OldSize, AllocFillNew, Size - OldSize);
+        } else if (OldSize == 0) {
+            std::memset(Result, AllocFillNew, Size);
         }
 
         return Result;
