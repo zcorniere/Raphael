@@ -96,7 +96,7 @@ if(UNIX)
     target_link_libraries(${PROJECT_NAME} PUBLIC xdgpp)
 endif()
 
-build_tests(${PROJECT_NAME} tests/Containers/Array.cxx)
+build_tests(${PROJECT_NAME} tests/Containers/Array.cxx tests/RHIShaderParametersTest.cxx)
 
 if(RPH_ENABLE_PROFILING)
     target_compile_definitions(${PROJECT_NAME} PUBLIC RPH_ENABLE_PROFILING=1)
