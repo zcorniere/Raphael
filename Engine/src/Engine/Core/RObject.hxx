@@ -47,6 +47,12 @@ public:
         return m_Name;
     }
 
+    /// Return a string representing the Object
+    virtual std::string ToString() const
+    {
+        return std::format("(\"{:s}\" <{:s}> {:p})", GetName(), GetTypeName(), (void*)this);
+    }
+
 private:
     std::string m_Name = "Unnamed";
 };
@@ -59,18 +65,6 @@ class RObject : public NamedClass
 public:
     virtual ~RObject()
     {
-    }
-
-    /// Return the typename
-    std::string_view GetTypeName() const
-    {
-        return TypeInfo().Name();
-    }
-
-    /// Return a string representing the RObject
-    virtual std::string ToString() const
-    {
-        return std::format("(\"{:s}\" <{:s}> {:p})", GetName(), GetTypeName(), (void*)this);
     }
 
     /// Override this function to be able to override the behaviour of Ref::IsValid;

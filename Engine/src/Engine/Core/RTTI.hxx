@@ -230,6 +230,10 @@ public:                                                                         
     {                                                                                      \
         return TypeInfo::Is(typeId);                                                       \
     }                                                                                      \
+    [[nodiscard]] std::string_view GetTypeName() const                                     \
+    {                                                                                      \
+        return TypeInfo().Name();                                                          \
+    }                                                                                      \
                                                                                            \
 protected:                                                                                 \
     [[nodiscard]] virtual const void* _cast(::RTTI::TypeId typeId) const noexcept override \
