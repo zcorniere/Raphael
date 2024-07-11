@@ -306,7 +306,7 @@ static ShaderParameter RecursiveTypeDescription(const spirv_cross::Compiler& Com
     BaseTypeID = Compiler.get_type(ID).self;
     for (uint32 i = 0; i < Type.member_types.size(); ++i) {
 
-        // Parameter.Members.Add(RecursiveTypeDescription(Compiler, BaseTypeID, Type.member_types[i], i));
+        Parameter.Members.Add(RecursiveTypeDescription(Compiler, BaseTypeID, Type.member_types[i], i));
     }
     return Parameter;
 }

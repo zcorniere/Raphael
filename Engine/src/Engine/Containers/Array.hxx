@@ -1,18 +1,16 @@
 #pragma once
 
-#include "Engine/Core/Memory/Allocator/HeapAllocator.hxx"
-
 #include "Engine/Core/Memory/MemoryOperations.hxx"
 #include "Engine/Misc/MiscDefines.hxx"
 
 constexpr static inline unsigned InvalidVectorIndex = static_cast<unsigned>(-1);
 
 /// Simple array class that uses a custom allocator
-template <typename T, typename AllocationType = HeapAllocator<T, uint32>, AllocationType::SizeType MinimalSize = 0>
+template <typename T, typename SizeType = uint32, SizeType MinimalSize = 0>
 class Array
 {
 public:
-    using TSize = AllocationType::SizeType;
+    using TSize = SizeType;
     static const TSize DefaultCapacity = MinimalSize;
 
 public:
@@ -38,7 +36,7 @@ public:
     constexpr Array(const T* const Ptr, const TSize Count): Array(Count)
     {
         if (Count > 0) {
-            CopyItems((T*)Allocator.GetAllocation(), Ptr, ArraySize);
+            CopyItems(Data, Ptr, ArraySize);
         }
     }
     /// Initialize the array by copying the memory between the two pointers
@@ -58,9 +56,11 @@ public:
 
     constexpr Array(Array&& Other) noexcept
     {
-        Allocator.MoveFrom(Other.Allocator);
+        Data = Other.Data;
         ArraySize = Other.ArraySize;
         ArrayCapacity = Other.ArrayCapacity;
+
+        Other.Data = nullptr;
         Other.ArraySize = 0;
         Other.ArrayCapacity = 0;
     }
@@ -93,9 +93,12 @@ public:
         }
 
         Clear();
-        Allocator.MoveFrom(Other.Allocator);
+
+        Data = Other.Data;
         ArraySize = Other.ArraySize;
         ArrayCapacity = Other.ArrayCapacity;
+
+        Other.Data = nullptr;
         Other.ArraySize = 0;
         Other.ArrayCapacity = 0;
         return *this;
@@ -123,25 +126,25 @@ public:
     /// Return the raw data pointer
     [[nodiscard]] constexpr const T* Raw() const
     {
-        return (const T*)Allocator.GetAllocation();
+        return Data;
     }
     /// Return the raw data pointer
     [[nodiscard]] constexpr T* Raw()
     {
-        return (T*)Allocator.GetAllocation();
+        return Data;
     }
 
     /// Return the last element of the array
     [[nodiscard]] constexpr const T& Back() const
     {
         const TSize LastIndex = ArraySize > 0 ? ArraySize - 1 : 0;
-        return ((T*)Allocator.GetAllocation())[LastIndex];
+        return Data[LastIndex];
     }
     /// Return the last element of the array
     [[nodiscard]] constexpr T& Back()
     {
         const TSize LastIndex = ArraySize > 0 ? ArraySize - 1 : 0;
-        return ((T*)Allocator.GetAllocation())[LastIndex];
+        return Data[LastIndex];
     }
 
     /// Array access operator
@@ -149,14 +152,14 @@ public:
     [[nodiscard]] constexpr T& operator[](const TSize Index)
     {
         checkMsg((Index >= 0) & (Index < TSize(Size())), "Index is out of bounds.");
-        return ((T*)Allocator.GetAllocation())[Index];
+        return Data[Index];
     }
     /// Array operators
     /// The validity of the index is checked
     [[nodiscard]] constexpr const T& operator[](const TSize Index) const
     {
         checkMsg((Index >= 0) & (Index < TSize(Size())), "Index is out of bounds.");
-        return ((T*)Allocator.GetAllocation())[Index];
+        return Data[Index];
     }
 
     /// Return true if the array is empty
@@ -226,7 +229,7 @@ public:
             DestructItems(Raw() + NewSize, ArraySize - NewSize);
         }
         if (NewSize > ArrayCapacity) {
-            Reserve(GetAllocationIncrease());
+            Reserve(GetAllocationIncrease(NewSize));
         }
         if (NewSize > ArraySize) {
             ConstructItems(Raw() + ArraySize, NewSize - ArraySize);
@@ -243,7 +246,25 @@ public:
             Resize(NewCapacity);
         }
 
-        Allocator.Resize(NewCapacity, sizeof(T));
+        // New capacity is 0, free the data, and return
+        // The object should be empty after the call to Resize above
+        if (NewCapacity == 0) {
+            if (Data) {
+                Memory::Free(Data);
+                Data = nullptr;
+            }
+            ArrayCapacity = 0;
+            return;
+        }
+
+        // Malloc new array, and move the old data to it, then free the old data
+        T* const NewData = (T*)Memory::Malloc(NewCapacity * sizeof(T));
+        if (Data) {
+            MoveItems(NewData, Data, ArraySize);
+            Memory::Free(Data);
+        }
+        Data = NewData;
+
         ArrayCapacity = NewCapacity;
     }
 
@@ -256,7 +277,7 @@ public:
         SeeIfNeedToIncreaseCapacity(1);
 
         const TSize LastIndex = ArraySize > 0 ? ArraySize : 0;
-        T* const Ptr = ((T*)Allocator.GetAllocation()) + LastIndex;
+        T* const Ptr = Data + LastIndex;
         new (Ptr) T(std::forward<ArgsTypes>(args)...);
         ArraySize++;
         return *Ptr;
@@ -269,7 +290,7 @@ public:
         SeeIfNeedToIncreaseCapacity(1);
 
         const TSize LastIndex = ArraySize > 0 ? ArraySize : 0;
-        T* const Ptr = ((T*)Allocator.GetAllocation()) + LastIndex;
+        T* const Ptr = Data + LastIndex;
         MoveItems(Ptr, &Value, 1);
         T& Item = Back();
         ArraySize++;
@@ -291,7 +312,7 @@ public:
 
         // We can advance the pointer because the line above ensures that there is enough space
         const TSize LastIndex = ArraySize > 0 ? ArraySize : 0;
-        T* const Ptr = ((T*)Allocator.GetAllocation()) + LastIndex;
+        T* const Ptr = Data + LastIndex;
         new (Ptr) T(std::move(Value));
         ArraySize++;
         return *Ptr;
@@ -410,9 +431,13 @@ public:
     }
 
 private:
-    TSize GetAllocationIncrease() const
+    TSize GetAllocationIncrease(TSize NewMinimalCapacity = 0) const
     {
-        return ArrayCapacity + (ArrayCapacity % 3) + 1;
+        TSize NewCapacity = ArrayCapacity;
+        do {
+            NewCapacity = NewCapacity + (NewCapacity % 3) + 1;
+        } while (NewCapacity < NewMinimalCapacity);
+        return NewCapacity;
     }
 
     void SeeIfNeedToIncreaseCapacity(TSize Increase)
@@ -426,7 +451,8 @@ private:
 private:
     TSize ArraySize = 0;
     TSize ArrayCapacity = 0;
-    AllocationType Allocator;
+
+    T* Data = nullptr;
 };
 
 template <typename T, typename Allocation>
@@ -437,11 +463,7 @@ std::ostream& operator<<(std::ostream& os, const Array<T, Allocation>& m)
 }
 
 template <typename T, typename Allocation>
-struct std::formatter<Array<T, Allocation>> {
-    constexpr auto parse(format_parse_context& ctx)
-    {
-        return begin(ctx);
-    }
+struct std::formatter<Array<T, Allocation>> : std::formatter<T> {
 
     template <class FormatContext>
     auto format(const Array<T, Allocation>& Value, FormatContext& ctx) const

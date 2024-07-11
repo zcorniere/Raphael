@@ -49,8 +49,7 @@ FORCEINLINE void MoveItems(ElementType* Destination, ElementType* Source, SizeTy
         std::memmove(Destination, Source, Count * sizeof(ElementType));
     } else {
         while (Count) {
-            // new (Destination) ElementType(std::move(*Source));
-            *Destination = std::move(*Source);
+            new (Destination) ElementType(std::move(*Source));
             ++Destination;
             (Source++)->ElementType::~ElementType();
             --Count;
@@ -69,11 +68,10 @@ FORCEINLINE void CopyItems(ElementType* Destination, const ElementType* Source, 
 
     // Nothing to do if the type is trivially destructible
     if constexpr (std::is_trivially_copyable_v<ElementType>) {
-        std::memcpy((void*)Destination, Source, Count * sizeof(ElementType));
+        std::memmove((void*)Destination, Source, Count * sizeof(ElementType));
     } else {
         while (Count) {
-            // new (Destination) ElementType(*Source);
-            *Destination = *Source;
+            new (Destination) ElementType(*Source);
             ++Source;
             ++Destination;
             --Count;

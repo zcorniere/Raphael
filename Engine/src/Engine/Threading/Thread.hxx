@@ -21,6 +21,10 @@ public:
     /// Default move ctor
     Thread(Thread&& other) = default;
 
+    /// Default move assignment
+    Thread& operator=(Thread&& other) = default;
+    Thread& operator=(Thread& other) = delete;
+
     virtual ~Thread();
     /// Initialize the thread
     void Start();
