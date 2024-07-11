@@ -9,6 +9,7 @@ Engine* GEngine = nullptr;
 
 Engine::Engine()
 {
+    GEngine = this;
 }
 
 Engine::~Engine()

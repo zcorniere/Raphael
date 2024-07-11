@@ -8,7 +8,7 @@
 constexpr static inline unsigned InvalidVectorIndex = static_cast<unsigned>(-1);
 
 /// Simple array class that uses a custom allocator
-template <typename T, typename AllocationType = HeapAllocator<T, uint32>, AllocationType::SizeType MinimalSize = 10>
+template <typename T, typename AllocationType = HeapAllocator<T, uint32>, AllocationType::SizeType MinimalSize = 0>
 class Array
 {
 public:
@@ -77,6 +77,10 @@ public:
         }
 
         Clear();
+
+        if (Other.Size() == 0) {
+            return *this;
+        }
         Resize(Other.Size());
         CopyItems(Raw(), Other.Raw(), Size());
         return *this;
@@ -218,7 +222,15 @@ public:
     /// Resize the array to the given size
     constexpr void Resize(const TSize NewSize)
     {
-        Reserve(NewSize);
+        if (NewSize < ArraySize) {
+            DestructItems(Raw() + NewSize, ArraySize - NewSize);
+        }
+        if (NewSize > ArrayCapacity) {
+            Reserve(GetAllocationIncrease());
+        }
+        if (NewSize > ArraySize) {
+            ConstructItems(Raw() + ArraySize, NewSize - ArraySize);
+        }
         ArraySize = NewSize;
     }
     /// Reserve the given capacity for the array
@@ -228,14 +240,10 @@ public:
             return;
         }
         if (NewCapacity < ArraySize) {
-            DestructItems(Raw() + NewCapacity, ArraySize);
-            ArraySize = NewCapacity;
+            Resize(NewCapacity);
         }
 
         Allocator.Resize(NewCapacity, sizeof(T));
-        if (NewCapacity > ArraySize) {
-            ConstructItems(Raw() + ArraySize, NewCapacity - ArraySize);
-        }
         ArrayCapacity = NewCapacity;
     }
 
@@ -410,8 +418,8 @@ private:
     void SeeIfNeedToIncreaseCapacity(TSize Increase)
     {
         if (ArraySize + Increase > ArrayCapacity) {
-            ArrayCapacity = GetAllocationIncrease();
-            Allocator.Resize(ArrayCapacity, sizeof(T));
+            TSize NewCapacity = GetAllocationIncrease();
+            Reserve(NewCapacity);
         }
     }
 
@@ -429,13 +437,18 @@ std::ostream& operator<<(std::ostream& os, const Array<T, Allocation>& m)
 }
 
 template <typename T, typename Allocation>
-struct std::formatter<Array<T, Allocation>> : std::formatter<T> {
+struct std::formatter<Array<T, Allocation>> {
+    constexpr auto parse(format_parse_context& ctx)
+    {
+        return begin(ctx);
+    }
+
     template <class FormatContext>
     auto format(const Array<T, Allocation>& Value, FormatContext& ctx) const
     {
         auto&& out = ctx.out();
         format_to(out, "[");
-        for (typename Allocation::TSize i = 0; i < Value.Size(); i++) {
+        for (typename Array<T, Allocation>::TSize i = 0; i < Value.Size(); i++) {
             format_to(out, "{}{}", Value[i], (i + 1 < Value.Size()) ? ", " : "");
         }
         format_to(out, "]");

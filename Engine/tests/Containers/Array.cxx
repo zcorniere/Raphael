@@ -31,6 +31,10 @@ TEST_CASE("Array: Basic Operation")
     CHECK_NOTHROW(TestVec[1] == Value2);
     CHECK_NOTHROW(TestVec[2] == Value3);
 
+    const std::string String = std::format("{}", TestVec);
+    const std::string ExpectedString = std::format("[{0}, {1}, {2}]", Value1, Value2, Value3);
+    CHECK(String == ExpectedString);
+
     SECTION("Test positive Resize")
     {
         CHECK_NOTHROW(TestVec.Resize(20));
@@ -114,6 +118,18 @@ TEST_CASE("Array: Test Advanced Type")
         ~ComplexType() noexcept
         {
             Value -= 1;
+        }
+
+        ComplexType& operator=(const ComplexType& Other)
+        {
+            Value = Other.Value;
+            return *this;
+        }
+
+        ComplexType& operator=(ComplexType&& Other) noexcept
+        {
+            Value = Other.Value;
+            return *this;
         }
     };
 

@@ -50,6 +50,7 @@ add_library(
     src/Engine/Core/RHI/Resources/RHIResources.cxx
     src/Engine/Core/Memory/Memory.cxx
     src/Engine/Core/Memory/MiMalloc.cxx
+    src/Engine/Core/Memory/StdMalloc.cxx
     src/Engine/Misc/DataLocation.cxx
     src/Engine/Misc/Utils.cxx
     src/Engine/Misc/Assertions.cxx

@@ -2,8 +2,8 @@
 
 #include "Engine/Core/Memory/Memory.hxx"
 
-/// Allocator using mimalloc
-class MiMalloc : public Malloc
+/// Allocator using std::malloc
+class StdMalloc : public Malloc
 {
 public:
     virtual void* Alloc(uint32 Size, uint32 Alignment = 0) override;
@@ -14,11 +14,11 @@ public:
     virtual bool GetAllocationSize(void* Ptr, uint32& OutSize) override;
     virtual const char* GetAllocatorName() const override
     {
-        return "MiMalloc";
+        return "StdMalloc";
     }
 
     virtual bool SupportPoison() const override
     {
-        return true;
+        return false;
     }
 };

@@ -66,6 +66,11 @@ public:
         return TrueMalloc->GetAllocatorName();
     }
 
+    virtual bool SupportPoison() const override
+    {
+        return true;
+    }
+
 private:
     Malloc* TrueMalloc;
 };

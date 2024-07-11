@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Core/RHI/RHIShaderParameters.hxx"
 #include "Engine/Core/RHI/Resources/RHIShader.hxx"
 
 #include "VulkanRHI/Resources/VulkanGraphicsPipeline.hxx"
@@ -15,6 +16,8 @@ namespace ShaderResource
         uint32 Offset = 0;
         uint32 Size = 0;
 
+        ShaderParameter Parameter;
+
         bool operator==(const PushConstantRange&) const = default;
     };
 
@@ -25,6 +28,14 @@ namespace ShaderResource
         uint32 Location;
 
         bool operator==(const StageIO&) const = default;
+    };
+
+    struct StorageBuffer {
+        uint32 Set = 0;
+        uint32 Binding = 0;
+        ShaderParameter Parameter;
+
+        bool operator==(const StorageBuffer&) const = default;
     };
 
 }    // namespace ShaderResource
@@ -38,6 +49,8 @@ public:
         Array<ShaderResource::StageIO> StageInput;
         Array<ShaderResource::StageIO> StageOutput;
         Array<ShaderResource::PushConstantRange> PushConstants;
+
+        Array<ShaderResource::StorageBuffer> StorageBuffers;
 
         Array<GraphicsPipelineDescription::VertexBinding> GetInputVertexBindings() const;
         Array<GraphicsPipelineDescription::VertexAttribute> GetInputVertexAttributes() const;
@@ -88,9 +101,14 @@ private:
 
 }    // namespace VulkanRHI
 
-DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::PushConstantRange, "PushConstantRange {{ Offset: {0}, Size: {1} }}",
-                      Value.Offset, Value.Size)
+DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::PushConstantRange,
+                      "PushConstantRange {{ Offset: {0}, Size: {1}, Parameter: {2} }}", Value.Offset, Value.Size,
+                      Value.Parameter)
 
 DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::StageIO,
                       "StageIO {{ Name: \"{0}\", Type: {1}, Binding: {2}, Location: {3} }}", Value.Name,
                       magic_enum::enum_name(Value.Type), Value.Binding, Value.Location)
+
+DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::StorageBuffer,
+                      "StorageBuffer {{ Set: {0}, Binding: {1}, Parameter: {2} }}", Value.Set, Value.Binding,
+                      Value.Parameter)

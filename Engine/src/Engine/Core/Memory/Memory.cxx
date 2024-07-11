@@ -14,8 +14,10 @@ static void EnsureAllocatorIsSetup()
         GMalloc = PlatformMisc::BaseAllocator();
 
 #if RPH_POISON_ALLOCATION
-        void* const AllocPoisonMemory = std::malloc(sizeof(AllocatorPoison));
-        GMalloc = new (AllocPoisonMemory) AllocatorPoison(GMalloc);
+        if (GMalloc->SupportPoison()) {
+            void* const AllocPoisonMemory = std::malloc(sizeof(AllocatorPoison));
+            GMalloc = new (AllocPoisonMemory) AllocatorPoison(GMalloc);
+        }
 #endif
     }
 }

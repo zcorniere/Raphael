@@ -1,6 +1,6 @@
 #include "Engine/Raphael.hxx"
 
-#include "Engine/Core/RHI/RHIShaderParmeters.hxx"
+#include "Engine/Core/RHI/RHIShaderParameters.hxx"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators_all.hpp>

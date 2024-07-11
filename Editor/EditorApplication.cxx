@@ -2,6 +2,7 @@
 
 #include <Engine/Core/Log.hxx>
 #include <Engine/Core/RHI/RHICommandList.hxx>
+#include <Engine/Core/RHI/RHIShaderParameters.hxx>
 #include <Engine/Core/RHI/Resources/RHIViewport.hxx>
 #include <Engine/Platforms/PlatformMisc.hxx>
 

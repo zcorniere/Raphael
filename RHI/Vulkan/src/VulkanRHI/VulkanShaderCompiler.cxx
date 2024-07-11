@@ -36,6 +36,7 @@ namespace Utils
     {
         shaderc::CompileOptions Options;
         Options.SetTargetEnvironment(shaderc_target_env_vulkan, VulkanVersionToShaderc(RHI_VULKAN_VERSION));
+        Options.SetPreserveBindings(true);
 
         switch (Level) {
             case VulkanShaderCompiler::OptimizationLevel::None:
@@ -69,7 +70,7 @@ namespace Utils
             return std::nullopt;
     }
 
-    static shaderc_shader_kind ShaderKindToShaderc(ERHIShaderType Kind)
+    static shaderc_shader_kind ShaderTypeToShaderc(ERHIShaderType Kind)
     {
         switch (Kind) {
             case ERHIShaderType::Compute:
@@ -130,7 +131,7 @@ void VulkanShaderCompiler::SetOptimizationLevel(OptimizationLevel InLevel)
 }
 
 Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile)
-{
+try {
     RPH_PROFILE_FUNC()
 
     Ref<VulkanShader> ShaderUnit = nullptr;
@@ -170,7 +171,11 @@ Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bFo
         m_ShaderCache[Path.filename().string()] = ShaderUnit;
     }
     return ShaderUnit;
-}
+} catch (const spirv_cross::CompilerError& exception) {
+    LOG(LogVulkanShaderCompiler, Error, "Error during compilation of shader {}: {}", Path.filename().string(),
+        exception.what());
+    return nullptr;
+};
 
 Ref<VulkanShader> VulkanShaderCompiler::CheckCache(ShaderCompileResult& Result)
 {
@@ -209,8 +214,10 @@ bool VulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
 
     shaderc::Compiler ShaderCompiler;
 
+    LOG(LogVulkanShaderCompiler, Trace, "Optimization Level: {}", magic_enum::enum_name(Level));
+
     shaderc::CompileOptions Options = Utils::GetCompileOption(Level);
-    shaderc_shader_kind ShaderKind = Utils::ShaderKindToShaderc(Result.ShaderType);
+    shaderc_shader_kind ShaderKind = Utils::ShaderTypeToShaderc(Result.ShaderType);
 
     Result.Status = CompilationStatus::PreProcess;
     shaderc::PreprocessedSourceCompilationResult PreProcessResult =
@@ -262,6 +269,48 @@ static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resou
     return true;
 }
 
+static ShaderParameter RecursiveTypeDescription(const spirv_cross::Compiler& Compiler, spirv_cross::TypeID BaseTypeID,
+                                                spirv_cross::TypeID ID, uint32 Index)
+{
+    ShaderParameter Parameter;
+
+    const spirv_cross::SPIRType& Type = Compiler.get_type(ID);
+    Parameter.Name = std::string(Compiler.get_member_name(BaseTypeID, Index));
+
+    switch (Type.basetype) {
+        case spirv_cross::SPIRType::Struct:
+            Parameter.Type = EShaderBufferType::Struct;
+            break;
+        case spirv_cross::SPIRType::Int:
+            Parameter.Type = EShaderBufferType::Int32;
+            break;
+        case spirv_cross::SPIRType::UInt:
+            Parameter.Type = EShaderBufferType::Uint32;
+            break;
+        case spirv_cross::SPIRType::Float:
+            Parameter.Type = EShaderBufferType::Float;
+            break;
+        default:
+            Parameter.Type = EShaderBufferType::Invalid;
+            break;
+    }
+    if (Type.member_types.size()) {
+        Parameter.Size = Compiler.get_declared_struct_size(Type);
+    }
+    // Parameter.Offset = Compiler.type_struct_member_offset(Type, Index);
+    Parameter.Columns = Type.columns;
+    Parameter.Rows = Type.vecsize;
+
+    //   Parameter.Offset = Compiler.type_struct_member_offset(Type, Index);
+
+    BaseTypeID = Compiler.get_type(ID).self;
+    for (uint32 i = 0; i < Type.member_types.size(); ++i) {
+
+        // Parameter.Members.Add(RecursiveTypeDescription(Compiler, BaseTypeID, Type.member_types[i], i));
+    }
+    return Parameter;
+}
+
 bool VulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
 {
     RPH_PROFILE_FUNC()
@@ -272,8 +321,12 @@ bool VulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
     LOG(LogVulkanShaderCompiler, Info, " {} ", Result.Path.string());
     LOG(LogVulkanShaderCompiler, Info, "===========================");
 
+    if (Level != OptimizationLevel::None) {
+        LOG(LogVulkanShaderCompiler, Error, "Reflection is only reliable in debug mode !");
+    }
+
     spirv_cross::Compiler compiler(Result.CompiledCode.Raw(), Result.CompiledCode.Size());
-    spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+    const spirv_cross::ShaderResources& resources = compiler.get_shader_resources();
 
     LOG(LogVulkanShaderCompiler, Info, "Stage input:{}", resources.stage_inputs.empty() ? " None" : "");
     if (!GetStageReflection(resources.stage_inputs, compiler, Result.Reflection.StageInput)) {
@@ -293,8 +346,30 @@ bool VulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
         ShaderResource::PushConstantRange& Range = Result.Reflection.PushConstants.Emplace();
         Range.Size = compiler.get_declared_struct_size(Type);
         Range.Offset = compiler.type_struct_member_offset(Type, 0);
+        Range.Parameter = RecursiveTypeDescription(compiler, resource.base_type_id, resource.base_type_id, 0);
 
         LOG(LogVulkanShaderCompiler, Info, "  {}", Range);
+    }
+
+    LOG(LogVulkanShaderCompiler, Info, "Storage Buffers:{}", resources.storage_buffers.empty() ? " None" : "");
+    for (const spirv_cross::Resource& resource: resources.storage_buffers) {
+        const spirv_cross::SPIRType& Type = compiler.get_type(resource.base_type_id);
+
+        ShaderResource::StorageBuffer& Buffer = Result.Reflection.StorageBuffers.Emplace();
+        Buffer.Set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
+        Buffer.Binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+        Buffer.Parameter.Name = resource.name;
+        Buffer.Parameter.Size = compiler.get_declared_struct_size(Type);
+        Buffer.Parameter.Type = EShaderBufferType::Struct;
+        Buffer.Parameter.Offset = 0;
+        Buffer.Parameter.Rows = Type.vecsize;
+        Buffer.Parameter.Columns = Type.columns;
+
+        for (unsigned int i = 0; i < Type.member_types.size(); ++i) {
+            spirv_cross::TypeID ID = Type.member_types[i];
+            Buffer.Parameter.Members.Add(RecursiveTypeDescription(compiler, resource.base_type_id, ID, i));
+        }
+        LOG(LogVulkanShaderCompiler, Info, "  {}", Buffer);
     }
     return true;
 }

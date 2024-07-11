@@ -2,6 +2,7 @@
 
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "Engine/Core/RHI/RHICommandList.hxx"
+#include "Engine/Core/RHI/RHIShaderParameters.hxx"
 #include "Engine/Core/Window.hxx"
 
 GenericRHI* GDynamicRHI = nullptr;
@@ -72,3 +73,7 @@ Ref<RHIGraphicsPipeline> RHI::CreateGraphicsPipeline(const RHIGraphicsPipelineSp
 {
     return RHI::Get()->CreateGraphicsPipeline(Config);
 }
+
+//
+// -------------------- Misc Define --------------------
+//

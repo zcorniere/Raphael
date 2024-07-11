@@ -21,6 +21,8 @@ public:
 
     virtual bool GetAllocationSize(void* Ptr, uint32& OutSize) = 0;
     virtual const char* GetAllocatorName() const = 0;
+
+    virtual bool SupportPoison() const = 0;
 };
 
 namespace Raphael
