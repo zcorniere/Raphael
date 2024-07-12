@@ -16,6 +16,14 @@
             "program": "${workspaceFolder}/build/RHI/Vulkan/RaphaelRHIVulkan_Test",
             "args": [],
             "cwd": "${workspaceFolder}/build"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Launch Engine Tests",
+            "program": "${workspaceFolder}/build//Engine/RaphaelEngine_Test",
+            "args": [],
+            "cwd": "${workspaceFolder}/build"
         }
     ]
 }
