@@ -109,7 +109,6 @@ TEST_CASE("Array: Test Advanced Type")
         }
         ComplexType(const ComplexType& Other): ComplexType(Other.Value)
         {
-            Value += 1;
         }
         ComplexType(ComplexType&& Other) noexcept: Value(Other.Value)
         {
@@ -123,6 +122,7 @@ TEST_CASE("Array: Test Advanced Type")
         ComplexType& operator=(const ComplexType& Other)
         {
             Value = Other.Value;
+            Value += 1;
             return *this;
         }
 
@@ -134,7 +134,7 @@ TEST_CASE("Array: Test Advanced Type")
     };
 
     static_assert(std::is_trivially_destructible<ComplexType>::value == false,
-                  "ComplexType is not trivially destructible");
+                  "ComplexType is trivially destructible and should not be");
 
     REQUIRE(DtorCounter == 0);
     ComplexType* TestType = new ComplexType(DtorCounter);
@@ -145,7 +145,7 @@ TEST_CASE("Array: Test Advanced Type")
     Vec2.Add(*TestType);
 
     CHECK_NOTHROW(Vec2.Size() == 2);
-    REQUIRE(DtorCounter == 1 + 2);    // 1 for TestType, 2 for Vec2 (1 for the copy during the Add)
+    REQUIRE(DtorCounter == 2 + 1);    // 1 for TestType, 2 for Vec2
 
     SECTION("Test Append")
     {
@@ -157,26 +157,27 @@ TEST_CASE("Array: Test Advanced Type")
 
         Vec2.Append(TestVec2);
         REQUIRE(DtorCounter ==
-                1 + 4 + 2 + 2    // 1 for TestType, 4 for Vec2, 2 for TestVec2, and 2 for the copy during the append
+                1 + 2 + 2 + 2    // 1 for TestType, 2 for Vec2, 2 for TestVec2, and 2 for the copy during the append
         );
         CHECK(Vec2.Size() == 4);
 
         TestVec2.Clear();
-        REQUIRE(DtorCounter == 1 + 4 + 2);
+        REQUIRE(DtorCounter == 1 + 2 + 2);
     }
 
     Vec2.Clear();
     REQUIRE(Vec2.IsEmpty());
-    // REQUIRE(DtorCounter == 1);
+    REQUIRE(DtorCounter == 1);
     delete TestType;
     REQUIRE(DtorCounter == 0);
 }
 
 TEST_CASE("Array: Test Find function")
 {
-    int Value1 = GENERATE(take(2, random(-42, 50)));
-    int Value2 = GENERATE(take(2, random(-4200, 420)));
-    int Value3 = GENERATE(take(2, random(42, 50)));
+
+    int Value1 = GENERATE(take(2, random(-10, 10)));
+    int Value2 = GENERATE(take(2, random(100, 420)));
+    int Value3 = GENERATE(take(2, random(-200, -11)));
     Array<int> TestVec{Value1, Value2, Value3};
 
     SECTION("Make sur the vector is correctly init")
@@ -190,21 +191,24 @@ TEST_CASE("Array: Test Find function")
 
     SECTION("Test Find()")
     {
-        CHECK(TestVec.Find(Value1) == 0);
         CHECK(TestVec.Find(Value2) == 1);
         CHECK(TestVec.Find(Value3) == 2);
+        CHECK(TestVec.Find(Value1) == 0);
 
         // 10000 is not in the Vector
-        CHECK(TestVec.Find(10000) == InvalidVectorIndex);
+        CHECK(TestVec.Find(10000) == std::nullopt);
     }
 
     SECTION("Test AddUnique()")
     {
+        int Value4 = GENERATE(take(2, random(10, 99)));
+
         CHECK(TestVec.AddUnique(Value1) == false);
         CHECK(TestVec.AddUnique(Value2) == false);
         CHECK(TestVec.AddUnique(Value3) == false);
+        CHECK(TestVec.AddUnique(Value4) == true);
 
-        // 10000 is not in the Vector
-        CHECK(TestVec.AddUnique(10000) == true);
+        CHECK(TestVec.Size() == 4);
+        CHECK(TestVec[3] == Value4);
     }
 }
