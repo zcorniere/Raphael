@@ -313,6 +313,49 @@ static ShaderParameter RecursiveTypeDescription(const spirv_cross::Compiler& Com
     return Parameter;
 }
 
+static bool GetPushConstantReflection(const spirv_cross::Compiler& Compiler,
+                                      const spirv_cross::SmallVector<spirv_cross::Resource>& PushConstants,
+                                      Array<ShaderResource::PushConstantRange>& OutPushConstants)
+{
+    for (const spirv_cross::Resource& resource: PushConstants) {
+        const spirv_cross::SPIRType& Type = Compiler.get_type(resource.base_type_id);
+
+        ShaderResource::PushConstantRange& Range = OutPushConstants.Emplace();
+        Range.Size = Compiler.get_declared_struct_size(Type);
+        Range.Offset = Compiler.type_struct_member_offset(Type, 0);
+        Range.Parameter = RecursiveTypeDescription(Compiler, resource.base_type_id, resource.base_type_id, 0);
+
+        LOG(LogVulkanShaderCompiler, Info, "  {}", Range);
+    }
+    return true;
+}
+
+static bool GetStorageBufferReflection(const spirv_cross::Compiler& Compiler,
+                                       const spirv_cross::SmallVector<spirv_cross::Resource>& ShaderStorageBuffers,
+                                       Array<ShaderResource::StorageBuffer>& OutStorageBuffers)
+{
+    for (const spirv_cross::Resource& resource: ShaderStorageBuffers) {
+        const spirv_cross::SPIRType& Type = Compiler.get_type(resource.base_type_id);
+
+        ShaderResource::StorageBuffer& Buffer = OutStorageBuffers.Emplace();
+        Buffer.Set = Compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
+        Buffer.Binding = Compiler.get_decoration(resource.id, spv::DecorationBinding);
+        Buffer.Parameter.Name = resource.name;
+        Buffer.Parameter.Size = Compiler.get_declared_struct_size(Type);
+        Buffer.Parameter.Type = EShaderBufferType::Struct;
+        Buffer.Parameter.Offset = 0;
+        Buffer.Parameter.Rows = Type.vecsize;
+        Buffer.Parameter.Columns = Type.columns;
+
+        for (unsigned int i = 0; i < Type.member_types.size(); ++i) {
+            spirv_cross::TypeID ID = Type.member_types[i];
+            Buffer.Parameter.Members.Add(RecursiveTypeDescription(Compiler, resource.base_type_id, ID, i));
+        }
+        LOG(LogVulkanShaderCompiler, Info, "  {}", Buffer);
+    }
+    return true;
+}
+
 bool VulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
 {
     RPH_PROFILE_FUNC()
@@ -322,10 +365,6 @@ bool VulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
     LOG(LogVulkanShaderCompiler, Info, " Vulkan Shader Reflection - {}", magic_enum::enum_name(Result.ShaderType));
     LOG(LogVulkanShaderCompiler, Info, " {} ", Result.Path.string());
     LOG(LogVulkanShaderCompiler, Info, "===========================");
-
-    if (Level != OptimizationLevel::None) {
-        LOG(LogVulkanShaderCompiler, Error, "Reflection is only reliable in debug mode !");
-    }
 
     spirv_cross::Compiler compiler(Result.CompiledCode.Raw(), Result.CompiledCode.Size());
     const spirv_cross::ShaderResources& resources = compiler.get_shader_resources();
@@ -342,37 +381,15 @@ bool VulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
 
     LOG(LogVulkanShaderCompiler, Info, "Push Constant Buffers:{}",
         resources.push_constant_buffers.empty() ? " None" : "");
-    for (const spirv_cross::Resource& resource: resources.push_constant_buffers) {
-        const spirv_cross::SPIRType& Type = compiler.get_type(resource.base_type_id);
-
-        ShaderResource::PushConstantRange& Range = Result.Reflection.PushConstants.Emplace();
-        Range.Size = compiler.get_declared_struct_size(Type);
-        Range.Offset = compiler.type_struct_member_offset(Type, 0);
-        Range.Parameter = RecursiveTypeDescription(compiler, resource.base_type_id, resource.base_type_id, 0);
-
-        LOG(LogVulkanShaderCompiler, Info, "  {}", Range);
+    if (!GetPushConstantReflection(compiler, resources.push_constant_buffers, Result.Reflection.PushConstants)) {
+        return false;
     }
 
     LOG(LogVulkanShaderCompiler, Info, "Storage Buffers:{}", resources.storage_buffers.empty() ? " None" : "");
-    for (const spirv_cross::Resource& resource: resources.storage_buffers) {
-        const spirv_cross::SPIRType& Type = compiler.get_type(resource.base_type_id);
-
-        ShaderResource::StorageBuffer& Buffer = Result.Reflection.StorageBuffers.Emplace();
-        Buffer.Set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
-        Buffer.Binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
-        Buffer.Parameter.Name = resource.name;
-        Buffer.Parameter.Size = compiler.get_declared_struct_size(Type);
-        Buffer.Parameter.Type = EShaderBufferType::Struct;
-        Buffer.Parameter.Offset = 0;
-        Buffer.Parameter.Rows = Type.vecsize;
-        Buffer.Parameter.Columns = Type.columns;
-
-        for (unsigned int i = 0; i < Type.member_types.size(); ++i) {
-            spirv_cross::TypeID ID = Type.member_types[i];
-            Buffer.Parameter.Members.Add(RecursiveTypeDescription(compiler, resource.base_type_id, ID, i));
-        }
-        LOG(LogVulkanShaderCompiler, Info, "  {}", Buffer);
+    if (!GetStorageBufferReflection(compiler, resources.storage_buffers, Result.Reflection.StorageBuffers)) {
+        return false;
     }
+
     return true;
 }
 
