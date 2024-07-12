@@ -154,14 +154,20 @@ struct TSupportedShaderType<glm::ivec2> {
 };
 
 // your code for which the warning gets suppressed
-inline std::string PrintShaderParameter(const ShaderParameter& Param, uint32 Indent)
+inline std::string PrintShaderParameter(const ShaderParameter& Param, uint32 Indent, bool bSimple)
 {
+    if (bSimple) {
+        return std::format("Name: \"{0}\", Type: {1}, Size: {2}, Offset: {3}, Columns: {4}, Rows: {5}", Param.Name,
+                           magic_enum::enum_name(Param.Type), Param.Size, Param.Offset, Param.Columns, Param.Rows);
+    }
+
     std::string Result = "";
     std::string Padding = "";
     for (uint32 i = 0; i < Indent; ++i) {
         Padding += ("\t");
     }
 
+    Result += "\n";
     Result += std::format("{0}Name: \"{1}\"\n", Padding, Param.Name);
     Padding += "\t";
     Result += std::format("{0}Type: {1}\n", Padding, magic_enum::enum_name(Param.Type));
@@ -171,8 +177,41 @@ inline std::string PrintShaderParameter(const ShaderParameter& Param, uint32 Ind
     Result += std::format("{0}Rows: {1}\n", Padding, Param.Rows);
 
     for (const ShaderParameter& Member: Param.Members) {
-        Result += PrintShaderParameter(Member, Indent + 2);
+        Result += PrintShaderParameter(Member, Indent + 2, bSimple);
     }
+
+    Result += "\n";
     return Result;
 }
-DEFINE_PRINTABLE_TYPE(ShaderParameter, "ShaderParameter{{\n{0}\n}}", PrintShaderParameter(Value, 0));
+template <>
+struct std::formatter<ShaderParameter, char> {
+    bool bSimple = false;
+
+    constexpr auto parse(format_parse_context& ctx)
+    {
+        auto it = ctx.begin();
+        if (it == ctx.end())
+            return it;
+
+        if (*it == '#') {
+            bSimple = true;
+            ++it;
+        }
+        if (*it != '}')
+            throw std::format_error("Invalid format args for cpplogger::Level.");
+
+        return it;
+    }
+    template <class FormatContext>
+    auto format(const ShaderParameter& Value, FormatContext& ctx) const
+    {
+        auto&& out = ctx.out();
+        format_to(out, "ShaderParameter{{ {0} }}", PrintShaderParameter(Value, 0, bSimple));
+        return out;
+    }
+};
+inline std ::ostream& operator<<(std ::ostream& os, const ShaderParameter& m)
+{
+    os << std ::format("{}", m);
+    return os;
+};

@@ -275,6 +275,7 @@ static ShaderParameter RecursiveTypeDescription(const spirv_cross::Compiler& Com
     ShaderParameter Parameter;
 
     const spirv_cross::SPIRType& Type = Compiler.get_type(ID);
+    const spirv_cross::SPIRType& BaseType = Compiler.get_type(BaseTypeID);
     Parameter.Name = std::string(Compiler.get_member_name(BaseTypeID, Index));
 
     switch (Type.basetype) {
@@ -296,12 +297,13 @@ static ShaderParameter RecursiveTypeDescription(const spirv_cross::Compiler& Com
     }
     if (Type.member_types.size()) {
         Parameter.Size = Compiler.get_declared_struct_size(Type);
+    } else {
+        Parameter.Size = sizeof(uint32);    // If there is not subtype, that means it is a scalar type, so uint32
     }
-    // Parameter.Offset = Compiler.type_struct_member_offset(Type, Index);
+
+    Parameter.Offset = Compiler.type_struct_member_offset(BaseType, Index);
     Parameter.Columns = Type.columns;
     Parameter.Rows = Type.vecsize;
-
-    //   Parameter.Offset = Compiler.type_struct_member_offset(Type, Index);
 
     BaseTypeID = Compiler.get_type(ID).self;
     for (uint32 i = 0; i < Type.member_types.size(); ++i) {

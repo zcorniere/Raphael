@@ -104,6 +104,14 @@ public:
         return *this;
     }
 
+    constexpr Array& operator=(std::initializer_list<T> InitList)
+    {
+        Clear();
+        Resize(InitList.size());
+        CopyItems(Raw(), InitList.begin(), Size());
+        return *this;
+    }
+
     /// Get the size of the array
     [[nodiscard]] constexpr auto Size() const -> typename std::make_unsigned<TSize>::type
     {

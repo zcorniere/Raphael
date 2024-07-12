@@ -102,7 +102,7 @@ private:
 }    // namespace VulkanRHI
 
 DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::PushConstantRange,
-                      "PushConstantRange {{ Offset: {0}, Size: {1}, Parameter: {2} }}", Value.Offset, Value.Size,
+                      "PushConstantRange {{ Offset: {0}, Size: {1}, Parameter: {2:#} }}", Value.Offset, Value.Size,
                       Value.Parameter)
 
 DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::StageIO,
@@ -110,5 +110,10 @@ DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::StageIO,
                       magic_enum::enum_name(Value.Type), Value.Binding, Value.Location)
 
 DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::StorageBuffer,
-                      "StorageBuffer {{ Set: {0}, Binding: {1}, Parameter: {2} }}", Value.Set, Value.Binding,
+                      "StorageBuffer {{ Set: {0}, Binding: {1}, Parameter: {2:#} }}", Value.Set, Value.Binding,
                       Value.Parameter)
+
+DEFINE_PRINTABLE_TYPE(
+    VulkanRHI::VulkanShader::ReflectionData,
+    "ReflectionData {{ StageInput: {0},\nStageOutput: {1},\nPushConstants: {2},\nStorageBuffers: {3} }}",
+    Value.StageInput, Value.StageOutput, Value.PushConstants, Value.StorageBuffers)

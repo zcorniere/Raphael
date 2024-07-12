@@ -113,55 +113,462 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
     const ShaderResource::PushConstantRange ExpectedPushConstant{
         .Offset = ExpectedPushConstantOffset,
         .Size = ExpectedPushConstantOffset + sizeof(ShaderPushConstantStruct),
+        .Parameter =
+            {
+                .Name = "push",
+                .Type = EShaderBufferType::Struct,
+                .Size = ExpectedPushConstantOffset + sizeof(ShaderPushConstantStruct),
+                .Offset = ExpectedPushConstantOffset,
+                .Columns = 1,
+                .Rows = 1,
+                .Members =
+                    {
+                        {
+                            .Name = "push",
+                            .Type = EShaderBufferType::Struct,
+                            .Size = sizeof(ShaderPushConstantStruct),
+                            .Offset = ExpectedPushConstantOffset,
+                            .Columns = 1,
+                            .Rows = 1,
+                            .Members =
+                                {
+                                    {
+                                        .Name = "pointLightCount",
+                                        .Type = EShaderBufferType::Uint32,
+                                        .Size = 4,
+                                        .Offset = 0,
+                                        .Columns = 1,
+                                        .Rows = 1,
+                                    },
+                                    {
+                                        .Name = "directLightCount",
+                                        .Type = EShaderBufferType::Uint32,
+                                        .Size = 4,
+                                        .Offset = 4,
+                                        .Columns = 1,
+                                        .Rows = 1,
+                                    },
+                                    {
+                                        .Name = "spotLightCount",
+                                        .Type = EShaderBufferType::Uint32,
+                                        .Size = 4,
+                                        .Offset = 8,
+                                        .Columns = 1,
+                                        .Rows = 1,
+                                    },
+                                    {
+                                        .Name = "position",
+                                        .Type = EShaderBufferType::Float,
+                                        .Size = 4,
+                                        .Offset = 16,
+                                        .Columns = 1,
+                                        .Rows = 3,
+                                    },
+                                },
+                        },
+                    },
+            },
     };
 
-    const VulkanShader::ReflectionData ExpectedReflection{
-        .StageInput =
-            {
+    const VulkanShader::ReflectionData
+        ExpectedReflection{
+            .StageInput =
                 {
-                    .Name = "fragPosition",
-                    .Type = EVertexElementType::Float3,
-                    .Location = 0,
+                    {
+                        .Name = "fragPosition",
+                        .Type = EVertexElementType::Float3,
+                        .Location = 0,
+                    },
+                    {
+                        .Name = "fragNormal",
+                        .Type = EVertexElementType::Float3,
+                        .Location = 1,
+                    },
+                    {
+                        .Name = "fragTextCoords",
+                        .Type = EVertexElementType::Float2,
+                        .Location = 2,
+                    },
+                    {
+                        .Name = "fragColor",
+                        .Type = EVertexElementType::Float3,
+                        .Location = 3,
+                    },
+                    {
+                        .Name = "fragTangent",
+                        .Type = EVertexElementType::Float4,
+                        .Location = 4,
+                    },
+                    {
+                        .Name = "materialIndex",
+                        .Type = EVertexElementType::Uint1,
+                        .Location = 5,
+                    },
                 },
+            .StageOutput =
                 {
-                    .Name = "fragNormal",
-                    .Type = EVertexElementType::Float3,
-                    .Location = 1,
+                    {
+                        .Name = "outColor",
+                        .Type = EVertexElementType::Float4,
+                        .Location = 0,
+                    },
                 },
+            .PushConstants =
                 {
-                    .Name = "fragTextCoords",
-                    .Type = EVertexElementType::Float2,
-                    .Location = 2,
+                    ExpectedPushConstant,
                 },
+            .StorageBuffers =
                 {
-                    .Name = "fragColor",
-                    .Type = EVertexElementType::Float3,
-                    .Location = 3,
+                    ShaderResource::StorageBuffer{
+                        .Set = 2,
+                        .Binding = 1,
+                        .Parameter =
+                            {
+                                ShaderParameter{
+                                    .Name = "ObjectMaterials",
+                                    .Type = EShaderBufferType::Struct,
+                                    .Size = 0,
+                                    .Offset = 0,
+                                    .Columns = 1,
+                                    .Rows = 1,
+                                    .Members =
+                                        {
+                                            {
+                                                .Name = "materials",
+                                                .Type = EShaderBufferType::Struct,
+                                                .Size = 92,
+                                                .Offset = 0,
+                                                .Columns = 1,
+                                                .Rows = 1,
+                                                .Members =
+                                                    {
+                                                        {
+                                                            .Name = "alphaCutOff",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 0,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+
+                                                        },
+                                                        {
+                                                            .Name = "metallic",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 4,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+
+                                                        },
+                                                        {
+                                                            .Name = "roughness",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 8,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+
+                                                        },
+                                                        {
+                                                            .Name = "baseColor",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 16,
+                                                            .Columns = 1,
+                                                            .Rows = 4,
+
+                                                        },
+                                                        {
+                                                            .Name = "baseColorFactor",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 32,
+                                                            .Columns = 1,
+                                                            .Rows = 4,
+
+                                                        },
+                                                        {
+                                                            .Name = "emissiveFactor",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 48,
+                                                            .Columns = 1,
+                                                            .Rows = 4,
+
+                                                        },
+                                                        {
+                                                            .Name = "baseColorTexture",
+                                                            .Type = EShaderBufferType::Int32,
+                                                            .Size = 4,
+                                                            .Offset = 64,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+
+                                                        },
+                                                        {
+                                                            .Name = "metallicRoughnessTexture",
+                                                            .Type = EShaderBufferType::Int32,
+                                                            .Size = 4,
+                                                            .Offset = 68,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+
+                                                        },
+                                                        {
+                                                            .Name = "normalTexture",
+                                                            .Type = EShaderBufferType::Int32,
+                                                            .Size = 4,
+                                                            .Offset = 72,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+
+                                                        },
+                                                        {
+                                                            .Name = "occlusionTexture",
+                                                            .Type = EShaderBufferType::Int32,
+                                                            .Size = 4,
+                                                            .Offset = 76,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+
+                                                        },
+                                                        {
+                                                            .Name = "emissiveTexture",
+                                                            .Type = EShaderBufferType::Int32,
+                                                            .Size = 4,
+                                                            .Offset = 80,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+
+                                                        },
+                                                        {
+                                                            .Name = "specularGlossinessTexture",
+                                                            .Type = EShaderBufferType::Int32,
+                                                            .Size = 4,
+                                                            .Offset = 84,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+
+                                                        },
+                                                        {
+                                                            .Name = "diffuseTexture",
+                                                            .Type = EShaderBufferType::Int32,
+                                                            .Size = 4,
+                                                            .Offset = 88,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+                                                        },
+                                                    },
+                                            },
+                                        },
+                                },
+                            },
+                    },
+                    ShaderResource::StorageBuffer{
+                        .Set = 1,
+                        .Binding = 0,
+                        .Parameter =
+                            ShaderParameter{
+                                .Name = "DirectLight",
+                                .Type = EShaderBufferType::Struct,
+                                .Size = 0,
+                                .Offset = 0,
+                                .Columns = 1,
+                                .Rows = 1,
+                                .Members =
+                                    {
+                                        {
+                                            .Name = "directionalLightArray",
+                                            .Type = EShaderBufferType::Struct,
+                                            .Size = 36,
+                                            .Offset = 0,
+                                            .Columns = 1,
+                                            .Rows = 1,
+                                            .Members =
+                                                {
+                                                    {
+                                                        .Name = "orientation",
+                                                        .Type = EShaderBufferType::Float,
+                                                        .Size = 4,
+                                                        .Offset = 0,
+                                                        .Columns = 1,
+                                                        .Rows = 4,
+
+                                                    },
+                                                    {
+                                                        .Name = "color",
+                                                        .Type = EShaderBufferType::Float,
+                                                        .Size = 4,
+                                                        .Offset = 16,
+                                                        .Columns = 1,
+                                                        .Rows = 4,
+
+                                                    },
+                                                    {
+                                                        .Name = "intensity",
+                                                        .Type = EShaderBufferType::Float,
+                                                        .Size = 4,
+                                                        .Offset = 32,
+                                                        .Columns = 1,
+                                                        .Rows = 1,
+                                                    },
+                                                },
+                                        },
+                                    },
+                            },
+                    },
+
+                    ShaderResource::StorageBuffer{
+                        .Set = 1,
+                        .Binding = 1,
+                        .Parameter =
+                            {
+                                ShaderParameter{
+                                    .Name = "SpoLight",
+                                    .Type = EShaderBufferType::Struct,
+                                    .Size = 0,
+                                    .Offset = 0,
+                                    .Columns = 1,
+                                    .Rows = 1,
+                                    .Members =
+                                        {
+                                            {
+                                                .Name = "spotLightArray",
+                                                .Type = EShaderBufferType::Struct,
+                                                .Size = 60,
+                                                .Offset = 0,
+                                                .Columns = 1,
+                                                .Rows = 1,
+                                                .Members =
+                                                    {
+
+                                                        {
+                                                            .Name = "position",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 0,
+                                                            .Columns = 1,
+                                                            .Rows = 4,
+
+                                                        },
+                                                        {
+                                                            .Name = "direction",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 16,
+                                                            .Columns = 1,
+                                                            .Rows = 4,
+
+                                                        },
+                                                        {
+                                                            .Name = "color",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 32,
+                                                            .Columns = 1,
+                                                            .Rows = 4,
+
+                                                        },
+                                                        {
+                                                            .Name = "cutOff",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 48,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+
+                                                        },
+                                                        {
+                                                            .Name = "outerCutOff",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 52,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+
+                                                        },
+                                                        {
+                                                            .Name = "intensity",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 56,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+                                                        },
+                                                    },
+                                            },
+                                        },
+                                },
+                            },
+                    },
+                    ShaderResource::StorageBuffer{
+                        .Set = 1,
+                        .Binding = 2,
+                        .Parameter =
+                            {
+                                ShaderParameter{
+                                    .Name = "LightBuffer",
+                                    .Type = EShaderBufferType::Struct,
+                                    .Size = 0,
+                                    .Offset = 0,
+                                    .Columns = 1,
+                                    .Rows = 1,
+                                    .Members =
+                                        {
+                                            {
+                                                .Name = "pointLightArray",
+                                                .Type = EShaderBufferType::Struct,
+                                                .Size = 40,
+                                                .Offset = 0,
+                                                .Columns = 1,
+                                                .Rows = 1,
+                                                .Members =
+                                                    {
+
+                                                        {
+                                                            .Name = "position",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 0,
+                                                            .Columns = 1,
+                                                            .Rows = 4,
+
+                                                        },
+                                                        {
+                                                            .Name = "color",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 16,
+                                                            .Columns = 1,
+                                                            .Rows = 4,
+
+                                                        },
+                                                        {
+                                                            .Name = "intensity",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 32,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+
+                                                        },
+                                                        {
+                                                            .Name = "falloff",
+                                                            .Type = EShaderBufferType::Float,
+                                                            .Size = 4,
+                                                            .Offset = 36,
+                                                            .Columns = 1,
+                                                            .Rows = 1,
+
+                                                        },
+                                                    },
+                                            },
+                                        },
+                                },
+                            },
+                    },
                 },
-                {
-                    .Name = "fragTangent",
-                    .Type = EVertexElementType::Float4,
-                    .Location = 4,
-                },
-                {
-                    .Name = "materialIndex",
-                    .Type = EVertexElementType::Uint1,
-                    .Location = 5,
-                },
-            },
-        .StageOutput =
-            {
-                {
-                    .Name = "outColor",
-                    .Type = EVertexElementType::Float4,
-                    .Location = 0,
-                },
-            },
-        .PushConstants =
-            {
-                ExpectedPushConstant,
-            },
-    };
+        };
     const VulkanShader::ReflectionData& GotReflection = ShaderResult->GetReflectionData();
 
     CheckReflection(ExpectedReflection, GotReflection);
