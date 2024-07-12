@@ -92,7 +92,12 @@ struct ShaderParameter {
     /// If the parameter is a struct, this array contains the members of the struct
     Array<ShaderParameter> Members;
 
-    bool operator==(const ShaderParameter& Other) const = default;
+    bool operator==(const ShaderParameter& Other) const
+    {
+        // Name is not compared, because it does not matter
+        return Type == Other.Type && Size == Other.Size && Offset == Other.Offset && Columns == Other.Columns &&
+               Rows == Other.Rows && Members == Other.Members;
+    };
 };
 DECLARE_PRINTABLE_TYPE(ShaderParameter);
 
@@ -138,8 +143,8 @@ struct TSupportedShaderType<glm::vec3> {
 template <>
 struct TSupportedShaderType<glm::uvec2> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Uint32;
-    static constexpr float NumColumns = 1;
-    static constexpr float NumRows = 2;
+    static constexpr uint32 NumColumns = 1;
+    static constexpr uint32 NumRows = 2;
     static constexpr int32 Alignment = 16;
     using AlignedType = glm::uvec4;
 };
@@ -147,10 +152,19 @@ struct TSupportedShaderType<glm::uvec2> {
 template <>
 struct TSupportedShaderType<glm::ivec2> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Int32;
-    static constexpr float NumColumns = 1;
-    static constexpr float NumRows = 2;
+    static constexpr uint32 NumColumns = 1;
+    static constexpr uint32 NumRows = 2;
     static constexpr int32 Alignment = 16;
     using AlignedType = glm::ivec4;
+};
+
+template <>
+struct TSupportedShaderType<glm::mat4> {
+    static constexpr EShaderBufferType Type = EShaderBufferType::Float;
+    static constexpr uint32 NumColumns = 4;
+    static constexpr uint32 NumRows = 4;
+    static constexpr uint32 Alignment = 16;
+    using AlignedType = glm::mat4;
 };
 
 // your code for which the warning gets suppressed
