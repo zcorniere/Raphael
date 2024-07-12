@@ -3,8 +3,6 @@
 #include "Engine/Core/Memory/MemoryOperations.hxx"
 #include "Engine/Misc/MiscDefines.hxx"
 
-constexpr static inline unsigned InvalidVectorIndex = static_cast<unsigned>(-1);
-
 /// Simple array class that uses a custom allocator
 template <typename T, typename SizeType = uint32, SizeType MinimalSize = 0>
 class Array
@@ -113,13 +111,13 @@ public:
     }
 
     /// Get the size of the array
-    [[nodiscard]] constexpr auto Size() const -> typename std::make_unsigned<TSize>::type
+    [[nodiscard]] constexpr TSize Size() const
     {
         return ArraySize;
     }
 
     /// Get the capacity of the array
-    [[nodiscard]] constexpr auto Capacity() const -> typename std::make_unsigned<TSize>::type
+    [[nodiscard]] constexpr TSize Capacity() const
     {
         return ArrayCapacity;
     }
@@ -127,7 +125,7 @@ public:
     /// Get the byte size of the array
     ///
     /// @code return Size() * sizeof(T); @endcode
-    [[nodiscard]] constexpr auto ByteSize() const -> typename std::make_unsigned<TSize>::type
+    [[nodiscard]] constexpr TSize ByteSize() const
     {
         return Size() * sizeof(T);
     }
@@ -208,11 +206,13 @@ public:
     /// Remove the given element from the array
     constexpr bool Remove(const T& Value)
     {
-        TSize Index = Find(Value);
-        if (Index == InvalidVectorIndex)
+        std::optional<TSize> OptIndex = Find(Value);
+        if (!OptIndex.has_value()) {
             return false;
+        }
 
         // Move element after Index to the left
+        TSize Index = OptIndex.value();
         MoveItems(Raw() + Index, Raw() + Index + 1, Size() - Index - 1);
         ArraySize--;
         return true;
@@ -221,7 +221,7 @@ public:
     /// Remove the given element from the array
     constexpr bool RemoveAt(const TSize Index)
     {
-        if (Index >= Size() || Index == InvalidVectorIndex)
+        if (Index >= Size())
             return false;
 
         // Move element after Index to the left
@@ -282,7 +282,7 @@ public:
     constexpr T& Emplace(ArgsTypes&&... args)
     requires std::constructible_from<T, ArgsTypes...>
     {
-        SeeIfNeedToIncreaseCapacity(1);
+        IncreaseCapacityIfNeeded(1);
 
         const TSize LastIndex = ArraySize > 0 ? ArraySize : 0;
         T* const Ptr = Data + LastIndex;
@@ -295,11 +295,11 @@ public:
     /// @return The reference to the added element
     constexpr T& Add(T& Value)
     {
-        SeeIfNeedToIncreaseCapacity(1);
+        IncreaseCapacityIfNeeded(1);
 
         const TSize LastIndex = ArraySize > 0 ? ArraySize : 0;
         T* const Ptr = Data + LastIndex;
-        MoveItems(Ptr, &Value, 1);
+        CopyItems(Ptr, &Value, 1);
         T& Item = Back();
         ArraySize++;
         return Item;
@@ -316,7 +316,7 @@ public:
     /// @return The reference to the added element
     constexpr T& Add(T&& Value)
     {
-        SeeIfNeedToIncreaseCapacity(1);
+        IncreaseCapacityIfNeeded(1);
 
         // We can advance the pointer because the line above ensures that there is enough space
         const TSize LastIndex = ArraySize > 0 ? ArraySize : 0;
@@ -329,7 +329,7 @@ public:
     /// Add an element to the array if it's not already in it
     constexpr bool AddUnique(T&& Value)
     {
-        if (Find(Value) == InvalidVectorIndex) {
+        if (!Find(Value).has_value()) {
             Add(std::forward<T>(Value));
             return true;
         }
@@ -338,7 +338,7 @@ public:
     /// Add an element to the array if if it's not already in it
     constexpr bool AddUnique(T& Value)
     {
-        if (Find(Value) == InvalidVectorIndex) {
+        if (!Contains(Value)) {
             Add(Value);
             return true;
         }
@@ -359,16 +359,16 @@ public:
     [[nodiscard]] FORCEINLINE bool Find(const T& Item, TSize& Index) const
     {
         Index = this->Find(Item);
-        return Index != InvalidVectorIndex;
+        return Index != std::nullopt;
     }
     /// Find the index of the given element
     /// @note Support char* strings with strcmp
     ///
     /// @arg Item The element to find
-    /// @return The index of the element if found, InvalidVectorIndex otherwise
-    [[nodiscard]] TSize Find(const T& Item) const
+    /// @return The index of the element if found, std::nullopt otherwise
+    [[nodiscard]] std::optional<TSize> Find(const T& Item) const
     {
-        for (TSize i = 0; i < TSize(Size()); i++) {
+        for (TSize i = 0; i < Size(); i++) {
             if constexpr (std::is_same_v<std::remove_cv<T>, char*>) {
                 if (strcmp(Item, (*this)[i]) == 0) {
                     return i;
@@ -379,7 +379,7 @@ public:
                 }
             }
         }
-        return InvalidVectorIndex;
+        return std::nullopt;
     }
 
     /// Check if the given index is valid within the array
@@ -392,7 +392,7 @@ public:
     /// @return true if the element is in the array
     [[nodiscard]] FORCEINLINE bool Contains(const T& Object) const
     {
-        return Find(Object) != InvalidVectorIndex;
+        return Find(Object).has_value();
     }
 
     /// Append the given array to this one
@@ -400,8 +400,11 @@ public:
     {
         check((void*)this != (void*)&Source);
 
+        TSize NewCombinedSize = Size() + Source.Size();
+        IncreaseCapacityIfNeeded(NewCombinedSize - Size());
+
         for (const T& Item: Source) {
-            this->Emplace(Item);
+            this->Add(Item);
         }
     }
 
@@ -448,7 +451,7 @@ private:
         return NewCapacity;
     }
 
-    void SeeIfNeedToIncreaseCapacity(TSize Increase)
+    void IncreaseCapacityIfNeeded(TSize Increase)
     {
         if (ArraySize + Increase > ArrayCapacity) {
             TSize NewCapacity = GetAllocationIncrease();
