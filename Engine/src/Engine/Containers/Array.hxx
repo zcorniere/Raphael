@@ -4,18 +4,18 @@
 #include "Engine/Misc/MiscDefines.hxx"
 
 /// Simple array class that uses a custom allocator
-template <typename T, typename SizeType = uint32, SizeType MinimalSize = 0>
+template <typename T, unsigned MinimalCapacity = 0, typename SizeType = uint32>
 class Array
 {
 public:
     using TSize = SizeType;
-    static const TSize DefaultCapacity = MinimalSize;
+    static const TSize DefaultCapacity = MinimalCapacity;
 
 public:
     /// Initialize the array to the minimal size
     constexpr Array()
     {
-        Reserve(MinimalSize);
+        Reserve(MinimalCapacity);
     }
     /// Initialize the array to the given size
     constexpr Array(const TSize Count)
@@ -74,7 +74,7 @@ public:
             return *this;
         }
 
-        Clear();
+        Clear(Other.Size());
 
         if (Other.Size() == 0) {
             return *this;
@@ -104,8 +104,9 @@ public:
 
     constexpr Array& operator=(std::initializer_list<T> InitList)
     {
-        Clear();
+        // Resize the array to fit the list, destroy everything, and copy the list into the array
         Resize(InitList.size());
+        DestructItems(Raw(), InitList.size());
         CopyItems(Raw(), InitList.begin(), Size());
         return *this;
     }
@@ -122,7 +123,7 @@ public:
         return ArrayCapacity;
     }
 
-    /// Get the byte size of the array
+    /// Get the size of the array (in byte)
     ///
     /// @code return Size() * sizeof(T); @endcode
     [[nodiscard]] constexpr TSize ByteSize() const
@@ -466,22 +467,22 @@ private:
     T* Data = nullptr;
 };
 
-template <typename T, typename Allocation>
-std::ostream& operator<<(std::ostream& os, const Array<T, Allocation>& m)
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const Array<T>& m)
 {
     os << std::formatter<decltype(m)>::format(m);
     return os;
 }
 
-template <typename T, typename Allocation>
-struct std::formatter<Array<T, Allocation>> : std::formatter<T> {
+template <typename T>
+struct std::formatter<Array<T>> : std::formatter<T> {
 
     template <class FormatContext>
-    auto format(const Array<T, Allocation>& Value, FormatContext& ctx) const
+    auto format(const Array<T>& Value, FormatContext& ctx) const
     {
         auto&& out = ctx.out();
         format_to(out, "[");
-        for (typename Array<T, Allocation>::TSize i = 0; i < Value.Size(); i++) {
+        for (typename Array<T>::TSize i = 0; i < Value.Size(); i++) {
             format_to(out, "{}{}", Value[i], (i + 1 < Value.Size()) ? ", " : "");
         }
         format_to(out, "]");
