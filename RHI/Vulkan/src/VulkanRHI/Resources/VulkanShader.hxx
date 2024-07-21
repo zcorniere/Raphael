@@ -73,6 +73,7 @@ public:
 
 public:
     VulkanShader(ERHIShaderType Type, const Array<uint32>& InSPRIVCode, const ReflectionData& InReflectionData);
+    virtual ~VulkanShader();
 
     virtual void SetName(std::string_view Name) override;
 

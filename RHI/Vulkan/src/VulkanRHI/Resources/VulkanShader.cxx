@@ -62,6 +62,10 @@ VulkanShader::VulkanShader(ERHIShaderType Type, const Array<uint32>& InSPIRVCode
 {
 }
 
+VulkanShader::~VulkanShader()
+{
+}
+
 void VulkanShader::SetName(std::string_view Name)
 {
     RObject::SetName(Name);
