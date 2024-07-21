@@ -84,10 +84,10 @@ enum class EShaderBufferType {
 struct ShaderParameter {
     std::string Name = "";
     EShaderBufferType Type = EShaderBufferType::Invalid;
-    uint32 Size = 0;
-    uint32 Offset = 0;
-    uint32 Columns = 0;
-    uint32 Rows = 0;
+    uint64 Size = 0;
+    uint64 Offset = 0;
+    uint64 Columns = 0;
+    uint64 Rows = 0;
 
     /// If the parameter is a struct, this array contains the members of the struct
     Array<ShaderParameter> Members;
@@ -107,44 +107,53 @@ struct TSupportedShaderType;
 template <>
 struct TSupportedShaderType<int32> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Int32;
-    static constexpr uint32 NumColumns = 1;
-    static constexpr uint32 NumRows = 1;
-    static constexpr uint32 Alignment = 4;
+    static constexpr uint64 NumColumns = 1;
+    static constexpr uint64 NumRows = 1;
+    static constexpr uint64 Alignment = 4;
     using AlignedType = int32;
 };
 
 template <>
-struct TSupportedShaderType<uint32> {
+struct TSupportedShaderType<uint64> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Uint32;
-    static constexpr uint32 NumColumns = 1;
-    static constexpr uint32 NumRows = 1;
-    static constexpr uint32 Alignment = 4;
-    using AlignedType = uint32;
+    static constexpr uint64 NumColumns = 1;
+    static constexpr uint64 NumRows = 1;
+    static constexpr uint64 Alignment = 4;
+    using AlignedType = uint64;
 };
 
 template <>
 struct TSupportedShaderType<float> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Float;
-    static constexpr uint32 NumColumns = 1;
-    static constexpr uint32 NumRows = 1;
-    static constexpr uint32 Alignment = 4;
+    static constexpr uint64 NumColumns = 1;
+    static constexpr uint64 NumRows = 1;
+    static constexpr uint64 Alignment = 4;
     using AlignedType = float;
 };
 
 template <>
 struct TSupportedShaderType<glm::vec3> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Float;
-    static constexpr uint32 NumColumns = 1;
-    static constexpr uint32 NumRows = 3;
-    static constexpr uint32 Alignment = 16;
+    static constexpr uint64 NumColumns = 1;
+    static constexpr uint64 NumRows = 3;
+    static constexpr uint64 Alignment = 16;
+    using AlignedType = glm::vec4;
+};
+
+template <>
+struct TSupportedShaderType<glm::vec4> {
+    static constexpr EShaderBufferType Type = EShaderBufferType::Float;
+    static constexpr uint64 NumColumns = 1;
+    static constexpr uint64 NumRows = 4;
+    static constexpr uint64 Alignment = 16;
     using AlignedType = glm::vec4;
 };
 
 template <>
 struct TSupportedShaderType<glm::uvec2> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Uint32;
-    static constexpr uint32 NumColumns = 1;
-    static constexpr uint32 NumRows = 2;
+    static constexpr uint64 NumColumns = 1;
+    static constexpr uint64 NumRows = 2;
     static constexpr int32 Alignment = 16;
     using AlignedType = glm::uvec4;
 };
@@ -152,8 +161,8 @@ struct TSupportedShaderType<glm::uvec2> {
 template <>
 struct TSupportedShaderType<glm::ivec2> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Int32;
-    static constexpr uint32 NumColumns = 1;
-    static constexpr uint32 NumRows = 2;
+    static constexpr uint64 NumColumns = 1;
+    static constexpr uint64 NumRows = 2;
     static constexpr int32 Alignment = 16;
     using AlignedType = glm::ivec4;
 };
@@ -161,14 +170,14 @@ struct TSupportedShaderType<glm::ivec2> {
 template <>
 struct TSupportedShaderType<glm::mat4> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Float;
-    static constexpr uint32 NumColumns = 4;
-    static constexpr uint32 NumRows = 4;
-    static constexpr uint32 Alignment = 16;
+    static constexpr uint64 NumColumns = 4;
+    static constexpr uint64 NumRows = 4;
+    static constexpr uint64 Alignment = 16;
     using AlignedType = glm::mat4;
 };
 
 // your code for which the warning gets suppressed
-inline std::string PrintShaderParameter(const ShaderParameter& Param, uint32 Indent, bool bSimple)
+inline std::string PrintShaderParameter(const ShaderParameter& Param, unsigned Indent, bool bSimple)
 {
     if (bSimple) {
         return std::format("Name: \"{0}\", Type: {1}, Size: {2}, Offset: {3}, Columns: {4}, Rows: {5}", Param.Name,
@@ -177,7 +186,7 @@ inline std::string PrintShaderParameter(const ShaderParameter& Param, uint32 Ind
 
     std::string Result = "";
     std::string Padding = "";
-    for (uint32 i = 0; i < Indent; ++i) {
+    for (unsigned i = 0; i < Indent; ++i) {
         Padding += ("\t");
     }
 
