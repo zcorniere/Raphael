@@ -88,6 +88,51 @@ TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
     ::Log::Shutdown();
 }
 
+BEGIN_SHADER_PARAMETER_STRUCT(PointLightStruct)
+SHADER_PARAMETER(glm::vec4, position)
+SHADER_PARAMETER(glm::vec4, color)
+SHADER_PARAMETER(float, intensity)
+SHADER_PARAMETER(float, falloff)
+END_SHADER_PARAMETER_STRUCT();
+
+BEGIN_SHADER_PARAMETER_STRUCT(DirectionalLight)
+SHADER_PARAMETER(glm::vec4, orientation)
+SHADER_PARAMETER(glm::vec4, color)
+SHADER_PARAMETER(float, intensity)
+END_SHADER_PARAMETER_STRUCT();
+
+BEGIN_SHADER_PARAMETER_STRUCT(SpotLight)
+SHADER_PARAMETER(glm::vec4, position)
+SHADER_PARAMETER(glm::vec4, direction)
+SHADER_PARAMETER(glm::vec4, color)
+SHADER_PARAMETER(float, cutOff)
+SHADER_PARAMETER(float, outerCutOff)
+SHADER_PARAMETER(float, intensity)
+END_SHADER_PARAMETER_STRUCT();
+
+BEGIN_SHADER_PARAMETER_STRUCT(MaterialStruct)
+SHADER_PARAMETER(float, alphaCutOff)
+SHADER_PARAMETER(float, metallic)
+SHADER_PARAMETER(float, roughness)
+SHADER_PARAMETER(glm::vec4, baseColor)
+SHADER_PARAMETER(glm::vec4, baseColorFactor)
+SHADER_PARAMETER(glm::vec4, emissiveFactor)
+SHADER_PARAMETER(int, baseColorTexture)
+SHADER_PARAMETER(int, metallicRoughnessTexture)
+SHADER_PARAMETER(int, normalTexture)
+SHADER_PARAMETER(int, occlusionTexture)
+SHADER_PARAMETER(int, emissiveTexture)
+SHADER_PARAMETER(int, specularGlossinessTexture)
+SHADER_PARAMETER(int, diffuseTexture)
+END_SHADER_PARAMETER_STRUCT();
+
+BEGIN_SHADER_PARAMETER_STRUCT(PushConstantStruct)
+SHADER_PARAMETER(int, pointLightCount)
+SHADER_PARAMETER(int, directLightCount)
+SHADER_PARAMETER(int, spotLightCount)
+SHADER_PARAMETER(glm::vec3, position)
+END_SHADER_PARAMETER_STRUCT();
+
 TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
 {
     using namespace VulkanRHI;
@@ -102,22 +147,15 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
 
     CHECK(ShaderResult->GetShaderType() == ERHIShaderType::Pixel);
 
-    struct ShaderPushConstantStruct {
-        uint32 pointLightCount;
-        uint32 directLightCount;
-        uint32 spotLightCount;
-        float position[3];
-        float __Padding;
-    };
     const uint32 ExpectedPushConstantOffset = 64;
     const ShaderResource::PushConstantRange ExpectedPushConstant{
         .Offset = ExpectedPushConstantOffset,
-        .Size = ExpectedPushConstantOffset + sizeof(ShaderPushConstantStruct),
+        .Size = ExpectedPushConstantOffset + sizeof(PushConstantStruct),
         .Parameter =
             {
                 .Name = "push",
                 .Type = EShaderBufferType::Struct,
-                .Size = ExpectedPushConstantOffset + sizeof(ShaderPushConstantStruct),
+                .Size = ExpectedPushConstantOffset + sizeof(PushConstantStruct),
                 .Offset = ExpectedPushConstantOffset,
                 .Columns = 1,
                 .Rows = 1,
@@ -126,7 +164,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                         {
                             .Name = "push",
                             .Type = EShaderBufferType::Struct,
-                            .Size = sizeof(ShaderPushConstantStruct),
+                            .Size = sizeof(PushConstantStruct),
                             .Offset = ExpectedPushConstantOffset,
                             .Columns = 1,
                             .Rows = 1,
@@ -162,7 +200,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                         .Size = 4,
                                         .Offset = 16,
                                         .Columns = 1,
-                                        .Rows = 3,
+                                        .Rows = 4,
                                     },
                                 },
                         },

@@ -42,7 +42,7 @@ struct pushConstantStruct {
     uint pointLightCount;
     uint directLightCount;
     uint spotLightCount;
-    vec3 position;
+    vec4 position;
 };
 
 layout(constant_id = 0) const uint NUMBER_OF_TEXTURES = 1;
@@ -201,7 +201,7 @@ void main()
     float roughness = metallicRoughness.g * material.roughness;
 
     vec3 N = getNormalFromMap(material);
-    vec3 V = normalize(cameraData.push.position - fragPosition);
+    vec3 V = normalize(cameraData.push.position.xyz - fragPosition);
 
     vec3 F0 = vec3(0.04);
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - F0);
