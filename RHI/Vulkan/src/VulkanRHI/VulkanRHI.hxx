@@ -53,6 +53,8 @@ public:
     virtual void PostInit() final override;
     virtual void Shutdown() final override;
 
+    virtual void DeferedDeletion(std::function<void()>&& InDeletionFunction) final override;
+    virtual void FlushDeletionQueue() final override;
     virtual void WaitUntilIdle() final override;
 
     virtual const char* GetName() const final override
@@ -94,6 +96,8 @@ private:
     Array<VulkanCommandContext*> CommandContexts;
     Array<VulkanCommandContext*> AvailableCommandContexts;
     VulkanViewport* DrawingViewport = nullptr;
+
+    Array<std::function<void()>> DeletionQueue;
 };
 
 }    // namespace VulkanRHI

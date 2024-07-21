@@ -179,13 +179,16 @@ void VulkanTexture::CreateTexture()
 
 void VulkanTexture::DestroyTexture()
 {
-    if (View) {
-        VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, VULKAN_CPU_ALLOCATOR);
-        View = VK_NULL_HANDLE;
-    }
-    Device->GetMemoryManager()->Free(Allocation);
+    RHI::DeferedDeletion(
+        [View = this->View, Allocation = this->Allocation, Image = this->Image, Device = this->Device] mutable {
+            if (View) {
+                VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, VULKAN_CPU_ALLOCATOR);
+            }
+            Device->GetMemoryManager()->Free(Allocation);
+            VulkanAPI::vkDestroyImage(Device->GetHandle(), Image, VULKAN_CPU_ALLOCATOR);
+        });
+    View = VK_NULL_HANDLE;
     Allocation = nullptr;
-    VulkanAPI::vkDestroyImage(Device->GetHandle(), Image, VULKAN_CPU_ALLOCATOR);
     Image = VK_NULL_HANDLE;
     Layout = VK_IMAGE_LAYOUT_UNDEFINED;
 }
@@ -234,7 +237,10 @@ void VulkanTextureView::Create(VulkanDevice* Device, VkImage InImage, VkImageVie
 void VulkanTextureView::Destroy(VulkanDevice* Device)
 {
     if (View) {
-        VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, VULKAN_CPU_ALLOCATOR);
+        RHI::DeferedDeletion([View = this->View, Device] {
+            VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, VULKAN_CPU_ALLOCATOR);
+        });
+        // We don't own the image, so we don't destroy it
         Image = VK_NULL_HANDLE;
         View = VK_NULL_HANDLE;
     }

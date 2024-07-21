@@ -94,6 +94,24 @@ void VulkanDynamicRHI::PostInit()
     IMGUI_CHECKVERSION();
 }
 
+void VulkanDynamicRHI::FlushDeletionQueue()
+{
+    int Counter = 0;
+    for (std::function<void()>& DeletionFunction: DeletionQueue) {
+        DeletionFunction();
+        Counter++;
+    }
+    DeletionQueue.Clear();
+    if (Counter > 0) {
+        LOG(LogVulkanRHI, Info, "Deleted {} RHI ressources", Counter);
+    }
+}
+
+void VulkanDynamicRHI::DeferedDeletion(std::function<void()>&& InDeletionFunction)
+{
+    DeletionQueue.Emplace(std::move(InDeletionFunction));
+}
+
 void VulkanDynamicRHI::Shutdown()
 {
     WaitUntilIdle();
@@ -104,6 +122,9 @@ void VulkanDynamicRHI::Shutdown()
     RHIReleaseCommandContext(Device->GetImmediateContext());
     AvailableCommandContexts.Clear(true);
     check(CommandContexts.IsEmpty());
+
+    FlushDeletionQueue();    // Flush the deletion queue
+
     Device.reset();
 
 #if VULKAN_DEBUGGING_ENABLED

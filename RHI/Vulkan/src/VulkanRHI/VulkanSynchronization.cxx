@@ -217,7 +217,9 @@ Semaphore::Semaphore(VulkanDevice* InDevice): IDeviceChild(InDevice), SemaphoreH
 Semaphore::~Semaphore()
 {
     if (SemaphoreHandle) {
-        VulkanAPI::vkDestroySemaphore(Device->GetHandle(), SemaphoreHandle, VULKAN_CPU_ALLOCATOR);
+        RHI::DeferedDeletion([Handle = SemaphoreHandle, Device = Device]() {
+            VulkanAPI::vkDestroySemaphore(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR);
+        });
     }
     SemaphoreHandle = VK_NULL_HANDLE;
 }
@@ -243,7 +245,10 @@ Fence::Fence(VulkanDevice* InDevice, bool bCreateSignaled)
 
 Fence::~Fence()
 {
-    VulkanAPI::vkDestroyFence(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR);
+    RHI::DeferedDeletion([Handle = Handle, Device = Device]() {
+        VulkanAPI::vkDestroyFence(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR);
+    });
+    Handle = VK_NULL_HANDLE;
 }
 
 void Fence::SetName(std::string_view InName)

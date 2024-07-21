@@ -3,6 +3,7 @@
 #include "Engine/Core/Events/ApplicationEvent.hxx"
 #include "Engine/Core/Events/KeyEvent.hxx"
 #include "Engine/Core/Events/MouseEvent.hxx"
+#include "Engine/Core/RHI/RHI.hxx"
 #include "Engine/Misc/MiscDefines.hxx"
 #include "Engine/Misc/Utils.hxx"
 
@@ -89,6 +90,8 @@ void Window::BringToFront(bool bForce)
 
 void Window::Destroy()
 {
+    RHI::FlushDeletionQueue();
+
     LOG(LogWindow, Info, "Destroying GLFW Window '{:p}'", (void*)p_Handle);
     glfwDestroyWindow(p_Handle);
     p_Handle = nullptr;

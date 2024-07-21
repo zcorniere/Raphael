@@ -32,6 +32,14 @@ public:
         return RHIInterfaceType::Null;
     }
 
+    /// @brief Defer the execution of the given function to the next frame
+    /// @param InDeletionFunction The function to defer
+    ///
+    /// This function is used to defer the deletion of resources to the next frame, this is useful when the resource is
+    /// in use and cannot be deleted immediately
+    virtual void DeferedDeletion(std::function<void()>&& InDeletionFunction) = 0;
+    virtual void FlushDeletionQueue() = 0;
+
     virtual void WaitUntilIdle() = 0;
 
     // ---------------------- RHI Operations --------------------- //
@@ -40,8 +48,6 @@ public:
     virtual void RHISubmitCommandLists(RHICommandList* const CommandLists, std::uint32_t NumCommandLists) = 0;
     virtual RHIContext* RHIGetCommandContext() = 0;
     virtual void RHIReleaseCommandContext(RHIContext*) = 0;
-
-    // virtual void Draw(Ref<RHIGraphicsPipeline>& Pipeline) = 0;
 
     /// @copydoc RHI::CreateViewport
     virtual Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize) = 0;

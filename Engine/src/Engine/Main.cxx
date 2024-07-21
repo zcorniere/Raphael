@@ -46,6 +46,7 @@ int EngineLoop()
 
         // End the frame on the RHI side
         RHI::EndFrame();
+        RHI::FlushDeletionQueue();
 
         const auto stopTime = std::chrono::high_resolution_clock::now();
         DeltaTime = std::chrono::duration<float>(stopTime - startTime).count();

@@ -42,6 +42,14 @@ void Tick(float fDeltaTime);
 /// @brief Delete the current RHI
 void Destroy();
 
+/// @brief Defer the execution of the given function to the next frame
+/// @param InDeletionFunction The function to defer
+///
+/// This function is used to defer the deletion of resources to the next frame, this is useful when the resource is in
+/// use and cannot be deleted immediately
+void DeferedDeletion(std::function<void()>&& InDeletionFunction);
+void FlushDeletionQueue();
+
 /// -------------- RHI Operations --------------
 
 /// @brief Mark the beginning of a new frame

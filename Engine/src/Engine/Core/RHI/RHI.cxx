@@ -20,7 +20,6 @@ void RHI::Destroy()
     GDynamicRHI = nullptr;
 }
 
-/// RHI Forwarding
 void RHI::BeginFrame()
 {
 }
@@ -38,6 +37,16 @@ void RHI::EndFrame()
     RHI::Get()->RHIReleaseCommandContext(Context);
 
     GFrameCounter += 1;
+}
+
+void RHI::DeferedDeletion(std::function<void()>&& InDeletionFunction)
+{
+    RHI::Get()->DeferedDeletion(std::move(InDeletionFunction));
+}
+
+void RHI::FlushDeletionQueue()
+{
+    RHI::Get()->FlushDeletionQueue();
 }
 
 void RHI::RHIWaitUntilIdle()
@@ -73,7 +82,3 @@ Ref<RHIGraphicsPipeline> RHI::CreateGraphicsPipeline(const RHIGraphicsPipelineSp
 {
     return RHI::Get()->CreateGraphicsPipeline(Config);
 }
-
-//
-// -------------------- Misc Define --------------------
-//
