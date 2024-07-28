@@ -1,5 +1,10 @@
 #pragma once
 
+#include "Engine/Containers/Array.hxx"
+
+#include "Engine/Serialization/StreamReader.hxx"
+#include "Engine/Serialization/StreamWriter.hxx"
+
 #define BEGIN_SHADER_PARAMETER_STRUCT(StructureName)                                      \
     struct alignas(16) StructureName {                                                    \
     public:                                                                               \
@@ -98,6 +103,28 @@ struct ShaderParameter {
         return Type == Other.Type && Size == Other.Size && Offset == Other.Offset && Columns == Other.Columns &&
                Rows == Other.Rows && Members == Other.Members;
     };
+
+    static void Serialize(StreamWriter* Writer, const ShaderParameter& Value)
+    {
+        Writer->WriteString(Value.Name);
+        Writer->WriteRaw(Value.Type);
+        Writer->WriteRaw(Value.Size);
+        Writer->WriteRaw(Value.Offset);
+        Writer->WriteRaw(Value.Columns);
+        Writer->WriteRaw(Value.Rows);
+        Writer->WriteArray(Value.Members);
+    }
+
+    static void Deserialize(StreamReader* Reader, ShaderParameter& Value)
+    {
+        Reader->ReadString(Value.Name);
+        Reader->ReadRaw(Value.Type);
+        Reader->ReadRaw(Value.Size);
+        Reader->ReadRaw(Value.Offset);
+        Reader->ReadRaw(Value.Columns);
+        Reader->ReadRaw(Value.Rows);
+        Reader->ReadArray(Value.Members);
+    }
 };
 DECLARE_PRINTABLE_TYPE(ShaderParameter);
 
@@ -233,7 +260,7 @@ struct std::formatter<ShaderParameter, char> {
         return out;
     }
 };
-inline std ::ostream& operator<<(std ::ostream& os, const ShaderParameter& m)
+inline std::ostream& operator<<(std::ostream& os, const ShaderParameter& m)
 {
     os << std ::format("{}", m);
     return os;

@@ -6,6 +6,70 @@
 namespace VulkanRHI
 {
 
+// Serialization
+
+void ShaderResource::StageIO::Serialize(StreamWriter* Writer, const ShaderResource::StageIO& Value)
+{
+    Writer->WriteString(Value.Name);
+    Writer->WriteRaw(Value.Type);
+    Writer->WriteRaw(Value.Binding);
+    Writer->WriteRaw(Value.Location);
+}
+
+void ShaderResource::PushConstantRange::Serialize(StreamWriter* Writer, const ShaderResource::PushConstantRange& Value)
+{
+    Writer->WriteRaw(Value.Offset);
+    Writer->WriteRaw(Value.Size);
+    Writer->WriteObject(Value.Parameter);
+}
+
+void ShaderResource::StorageBuffer::Serialize(StreamWriter* Writer, const ShaderResource::StorageBuffer& Value)
+{
+    Writer->WriteRaw(Value.Set);
+    Writer->WriteRaw(Value.Binding);
+    Writer->WriteObject(Value.Parameter);
+}
+
+void VulkanShader::ReflectionData::Serialize(StreamWriter* Writer, const ReflectionData& Value)
+{
+    Writer->WriteArray<ShaderResource::StageIO>(Value.StageInput);
+    Writer->WriteArray<ShaderResource::StageIO>(Value.StageOutput);
+    Writer->WriteArray<ShaderResource::PushConstantRange>(Value.PushConstants);
+    Writer->WriteArray<ShaderResource::StorageBuffer>(Value.StorageBuffers);
+}
+
+// Deserialization
+
+void ShaderResource::StageIO::Deserialize(StreamReader* Reader, ShaderResource::StageIO& OutValue)
+{
+    Reader->ReadString(OutValue.Name);
+    Reader->ReadRaw(OutValue.Type);
+    Reader->ReadRaw(OutValue.Binding);
+    Reader->ReadRaw(OutValue.Location);
+}
+
+void ShaderResource::PushConstantRange::Deserialize(StreamReader* Reader, ShaderResource::PushConstantRange& OutValue)
+{
+    Reader->ReadRaw(OutValue.Offset);
+    Reader->ReadRaw(OutValue.Size);
+    Reader->ReadObject(OutValue.Parameter);
+}
+
+void ShaderResource::StorageBuffer::Deserialize(StreamReader* Reader, ShaderResource::StorageBuffer& OutValue)
+{
+    Reader->ReadRaw(OutValue.Set);
+    Reader->ReadRaw(OutValue.Binding);
+    Reader->ReadObject(OutValue.Parameter);
+}
+
+void VulkanShader::ReflectionData::Deserialize(StreamReader* Reader, ReflectionData& OutValue)
+{
+    Reader->ReadArray<ShaderResource::StageIO>(OutValue.StageInput);
+    Reader->ReadArray<ShaderResource::StageIO>(OutValue.StageOutput);
+    Reader->ReadArray<ShaderResource::PushConstantRange>(OutValue.PushConstants);
+    Reader->ReadArray<ShaderResource::StorageBuffer>(OutValue.StorageBuffers);
+}
+
 Array<GraphicsPipelineDescription::VertexAttribute> VulkanShader::ReflectionData::GetInputVertexAttributes() const
 {
     Array<GraphicsPipelineDescription::VertexAttribute> Result;

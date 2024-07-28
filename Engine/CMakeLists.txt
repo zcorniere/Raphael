@@ -51,6 +51,9 @@ add_library(
     src/Engine/Core/Memory/Memory.cxx
     src/Engine/Core/Memory/MiMalloc.cxx
     src/Engine/Core/Memory/StdMalloc.cxx
+    src/Engine/Serialization/StreamWriter.cxx
+    src/Engine/Serialization/StreamReader.cxx
+    src/Engine/Serialization/FileStream.cxx
     src/Engine/Misc/DataLocation.cxx
     src/Engine/Misc/Utils.cxx
     src/Engine/Misc/Assertions.cxx

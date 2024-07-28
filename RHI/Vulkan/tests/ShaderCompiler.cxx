@@ -2,6 +2,7 @@
 
 #include "Engine/Core/Log.hxx"
 
+#include "Engine/Serialization/FileStream.hxx"
 #include "VulkanRHI/Resources/VulkanShader.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 
@@ -207,6 +208,24 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                     },
             },
     };
+
+    SECTION("Test Serialization")
+    {
+
+        FileStreamWriter Writer("test.txt");
+        Writer.WriteObject(ExpectedPushConstant);
+        Writer.Flush();
+
+        FileStreamReader Reader("test.txt");
+
+        CHECK(Reader);
+        CHECK(Reader.IsGood());
+
+        ShaderResource::PushConstantRange GotPushConstant;
+        Reader.ReadObject(GotPushConstant);
+
+        CHECK(GotPushConstant == ExpectedPushConstant);
+    }
 
     const VulkanShader::ReflectionData
         ExpectedReflection{

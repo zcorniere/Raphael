@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Engine/Serialization/StreamReader.hxx"
+#include "Engine/Serialization/StreamWriter.hxx"
+
 #include "Engine/Core/RHI/RHIShaderParameters.hxx"
 #include "Engine/Core/RHI/Resources/RHIShader.hxx"
 
@@ -19,6 +22,9 @@ namespace ShaderResource
         ShaderParameter Parameter;
 
         bool operator==(const PushConstantRange&) const = default;
+
+        static void Serialize(StreamWriter* Writer, const PushConstantRange& Value);
+        static void Deserialize(StreamReader* Reader, PushConstantRange& OutValue);
     };
 
     struct StageIO {
@@ -28,6 +34,9 @@ namespace ShaderResource
         uint32 Location;
 
         bool operator==(const StageIO&) const = default;
+
+        static void Serialize(StreamWriter* Writer, const StageIO& Value);
+        static void Deserialize(StreamReader* Reader, StageIO& OutValue);
     };
 
     struct StorageBuffer {
@@ -36,6 +45,9 @@ namespace ShaderResource
         ShaderParameter Parameter;
 
         bool operator==(const StorageBuffer&) const = default;
+
+        static void Serialize(StreamWriter* Writer, const StorageBuffer& Value);
+        static void Deserialize(StreamReader* Reader, StorageBuffer& OutValue);
     };
 
 }    // namespace ShaderResource
@@ -56,6 +68,9 @@ public:
         Array<GraphicsPipelineDescription::VertexAttribute> GetInputVertexAttributes() const;
 
         bool operator==(const ReflectionData&) const = default;
+
+        static void Serialize(StreamWriter* Writer, const ReflectionData& Value);
+        static void Deserialize(StreamReader* Reader, ReflectionData& OutValue);
     };
 
     class ShaderHandle : public RObject, public IDeviceChild
