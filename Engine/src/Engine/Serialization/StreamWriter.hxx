@@ -1,5 +1,10 @@
 #pragma once
 
+#include "Engine/Serialization/Serialization.hxx"
+
+namespace Serialization
+{
+
 class StreamWriter
 {
 public:
@@ -20,7 +25,7 @@ public:
     {
         WriteData(reinterpret_cast<const uint8*>(&Value), sizeof(T));
     }
-    template <typename T>
+    template <IsSerializable T>
     void WriteObject(const T& Value)
     {
         T::Serialize(this, Value);
@@ -70,3 +75,5 @@ public:
         }
     }
 };
+
+}    // namespace Serialization

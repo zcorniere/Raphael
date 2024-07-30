@@ -6,6 +6,8 @@
 #include <filesystem>
 #include <fstream>
 
+namespace Serialization
+{
 class FileStreamWriter : public StreamWriter
 {
 public:
@@ -42,3 +44,5 @@ private:
     std::filesystem::path Path;
     std::ifstream File;
 };
+
+}    // namespace Serialization

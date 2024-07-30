@@ -212,11 +212,11 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
     SECTION("Test Serialization")
     {
 
-        FileStreamWriter Writer("test.txt");
+        Serialization::FileStreamWriter Writer("test.txt");
         Writer.WriteObject(ExpectedPushConstant);
         Writer.Flush();
 
-        FileStreamReader Reader("test.txt");
+        Serialization::FileStreamReader Reader("test.txt");
 
         CHECK(Reader);
         CHECK(Reader.IsGood());

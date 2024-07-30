@@ -1,5 +1,8 @@
 #include "Engine/Serialization/StreamReader.hxx"
 
+namespace Serialization
+{
+
 void StreamReader::ReadString(std::string& String)
 {
     size_t Size = String.size();
@@ -8,3 +11,5 @@ void StreamReader::ReadString(std::string& String)
     String.resize(Size);
     ReadData((uint8*)String.data(), sizeof(char) * Size);
 }
+
+}    // namespace Serialization

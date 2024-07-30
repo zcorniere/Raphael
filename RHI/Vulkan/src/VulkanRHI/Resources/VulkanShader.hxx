@@ -23,8 +23,8 @@ namespace ShaderResource
 
         bool operator==(const PushConstantRange&) const = default;
 
-        static void Serialize(StreamWriter* Writer, const PushConstantRange& Value);
-        static void Deserialize(StreamReader* Reader, PushConstantRange& OutValue);
+        static void Serialize(Serialization::StreamWriter* Writer, const PushConstantRange& Value);
+        static void Deserialize(Serialization::StreamReader* Reader, PushConstantRange& OutValue);
     };
 
     struct StageIO {
@@ -35,8 +35,8 @@ namespace ShaderResource
 
         bool operator==(const StageIO&) const = default;
 
-        static void Serialize(StreamWriter* Writer, const StageIO& Value);
-        static void Deserialize(StreamReader* Reader, StageIO& OutValue);
+        static void Serialize(Serialization::StreamWriter* Writer, const StageIO& Value);
+        static void Deserialize(Serialization::StreamReader* Reader, StageIO& OutValue);
     };
 
     struct StorageBuffer {
@@ -46,8 +46,8 @@ namespace ShaderResource
 
         bool operator==(const StorageBuffer&) const = default;
 
-        static void Serialize(StreamWriter* Writer, const StorageBuffer& Value);
-        static void Deserialize(StreamReader* Reader, StorageBuffer& OutValue);
+        static void Serialize(Serialization::StreamWriter* Writer, const StorageBuffer& Value);
+        static void Deserialize(Serialization::StreamReader* Reader, StorageBuffer& OutValue);
     };
 
 }    // namespace ShaderResource
@@ -69,8 +69,8 @@ public:
 
         bool operator==(const ReflectionData&) const = default;
 
-        static void Serialize(StreamWriter* Writer, const ReflectionData& Value);
-        static void Deserialize(StreamReader* Reader, ReflectionData& OutValue);
+        static void Serialize(Serialization::StreamWriter* Writer, const ReflectionData& Value);
+        static void Deserialize(Serialization::StreamReader* Reader, ReflectionData& OutValue);
     };
 
     class ShaderHandle : public RObject, public IDeviceChild

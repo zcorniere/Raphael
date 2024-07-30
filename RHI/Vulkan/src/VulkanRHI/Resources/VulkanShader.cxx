@@ -8,7 +8,7 @@ namespace VulkanRHI
 
 // Serialization
 
-void ShaderResource::StageIO::Serialize(StreamWriter* Writer, const ShaderResource::StageIO& Value)
+void ShaderResource::StageIO::Serialize(Serialization::StreamWriter* Writer, const ShaderResource::StageIO& Value)
 {
     Writer->WriteString(Value.Name);
     Writer->WriteRaw(Value.Type);
@@ -16,21 +16,23 @@ void ShaderResource::StageIO::Serialize(StreamWriter* Writer, const ShaderResour
     Writer->WriteRaw(Value.Location);
 }
 
-void ShaderResource::PushConstantRange::Serialize(StreamWriter* Writer, const ShaderResource::PushConstantRange& Value)
+void ShaderResource::PushConstantRange::Serialize(Serialization::StreamWriter* Writer,
+                                                  const ShaderResource::PushConstantRange& Value)
 {
     Writer->WriteRaw(Value.Offset);
     Writer->WriteRaw(Value.Size);
     Writer->WriteObject(Value.Parameter);
 }
 
-void ShaderResource::StorageBuffer::Serialize(StreamWriter* Writer, const ShaderResource::StorageBuffer& Value)
+void ShaderResource::StorageBuffer::Serialize(Serialization::StreamWriter* Writer,
+                                              const ShaderResource::StorageBuffer& Value)
 {
     Writer->WriteRaw(Value.Set);
     Writer->WriteRaw(Value.Binding);
     Writer->WriteObject(Value.Parameter);
 }
 
-void VulkanShader::ReflectionData::Serialize(StreamWriter* Writer, const ReflectionData& Value)
+void VulkanShader::ReflectionData::Serialize(Serialization::StreamWriter* Writer, const ReflectionData& Value)
 {
     Writer->WriteArray<ShaderResource::StageIO>(Value.StageInput);
     Writer->WriteArray<ShaderResource::StageIO>(Value.StageOutput);
@@ -40,7 +42,7 @@ void VulkanShader::ReflectionData::Serialize(StreamWriter* Writer, const Reflect
 
 // Deserialization
 
-void ShaderResource::StageIO::Deserialize(StreamReader* Reader, ShaderResource::StageIO& OutValue)
+void ShaderResource::StageIO::Deserialize(Serialization::StreamReader* Reader, ShaderResource::StageIO& OutValue)
 {
     Reader->ReadString(OutValue.Name);
     Reader->ReadRaw(OutValue.Type);
@@ -48,21 +50,23 @@ void ShaderResource::StageIO::Deserialize(StreamReader* Reader, ShaderResource::
     Reader->ReadRaw(OutValue.Location);
 }
 
-void ShaderResource::PushConstantRange::Deserialize(StreamReader* Reader, ShaderResource::PushConstantRange& OutValue)
+void ShaderResource::PushConstantRange::Deserialize(Serialization::StreamReader* Reader,
+                                                    ShaderResource::PushConstantRange& OutValue)
 {
     Reader->ReadRaw(OutValue.Offset);
     Reader->ReadRaw(OutValue.Size);
     Reader->ReadObject(OutValue.Parameter);
 }
 
-void ShaderResource::StorageBuffer::Deserialize(StreamReader* Reader, ShaderResource::StorageBuffer& OutValue)
+void ShaderResource::StorageBuffer::Deserialize(Serialization::StreamReader* Reader,
+                                                ShaderResource::StorageBuffer& OutValue)
 {
     Reader->ReadRaw(OutValue.Set);
     Reader->ReadRaw(OutValue.Binding);
     Reader->ReadObject(OutValue.Parameter);
 }
 
-void VulkanShader::ReflectionData::Deserialize(StreamReader* Reader, ReflectionData& OutValue)
+void VulkanShader::ReflectionData::Deserialize(Serialization::StreamReader* Reader, ReflectionData& OutValue)
 {
     Reader->ReadArray<ShaderResource::StageIO>(OutValue.StageInput);
     Reader->ReadArray<ShaderResource::StageIO>(OutValue.StageOutput);

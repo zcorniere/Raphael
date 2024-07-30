@@ -1,5 +1,8 @@
 #include "Engine/Serialization/FileStream.hxx"
 
+namespace Serialization
+{
+
 FileStreamWriter::FileStreamWriter(const std::filesystem::path& Path): Path(Path)
 {
     File.open(Path, std::ios::binary | std::ios::out);
@@ -70,3 +73,5 @@ bool FileStreamReader::ReadData(uint8* Data, size_t Size)
     File.read(reinterpret_cast<char*>(Data), Size);
     return true;
 }
+
+}    // namespace Serialization

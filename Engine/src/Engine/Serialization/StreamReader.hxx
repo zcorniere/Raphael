@@ -1,5 +1,10 @@
 #pragma once
 
+#include "Engine/Serialization/Serialization.hxx"
+
+namespace Serialization
+{
+
 class StreamReader
 {
 public:
@@ -21,7 +26,7 @@ public:
         ReadData(reinterpret_cast<uint8*>(&Value), sizeof(T));
     }
 
-    template <typename T>
+    template <IsDeserializable T>
     void ReadObject(T& Value)
     {
         T::Deserialize(this, Value);
@@ -77,3 +82,5 @@ public:
         }
     }
 };
+
+}    // namespace Serialization

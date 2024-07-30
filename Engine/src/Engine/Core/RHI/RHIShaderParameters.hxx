@@ -104,7 +104,7 @@ struct ShaderParameter {
                Rows == Other.Rows && Members == Other.Members;
     };
 
-    static void Serialize(StreamWriter* Writer, const ShaderParameter& Value)
+    static void Serialize(Serialization::StreamWriter* Writer, const ShaderParameter& Value)
     {
         Writer->WriteString(Value.Name);
         Writer->WriteRaw(Value.Type);
@@ -115,7 +115,7 @@ struct ShaderParameter {
         Writer->WriteArray(Value.Members);
     }
 
-    static void Deserialize(StreamReader* Reader, ShaderParameter& Value)
+    static void Deserialize(Serialization::StreamReader* Reader, ShaderParameter& Value)
     {
         Reader->ReadString(Value.Name);
         Reader->ReadRaw(Value.Type);
