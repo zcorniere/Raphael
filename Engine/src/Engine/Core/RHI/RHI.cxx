@@ -1,5 +1,6 @@
 #include "Engine/Core/RHI/RHI.hxx"
 
+#include "Engine/Core/Engine.hxx"
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "Engine/Core/RHI/RHICommandList.hxx"
 #include "Engine/Core/RHI/RHIShaderParameters.hxx"
@@ -76,6 +77,12 @@ Ref<RHIBuffer> RHI::CreateBuffer(const RHIBufferDesc& InDesc)
 Ref<RHIShader> RHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)
 {
     return RHI::Get()->CreateShader(Path, bForceCompile);
+}
+
+std::future<Ref<RHIShader>> RHI::CreateShaderAsync(const std::filesystem::path Path, bool bForceCompile)
+{
+    return GEngine->GetThreadPool().Push(
+        [Path, bForceCompile](int) { return RHI::Get()->CreateShader(Path, bForceCompile); });
 }
 
 Ref<RHIGraphicsPipeline> RHI::CreateGraphicsPipeline(const RHIGraphicsPipelineSpecification& Config)

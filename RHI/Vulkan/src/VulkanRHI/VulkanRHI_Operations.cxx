@@ -1,3 +1,4 @@
+#include "Engine/Core/Engine.hxx"
 #include "VulkanRHI/Resources/VulkanBuffer.hxx"
 #include "VulkanRHI/VulkanCommandContext.hxx"
 #include "VulkanRHI/VulkanRHI.hxx"
@@ -87,13 +88,16 @@ Ref<RHIShader> VulkanDynamicRHI::CreateShader(const std::filesystem::path Path, 
 Ref<RHIGraphicsPipeline>
 VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineSpecification& Config)
 {
+    std::future<Ref<RHIShader>> VertexShader = RHI::CreateShaderAsync(Config.VertexShader, false);
+    std::future<Ref<RHIShader>> PixelShader = RHI::CreateShaderAsync(Config.PixelShader, false);
+
     GraphicsPipelineDescription Desc;
-    Desc.VertexShader = CreateShader(Config.VertexShader, false);
-    Desc.PixelShader = CreateShader(Config.PixelShader, false);
     Desc.Rasterizer.CullMode = ConvertToVulkanType(Config.Rasterizer.CullMode);
     Desc.Rasterizer.FrontFaceCulling = ConvertToVulkanType(Config.Rasterizer.FrontFaceCulling);
     Desc.Rasterizer.PolygonMode = ConvertToVulkanType(Config.Rasterizer.PolygonMode);
     Desc.AttachmentFormats = Config.AttachmentFormats;
+    Desc.VertexShader = VertexShader.get();
+    Desc.PixelShader = PixelShader.get();
 
     if (Desc.VertexAttributes.IsEmpty()) {
         Desc.VertexAttributes = Desc.VertexShader->GetReflectionData().GetInputVertexAttributes();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/RHI/RHIResource.hxx"
+#include <future>
 
 class Window;
 
@@ -67,6 +68,8 @@ Ref<RHITexture> CreateTexture(const RHITextureSpecification& InDesc);
 Ref<RHIBuffer> CreateBuffer(const RHIBufferDesc& InDesc);
 /// Create a new RHI shader - through the current RHI
 Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile);
+/// Create a new RHI shader - through the current RHI asynchronously
+std::future<Ref<RHIShader>> CreateShaderAsync(const std::filesystem::path Path, bool bForceCompile);
 /// Create a new RHI Pipeline - through the current RHI
 Ref<RHIGraphicsPipeline> CreateGraphicsPipeline(const RHIGraphicsPipelineSpecification& Config);
 
