@@ -63,5 +63,8 @@ target_compile_definitions(${PROJECT_NAME}_Test PRIVATE VK_NO_PROTOTYPES=1)
 
 if(RPH_ENABLE_PROFILING)
     target_compile_definitions(${PROJECT_NAME} PUBLIC RPH_ENABLE_PROFILING=1)
+    if(RPH_ENABLE_MEMORY_PROFILING)
+        target_compile_definitions(${PROJECT_NAME} PUBLIC RPH_ENABLE_MEMORY_PROFILING=1)
+    endif(RPH_ENABLE_MEMORY_PROFILING)
     target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
 endif(RPH_ENABLE_PROFILING)
