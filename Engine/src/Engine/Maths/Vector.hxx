@@ -91,8 +91,11 @@ Vector<Size, T> operator*(const Vector<Size, T>& lhs, const Vector<Size, T>& rhs
 
 template <unsigned Size, typename T>
 Vector<Size, T> operator/(const Vector<Size, T>& lhs, const Vector<Size, T>& rhs);
+
 template <unsigned Size, typename T>
 Vector<Size, T> operator*(const Vector<Size, T>& lhs, T scalar);
+template <unsigned Size, typename T>
+Vector<Size, T> operator/(const Vector<Size, T>& lhs, T scalar);
 
 }    // namespace Math
 

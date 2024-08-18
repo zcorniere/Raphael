@@ -19,6 +19,7 @@ template <typename T>
 Vector<2, T>::Vector()
 {
     x = y = 0;
+    static_assert(sizeof(Vector<2, T>) == 2 * sizeof(T));
 }
 
 template <typename T>
@@ -54,6 +55,7 @@ template <typename T>
 Vector<3, T>::Vector()
 {
     x = y = z = 0;
+    static_assert(sizeof(Vector<3, T>) == 3 * sizeof(T));
 }
 
 template <typename T>
@@ -77,6 +79,12 @@ Vector<3, T>::Vector(const Vector<2, T>& other, T z): x(other.x), y(other.y), z(
 }
 
 template <typename T>
+bool Vector<3, T>::operator==(const Vector<3, T>& other) const
+{
+    return IsVectorEqual(*this, other) == std::strong_ordering::equal;
+}
+
+template <typename T>
 std::strong_ordering Vector<3, T>::operator<=>(const Vector<3, T>& other) const
 {
     return IsVectorEqual(*this, other);
@@ -88,6 +96,7 @@ template <typename T>
 Vector<4, T>::Vector()
 {
     x = y = z = w = 0;
+    static_assert(sizeof(Vector<4, T>) == 4 * sizeof(T));
 }
 
 template <typename T>
@@ -119,6 +128,12 @@ template <typename T>
 Vector<4, T>::Vector(const Vector<2, T>& other1, const Vector<2, T>& other2)
     : x(other1.x), y(other1.y), z(other2.x), w(other2.y)
 {
+}
+
+template <typename T>
+bool Vector<4, T>::operator==(const Vector<4, T>& other) const
+{
+    return IsVectorEqual(*this, other) == std::strong_ordering::equal;
 }
 
 template <typename T>
@@ -177,5 +192,15 @@ Vector<Size, T> operator*(const Vector<Size, T>& lhs, T scalar)
     }
     return result;
 }
+
+template <unsigned Size, typename T>
+Vector<Size, T> operator/(const Vector<Size, T>& lhs, T scalar)
+{
+    Vector<Size, T> result;
+    for (unsigned i = 0; i < Size; ++i) {
+        result.data[i] = lhs.data[i] / scalar;
+    }
+    return result;
+};
 
 }    // namespace Math

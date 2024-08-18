@@ -9,8 +9,9 @@ struct Vector;
 template <unsigned TRows, unsigned TColumns, typename T>
 struct Matrix {
     using Type = T;
-    static constexpr unsigned Rows = TRows;
-    static constexpr unsigned Columns = TRows;
+    static constexpr const unsigned Rows = TRows;
+    static constexpr const unsigned Columns = TColumns;
+    static constexpr const bool IsSquare = Rows == Columns;
 
 private:
     Vector<Rows, Type> data[Columns] = {};
