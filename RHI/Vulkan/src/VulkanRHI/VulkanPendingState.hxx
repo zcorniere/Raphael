@@ -17,7 +17,7 @@ public:
 
     void Reset();
 
-    void SetViewport(glm::vec3 Min, glm::vec3 Max)
+    void SetViewport(FVector3 Min, FVector3 Max)
     {
         Viewports[0] = {
             .x = Min.x,
@@ -29,7 +29,7 @@ public:
         };
     }
 
-    void SetScissor(glm::ivec2 Offset, glm::uvec2 Extent)
+    void SetScissor(IVector2 Offset, UVector2 Extent)
     {
         Scissors[0] = {
             .offset = {Offset.x, Offset.y},

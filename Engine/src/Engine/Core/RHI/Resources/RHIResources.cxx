@@ -4,7 +4,7 @@
 #include "Engine/Core/RHI/Resources/RHIViewport.hxx"
 
 // Texture
-void RHITexture::Resize(const glm::uvec2& Size)
+void RHITexture::Resize(const UVector2& Size)
 {
     Description.Extent = Size;
     Invalidate();

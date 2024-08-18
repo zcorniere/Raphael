@@ -34,7 +34,7 @@ public:
     virtual RHIContext* RHIGetCommandContext() override;
     virtual void RHIReleaseCommandContext(RHIContext* Context) override;
 
-    virtual Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize) override;
+    virtual Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, UVector2 InSize) override;
     virtual Ref<RHITexture> CreateTexture(const RHITextureSpecification& InDesc) override;
     virtual Ref<RHIBuffer> CreateBuffer(const RHIBufferDesc& InDesc) override;
     virtual Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) override;

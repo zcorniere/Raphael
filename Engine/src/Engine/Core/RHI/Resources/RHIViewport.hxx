@@ -29,5 +29,5 @@ public:
 
     virtual Ref<RHITexture> GetBackbuffer() const = 0;
 
-    virtual glm::uvec2 GetSize() const = 0;
+    virtual UVector2 GetSize() const = 0;
 };

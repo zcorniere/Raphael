@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Engine/Misc/EnumFlags.hxx"
-#include <glm/gtx/hash.hpp>
 
 /// @brief The max amount of render target that may used used simultaneously
 constexpr unsigned MaxRenderTargets = 8;

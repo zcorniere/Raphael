@@ -159,48 +159,48 @@ struct TSupportedShaderType<float> {
 };
 
 template <>
-struct TSupportedShaderType<glm::vec3> {
+struct TSupportedShaderType<FVector3> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Float;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 3;
     static constexpr uint64 Alignment = 16;
-    using AlignedType = glm::vec4;
+    using AlignedType = FVector4;
 };
 
 template <>
-struct TSupportedShaderType<glm::vec4> {
+struct TSupportedShaderType<FVector4> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Float;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 4;
     static constexpr uint64 Alignment = 16;
-    using AlignedType = glm::vec4;
+    using AlignedType = FVector4;
 };
 
 template <>
-struct TSupportedShaderType<glm::uvec2> {
+struct TSupportedShaderType<UVector2> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Uint32;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 2;
     static constexpr int32 Alignment = 16;
-    using AlignedType = glm::uvec4;
+    using AlignedType = UVector2;
 };
 
 template <>
-struct TSupportedShaderType<glm::ivec2> {
+struct TSupportedShaderType<IVector2> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Int32;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 2;
     static constexpr int32 Alignment = 16;
-    using AlignedType = glm::ivec4;
+    using AlignedType = IVector2;
 };
 
 template <>
-struct TSupportedShaderType<glm::mat4> {
+struct TSupportedShaderType<FMatrix4> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Float;
     static constexpr uint64 NumColumns = 4;
     static constexpr uint64 NumRows = 4;
     static constexpr uint64 Alignment = 16;
-    using AlignedType = glm::mat4;
+    using AlignedType = FMatrix4;
 };
 
 // your code for which the warning gets suppressed

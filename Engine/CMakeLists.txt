@@ -69,7 +69,6 @@ target_link_libraries(
     PUBLIC cpplogger
            RHI_Selector
            magic_enum
-           glm
            glfw
            mimalloc-static
            ModernDialogs

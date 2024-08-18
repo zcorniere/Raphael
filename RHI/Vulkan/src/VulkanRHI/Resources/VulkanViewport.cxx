@@ -15,7 +15,7 @@
 namespace VulkanRHI
 {
 
-VulkanViewport::VulkanViewport(VulkanDevice* InDevice, Ref<Window> InWindowHandle, glm::uvec2 InSize)
+VulkanViewport::VulkanViewport(VulkanDevice* InDevice, Ref<Window> InWindowHandle, UVector2 InSize)
     : IDeviceChild(InDevice),
       WindowHandle(InWindowHandle),
       Size(InSize),
@@ -66,7 +66,7 @@ void VulkanViewport::ResizeViewport(uint32_t Width, uint32_t Height)
 }
 
 static void CopyImageToBackBuffer(VulkanCmdBuffer* CmdBuffer, VulkanTexture* SrcSurface, VkImage DstSurface,
-                                  glm::uvec2 Size, glm::uvec2 WindowSize)
+                                  UVector2 Size, UVector2 WindowSize)
 {
 
     const VkImageLayout OldLayout = SrcSurface->GetLayout();

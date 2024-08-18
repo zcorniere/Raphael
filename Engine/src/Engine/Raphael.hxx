@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cpplogger/Logger.hpp>
-#include <glm/glm.hpp>
 
 // IWYU pragma: begin_keep
 #include <cstring>
@@ -15,6 +14,9 @@
 
 #include <Engine/Core/RTTI.hxx>
 #include <Engine/Misc/MiscDefines.hxx>
+
+#include <Engine/Maths/Matrix.hxx>
+#include <Engine/Maths/Vector.hxx>
 
 #include <Engine/Core/Memory/Memory.hxx>
 #include <Engine/Core/RObject.hxx>

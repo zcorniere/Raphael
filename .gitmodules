@@ -1,6 +1,3 @@
-[submodule "External/glm"]
-	path = Engine/External/glm
-	url = https://github.com/g-truc/glm.git
 [submodule "External/logger-cpp"]
 	path = Engine/External/logger-cpp
 	url = https://github.com/zcorniere/logger-cpp.git

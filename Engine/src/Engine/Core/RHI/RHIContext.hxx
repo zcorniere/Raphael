@@ -31,8 +31,8 @@ public:
 
     virtual void SetVertexBuffer(Ref<RHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset) = 0;
 
-    virtual void SetViewport(glm::vec3 Min, glm::vec3 Max) = 0;
-    virtual void SetScissor(glm::ivec2 Offset, glm::uvec2 Size) = 0;
+    virtual void SetViewport(FVector3 Min, FVector3 Max) = 0;
+    virtual void SetScissor(IVector2 Offset, UVector2 Size) = 0;
 
     /// @brief Send a draw call to the RHI
     virtual void Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances) = 0;

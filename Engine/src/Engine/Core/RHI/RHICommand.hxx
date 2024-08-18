@@ -106,27 +106,27 @@ private:
 RHICOMMAND_MACRO(RHISetViewport)
 {
 public:
-    RHISetViewport(glm::vec3 Min, glm::vec3 Max);
+    RHISetViewport(FVector3 Min, FVector3 Max);
     virtual ~RHISetViewport() = default;
 
     virtual void Execute(RHICommandList & CommandList) override final;
 
 private:
-    glm::vec3 Min;
-    glm::vec3 Max;
+    FVector3 Min;
+    FVector3 Max;
 };
 
 RHICOMMAND_MACRO(RHISetScissor)
 {
 public:
-    RHISetScissor(glm::ivec2 Offset, glm::uvec2 Size);
+    RHISetScissor(IVector2 Offset, UVector2 Size);
     virtual ~RHISetScissor() = default;
 
     virtual void Execute(RHICommandList & CommandList) override final;
 
 private:
-    glm::ivec2 Offset;
-    glm::uvec2 Size;
+    IVector2 Offset;
+    UVector2 Size;
 };
 
 RHICOMMAND_MACRO(RHIDraw)

@@ -6,10 +6,6 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/logger-cpp EXCLUDE_FROM_ALL)
 # magic_enum
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/magic_enum EXCLUDE_FROM_ALL)
 
-# glm
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glm EXCLUDE_FROM_ALL)
-target_compile_definitions(glm INTERFACE GLM_ENABLE_EXPERIMENTAL)
-
 # xdgpp
 add_library(xdgpp INTERFACE EXCLUDE_FROM_ALL)
 target_include_directories(xdgpp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/xdgpp)

@@ -40,8 +40,8 @@ public:
 
     virtual void SetVertexBuffer(Ref<RHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset) override;
 
-    virtual void SetViewport(glm::vec3 Min, glm::vec3 Max) override;
-    virtual void SetScissor(glm::ivec2 Offset, glm::uvec2 Size) override;
+    virtual void SetViewport(FVector3 Min, FVector3 Max) override;
+    virtual void SetScissor(IVector2 Offset, UVector2 Size) override;
 
     virtual void Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances) override;
 

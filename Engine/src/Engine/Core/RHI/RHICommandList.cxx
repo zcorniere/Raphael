@@ -53,12 +53,12 @@ void RHICommandList::SetVertexBuffer(Ref<RHIBuffer>& VertexBuffer, uint32 Buffer
     Enqueue(new RHISetVertexBuffer(VertexBuffer, BufferIndex, Offset));
 }
 
-void RHICommandList::SetViewport(glm::vec3 Min, glm::vec3 Max)
+void RHICommandList::SetViewport(FVector3 Min, FVector3 Max)
 {
     Enqueue(new RHISetViewport(Min, Max));
 }
 
-void RHICommandList::SetScissor(glm::ivec2 Offset, glm::uvec2 Size)
+void RHICommandList::SetScissor(IVector2 Offset, UVector2 Size)
 {
     Enqueue(new RHISetScissor(Offset, Size));
 }

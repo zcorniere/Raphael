@@ -94,7 +94,7 @@ VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool Loc
     }
 }
 
-VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const glm::uvec2& InSize) const noexcept
+VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const UVector2& InSize) const noexcept
 {
     return {
         .width = std::clamp(InSize.x, Capabilities.minImageExtent.width, Capabilities.maxImageExtent.width),
@@ -102,7 +102,7 @@ VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const glm::uvec2& I
     };
 }
 
-VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, const glm::uvec2& InSize,
+VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, const UVector2& InSize,
                                  Window* WindowHandle, uint32 InDesiredNumBackBuffers, Array<VkImage>& OutImages,
                                  bool LockToVSync, VulkanSwapChainRecreateInfo* RecreateInfo)
     : IDeviceChild(InDevice),

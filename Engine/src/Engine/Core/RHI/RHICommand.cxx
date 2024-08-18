@@ -61,7 +61,7 @@ void RHISetVertexBuffer::Execute(RHICommandList& CommandList)
     CommandList.GetContext()->SetVertexBuffer(VertexBuffer, BufferIndex, Offset);
 }
 
-RHISetViewport::RHISetViewport(glm::vec3 Min, glm::vec3 Max): Min(Min), Max(Max)
+RHISetViewport::RHISetViewport(FVector3 Min, FVector3 Max): Min(Min), Max(Max)
 {
 }
 
@@ -70,7 +70,7 @@ void RHISetViewport::Execute(RHICommandList& CommandList)
     CommandList.GetContext()->SetViewport(Min, Max);
 }
 
-RHISetScissor::RHISetScissor(glm::ivec2 Offset, glm::uvec2 Size): Offset(Offset), Size(Size)
+RHISetScissor::RHISetScissor(IVector2 Offset, UVector2 Size): Offset(Offset), Size(Size)
 {
 }
 

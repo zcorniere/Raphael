@@ -58,7 +58,7 @@ void VulkanDynamicRHI::WaitUntilIdle()
 //  -------------------- RHI Create resources --------------------
 //
 
-Ref<RHIViewport> VulkanDynamicRHI::CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize)
+Ref<RHIViewport> VulkanDynamicRHI::CreateViewport(Ref<Window> InWindowHandle, UVector2 InSize)
 {
     return Ref<VulkanViewport>::Create(GetDevice(), std::move(InWindowHandle), std::move(InSize));
 }

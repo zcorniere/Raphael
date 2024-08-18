@@ -61,7 +61,7 @@ void EndFrame();
 void RHIWaitUntilIdle();
 
 /// Create a new RHI viewport - through the current RHI
-Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize);
+Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, UVector2 InSize);
 /// Create a new RHI texture - through the current RHI
 Ref<RHITexture> CreateTexture(const RHITextureSpecification& InDesc);
 /// Create a new RHI buffer - through the current RHI

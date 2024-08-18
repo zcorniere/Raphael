@@ -147,12 +147,12 @@ void VulkanCommandContext::SetVertexBuffer(Ref<RHIBuffer>& VertexBuffer, uint32 
     PendingState->SetVertexBuffer(VulkanBufferRef, BufferIndex, Offset);
 }
 
-void VulkanCommandContext::SetViewport(glm::vec3 Min, glm::vec3 Max)
+void VulkanCommandContext::SetViewport(FVector3 Min, FVector3 Max)
 {
     PendingState->SetViewport(Min, Max);
 }
 
-void VulkanCommandContext::SetScissor(glm::ivec2 Offset, glm::uvec2 Size)
+void VulkanCommandContext::SetScissor(IVector2 Offset, UVector2 Size)
 {
     PendingState->SetScissor(Offset, Size);
 }

@@ -26,7 +26,7 @@ bool BaseApplication::OnEngineInitialization()
     MainWindow->Show();
     MainWindow->Maximize();
 
-    MainViewport = RHI::CreateViewport(MainWindow, glm::uvec2{500u, 500u});
+    MainViewport = RHI::CreateViewport(MainWindow, UVector2{500u, 500u});
     MainViewport->SetName("MainViewport");
     return true;
 }

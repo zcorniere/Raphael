@@ -8,8 +8,8 @@
 BEGIN_SHADER_PARAMETER_STRUCT(FShaderStruct)
 SHADER_PARAMETER(int32, TestValue)
 SHADER_PARAMETER(float, TestFloat)
-SHADER_PARAMETER(glm::vec3, TestVec3)
-SHADER_PARAMETER(glm::mat4, TestMat4)
+SHADER_PARAMETER(FVector3, TestVec3)
+SHADER_PARAMETER(FMatrix4, TestMat4)
 END_SHADER_PARAMETER_STRUCT();
 
 TEST_CASE("ShaderParameterStruct")
@@ -40,14 +40,14 @@ TEST_CASE("ShaderParameterStruct")
     // The odd aligned vec3 is automatically padded to vec4
     REQUIRE(Members[2].Name == "TestVec3");
     REQUIRE(Members[2].Offset == offsetof(FShaderStruct, TestVec3));
-    REQUIRE(Members[2].Size == sizeof(glm::vec4));    // <-- hence the sizeof vec4
+    REQUIRE(Members[2].Size == sizeof(FVector4));    // <-- hence the sizeof vec4
     REQUIRE(Members[2].Type == EShaderBufferType::Float);
     REQUIRE(Members[2].Columns == 1);
     REQUIRE(Members[2].Rows == 3);
 
     REQUIRE(Members[3].Name == "TestMat4");
     REQUIRE(Members[3].Offset == offsetof(FShaderStruct, TestMat4));
-    REQUIRE(Members[3].Size == sizeof(glm::mat4));
+    REQUIRE(Members[3].Size == sizeof(FMatrix4));
     REQUIRE(Members[3].Type == EShaderBufferType::Float);
     REQUIRE(Members[3].Columns == 4);
     REQUIRE(Members[3].Rows == 4);

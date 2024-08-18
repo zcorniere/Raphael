@@ -1,4 +1,5 @@
 #include "EditorApplication.hxx"
+#include "Engine/Maths/Vector.hxx"
 
 #include <Engine/Core/Log.hxx>
 #include <Engine/Core/RHI/RHICommandList.hxx>
@@ -33,7 +34,7 @@ bool EditorApplication::OnEngineInitialization()
 
     BaseApplication::OnEngineInitialization();
 
-    ResourceArray<glm::vec2> Vertices({{0.0, -0.5}, {0.5, 0.5}, {-0.5, 0.5}});
+    ResourceArray<FVector2> Vertices({{0.0, -0.5}, {0.5, 0.5}, {-0.5, 0.5}});
     Ref<RHIBuffer> TmpBuffer = RHI::CreateBuffer(RHIBufferDesc{
         .Size = Vertices.GetByteSize(),
         .Stride = 0,
@@ -110,7 +111,8 @@ void EditorApplication::Tick(const float DeltaTime)
         CommandList.SetPipeline(Pipeline);
         CommandList.SetVertexBuffer(Buffer);
 
-        CommandList.SetViewport({0, 0, 0}, {MainViewport->GetSize().x, MainViewport->GetSize().y, 1.0f});
+        CommandList.SetViewport({0, 0, 0}, {static_cast<float>(MainViewport->GetSize().x),
+                                            static_cast<float>(MainViewport->GetSize().y), 1.0f});
         CommandList.SetScissor({0, 0}, {MainViewport->GetSize().x, MainViewport->GetSize().y});
 
         CommandList.Draw(3, 1, 0);

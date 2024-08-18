@@ -59,7 +59,7 @@ void RHI::RHIWaitUntilIdle()
 //  -------------------- RHI Create resources --------------------
 //
 
-Ref<RHIViewport> RHI::CreateViewport(Ref<Window> InWindowHandle, glm::uvec2 InSize)
+Ref<RHIViewport> RHI::CreateViewport(Ref<Window> InWindowHandle, UVector2 InSize)
 {
     return RHI::Get()->CreateViewport(std::move(InWindowHandle), std::move(InSize));
 }

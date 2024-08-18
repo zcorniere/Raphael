@@ -39,7 +39,7 @@ private:
         /// Choose a presentation mode
         VkPresentModeKHR ChooseSwapPresentMode(bool LockToVSync) const noexcept;
         /// Check if the size if supported
-        VkExtent2D ChooseSwapExtent(const glm::uvec2& InSize) const noexcept;
+        VkExtent2D ChooseSwapExtent(const UVector2& InSize) const noexcept;
 
     public:
         /// surface capability
@@ -51,7 +51,7 @@ private:
     };
 
 public:
-    VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, const glm::uvec2& InSize, Window* WindowHandle,
+    VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, const UVector2& InSize, Window* WindowHandle,
                     uint32 InOutDesiredNumBackBuffers, Array<VkImage>& OutImages, bool LockToVSync,
                     VulkanSwapChainRecreateInfo* RecreateInfo);
     void SetName(std::string_view InName) override;
@@ -75,7 +75,7 @@ public:
         return LockToVSync;
     }
 
-    glm::uvec2 GetInternalSize() const
+    UVector2 GetInternalSize() const
     {
         return InternalSize;
     }
@@ -89,7 +89,7 @@ private:
 
     bool LockToVSync;
 
-    glm::uvec2 InternalSize;
+    UVector2 InternalSize;
 
     VkFormat ImageFormat = VK_FORMAT_UNDEFINED;
     VkSwapchainKHR SwapChain;

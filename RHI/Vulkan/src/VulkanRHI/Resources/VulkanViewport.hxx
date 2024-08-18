@@ -23,10 +23,10 @@ class VulkanViewport : public RHIViewport, public IDeviceChild
     RTTI_DECLARE_TYPEINFO(VulkanViewport, RHIViewport);
 
 public:
-    VulkanViewport(VulkanDevice* InDevice, Ref<Window> InWindowHandle, glm::uvec2 InSize);
+    VulkanViewport(VulkanDevice* InDevice, Ref<Window> InWindowHandle, UVector2 InSize);
     ~VulkanViewport();
 
-    virtual glm::uvec2 GetSize() const override
+    virtual UVector2 GetSize() const override
     {
         return RenderingBackbuffer->GetDescription().Extent;
     }
@@ -59,7 +59,7 @@ private:
 
     Ref<VulkanTexture> RenderingBackbuffer;
     Ref<Window> WindowHandle;
-    glm::uvec2 Size;
+    UVector2 Size;
 
     int32 AcquiredImageIndex;
     Ref<Semaphore> AcquiredSemaphore;
