@@ -3,8 +3,6 @@
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
 
-#include <glm/vec3.hpp>
-
 /// @brief Describe the texture to be created
 struct RHITextureSpecification {
     ETextureUsageFlags Flags = ETextureUsageFlags::TransferTargetable;
@@ -43,11 +41,11 @@ public:
         return Description;
     }
 
-    glm::ivec3 GetMipDimensions(uint8 MipIndex) const
+    IVector3 GetMipDimensions(uint8 MipIndex) const
     {
         const RHITextureSpecification& Desc = GetDescription();
-        return glm::ivec3(std::max(Desc.Extent.x >> MipIndex, 1u), std::max(Desc.Extent.y >> MipIndex, 1u),
-                          std::max(Desc.Depth >> MipIndex, 1u));
+        return IVector3(std::max(Desc.Extent.x >> MipIndex, 1u), std::max(Desc.Extent.y >> MipIndex, 1u),
+                        std::max(Desc.Depth >> MipIndex, 1u));
     }
 
 protected:
