@@ -6,6 +6,10 @@
 #include "Engine/Misc/CommandLine.hxx"
 #include "Engine/Misc/Utils.hxx"
 
+#ifdef PLATFORM_WINDOWS
+    #include <windows.h>
+#endif // PLATFORM_WINDOWS
+
 extern "C" IApplication* GetApplication();
 
 int EngineLoop()
@@ -67,9 +71,19 @@ int EngineLoop()
     return ExitStatus;
 }
 
+#ifdef PLATFORM_WINDOWS
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+{
+    (void)hInstance;
+    (void)hPrevInstance;
+    (void)lpCmdLine;
+    (void) nShowCmd;
+    CommandLine::Set(GetCommandLine());
+#else
 int main(int ac, char** av)
 {
     CommandLine::Set(ac, av);
+#endif // !PLATFORM_WINDOWS
 
     if (CommandLine::Param("-waitfordebugger")) {
         while (!Platform::isDebuggerPresent()) {

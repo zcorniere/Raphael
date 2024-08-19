@@ -39,6 +39,7 @@ target_disable_rtti(${PROJECT_NAME})
 
 if(MSVC)
     set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+    set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
 
 if(RPH_ENABLE_PROFILING)
