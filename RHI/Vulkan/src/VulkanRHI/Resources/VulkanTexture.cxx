@@ -180,7 +180,7 @@ void VulkanTexture::CreateTexture()
 void VulkanTexture::DestroyTexture()
 {
     RHI::DeferedDeletion(
-        [View = this->View, Allocation = this->Allocation, Image = this->Image, Device = this->Device] mutable {
+        [View = this->View, Allocation = this->Allocation, Image = this->Image, Device = this->Device] () mutable {
             if (View) {
                 VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, VULKAN_CPU_ALLOCATOR);
             }
