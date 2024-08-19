@@ -18,8 +18,7 @@ void RHIBeginDrawingViewport::Execute(RHICommandList& CommandList)
     CommandList.GetContext()->RHIBeginDrawingViewport(Viewport.Raw());
 }
 
-RHIEndDrawningViewport::RHIEndDrawningViewport(Ref<RHIViewport> InViewport, bool bInPresent)
-    : Viewport(std::move(InViewport)), bPresent(bInPresent)
+RHIEndDrawningViewport::RHIEndDrawningViewport(Ref<RHIViewport> InViewport): Viewport(std::move(InViewport))
 {
 }
 void RHIEndDrawningViewport::Execute(RHICommandList& CommandList)
@@ -87,6 +86,25 @@ RHIDraw::RHIDraw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstanc
 void RHIDraw::Execute(RHICommandList& CommandList)
 {
     CommandList.GetContext()->Draw(BaseVertexIndex, NumPrimitives, NumInstances);
+}
+
+RHIDrawIndexed::RHIDrawIndexed(Ref<RHIBuffer> InIndexBuffer, int32 InBaseVertexIndex, uint32 InFirstInstance,
+                               uint32 InNumVertices, uint32 InStartIndex, uint32 InNumPrimitives, uint32 InNumInstances)
+    : IndexBuffer(std::move(InIndexBuffer)),
+      BaseVertexIndex(InBaseVertexIndex),
+      FirstInstance(InFirstInstance),
+      NumVertices(InNumVertices),
+      StartIndex(InStartIndex),
+      NumPrimitives(InNumPrimitives),
+      NumInstances(InNumInstances)
+{
+    check(EnumHasAnyFlags(EBufferUsageFlags::IndexBuffer, IndexBuffer->GetUsage()));
+}
+
+void RHIDrawIndexed::Execute(RHICommandList& CommandList)
+{
+    CommandList.GetContext()->DrawIndexed(IndexBuffer, BaseVertexIndex, FirstInstance, NumVertices, StartIndex,
+                                          NumPrimitives, NumInstances);
 }
 
 RHICopyBufferToBuffer::RHICopyBufferToBuffer(const Ref<RHIBuffer> InSourceBuffer, Ref<RHIBuffer> InDestinationBuffer,

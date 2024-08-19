@@ -29,6 +29,6 @@ void RHIViewport::EndDrawViewport()
         if (!instance.IsValid()) {
             return;
         }
-        CommandList.EndRenderingViewport(instance, true);
+        CommandList.EndRenderingViewport(instance);
     });
 }

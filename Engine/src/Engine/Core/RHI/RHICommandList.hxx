@@ -83,22 +83,58 @@ public:
     ~RHICommandList();
 
 public:
+    /// @brief Begin a new frame
     void BeginFrame();
+    /// @brief End the current frame
     void EndFrame();
 
+    /// @brief Mark the given viewport as the current drawing target
     void BeginRenderingViewport(RHIViewport* Viewport);
-    void EndRenderingViewport(RHIViewport* Viewport, bool bPresent);
+    /// @brief Stop rendering to the given viewport and present it
+    void EndRenderingViewport(RHIViewport* Viewport);
 
+    /// @brief Begin a new rendering pass
     void BeginRendering(const RHIRenderPassDescription& Description);
+    /// @brief End the current rendering pass
     void EndRendering();
 
+    /// @brief Set the current pipeline
     void SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline);
+    /// @brief Set the vertex buffer
     void SetVertexBuffer(Ref<RHIBuffer>& VertexBuffer, uint32 BufferIndex = 0, uint32 Offset = 0);
 
+    /// @brief Set the viewport used to render
     void SetViewport(FVector3 Min, FVector3 Max);
+    /// @brief Set the scissor rectangle
     void SetScissor(IVector2 Offset, UVector2 Size);
-    void Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances);
 
+    /// @brief Draw to the current render target
+    ///
+    /// @param BaseVertexIndex The index of the first vertex to draw
+    /// @param NumPrimitives The number of primitives to draw
+    /// @param NumInstances The number of instances to draw
+    void Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances);
+    /// @brief Draw to the current render target using an index buffer
+    ///
+    /// @param IndexBuffer The buffer containing the indices
+    /// @param BaseVertexIndex The index of the first vertex to draw
+    /// @param FirstInstance The index of the first instance to draw
+    /// @param NumVertices The number of vertices to draw
+    /// @param StartIndex The index of the first index to draw
+    /// @param NumPrimitives The number of primitives to draw (triangles = 3 vertices = 1 primitive)
+    /// @param NumInstances The number of instances to draw
+    ///
+    /// @note We only support Triangle primitive type, so the num of primitive is the number of triangles to draw
+    void DrawIndexed(Ref<RHIBuffer>& IndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance, uint32 NumVertices,
+                     uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances);
+
+    /// @brief Copy the content of a buffer to another buffer
+    ///
+    /// @param Source The buffer to copy from
+    /// @param Destination The buffer to copy to
+    /// @param SourceOffset The offset in the source buffer
+    /// @param DestinationOffset The offset in the destination buffer
+    /// @param Size The number of bytes to copy
     void CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<RHIBuffer>& Destination, uint64 SourceOffset,
                             uint64 DestinationOffset, uint64 Size);
 

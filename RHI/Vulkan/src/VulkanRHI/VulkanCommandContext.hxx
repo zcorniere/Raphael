@@ -44,6 +44,8 @@ public:
     virtual void SetScissor(IVector2 Offset, UVector2 Size) override;
 
     virtual void Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances) override;
+    virtual void DrawIndexed(Ref<RHIBuffer> InIndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
+                             uint32 NumVertices, uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances) override;
 
     virtual void CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<RHIBuffer>& Destination, uint64 SourceOffset,
                                     uint64 DestinationOffset, uint64 Size) override;

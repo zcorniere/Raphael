@@ -249,7 +249,7 @@ static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resou
     for (const spirv_cross::Resource& resource: ResourceStage) {
         ShaderResource::StageIO& OutResource = StageIO.Emplace();
 
-        auto ResourceType = Compiler.get_type(resource.base_type_id);
+        const spirv_cross::SPIRType& ResourceType = Compiler.get_type(resource.base_type_id);
         std::optional<EVertexElementType> ElementType = Utils::SPRIVTypeToVertexElement(ResourceType);
         if (!ElementType.has_value()) {
             return false;

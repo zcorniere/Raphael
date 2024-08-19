@@ -46,14 +46,13 @@ RHICOMMAND_MACRO(RHIEndDrawningViewport)
 {
 public:
     RHIEndDrawningViewport() = delete;
-    RHIEndDrawningViewport(Ref<RHIViewport> InViewport, bool bInPresent);
+    RHIEndDrawningViewport(Ref<RHIViewport> InViewport);
     virtual ~RHIEndDrawningViewport() = default;
 
     virtual void Execute(RHICommandList & CommandList) override final;
 
 public:
     Ref<RHIViewport> Viewport = nullptr;
-    const bool bPresent = false;
 };
 
 RHICOMMAND_MACRO(RHIBeginRendering)
@@ -139,6 +138,25 @@ public:
 
 public:
     uint32 BaseVertexIndex = 0;
+    uint32 NumPrimitives = 0;
+    uint32 NumInstances = 0;
+};
+
+RHICOMMAND_MACRO(RHIDrawIndexed)
+{
+public:
+    RHIDrawIndexed(Ref<RHIBuffer> InIndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance, uint32 NumVertices,
+                   uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances);
+    virtual ~RHIDrawIndexed() = default;
+
+    virtual void Execute(RHICommandList & CommandList) override final;
+
+private:
+    Ref<RHIBuffer> IndexBuffer = nullptr;
+    int32 BaseVertexIndex = 0;
+    uint32 FirstInstance = 0;
+    uint32 NumVertices = 0;
+    uint32 StartIndex = 0;
     uint32 NumPrimitives = 0;
     uint32 NumInstances = 0;
 };

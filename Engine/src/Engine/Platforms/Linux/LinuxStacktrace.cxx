@@ -38,9 +38,9 @@ bool LinuxStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedSy
         } else {
             ModuleName = ModulePath;
         }
-        std::strcpy(detailed_info.ModuleName, ModuleName);
+        std::strncpy(detailed_info.ModuleName, ModuleName, DetailedSymbolInfo::MaxNameLength);
         if (info.dli_sname != nullptr) {
-            std::strcpy(detailed_info.FunctionName, info.dli_sname);
+            std::strncpy(detailed_info.FunctionName, info.dli_sname, DetailedSymbolInfo::MaxNameLength);
         }
     }
     return ret;

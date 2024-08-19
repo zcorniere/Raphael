@@ -162,7 +162,20 @@ void VulkanCommandContext::Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, ui
 
     VulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
     PendingState->PrepareForDraw(CmdBuffer);
-    VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), BaseVertexIndex, NumPrimitives, NumInstances, 0);
+    VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), NumPrimitives * 3, NumInstances, BaseVertexIndex, 0);
+}
+
+void VulkanCommandContext::DrawIndexed(Ref<RHIBuffer> InIndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
+                                       uint32 NumVertices, uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances)
+{
+    (void)NumVertices;
+    VulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
+    PendingState->PrepareForDraw(CmdBuffer);
+
+    VulkanBuffer* const IndexBuffer = InIndexBuffer.AsRaw<VulkanBuffer>();
+    VulkanAPI::vkCmdBindIndexBuffer(CmdBuffer->GetHandle(), IndexBuffer->GetHandle(), 0, IndexBuffer->GetIndexType());
+    VulkanAPI::vkCmdDrawIndexed(CmdBuffer->GetHandle(), NumPrimitives * 3, NumInstances, StartIndex, BaseVertexIndex,
+                                FirstInstance);
 }
 
 void VulkanCommandContext::CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<RHIBuffer>& Destination,

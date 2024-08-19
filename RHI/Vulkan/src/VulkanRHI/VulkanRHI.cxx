@@ -225,8 +225,8 @@ VulkanDevice* VulkanDynamicRHI::SelectDevice(VkInstance Instance)
     checkMsg(GpuCount >= 1, "Couldn't enumerate physical devices!");
 
     struct DeviceInfo {
-        VulkanDevice* Device;
-        std::uint32_t DeviceIndex;
+        VulkanDevice* const Device;
+        const std::uint32_t DeviceIndex;
     };
     Array<VulkanDevice*> Devices;
     Array<DeviceInfo> DiscreteDevice;

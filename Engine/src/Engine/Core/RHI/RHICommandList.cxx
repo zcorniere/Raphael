@@ -29,9 +29,9 @@ void RHICommandList::BeginRenderingViewport(RHIViewport* Viewport)
 {
     Enqueue(new RHIBeginDrawingViewport(Viewport));
 }
-void RHICommandList::EndRenderingViewport(RHIViewport* Viewport, bool bPresent)
+void RHICommandList::EndRenderingViewport(RHIViewport* Viewport)
 {
-    Enqueue(new RHIEndDrawningViewport(Viewport, bPresent));
+    Enqueue(new RHIEndDrawningViewport(Viewport));
 }
 
 void RHICommandList::BeginRendering(const RHIRenderPassDescription& Description)
@@ -66,6 +66,13 @@ void RHICommandList::SetScissor(IVector2 Offset, UVector2 Size)
 void RHICommandList::Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances)
 {
     Enqueue(new RHIDraw(BaseVertexIndex, NumPrimitives, NumInstances));
+}
+
+void RHICommandList::DrawIndexed(Ref<RHIBuffer>& IndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
+                                 uint32 NumVertices, uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances)
+{
+    Enqueue(new RHIDrawIndexed(IndexBuffer, BaseVertexIndex, FirstInstance, NumVertices, StartIndex, NumPrimitives,
+                               NumInstances));
 }
 
 void RHICommandList::CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<RHIBuffer>& Destination, uint64 SourceOffset,

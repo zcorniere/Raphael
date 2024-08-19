@@ -64,9 +64,11 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const RHIBufferDesc& InDescri
 
 VulkanBuffer::~VulkanBuffer()
 {
-    Device->GetMemoryManager()->Free(Memory);
+    RHI::DeferedDeletion([Memory = this->Memory, BufferHandle = this->BufferHandle, Device = this->Device] mutable {
+        Device->GetMemoryManager()->Free(Memory);
 
-    VulkanAPI::vkDestroyBuffer(Device->GetHandle(), BufferHandle, VULKAN_CPU_ALLOCATOR);
+        VulkanAPI::vkDestroyBuffer(Device->GetHandle(), BufferHandle, VULKAN_CPU_ALLOCATOR);
+    });
 }
 
 void VulkanBuffer::SetName(std::string_view InName)

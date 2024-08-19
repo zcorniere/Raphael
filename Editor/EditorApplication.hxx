@@ -17,4 +17,5 @@ private:
     Ref<RHIGraphicsPipeline> Pipeline;
 
     Ref<RHIBuffer> Buffer;
+    Ref<RHIBuffer> IndexBuffer;
 };

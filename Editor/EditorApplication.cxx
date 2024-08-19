@@ -34,24 +34,56 @@ bool EditorApplication::OnEngineInitialization()
 
     BaseApplication::OnEngineInitialization();
 
-    ResourceArray<FVector2> Vertices({{0.0, -0.5}, {0.5, 0.5}, {-0.5, 0.5}});
+    struct Vertex {
+        FVector3 Position;
+        FVector3 Color;
+    };
+    ResourceArray<Vertex> Vertices;
+    Vertices.Resize(4);
+    Vertices[0].Position = {0.5, -0.5, 0};
+    Vertices[1].Position = {0.5, 0.5, 0};
+    Vertices[2].Position = {-0.5, -0.5, 0};
+    Vertices[3].Position = {-0.5, 0.5, 0};
+
+    Vertices[0].Color = {0, 0, 0};
+    Vertices[1].Color = {0.5, 0.5, 0.5};
+    Vertices[2].Color = {1, 0, 0};
+    Vertices[3].Color = {0, 1, 0};
+
+    ResourceArray<uint32> Indices = {0, 1, 2, 2, 1, 3};
+
     Ref<RHIBuffer> TmpBuffer = RHI::CreateBuffer(RHIBufferDesc{
         .Size = Vertices.GetByteSize(),
-        .Stride = 0,
+        .Stride = sizeof(Vertex),
         .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::SourceCopy | EBufferUsageFlags::KeepCPUAccessible,
         .ResourceArray = &Vertices,
         .DebugName = "Staging Vertex Buffer",
     });
+    Ref<RHIBuffer> TmpIndexBuffer = RHI::CreateBuffer(RHIBufferDesc{
+        .Size = Indices.GetByteSize(),
+        .Stride = sizeof(uint32),
+        .Usage = EBufferUsageFlags::IndexBuffer | EBufferUsageFlags::SourceCopy | EBufferUsageFlags::KeepCPUAccessible,
+        .ResourceArray = &Indices,
+        .DebugName = "Staging Index Buffer",
+    });
     ENQUEUE_RENDER_COMMAND(CopyBuffer)
-    ([this, TmpBuffer](RHICommandList& CommandList) {
+    ([this, TmpBuffer, TmpIndexBuffer](RHICommandList& CommandList) {
         Buffer = RHI::CreateBuffer(RHIBufferDesc{
             .Size = TmpBuffer->GetSize(),
-            .Stride = 0,
+            .Stride = sizeof(Vertex),
             .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::DestinationCopy,
             .ResourceArray = nullptr,
             .DebugName = "Vertex Buffer",
         });
+        IndexBuffer = RHI::CreateBuffer(RHIBufferDesc{
+            .Size = TmpIndexBuffer->GetSize(),
+            .Stride = sizeof(uint32),
+            .Usage = EBufferUsageFlags::IndexBuffer | EBufferUsageFlags::DestinationCopy,
+            .ResourceArray = nullptr,
+            .DebugName = "Index Buffer",
+        });
         CommandList.CopyBufferToBuffer(TmpBuffer, Buffer, 0, 0, TmpBuffer->GetSize());
+        CommandList.CopyBufferToBuffer(TmpIndexBuffer, IndexBuffer, 0, 0, TmpIndexBuffer->GetSize());
     });
     Pipeline = RHI::CreateGraphicsPipeline(RHIGraphicsPipelineSpecification{
         .VertexShader = "DefaultTriangle.vert",
@@ -75,6 +107,7 @@ bool EditorApplication::OnEngineInitialization()
 void EditorApplication::OnEngineDestruction()
 {
     Buffer = nullptr;
+    IndexBuffer = nullptr;
     Pipeline = nullptr;
 
     BaseApplication::OnEngineDestruction();
@@ -115,10 +148,10 @@ void EditorApplication::Tick(const float DeltaTime)
                                             static_cast<float>(MainViewport->GetSize().y), 1.0f});
         CommandList.SetScissor({0, 0}, {MainViewport->GetSize().x, MainViewport->GetSize().y});
 
-        CommandList.Draw(3, 1, 0);
+        CommandList.DrawIndexed(IndexBuffer, 0, 0, 4, 0, 2, 1);
 
         CommandList.EndRendering();
-        CommandList.EndRenderingViewport(MainViewport.Raw(), true);
+        CommandList.EndRenderingViewport(MainViewport.Raw());
     });
 
     ENQUEUE_RENDER_COMMAND(EndFrame)([](RHICommandList& CommandList) { CommandList.EndFrame(); });
