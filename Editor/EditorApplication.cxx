@@ -1,5 +1,5 @@
 #include "EditorApplication.hxx"
-#include "Engine/Maths/Vector.hxx"
+#include "Engine/Math/Vector.hxx"
 
 #include <Engine/Core/Log.hxx>
 #include <Engine/Core/RHI/RHICommandList.hxx>
