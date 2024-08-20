@@ -25,6 +25,9 @@ public:
     /// @copydoc GenericPlatform::Initialize
     static void Initialize();
 
+    /// @copydoc GenericPlatform::Deinitialize
+    static void Deinitialize();
+
     /// @copydoc GenericPlatform::isDebuggerPresent
     static bool isDebuggerPresent();
 

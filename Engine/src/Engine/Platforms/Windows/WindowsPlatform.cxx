@@ -6,10 +6,30 @@
 #include <libloaderapi.h>
 #include <processthreadsapi.h>
 
+#include <fcntl.h>
+#include <io.h>
+#include <iostream>
+#include "WindowsPlatform.hxx"
+
 DECLARE_LOGGER_CATEGORY(Core, LogWindowsPlateform, Info)
 
 void WindowsPlatform::Initialize()
 {
+    // allocate a console for this app
+    if (!AllocConsole())
+    {
+        return;
+    }
+    
+    FILE* fDummy;
+    freopen_s(&fDummy, "CONOUT$", "w", stdout);
+    freopen_s(&fDummy, "CONOUT$", "w", stderr);
+    freopen_s(&fDummy, "CONIN$", "w", stdin);
+}
+
+void WindowsPlatform::Deinitialize()
+{
+    FreeConsole();
 }
 
 bool WindowsPlatform::isDebuggerPresent()
