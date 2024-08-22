@@ -105,10 +105,14 @@ void VulkanDevice::InitPhysicalDevice()
 void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
                                         const VulkanDeviceExtensionArray& Extensions)
 {
+    VkPhysicalDeviceFeatures EnabledFeature{
+        .fillModeNonSolid = VK_TRUE,
+    };
     VkDeviceCreateInfo DeviceInfo{
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
     };
 
+    DeviceInfo.pEnabledFeatures = &EnabledFeature;
     DeviceInfo.enabledLayerCount = DeviceLayers.Size();
     DeviceInfo.ppEnabledLayerNames = DeviceLayers.Raw();
 
