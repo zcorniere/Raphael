@@ -97,6 +97,8 @@ target_disable_rtti(${PROJECT_NAME})
 
 if(UNIX)
     target_link_libraries(${PROJECT_NAME} PUBLIC xdgpp)
+elseif(WIN32)
+    target_link_libraries(${PROJECT_NAME} PUBLIC dbghelp)
 endif()
 
 build_tests(${PROJECT_NAME} tests/Containers/Array.cxx tests/RHIShaderParametersTest.cxx tests/RTTI.cxx)

@@ -34,7 +34,7 @@ void WindowsPlatform::Deinitialize()
 
 bool WindowsPlatform::isDebuggerPresent()
 {
-    return !!::IsDebuggerPresent();
+    return ::IsDebuggerPresent();
 }
 
 std::filesystem::path WindowsPlatform::GetExecutablePath()

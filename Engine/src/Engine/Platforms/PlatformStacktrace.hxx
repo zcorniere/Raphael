@@ -21,7 +21,7 @@ struct DetailedSymbolInfo {
 
 /// @brief Hold the raw information about a stacktrace
 struct StacktraceContent {
-    static constexpr auto MaxStacktraceDepth = 100;
+    static constexpr auto MaxDepth = 99;
 
     /// Max Depth of the of stack trace
     std::uint32_t Depth;
@@ -30,9 +30,8 @@ struct StacktraceContent {
     /// Skip the stacktrace collection function for example
     std::uint32_t CurrentDepth;
     /// @brief Holds the stacktraces function pointers
-    int64 StackTrace[MaxStacktraceDepth];
+    int64 StackTrace[MaxDepth];
     /// @brief Absolute max depth
-    const std::uint32_t MaxDepth = MaxStacktraceDepth - 1;
 };
 
 /// Generic stacktrace collection

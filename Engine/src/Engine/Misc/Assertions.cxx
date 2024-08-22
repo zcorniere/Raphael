@@ -18,6 +18,7 @@ void CollectAndPrintStackTrace(void* ReturnAddress)
     LOG(LogAssert, Trace, "StackTrace :");
     for (std::uint32_t CurrentDepth = trace.CurrentDepth; CurrentDepth < trace.Depth; CurrentDepth++) {
         DetailedSymbolInfo detailed_info;
+        std::memset(&detailed_info, 0, sizeof(detailed_info));
         PlatformStacktrace::TryFillDetailedSymbolInfo(trace.StackTrace[CurrentDepth], detailed_info);
 
         std::string demangled = Compiler::Demangle(detailed_info.FunctionName);
