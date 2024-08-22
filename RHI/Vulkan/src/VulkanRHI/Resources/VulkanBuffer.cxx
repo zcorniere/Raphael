@@ -64,7 +64,7 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const RHIBufferDesc& InDescri
 
 VulkanBuffer::~VulkanBuffer()
 {
-    RHI::DeferedDeletion([Memory = this->Memory, BufferHandle = this->BufferHandle, Device = this->Device] mutable {
+    RHI::DeferedDeletion([Memory = this->Memory, BufferHandle = this->BufferHandle, Device = this->Device] () mutable {
         Device->GetMemoryManager()->Free(Memory);
 
         VulkanAPI::vkDestroyBuffer(Device->GetHandle(), BufferHandle, VULKAN_CPU_ALLOCATOR);
