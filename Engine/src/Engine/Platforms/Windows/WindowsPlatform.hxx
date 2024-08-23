@@ -38,6 +38,10 @@ public:
 
     /// @copydoc GenericPlatform::getThreadName
     static std::string getThreadName(std::jthread& thread);
+
+    // ---------- Windows Specifics --------------
+
+    static void* GetDebugSymbolHandle();
 };
 
 /// Alias to the current platform

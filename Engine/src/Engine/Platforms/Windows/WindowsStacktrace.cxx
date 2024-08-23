@@ -3,7 +3,6 @@
 #include <windows.h>
 #include <dbghelp.h>
 
-
 StacktraceContent WindowsStacktrace::GetStackTraceFromReturnAddress(void* returnAddress)
 {
     StacktraceContent trace;
@@ -34,7 +33,7 @@ bool WindowsStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, Detailed
 
     pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
     pSymbol->MaxNameLen = MAX_SYM_NAME;
-    if (!SymFromAddr(GetCurrentProcess(), dwAddress, &dwDisplacement, pSymbol))
+    if (!SymFromAddr(WindowsPlatform::GetDebugSymbolHandle(), dwAddress, &dwDisplacement, pSymbol))
     {
         DWORD error = GetLastError();
         printf("SymFromAddr returned error : %d\n", error);

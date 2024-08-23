@@ -5,13 +5,16 @@
 #include <debugapi.h>
 #include <libloaderapi.h>
 #include <processthreadsapi.h>
-
+#include <dbghelp.h>
 #include <fcntl.h>
 #include <io.h>
 #include <iostream>
+
 #include "WindowsPlatform.hxx"
 
 DECLARE_LOGGER_CATEGORY(Core, LogWindowsPlateform, Info)
+
+static HANDLE GDebugSymbolHandle;
 
 void WindowsPlatform::Initialize()
 {
@@ -25,10 +28,33 @@ void WindowsPlatform::Initialize()
     freopen_s(&fDummy, "CONOUT$", "w", stdout);
     freopen_s(&fDummy, "CONOUT$", "w", stderr);
     freopen_s(&fDummy, "CONIN$", "w", stdin);
+
+    // Init the symbol loading system
+    DWORD  error;
+    HANDLE hCurrentProcess = GetCurrentProcess();
+
+    SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES);
+
+    if (!DuplicateHandle(hCurrentProcess, hCurrentProcess, hCurrentProcess, &GDebugSymbolHandle, 0, FALSE, DUPLICATE_SAME_ACCESS))
+    {
+        // DuplicateHandle failed
+        error = GetLastError();
+        fprintf(stderr, "DuplicateHandle returned error : %d\n", error);
+        return;
+    }
+
+    if (!SymInitialize(GDebugSymbolHandle, NULL, TRUE))
+    {
+        // SymInitialize failed
+        error = GetLastError();
+       fprintf(stderr, "SymInitialize returned error : %d\n", error);
+        return;
+    }
 }
 
 void WindowsPlatform::Deinitialize()
 {
+    SymCleanup(GDebugSymbolHandle);
     FreeConsole();
 }
 
@@ -63,4 +89,9 @@ std::string WindowsPlatform::getThreadName(std::jthread& thread)
         return std::string(nameNoStupidType.begin(), nameNoStupidType.end());
     }
     return "";
+}
+
+void* WindowsPlatform::GetDebugSymbolHandle()
+{
+    return GDebugSymbolHandle;
 }
