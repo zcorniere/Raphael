@@ -15,15 +15,6 @@ public:
     }
     virtual ~RHIViewport() = default;
 
-    /// @brief Mark the current viewport as the one to draw on
-    ///
-    /// Will be queued in the RHI command, and be executed later
-    void BeginDrawViewport();
-    /// @brief The current viewport can be rendered
-    ///
-    /// Will be queued in the RHI command, and be executed later
-    void EndDrawViewport();
-
     /// @brief The current viewport will be resized
     virtual void ResizeViewport(uint32 Width, uint32 Height) = 0;
 

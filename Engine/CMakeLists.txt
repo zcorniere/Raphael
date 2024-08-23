@@ -47,7 +47,6 @@ add_library(
     src/Engine/Core/RHI/RHIDefinitions.cxx
     src/Engine/Core/RHI/RHICommandList.cxx
     src/Engine/Core/RHI/RHICommand.cxx
-    src/Engine/Core/RHI/Resources/RHIResources.cxx
     src/Engine/Core/Memory/Memory.cxx
     src/Engine/Core/Memory/MiMalloc.cxx
     src/Engine/Core/Memory/StdMalloc.cxx

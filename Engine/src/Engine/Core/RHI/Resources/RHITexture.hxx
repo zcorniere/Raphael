@@ -33,7 +33,11 @@ public:
     }
     virtual ~RHITexture() = default;
 
-    virtual void Resize(const UVector2& Size);
+    void Resize(const UVector2& Size)
+    {
+        Description.Extent = Size;
+        Invalidate();
+    }
     virtual void Invalidate() = 0;
 
     const RHITextureSpecification& GetDescription() const
