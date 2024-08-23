@@ -181,7 +181,7 @@ struct TSupportedShaderType<UVector2> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Uint32;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 2;
-    static constexpr int32 Alignment = 16;
+    static constexpr uint64 Alignment = 16;
     using AlignedType = UVector2;
 };
 
@@ -190,7 +190,7 @@ struct TSupportedShaderType<IVector2> {
     static constexpr EShaderBufferType Type = EShaderBufferType::Int32;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 2;
-    static constexpr int32 Alignment = 16;
+    static constexpr uint64 Alignment = 16;
     using AlignedType = IVector2;
 };
 
