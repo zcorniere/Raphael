@@ -14,9 +14,8 @@ struct DetailedSymbolInfo {
     char FunctionName[MaxNameLength] = {'\0'};
     int64 ProgramCounter;
 
-    // TODO: find out how to recover source file informations
-    // char Filename[MaxNameLength] = {'\0'};
-    // int32 LineNumber;
+     char Filename[MaxNameLength] = {'\0'};
+     int32 LineNumber;
 };
 
 /// @brief Hold the raw information about a stacktrace

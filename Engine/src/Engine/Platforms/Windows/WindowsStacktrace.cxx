@@ -1,6 +1,7 @@
 #include "Engine/Platforms/Windows/WindowsStacktrace.hxx"
 
 #include <windows.h>
+
 #include <dbghelp.h>
 
 StacktraceContent WindowsStacktrace::GetStackTraceFromReturnAddress(void* returnAddress)
@@ -24,23 +25,60 @@ StacktraceContent WindowsStacktrace::GetStackTraceFromReturnAddress(void* return
 
 bool WindowsStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedSymbolInfo& detailed_info)
 {
-    DWORD64  dwDisplacement = 0;
-    DWORD64  dwAddress = ProgramCounter;
+    DWORD64 dwAddress = ProgramCounter;
     detailed_info.ProgramCounter = ProgramCounter;
 
-    char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
-    PSYMBOL_INFO pSymbol = (PSYMBOL_INFO)buffer;
-
-    pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-    pSymbol->MaxNameLen = MAX_SYM_NAME;
-    if (!SymFromAddr(WindowsPlatform::GetDebugSymbolHandle(), dwAddress, &dwDisplacement, pSymbol))
+    // Function Name
     {
-        DWORD error = GetLastError();
-        printf("SymFromAddr returned error : %d\n", error);
-        return false;
+        DWORD64 dwDisplacement = 0;
+
+        char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+        PSYMBOL_INFO pSymbol = (PSYMBOL_INFO)buffer;
+
+        pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+        pSymbol->MaxNameLen = MAX_SYM_NAME;
+        if (!SymFromAddr(WindowsPlatform::GetDebugSymbolHandle(), dwAddress, &dwDisplacement, pSymbol)) {
+            DWORD error = GetLastError();
+            printf("SymFromAddr returned error : %d\n", error);
+            return false;
+        }
+        std::strncpy(detailed_info.FunctionName, pSymbol->Name, detailed_info.MaxNameLength);
     }
 
-    std::strncpy(detailed_info.FunctionName, pSymbol->Name, detailed_info.MaxNameLength);
+    {
+        IMAGEHLP_MODULE ModuleInfo;
+        ModuleInfo.SizeOfStruct = sizeof(ModuleInfo);
+
+        if (SymGetModuleInfo64(WindowsPlatform::GetDebugSymbolHandle(), dwAddress, &ModuleInfo))
+        {
+            const char* const ModulePath = ModuleInfo.ImageName;
+            const char* ModuleName = std::strrchr(ModulePath, '\\');
+            if (ModuleName) {
+                ModuleName += 1;
+            } else {
+                ModuleName = ModulePath;
+            }
+            std::strncpy(detailed_info.ModuleName, ModuleName, DetailedSymbolInfo::MaxNameLength);
+        }
+    }
+
+    {
+        DWORD dwDisplacement = 0;
+        IMAGEHLP_LINE64 line;
+        line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+
+        if (SymGetLineFromAddr64(WindowsPlatform::GetDebugSymbolHandle(), dwAddress, &dwDisplacement, &line)) {
+            const char* const cFilePath = line.FileName;
+            const char* cFilenamePath = std::strrchr(cFilePath, '\\');
+            if (cFilenamePath) {
+                cFilenamePath += 1;
+            } else {
+                cFilenamePath = cFilePath;
+            }
+            std::strncpy(detailed_info.Filename, cFilenamePath, DetailedSymbolInfo::MaxNameLength);
+            detailed_info.LineNumber = line.LineNumber;
+        }
+    }
 
     return true;
 }
