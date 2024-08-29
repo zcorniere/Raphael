@@ -201,6 +201,11 @@ struct Enable {
         return reinterpret_cast<T const*>(_cast(TypeInfo<T>::Id()));
     }
 
+    bool operator==(const Enable& other) const noexcept
+    {
+        return typeId() == other.typeId();
+    }
+
 protected:
     /// Used to invoke the dynamic_cast from the most specialized type in the
     /// dependency hierarchy by overloaded this function in each derivation of
