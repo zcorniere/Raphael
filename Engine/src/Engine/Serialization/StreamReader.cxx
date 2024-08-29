@@ -5,8 +5,8 @@ namespace Serialization
 
 void StreamReader::ReadString(std::string& String)
 {
-    size_t Size = String.size();
-    ReadData((uint8*)&Size, sizeof(size_t));
+    uint32 Size;
+    ReadData((uint8*)&Size, sizeof(uint32));
 
     String.resize(Size);
     ReadData((uint8*)String.data(), sizeof(char) * Size);

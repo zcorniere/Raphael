@@ -31,7 +31,7 @@ public:
         T::Serialize(this, Value);
     }
 
-    void WriteString(const std::string& String);
+    void WriteString(const std::string_view& String);
 
     template <typename T>
     void WriteArray(const Array<T>& Array, bool bWriteSize = true)
