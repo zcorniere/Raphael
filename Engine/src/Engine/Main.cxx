@@ -8,12 +8,14 @@
 
 #ifdef PLATFORM_WINDOWS
     #include <windows.h>
-#endif // PLATFORM_WINDOWS
+#endif    // PLATFORM_WINDOWS
+
+DECLARE_LOGGER_CATEGORY(Core, LogEngine, Info)
 
 extern "C" IApplication* GetApplication();
 
 int EngineLoop()
-{
+try {
     GEngine = new Engine;
 
     if (!GEngine->Initialisation()) {
@@ -69,6 +71,12 @@ int EngineLoop()
     delete GEngine;
 
     return ExitStatus;
+} catch (const std::exception& e) {
+    LOG(LogEngine, Error, "EngineLoop exception: {:s}", e.what());
+    return -1;
+} catch (...) {
+    LOG(LogEngine, Error, "EngineLoop unknown exception");
+    return -1;
 }
 
 #ifdef PLATFORM_WINDOWS
@@ -77,13 +85,13 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
     (void)hInstance;
     (void)hPrevInstance;
     (void)lpCmdLine;
-    (void) nShowCmd;
+    (void)nShowCmd;
     CommandLine::Set(GetCommandLine());
 #else
 int main(int ac, char** av)
 {
     CommandLine::Set(ac, av);
-#endif // !PLATFORM_WINDOWS
+#endif    // !PLATFORM_WINDOWS
 
     if (CommandLine::Param("-waitfordebugger")) {
         while (!Platform::isDebuggerPresent()) {
