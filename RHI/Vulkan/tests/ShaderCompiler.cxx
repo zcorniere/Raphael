@@ -209,24 +209,6 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
             },
     };
 
-    SECTION("Test Serialization")
-    {
-
-        Serialization::FileStreamWriter Writer("test.txt");
-        Writer.WriteObject(ExpectedPushConstant);
-        Writer.Flush();
-
-        Serialization::FileStreamReader Reader("test.txt");
-
-        CHECK(Reader);
-        CHECK(Reader.IsGood());
-
-        ShaderResource::PushConstantRange GotPushConstant;
-        Reader.ReadObject(GotPushConstant);
-
-        CHECK(GotPushConstant == ExpectedPushConstant);
-    }
-
     const VulkanShader::ReflectionData
         ExpectedReflection{
             .StageInput =
@@ -629,6 +611,24 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
     const VulkanShader::ReflectionData& GotReflection = ShaderResult->GetReflectionData();
 
     CheckReflection(ExpectedReflection, GotReflection);
+
+    SECTION("Test Serialization")
+    {
+        {
+            Serialization::FileStreamWriter Writer("test.txt");
+            Writer.WriteObject(ExpectedReflection);
+            Writer.Flush();
+        }
+        VulkanShader::ReflectionData GotExpectedReflection;
+        {
+            Serialization::FileStreamReader Reader("test.txt");
+            CHECK(Reader);
+            CHECK(Reader.IsGood());
+
+            Reader.ReadObject(GotExpectedReflection);
+        }
+        CHECK(GotExpectedReflection == ExpectedReflection);
+    }
 
     ::Log::Shutdown();
 }
