@@ -16,6 +16,11 @@ void CommandLine::Set(const int argc, const char* const* const argv)
     }
 }
 
+void CommandLine::Reset()
+{
+    std::memset(CommandLineStorage, 0, sizeof(CommandLineStorage));
+}
+
 const char* CommandLine::Get()
 {
     return CommandLineStorage;

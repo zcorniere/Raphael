@@ -100,7 +100,13 @@ elseif(WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC dbghelp)
 endif()
 
-build_tests(${PROJECT_NAME} tests/Containers/Array.cxx tests/RHIShaderParametersTest.cxx tests/RTTI.cxx)
+build_tests(
+    ${PROJECT_NAME}
+    tests/Containers/Array.cxx
+    tests/RHIShaderParametersTest.cxx
+    tests/RTTI.cxx
+    tests/CommandLine.cxx
+)
 
 if(RPH_ENABLE_PROFILING)
     target_compile_definitions(${PROJECT_NAME} PUBLIC RPH_ENABLE_PROFILING=1)
