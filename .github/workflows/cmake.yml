@@ -1,5 +1,6 @@
 name: Build & test
 
+
 on:
   push:
     branches: [ "main" ]
@@ -14,17 +15,17 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [self-hosted, windows-latest]
         build_type: [Debug, Release]
         c_compiler: [gcc, clang, cl]
         include:
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
-          - os: ubuntu-latest
+          - os: self-hosted
             c_compiler: gcc
             cpp_compiler: g++
-          - os: ubuntu-latest
+          - os: self-hosted
             c_compiler: clang
             cpp_compiler: clang++
         exclude:
@@ -32,7 +33,7 @@ jobs:
             c_compiler: gcc
           - os: windows-latest
             c_compiler: clang
-          - os: ubuntu-latest
+          - os: self-hosted
             c_compiler: cl
 
     steps:
