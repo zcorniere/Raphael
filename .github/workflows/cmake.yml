@@ -37,12 +37,6 @@ jobs:
             c_compiler: cl
 
     steps:
-    - name: Setup C/C++ Compiler
-      uses: rlalik/setup-cpp-compiler@v1.2
-      if: runner.os == 'Linux'
-      with:
-        compiler: ${{ matrix.c_compiler }}
-
     - uses: actions/checkout@v4.1.0
       with:
         submodules: true
