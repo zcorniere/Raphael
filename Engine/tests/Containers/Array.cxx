@@ -201,7 +201,7 @@ TEST_CASE("Array: Test Find function")
 
     SECTION("Test AddUnique()")
     {
-        int Value4 = GENERATE(take(2, random(10, 99)));
+        int Value4 = GENERATE(take(2, random(11, 99)));
 
         CHECK(TestVec.AddUnique(Value1) == false);
         CHECK(TestVec.AddUnique(Value2) == false);
