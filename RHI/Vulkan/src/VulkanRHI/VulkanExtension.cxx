@@ -33,6 +33,25 @@ private:
     VkPhysicalDeviceDynamicRenderingFeatures DynamicRenderingFeature{};
 };
 
+class Maintenance5Extensions : public IDeviceVulkanExtension
+{
+public:
+    Maintenance5Extensions(): IDeviceVulkanExtension(VK_KHR_MAINTENANCE_5_EXTENSION_NAME)
+    {
+        std::memset(&Maintenance5Feature, 0, sizeof(Maintenance5Feature));
+        Maintenance5Feature.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES_KHR;
+        Maintenance5Feature.maintenance5 = VK_TRUE;
+    }
+
+    void PreDeviceCreated(VkDeviceCreateInfo& DeviceInfo) override final
+    {
+        AddToPNext(DeviceInfo, Maintenance5Feature);
+    }
+
+private:
+    VkPhysicalDeviceMaintenance5FeaturesKHR Maintenance5Feature{};
+};
+
 #define ADD_SIMPLE_EXTENSION(Array, ExtensionType, ExtensionName) \
     Array.AddUnique(std::make_unique<ExtensionType>(ExtensionName))
 #define ADD_COMPLEX_ENTENSION(Array, ExtensionType) Array.AddUnique(std::make_unique<ExtensionType>())
@@ -65,6 +84,7 @@ VulkanDeviceExtensionArray VulkanPlatform::GetDeviceExtensions()
     ADD_SIMPLE_EXTENSION(DeviceExtension, IDeviceVulkanExtension, VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
 
     ADD_COMPLEX_ENTENSION(DeviceExtension, DynamicRenderingExtension);
+    ADD_COMPLEX_ENTENSION(DeviceExtension, Maintenance5Extensions);
 
     return DeviceExtension;
 }

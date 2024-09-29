@@ -73,31 +73,17 @@ public:
         static void Deserialize(Serialization::StreamReader* Reader, ReflectionData& OutValue);
     };
 
-    class ShaderHandle : public RObject, public IDeviceChild
-    {
-    public:
-        ShaderHandle() = delete;
-        ShaderHandle(VulkanDevice* InDevice, const VkShaderModuleCreateInfo& Info);
-        ~ShaderHandle();
-
-        virtual void SetName(std::string_view Name) override;
-
-    public:
-        VkShaderModule Handle;
-    };
-
 public:
     VulkanShader(ERHIShaderType Type, const Array<uint32>& InSPRIVCode, const ReflectionData& InReflectionData);
     virtual ~VulkanShader();
-
-    virtual void SetName(std::string_view Name) override;
 
     const ReflectionData& GetReflectionData() const
     {
         return m_ReflectionData;
     }
 
-    Ref<ShaderHandle> GetHandle(VulkanDevice* InDevice);
+    const VkShaderModuleCreateInfo& GetShaderModuleCreateInfo() const;
+    const char* GetEntryPoint() const;
 
     constexpr ERHIShaderType GetShaderType() const
     {
@@ -110,7 +96,7 @@ private:
 
     ERHIShaderType Type;
 
-    Ref<ShaderHandle> m_ShaderHandle;
+    VkShaderModuleCreateInfo m_ShaderModuleCreateInfo;
 
     friend class VulkanShaderCompiler;
 };

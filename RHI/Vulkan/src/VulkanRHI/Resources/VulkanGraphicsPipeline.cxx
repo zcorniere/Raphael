@@ -77,25 +77,22 @@ void VulkanGraphicsPipeline::SetName(std::string_view Name)
     }
 }
 
-static void FillShaderStageInfo(VulkanDevice* InDevice, Ref<VulkanShader>& InShader,
-                                Array<VkPipelineShaderStageCreateInfo>& OutShaderStage)
-{
-    Ref<VulkanShader::ShaderHandle> Handle = InShader->GetHandle(InDevice);
-    OutShaderStage.Add(VkPipelineShaderStageCreateInfo{
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-        .stage = ConvertToVulkanType(InShader->GetShaderType()),
-        .module = Handle->Handle,
-        .pName = "main",
-    });
-}
-
 bool VulkanGraphicsPipeline::Create()
 {
+    auto FillShaderStageInfo = [](Ref<VulkanShader>& InShader, Array<VkPipelineShaderStageCreateInfo>& OutShaderStage) {
+        OutShaderStage.Add(VkPipelineShaderStageCreateInfo{
+            .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+            .pNext = &InShader->GetShaderModuleCreateInfo(),
+            .stage = ConvertToVulkanType(InShader->GetShaderType()),
+            .module = VK_NULL_HANDLE,
+            .pName = InShader->GetEntryPoint(),
+        });
+    };
     CreatePipelineLayout();
 
     Array<VkPipelineShaderStageCreateInfo> ShaderStage;
-    FillShaderStageInfo(Device, Desc.VertexShader, ShaderStage);
-    FillShaderStageInfo(Device, Desc.PixelShader, ShaderStage);
+    FillShaderStageInfo(Desc.VertexShader, ShaderStage);
+    FillShaderStageInfo(Desc.PixelShader, ShaderStage);
 
     Array<VkVertexInputBindingDescription> InputBinding(Desc.VertexBindings.Size());
     for (unsigned i = 0; i < Desc.VertexBindings.Size(); i++) {
@@ -188,7 +185,7 @@ bool VulkanGraphicsPipeline::Create()
                                        : VK_FORMAT_UNDEFINED,
 
     };
-    // Dynamic rendering
+    // End of Dynamic rendering
 
     VkGraphicsPipelineCreateInfo PipelineCreateInfo{
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
