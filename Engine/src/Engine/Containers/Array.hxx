@@ -447,7 +447,7 @@ private:
     {
         TSize NewCapacity = ArrayCapacity;
         do {
-            NewCapacity = NewCapacity + (NewCapacity % 3) + 1;
+            NewCapacity = NewCapacity + (NewCapacity / 2 + 1);
         } while (NewCapacity < NewMinimalCapacity);
         return NewCapacity;
     }
