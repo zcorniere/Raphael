@@ -232,7 +232,6 @@ public:
     /// Resize the array to the given size
     constexpr void Resize(const TSize NewSize)
     {
-        checkNoRecursion();
         if (NewSize < ArraySize) {
             DestructItems(Raw() + NewSize, ArraySize - NewSize);
         }
@@ -247,7 +246,6 @@ public:
     /// Reserve the given capacity for the array
     constexpr void Reserve(const TSize NewCapacity)
     {
-        checkNoRecursion();
         if (NewCapacity == ArrayCapacity) {
             return;
         }
