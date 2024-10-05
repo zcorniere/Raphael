@@ -7,7 +7,7 @@ FORCEINLINE void ConstructItems(ElementType* Ptr, SizeType Count)
     checkSlow(Ptr);
 
     std::memset(Ptr, 0, Count * sizeof(ElementType));
-    // Nothing to do if the type is trivially destructible
+    // Nothing to do if the type is trivially constructible
     if constexpr (std::is_trivially_default_constructible_v<ElementType>) {
         return;
     } else if constexpr (std::is_default_constructible_v<ElementType>) {
@@ -16,6 +16,8 @@ FORCEINLINE void ConstructItems(ElementType* Ptr, SizeType Count)
             ++Ptr;
             --Count;
         }
+    } else {
+        CONSTEXPR_ELSE_ERROR(ElementType, "Type must be default constructible");
     }
 }
 
@@ -44,7 +46,7 @@ FORCEINLINE void MoveItems(ElementType* Destination, ElementType* Source, SizeTy
     checkSlow(Destination != nullptr);
     checkSlow(Source != nullptr);
 
-    // Nothing to do if the type is trivially destructible
+    // Nothing to do if the type is trivially copyable
     if constexpr (std::is_trivially_copyable_v<ElementType>) {
         std::memmove(Destination, Source, Count * sizeof(ElementType));
     } else {
@@ -66,7 +68,7 @@ FORCEINLINE void CopyItems(ElementType* Destination, const ElementType* Source, 
     checkSlow(Destination != nullptr);
     checkSlow(Source != nullptr);
 
-    // Nothing to do if the type is trivially destructible
+    // Nothing to do if the type is trivially copyable
     if constexpr (std::is_trivially_copyable_v<ElementType>) {
         std::memmove((void*)Destination, Source, Count * sizeof(ElementType));
     } else {

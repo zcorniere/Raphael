@@ -102,33 +102,36 @@ TEST_CASE("Array: Test Advanced Type")
 {
     int DtorCounter = 0;
     struct ComplexType {
-        int& Value;
-        ComplexType(int& InValue): Value(InValue)
+        int* Value = nullptr;
+
+        ComplexType() = default;
+        ComplexType(int* const InValue): Value(InValue)
         {
-            Value += 1;
+            *Value += 1;
         }
         ComplexType(const ComplexType& Other): ComplexType(Other.Value)
         {
         }
         ComplexType(ComplexType&& Other) noexcept: Value(Other.Value)
         {
-            Value += 1;
+            *Value += 1;
         }
         ~ComplexType() noexcept
         {
-            Value -= 1;
+            *Value -= 1;
         }
 
         ComplexType& operator=(const ComplexType& Other)
         {
             Value = Other.Value;
-            Value += 1;
+            *Value += 1;
             return *this;
         }
 
         ComplexType& operator=(ComplexType&& Other) noexcept
         {
             Value = Other.Value;
+            Other.Value = nullptr;
             return *this;
         }
     };
@@ -137,11 +140,11 @@ TEST_CASE("Array: Test Advanced Type")
                   "ComplexType is trivially destructible and should not be");
 
     REQUIRE(DtorCounter == 0);
-    ComplexType* TestType = new ComplexType(DtorCounter);
+    ComplexType* TestType = new ComplexType(&DtorCounter);
     REQUIRE(DtorCounter == 1);
 
     Array<ComplexType> Vec2;
-    Vec2.Emplace(DtorCounter);
+    Vec2.Emplace(&DtorCounter);
     Vec2.Add(*TestType);
 
     CHECK_NOTHROW(Vec2.Size() == 2);
@@ -151,8 +154,8 @@ TEST_CASE("Array: Test Advanced Type")
     {
         Array<ComplexType> TestVec2;
 
-        TestVec2.Emplace(DtorCounter);
-        TestVec2.Emplace(DtorCounter);
+        TestVec2.Emplace(&DtorCounter);
+        TestVec2.Emplace(&DtorCounter);
         REQUIRE(DtorCounter == 1 + 2 + 2);    // 1 for TestType, 2 for Vec2, and 2 for TestVec2
 
         Vec2.Append(TestVec2);

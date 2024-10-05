@@ -81,6 +81,11 @@ void VulkanDevice::SetName(std::string_view InName)
     }
 }
 
+std::string_view VulkanDevice::GetDeviceName() const
+{
+    return GpuProps.deviceName;
+}
+
 void VulkanDevice::InitPhysicalDevice()
 {
     std::uint32_t QueueCount = 0;

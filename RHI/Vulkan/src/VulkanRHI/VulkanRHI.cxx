@@ -225,13 +225,14 @@ VulkanDevice* VulkanDynamicRHI::SelectDevice(VkInstance Instance)
     checkMsg(GpuCount >= 1, "Couldn't enumerate physical devices!");
 
     struct DeviceInfo {
-        VulkanDevice* const Device;
-        const std::uint32_t DeviceIndex;
+        VulkanDevice* Device;
+        std::uint32_t DeviceIndex;
     };
     Array<VulkanDevice*> Devices;
     Array<DeviceInfo> DiscreteDevice;
     Array<DeviceInfo> IntegratedDevice;
 
+    // Sort the physical devices into discrete and integrated
     LOG(LogVulkanRHI, Info, "Found {} device(s)", GpuCount);
     for (std::uint32_t Index = 0; Index < GpuCount; Index++) {
         LOG(LogVulkanRHI, Info, "Device {}:", Index);
@@ -242,18 +243,19 @@ VulkanDevice* VulkanDynamicRHI::SelectDevice(VkInstance Instance)
         const bool bIsCPUDevice = (NewDevice->GetDeviceProperties().deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU);
 
         if (bIsDiscrete) {
-            DiscreteDevice.Add({NewDevice, Index});
+            DiscreteDevice.Emplace(NewDevice, Index);
         } else if (bIsCPUDevice) {
             LOG(LogVulkanRHI, Info, "Skipping device[{}] of type VK_PHYSICAL_DEVICE_TYPE_CPU",
                 NewDevice->GetDeviceProperties().deviceName);
         } else {
-            IntegratedDevice.Add({NewDevice, Index});
+            IntegratedDevice.Emplace(NewDevice, Index);
         }
     }
 
-    uint32 DeviceIndex = (uint32)-1;
+    // merge the two arrays, so that if DiscreteDevice is empty, we can use IntegratedDevice
     DiscreteDevice.Append(IntegratedDevice);
 
+    uint32 DeviceIndex = (uint32)-1;
     VulkanDevice* SelectedDevice = nullptr;
     if (DiscreteDevice.Size() > 0) {
         SelectedDevice = DiscreteDevice[0].Device;

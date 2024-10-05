@@ -24,6 +24,24 @@ consteval bool ShouldCheckPrintStackTrace()
 #endif
 }
 
+#ifndef NDEBUG
+class RecursionScopeMarker
+{
+public:
+    RecursionScopeMarker(uint16& InCounter): Counter(InCounter)
+    {
+        ++Counter;
+    }
+    ~RecursionScopeMarker()
+    {
+        --Counter;
+    }
+
+private:
+    uint16& Counter;
+};
+#endif    // !NDEBUG
+
 }    // namespace Raphael
 
 #ifndef NDEBUG
@@ -88,6 +106,12 @@ consteval bool ShouldCheckPrintStackTrace()
             MACRO_EXPENDER(beenHere, __LINE__) = true;                                                  \
         }
 
+    #define checkNoRecursion()                                                                                \
+        static uint16 MACRO_EXPENDER(RecursionCounter, __LINE__) = 0;                                         \
+        checkMsg(MACRO_EXPENDER(RecursionCounter, __LINE__) == 0, "Enclosing block was entered recursively"); \
+        const ::Raphael::RecursionScopeMarker MACRO_EXPENDER(ScopeMarker,                                     \
+                                                             __LINE__)(MACRO_EXPENDER(RecursionCounter, __LINE__))
+
 #else
     #define RAPHAEL_ENSURE_IMPL(Expression) (bool)(Expression)
     #define ensure(Expression) RAPHAEL_ENSURE_IMPL(Expression)
@@ -111,5 +135,6 @@ consteval bool ShouldCheckPrintStackTrace()
             }                                                                   \
             MACRO_EXPENDER(beenHere, __LINE__) = true;                          \
         }
+    #define checkNoRecursion()
 
 #endif

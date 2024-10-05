@@ -28,6 +28,8 @@ public:
 
     virtual void SetName(std::string_view InName) override final;
 
+    virtual std::string_view GetDeviceName() const;
+
     void InitPhysicalDevice();
     void SetupPresentQueue(VkSurfaceKHR Surface);
 

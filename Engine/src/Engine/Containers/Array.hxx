@@ -179,9 +179,7 @@ public:
     constexpr void Clear(TSize ExpectedCapacity = 0)
     {
         Resize(0);
-        if (ExpectedCapacity > 0) {
-            Reserve(ExpectedCapacity);
-        }
+        Reserve(ExpectedCapacity);
     }
 
     /// Call the given function on each element and clear the array
@@ -234,11 +232,12 @@ public:
     /// Resize the array to the given size
     constexpr void Resize(const TSize NewSize)
     {
+        checkNoRecursion();
         if (NewSize < ArraySize) {
             DestructItems(Raw() + NewSize, ArraySize - NewSize);
         }
         if (NewSize > ArrayCapacity) {
-            Reserve(GetAllocationIncrease(NewSize));
+            Reserve(NewSize);
         }
         if (NewSize > ArraySize) {
             ConstructItems(Raw() + ArraySize, NewSize - ArraySize);
@@ -248,6 +247,7 @@ public:
     /// Reserve the given capacity for the array
     constexpr void Reserve(const TSize NewCapacity)
     {
+        checkNoRecursion();
         if (NewCapacity == ArrayCapacity) {
             return;
         }
@@ -256,7 +256,7 @@ public:
         }
 
         // New capacity is 0, free the data, and return
-        // The object should be empty after the call to Resize above
+        // The objects should be destroyed after the call to Resize above
         if (NewCapacity == 0) {
             if (Data) {
                 Memory::Free(Data);
@@ -455,7 +455,7 @@ private:
     void IncreaseCapacityIfNeeded(TSize Increase)
     {
         if (ArraySize + Increase > ArrayCapacity) {
-            TSize NewCapacity = GetAllocationIncrease();
+            const TSize NewCapacity = GetAllocationIncrease();
             Reserve(NewCapacity);
         }
     }
