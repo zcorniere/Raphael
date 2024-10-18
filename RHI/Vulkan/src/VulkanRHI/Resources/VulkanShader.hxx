@@ -28,7 +28,7 @@ namespace ShaderResource
     };
 
     struct StageIO {
-        std::string Name;
+        String Name;
         EVertexElementType Type;
         uint32 Binding;
         uint32 Location;

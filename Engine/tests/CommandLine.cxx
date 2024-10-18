@@ -18,9 +18,9 @@ TEST_CASE("Command line with multiple argument")
 
     SECTION("Command line with quote argument")
     {
-        String value;
-        REQUIRE(CommandLine::Parse("-qargument=", value));
-        REQUIRE(value == "Test Value Argument");
+        String QuotedArgument;
+        REQUIRE(CommandLine::Parse("-qargument=", QuotedArgument));
+        REQUIRE(QuotedArgument == "Test Value Argument");
     }
     SECTION("Command line without quote argument")
     {

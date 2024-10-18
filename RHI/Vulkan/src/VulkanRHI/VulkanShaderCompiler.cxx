@@ -227,12 +227,12 @@ bool VulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
         return false;
     }
 
-    std::string PreprocessCode(PreProcessResult.begin(), PreProcessResult.end());
+    String PreprocessCode(PreProcessResult.begin(), PreProcessResult.end());
     LOG(LogVulkanShaderCompiler, Trace, "Pre-process Result \"{}\":\n{}", Result.Path.string().c_str(), PreprocessCode);
 
     Result.Status = CompilationStatus::Compilation;
     shaderc::CompilationResult CompilationResult =
-        ShaderCompiler.CompileGlslToSpv(PreprocessCode, ShaderKind, Result.Path.string().c_str(), Options);
+        ShaderCompiler.CompileGlslToSpv(PreprocessCode.Raw(), ShaderKind, Result.Path.string().c_str(), Options);
     if (CompilationResult.GetCompilationStatus() != shaderc_compilation_status_success) {
         LOG(LogVulkanShaderCompiler, Error, "Failed to compile shader \"{}\": {}", Result.Path.string().c_str(),
             CompilationResult.GetErrorMessage());
@@ -276,7 +276,7 @@ static ShaderParameter RecursiveTypeDescription(const spirv_cross::Compiler& Com
 
     const spirv_cross::SPIRType& Type = Compiler.get_type(ID);
     const spirv_cross::SPIRType& BaseType = Compiler.get_type(BaseTypeID);
-    Parameter.Name = std::string(Compiler.get_member_name(BaseTypeID, Index));
+    Parameter.Name = String(Compiler.get_member_name(BaseTypeID, Index));
 
     switch (Type.basetype) {
         case spirv_cross::SPIRType::Struct:

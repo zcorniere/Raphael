@@ -3,6 +3,9 @@
 #include "Engine/Containers/Array.hxx"
 #include "Engine/Misc/MiscDefines.hxx"
 
+#include "Engine/Serialization/StreamReader.hxx"
+#include "Engine/Serialization/StreamWriter.hxx"
+
 #include <cstring>
 
 template <CCharacter TChar>
@@ -12,11 +15,36 @@ template <CCharacter TChar>
 class TString
 {
 public:
+    static void Serialize(Serialization::StreamWriter* Writer, const TString& Value)
+    {
+        Writer->WriteRaw<uint32>(Value.Size());
+        Writer->WriteRaw<uint8>(sizeof(TChar));
+        Writer->WriteData(reinterpret_cast<const uint8*>(Value.Raw()), Value.Size() * sizeof(TChar));
+    }
+
+    static void Deserialize(Serialization::StreamReader* Reader, TString& OutValue)
+    {
+        uint32 Size = 0;
+        Reader->ReadRaw<uint32>(Size);
+
+        uint8 CharSize = 0;
+        Reader->ReadRaw<uint8>(CharSize);
+        check(CharSize == sizeof(TChar));
+
+        OutValue.Resize(Size);
+        Reader->ReadData(reinterpret_cast<uint8*>(OutValue.Raw()), Size * CharSize);
+    }
+
+public:
     constexpr TString() = default;
-    constexpr TString(const TChar* str, unsigned int size): m_Data(str, size)
+    constexpr TString(const TChar* str, unsigned int size): m_Data(str, size + 1)
+    {
+        m_Data[size] = '\0';
+    }
+    constexpr TString(const TChar* str): TString<TChar>(str, std::strlen(str))
     {
     }
-    constexpr TString(const TChar* str): TString<TChar>(str, std::strlen(str) + 1)
+    constexpr TString(const TChar* Begin, const TChar* End): TString(Begin, End - Begin)
     {
     }
     constexpr TString(const std::basic_string<TChar>& str): TString(str.c_str(), str.size())

@@ -32,6 +32,7 @@
 
 #include <Engine/Containers/Array.hxx>
 #include <Engine/Containers/String.hxx>
+#include <Engine/Containers/StringView.hxx>
 
 // Make sure we're 64 bit
 static_assert(sizeof(void*) == 8);

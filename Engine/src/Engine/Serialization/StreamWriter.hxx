@@ -31,8 +31,6 @@ public:
         T::Serialize(this, Value);
     }
 
-    void WriteString(const std::string_view& String);
-
     template <typename T>
     void WriteArray(const Array<T>& Array, bool bWriteSize = true)
     {
@@ -43,8 +41,6 @@ public:
         for (const T& Element: Array) {
             if constexpr (std::is_trivial<T>()) {
                 WriteRaw(Element);
-            } else if constexpr (std::is_same<T, std::string>()) {
-                WriteString(Element);
             } else {
                 WriteObject(Element);
             }
@@ -61,8 +57,6 @@ public:
         for (const auto& [Key, Value]: Map) {
             if constexpr (std::is_trivial<KeyType>()) {
                 WriteRaw(Key);
-            } else if constexpr (std::is_same<KeyType, std::string>()) {
-                WriteString(Key);
             } else {
                 WriteObject(Key);
             }

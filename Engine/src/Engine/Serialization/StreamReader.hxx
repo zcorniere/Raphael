@@ -32,8 +32,6 @@ public:
         T::Deserialize(this, Value);
     }
 
-    void ReadString(std::string& String);
-
     template <typename T>
     void ReadArray(Array<T>& Array, bool bReadSize = true)
     {
@@ -47,8 +45,6 @@ public:
         for (T& Element: Array) {
             if constexpr (std::is_trivial<T>()) {
                 ReadRaw(Element);
-            } else if constexpr (std::is_same<T, std::string>()) {
-                ReadString(Element);
             } else {
                 ReadObject(Element);
             }
@@ -68,8 +64,6 @@ public:
             KeyType Key;
             if constexpr (std::is_trivial<KeyType>()) {
                 ReadRaw(Key);
-            } else if constexpr (std::is_same<KeyType, std::string>()) {
-                ReadString(Key);
             } else {
                 ReadObject(Key);
             }

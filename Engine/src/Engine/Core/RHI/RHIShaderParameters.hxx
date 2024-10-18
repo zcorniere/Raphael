@@ -87,7 +87,7 @@ enum class EShaderBufferType {
 
 /// This structure define a shader parameters (uniforms, storage buffers, etc)
 struct ShaderParameter {
-    std::string Name = "";
+    String Name = "";
     EShaderBufferType Type = EShaderBufferType::Invalid;
     uint64 Size = 0;
     uint64 Offset = 0;
@@ -106,7 +106,7 @@ struct ShaderParameter {
 
     static void Serialize(Serialization::StreamWriter* Writer, const ShaderParameter& Value)
     {
-        Writer->WriteString(Value.Name);
+        Writer->WriteObject(Value.Name);
         Writer->WriteRaw(Value.Type);
         Writer->WriteRaw(Value.Size);
         Writer->WriteRaw(Value.Offset);
@@ -117,7 +117,7 @@ struct ShaderParameter {
 
     static void Deserialize(Serialization::StreamReader* Reader, ShaderParameter& Value)
     {
-        Reader->ReadString(Value.Name);
+        Reader->ReadObject(Value.Name);
         Reader->ReadRaw(Value.Type);
         Reader->ReadRaw(Value.Size);
         Reader->ReadRaw(Value.Offset);

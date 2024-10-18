@@ -9,7 +9,7 @@ namespace VulkanRHI
 
 void ShaderResource::StageIO::Serialize(Serialization::StreamWriter* Writer, const ShaderResource::StageIO& Value)
 {
-    Writer->WriteString(Value.Name);
+    Writer->WriteObject(Value.Name);
     Writer->WriteRaw(Value.Type);
     Writer->WriteRaw(Value.Binding);
     Writer->WriteRaw(Value.Location);
@@ -43,7 +43,7 @@ void VulkanShader::ReflectionData::Serialize(Serialization::StreamWriter* Writer
 
 void ShaderResource::StageIO::Deserialize(Serialization::StreamReader* Reader, ShaderResource::StageIO& OutValue)
 {
-    Reader->ReadString(OutValue.Name);
+    Reader->ReadObject(OutValue.Name);
     Reader->ReadRaw(OutValue.Type);
     Reader->ReadRaw(OutValue.Binding);
     Reader->ReadRaw(OutValue.Location);
