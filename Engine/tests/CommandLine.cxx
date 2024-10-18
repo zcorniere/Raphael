@@ -18,13 +18,13 @@ TEST_CASE("Command line with multiple argument")
 
     SECTION("Command line with quote argument")
     {
-        std::string value;
+        String value;
         REQUIRE(CommandLine::Parse("-qargument=", value));
         REQUIRE(value == "Test Value Argument");
     }
     SECTION("Command line without quote argument")
     {
-        std::string value;
+        String value;
         REQUIRE(CommandLine::Parse("-argument=", value));
         REQUIRE(value == "TestValue");
     }

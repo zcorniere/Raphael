@@ -5,18 +5,18 @@
 namespace Utils
 {
 
-std::string readFile(const std::filesystem::path& filename)
+String readFile(const std::filesystem::path& filename)
 {
     /// Must be opened in binary mode, so Windows won't mess with the newlines
-    std::string fileContent;
+    String fileContent;
     std::ifstream file(filename, std::ios::binary);
     size_t fileSize = std::filesystem::file_size(filename);
 
     if (!file.is_open())
         return "";
 
-    fileContent.resize(fileSize);
-    file.read(fileContent.data(), fileSize);
+    fileContent.Resize(fileSize);
+    file.read(fileContent.Raw(), fileSize);
     file.close();
     return fileContent;
 }
@@ -27,7 +27,7 @@ std::string readFile(const std::filesystem::path& filename)
     #define SPRINTF sprintf
 #endif
 
-std::string BytesToString(uint64 bytes)
+String BytesToString(uint64 bytes)
 {
     constexpr uint64_t GB = 1024 * 1024 * 1024;
     constexpr uint64_t MB = 1024 * 1024;
@@ -44,7 +44,7 @@ std::string BytesToString(uint64 bytes)
     else
         SPRINTF(buffer, "%.2f bytes", (float)bytes);
 
-    return std::string(buffer);
+    return String(buffer);
 }
 
 #undef SPRINTF

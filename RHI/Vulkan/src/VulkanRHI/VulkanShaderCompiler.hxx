@@ -37,7 +37,7 @@ private:
         CompilationStatus Status = CompilationStatus::None;
         std::filesystem::path Path;
         ERHIShaderType ShaderType;
-        std::string SourceCode;
+        String SourceCode;
         Array<uint32> CompiledCode;
         VulkanShader::ReflectionData Reflection;
     };

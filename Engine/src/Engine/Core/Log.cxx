@@ -14,11 +14,11 @@ void Log::Init()
 
         s_CoreLogger->addSink<cpplogger::StdoutSink, Log::ColorFormatter>(stdout);
 
-        std::string LogFileLocation;
+        String LogFileLocation;
         if (CommandLine::Parse("-logfile=", LogFileLocation)) {
-            printf("%s\n", LogFileLocation.c_str());
+            printf("%s\n", LogFileLocation.Raw());
 
-            s_CoreLogger->addSink<cpplogger::FileSink, Log::BaseFormatter>(LogFileLocation, false);
+            s_CoreLogger->addSink<cpplogger::FileSink, Log::BaseFormatter>(LogFileLocation.Raw(), false);
         }
     }
 }

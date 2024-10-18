@@ -1,11 +1,12 @@
 #include "Engine/Raphael.hxx"
 
 #include "Engine/Containers/Array.hxx"
+#include "Engine/Containers/String.hxx"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators_all.hpp>
 
-TEST_CASE("Array: Basic Operation")
+TEST_CASE("Array: Basic functionality")
 {
     int Value1 = GENERATE(take(2, random(-42, 50)));
     int Value2 = GENERATE(take(2, random(-4200, 420)));
@@ -31,9 +32,10 @@ TEST_CASE("Array: Basic Operation")
     CHECK_NOTHROW(TestVec[1] == Value2);
     CHECK_NOTHROW(TestVec[2] == Value3);
 
-    const std::string String = std::format("{}", TestVec);
-    const std::string ExpectedString = std::format("[{0}, {1}, {2}]", Value1, Value2, Value3);
-    CHECK(String == ExpectedString);
+    const String TestString = std::format("{}", TestVec);
+
+    const String ExpectedString = std::format("[{0}, {1}, {2}]", Value1, Value2, Value3);
+    CHECK(TestString == ExpectedString);
 
     SECTION("Test positive Resize")
     {

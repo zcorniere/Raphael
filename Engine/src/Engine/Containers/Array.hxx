@@ -468,7 +468,7 @@ private:
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const Array<T>& m)
 {
-    os << std::formatter<decltype(m)>::format(m);
+    os << std::format("{}", m);
     return os;
 }
 
@@ -486,6 +486,4 @@ struct std::formatter<Array<T>> : std::formatter<T> {
         format_to(out, "]");
         return out;
     }
-
-    std::string value_format;
 };

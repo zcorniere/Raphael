@@ -40,7 +40,8 @@ bool CommandLine::Parse(const char* Key, int& Value)
     Value = std::atoi(FoundKey + std::strlen(Key));
     return true;
 }
-bool CommandLine::Parse(const char* Key, std::string& Value)
+
+bool CommandLine::Parse(const char* Key, String& Value)
 {
     const char* const FoundKey = std::strstr(CommandLineStorage, Key);
     if (FoundKey == nullptr) {
@@ -66,6 +67,6 @@ bool CommandLine::Parse(const char* Key, std::string& Value)
     }
     const int Length = std::max(0, int(ValueEndInStream - ValueStartInStream));
 
-    Value = std::string(ValueStartInStream, Length);
+    Value = String(ValueStartInStream, Length);
     return true;
 }

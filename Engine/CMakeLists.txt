@@ -103,6 +103,8 @@ endif()
 build_tests(
     ${PROJECT_NAME}
     tests/Containers/Array.cxx
+    tests/Containers/String.cxx
+    tests/Containers/StringView.cxx
     tests/RHIShaderParametersTest.cxx
     tests/RTTI.cxx
     tests/CommandLine.cxx

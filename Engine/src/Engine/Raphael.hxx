@@ -31,6 +31,7 @@
 #include <Engine/Platforms/Platform.hxx>
 
 #include <Engine/Containers/Array.hxx>
+#include <Engine/Containers/String.hxx>
 
 // Make sure we're 64 bit
 static_assert(sizeof(void*) == 8);

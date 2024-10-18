@@ -201,7 +201,7 @@ bool VulkanShaderCompiler::LoadShaderSourceFile(ShaderCompileResult& Result)
     }
     Result.ShaderType = ShaderType.value();
     Result.SourceCode = ::Utils::readFile(Result.Path);
-    if (Result.SourceCode.empty()) {
+    if (Result.SourceCode.IsEmpty()) {
         LOG(LogVulkanShaderCompiler, Error, "Shader file not found ! \"{}\"", Result.Path.string().c_str());
         return false;
     }
@@ -221,7 +221,7 @@ bool VulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
 
     Result.Status = CompilationStatus::PreProcess;
     shaderc::PreprocessedSourceCompilationResult PreProcessResult =
-        ShaderCompiler.PreprocessGlsl(Result.SourceCode, ShaderKind, Result.Path.string().c_str(), Options);
+        ShaderCompiler.PreprocessGlsl(Result.SourceCode.Raw(), ShaderKind, Result.Path.string().c_str(), Options);
     if (PreProcessResult.GetCompilationStatus() != shaderc_compilation_status_success) {
         LOG(LogVulkanShaderCompiler, Error, "Failed to pre-process: {}", PreProcessResult.GetErrorMessage());
         return false;
