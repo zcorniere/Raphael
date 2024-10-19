@@ -99,6 +99,8 @@ public:
     void ProcessEvents();
 
 private:
+    static std::atomic_bool bGLFWInitialized;
+    static std::atomic_short GFLWInUseCount;
     static bool InitializeGLFW();
 
     void SetupGLFWCallbacks();

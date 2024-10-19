@@ -11,7 +11,8 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogWindow, Info);
 
-int GLFWInitializedCount = 0;
+std::atomic_bool Window::bGLFWInitialized = false;
+std::atomic_short Window::GFLWInUseCount = 0;
 
 bool Window::EnsureGLFWInit()
 {
@@ -36,7 +37,7 @@ Window::~Window()
 
 void Window::Initialize(const WindowDefinition& InDefinition)
 {
-    GLFWInitializedCount += 1;
+    GFLWInUseCount += 1;
 
     Definition = InDefinition;
     checkMsg(Definition.EventCallback, "You must provide an event callback !");
@@ -96,10 +97,11 @@ void Window::Destroy()
     glfwDestroyWindow(p_Handle);
     p_Handle = nullptr;
 
-    GLFWInitializedCount -= 1;
-    if (GLFWInitializedCount == 0) {
+    GFLWInUseCount -= 1;
+    if (GFLWInUseCount == 0) {
         LOG(LogWindow, Info, "Terminating GLFW.");
         glfwTerminate();
+        bGLFWInitialized = false;
     }
 }
 
@@ -190,7 +192,7 @@ void Window::ProcessEvents()
 
 bool Window::InitializeGLFW()
 {
-    if (GLFWInitializedCount > 0) {
+    if (bGLFWInitialized) {
         return true;
     }
     LOG(LogWindow, Info, "Initializing GLFW.");
@@ -216,6 +218,7 @@ bool Window::InitializeGLFW()
     LOG(LogWindow, Info, "Initialized GLFW {:d}.{:d}.{:d}  (compiled against {:d}.{:d}.{:d})", Major, Minor, Revision,
         GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION);
 
+    bGLFWInitialized = true;
     return true;
 }
 
