@@ -2,10 +2,26 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogAssert, Trace)
 
-namespace Raphael
+bool Raphael::Debug::HandleCheckFailure(const std::string& Message, bool bShouldAbort)
 {
+    if constexpr (ShouldCheckPrintStackTrace()) {
+        CollectAndPrintStackTrace(Compiler::ReturnAddress());
+    }
 
-void CollectAndPrintStackTrace(void* ReturnAddress)
+    fprintf(stderr, "%s\n", Message.c_str());
+    fflush(stderr);
+
+    if (bShouldAbort) {
+        if (Platform::isDebuggerPresent()) {
+            PLATFORM_BREAK();
+        } else {
+            std::abort();
+        }
+    }
+    return Platform::isDebuggerPresent();
+}
+
+void Raphael::Debug::CollectAndPrintStackTrace(void* ReturnAddress)
 {
     static bool bIsAlreadyHandlerAssertions = false;
 
@@ -25,9 +41,8 @@ void CollectAndPrintStackTrace(void* ReturnAddress)
         std::string demangled = Compiler::Demangle(detailed_info.FunctionName);
         void* ProgramCounter = reinterpret_cast<void*>(detailed_info.ProgramCounter);
         LOG(LogAssert, Trace, "{} {} [{}] ({}:{})", ProgramCounter,
-            (detailed_info.FunctionName[0] == '\0') ? ("UnknownFunction") : (demangled), detailed_info.ModuleName, detailed_info.Filename, detailed_info.LineNumber);
+            (detailed_info.FunctionName[0] == '\0') ? ("UnknownFunction") : (demangled), detailed_info.ModuleName,
+            detailed_info.Filename, detailed_info.LineNumber);
     }
     bIsAlreadyHandlerAssertions = false;
 }
-
-}    // namespace Raphael

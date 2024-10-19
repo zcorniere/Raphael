@@ -8,8 +8,10 @@
 
 #define RPH_CHECK_STACKTRACE
 
-namespace Raphael
+namespace Raphael::Debug
 {
+
+bool HandleCheckFailure(const std::string& Message, bool bShouldAbort);
 
 /// Collect and print the callstack
 void CollectAndPrintStackTrace(void* ReturnAddress);
@@ -42,7 +44,7 @@ private:
 };
 #endif    // !NDEBUG
 
-}    // namespace Raphael
+}    // namespace Raphael::Debug
 
 #ifndef NDEBUG
 
@@ -51,15 +53,11 @@ private:
                                 static std::atomic_bool bExecuted = false;                                 \
                                 if (!bExecuted || Always) {                                                \
                                     bExecuted.exchange(true, std::memory_order_release);                   \
-                                    /* TODO: Check if another assertion is in progress */                  \
-                                    if constexpr (Raphael::ShouldCheckPrintStackTrace())                   \
-                                        Raphael::CollectAndPrintStackTrace(Compiler::ReturnAddress());     \
+                                                                                                           \
                                     const std::string Message =                                            \
                                         std::format("Assertion failed: " STR(#Expression) " in {}" Format, \
                                                     ::RTTI::FilePosition() __VA_OPT__(, ) __VA_ARGS__);    \
-                                    fprintf(stderr, "%s\n", Message.c_str());                              \
-                                    fflush(stderr);                                                        \
-                                    return Platform::isDebuggerPresent();                                  \
+                                    return ::Raphael::Debug::HandleCheckFailure(Message, false);           \
                                 }                                                                          \
                                 return false;                                                              \
                             }()) &&                                                                        \
@@ -76,18 +74,9 @@ private:
     #define RAPHAEL_CHECK_IMPL(Expression, Format, ...)                                                        \
         {                                                                                                      \
             if (!(Expression)) [[unlikely]] {                                                                  \
-                using namespace Raphael;                                                                       \
-                if constexpr (Raphael::ShouldCheckPrintStackTrace())                                           \
-                    CollectAndPrintStackTrace(Compiler::ReturnAddress());                                      \
                 const std::string Message = std::format("Assertion failed: " STR(#Expression) " in {}" Format, \
                                                         ::RTTI::FilePosition() __VA_OPT__(, ) __VA_ARGS__);    \
-                fprintf(stderr, "%s\n", Message.c_str());                                                      \
-                fflush(stderr);                                                                                \
-                if (Platform::isDebuggerPresent()) {                                                           \
-                    PLATFORM_BREAK();                                                                          \
-                } else {                                                                                       \
-                    std::abort();                                                                              \
-                }                                                                                              \
+                ::Raphael::Debug::HandleCheckFailure(Message, true);                                           \
             }                                                                                                  \
         }
 
