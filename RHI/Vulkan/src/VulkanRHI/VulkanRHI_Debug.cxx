@@ -110,7 +110,7 @@ Array<const char*> VulkanRHI_Debug::GetSupportedInstanceLayers()
             return true;
         };
         Array<const char*> MissingLayer;
-        LOG(LogVulkanRHI, Error, "Some Validation layers was not found !");
+        LOG(LogVulkanRHI, Error, "Some Validation layers were not found !");
         for (const char* Layer: ExpectedValidationLayers | std::views::filter(FilterLambda)) {
             LOG(LogVulkanRHI, Error, "- {}", Layer);
         }

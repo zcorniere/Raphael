@@ -32,6 +32,19 @@ public:
         T::Deserialize(this, Value);
     }
 
+    template <IsDeserializable T>
+    void ReadObject(std::optional<T>& OptionalValue)
+    {
+        uint8 Data;
+        ReadData(&Data, sizeof(uint8));
+
+        if (Data) {
+            T Value;
+            ReadObject(Value);
+            OptionalValue = Value;
+        }
+    }
+
     void ReadString(std::string& String);
 
     template <typename T>

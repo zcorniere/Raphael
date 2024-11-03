@@ -315,18 +315,26 @@ static ShaderParameter RecursiveTypeDescription(const spirv_cross::Compiler& Com
 
 static bool GetPushConstantReflection(const spirv_cross::Compiler& Compiler,
                                       const spirv_cross::SmallVector<spirv_cross::Resource>& PushConstants,
-                                      Array<ShaderResource::PushConstantRange>& OutPushConstants)
+                                      std::optional<ShaderResource::PushConstantRange>& OutPushConstant)
 {
-    for (const spirv_cross::Resource& resource: PushConstants) {
-        const spirv_cross::SPIRType& Type = Compiler.get_type(resource.base_type_id);
-
-        ShaderResource::PushConstantRange& Range = OutPushConstants.Emplace();
-        Range.Size = Compiler.get_declared_struct_size(Type);
-        Range.Offset = Compiler.type_struct_member_offset(Type, 0);
-        Range.Parameter = RecursiveTypeDescription(Compiler, resource.base_type_id, resource.base_type_id, 0);
-
-        LOG(LogVulkanShaderCompiler, Info, "  {}", Range);
+    if (PushConstants.size() == 0) {
+        // Nothing to do, technically still a success.
+        return true;
     }
+    if (!ensureAlways(PushConstants.size() == 1)) {
+        return false;
+    }
+
+    const spirv_cross::Resource& resource = PushConstants.front();
+    const spirv_cross::SPIRType& Type = Compiler.get_type(resource.base_type_id);
+
+    OutPushConstant = ShaderResource::PushConstantRange{
+        .Offset = Compiler.type_struct_member_offset(Type, 0),
+        .Size = static_cast<uint32>(Compiler.get_declared_struct_size(Type)),
+        .Parameter = RecursiveTypeDescription(Compiler, resource.base_type_id, resource.base_type_id, 0),
+    };
+    LOG(LogVulkanShaderCompiler, Info, "  {}", *OutPushConstant);
+
     return true;
 }
 

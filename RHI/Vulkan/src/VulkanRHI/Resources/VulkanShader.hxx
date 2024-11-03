@@ -60,7 +60,8 @@ public:
     struct ReflectionData {
         Array<ShaderResource::StageIO> StageInput;
         Array<ShaderResource::StageIO> StageOutput;
-        Array<ShaderResource::PushConstantRange> PushConstants;
+
+        std::optional<ShaderResource::PushConstantRange> PushConstants;
 
         Array<ShaderResource::StorageBuffer> StorageBuffers;
 
@@ -90,13 +91,22 @@ public:
         return Type;
     }
 
+    Array<VkDescriptorSetLayout> GetDescriptorSetLayout() const
+    {
+        return DescriptorSetLayout;
+    }
+
+    Array<VkDescriptorSetLayout> CompileDescriptorSetLayout();
+
 private:
     const Array<uint32> SPIRVCode;
     const ReflectionData m_ReflectionData;
 
     ERHIShaderType Type;
 
-    VkShaderModuleCreateInfo m_ShaderModuleCreateInfo;
+    VkShaderModuleCreateInfo ShaderModuleCreateInfo;
+
+    Array<VkDescriptorSetLayout> DescriptorSetLayout;
 
     friend class VulkanShaderCompiler;
 };
@@ -118,4 +128,6 @@ DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::StorageBuffer,
 DEFINE_PRINTABLE_TYPE(
     VulkanRHI::VulkanShader::ReflectionData,
     "ReflectionData {{ StageInput: {0},\nStageOutput: {1},\nPushConstants: {2},\nStorageBuffers: {3} }}",
-    Value.StageInput, Value.StageOutput, Value.PushConstants, Value.StorageBuffers)
+    Value.StageInput, Value.StageOutput,
+    Value.PushConstants.has_value() ? Value.PushConstants.value() : VulkanRHI::ShaderResource::PushConstantRange{},
+    Value.StorageBuffers)

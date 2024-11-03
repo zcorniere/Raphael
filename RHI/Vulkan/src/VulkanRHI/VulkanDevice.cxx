@@ -113,13 +113,19 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
     VkPhysicalDeviceFeatures EnabledFeature{
         .fillModeNonSolid = VK_TRUE,
     };
+    VkPhysicalDeviceShaderDrawParametersFeatures ShaderDrawParameters{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES,
+        .pNext = nullptr,
+        .shaderDrawParameters = VK_TRUE,
+    };
     VkDeviceCreateInfo DeviceInfo{
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+        .pNext = &ShaderDrawParameters,
+        .flags = 0,
+        .enabledLayerCount = DeviceLayers.Size(),
+        .ppEnabledLayerNames = DeviceLayers.Raw(),
+        .pEnabledFeatures = &EnabledFeature,
     };
-
-    DeviceInfo.pEnabledFeatures = &EnabledFeature;
-    DeviceInfo.enabledLayerCount = DeviceLayers.Size();
-    DeviceInfo.ppEnabledLayerNames = DeviceLayers.Raw();
 
     Array<const char*> DeviceExtensions;
     for (const std::unique_ptr<IDeviceVulkanExtension>& Extension: Extensions) {

@@ -229,24 +229,26 @@ VulkanShader* VulkanGraphicsPipeline::GetShader(ERHIShaderType Type) const
     return const_cast<VulkanGraphicsPipeline*>(this)->GetShader(Type);
 }
 
-static VkPushConstantRange GetConstantRangeFromShader(Array<VkPushConstantRange>& OutPushRanges,
-                                                      Ref<VulkanShader>& InShader, const VkShaderStageFlags ShaderStage)
+static bool GetConstantRangeFromShader(Array<VkPushConstantRange>& OutPushRanges, Ref<VulkanShader>& InShader,
+                                       const VkShaderStageFlags ShaderStage)
 {
-    VkPushConstantRange Range{
+    if (!InShader->GetReflectionData().PushConstants.has_value())
+        return true;
+
+    VkPushConstantRange NewRange{
         .stageFlags = ShaderStage,
-        .offset = 0,
-        .size = 0,
+        .offset = InShader->GetReflectionData().PushConstants->Offset,
+        .size = InShader->GetReflectionData().PushConstants->Size,
     };
-    for (const ShaderResource::PushConstantRange& PushConstant: InShader->GetReflectionData().PushConstants) {
-        if (Range.offset < PushConstant.Offset) {
-            Range.offset = PushConstant.Offset;
-            Range.size = PushConstant.Size;
+    for (VkPushConstantRange& Range: OutPushRanges) {
+        // The same range is used in multiple ranges, so just add the ShaderStage and return
+        if (Range.size == NewRange.size && Range.offset == NewRange.offset) {
+            Range.stageFlags |= ShaderStage;
+            return true;
         }
     }
-    if (Range.size != 0) {
-        OutPushRanges.Add(Range);
-    }
-    return Range;
+    OutPushRanges.Emplace(NewRange);
+    return true;
 }
 
 bool VulkanGraphicsPipeline::CreatePipelineLayout()
@@ -257,6 +259,8 @@ bool VulkanGraphicsPipeline::CreatePipelineLayout()
 
     // TODO: Shader descriptor set reflection
     Array<VkDescriptorSetLayout> SetLayout;
+    SetLayout.Append(Desc.VertexShader->CompileDescriptorSetLayout());
+    SetLayout.Append(Desc.PixelShader->CompileDescriptorSetLayout());
 
     VkPipelineLayoutCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,

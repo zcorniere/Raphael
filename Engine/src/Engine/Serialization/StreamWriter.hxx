@@ -31,6 +31,17 @@ public:
         T::Serialize(this, Value);
     }
 
+    template <IsDeserializable T>
+    void WriteObject(const std::optional<T>& OptionalValue)
+    {
+        const uint8 Data = OptionalValue.has_value();
+        WriteData(&Data, sizeof(uint8));
+
+        if (Data) {
+            WriteObject(OptionalValue.value());
+        }
+    }
+
     void WriteString(const std::string_view& String);
 
     template <typename T>

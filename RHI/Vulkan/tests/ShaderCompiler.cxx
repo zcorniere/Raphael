@@ -20,9 +20,9 @@ std::filesystem::path GetCurrentFilePath()
 static void CheckReflection(const VulkanRHI::VulkanShader::ReflectionData& ExpectedReflection,
                             const VulkanRHI::VulkanShader::ReflectionData& GotReflection)
 {
-    REQUIRE(GotReflection.PushConstants.Size() == ExpectedReflection.PushConstants.Size());
-    for (unsigned i = 0; i < GotReflection.PushConstants.Size(); i++) {
-        CHECK(GotReflection.PushConstants[i] == ExpectedReflection.PushConstants[i]);
+    REQUIRE(GotReflection.PushConstants.has_value() == ExpectedReflection.PushConstants.has_value());
+    if (GotReflection.PushConstants.has_value() && ExpectedReflection.PushConstants.has_value()) {
+        CHECK(GotReflection.PushConstants.value() == ExpectedReflection.PushConstants.value());
     }
 
     REQUIRE(GotReflection.StageInput.Size() == ExpectedReflection.StageInput.Size());
