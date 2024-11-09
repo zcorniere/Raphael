@@ -148,7 +148,7 @@ static VkPipelineStageFlags GetVkStageFlagsForLayout(VkImageLayout Layout)
 void VulkanRHI::VulkanSetImageLayout(VkCommandBuffer CmdBuffer, VkImage Image, VkImageLayout OldLayout,
                                      VkImageLayout NewLayout, const VkImageSubresourceRange& SubresourceRange)
 {
-    VulkanRHI::Barrier Barrier;
+    VulkanRHI::FBarrier Barrier;
     Barrier.TransitionLayout(Image, OldLayout, NewLayout, SubresourceRange);
     Barrier.Execute(CmdBuffer);
 }
@@ -156,8 +156,8 @@ void VulkanRHI::VulkanSetImageLayout(VkCommandBuffer CmdBuffer, VkImage Image, V
 namespace VulkanRHI
 {
 
-VkImageSubresourceRange Barrier::MakeSubresourceRange(VkImageAspectFlags AspectMask, uint32 FirstMip, uint32 NumMips,
-                                                      uint32 FirstLayer, uint32 NumLayers)
+VkImageSubresourceRange FBarrier::MakeSubresourceRange(VkImageAspectFlags AspectMask, uint32 FirstMip, uint32 NumMips,
+                                                       uint32 FirstLayer, uint32 NumLayers)
 {
     VkImageSubresourceRange Range;
     Range.aspectMask = AspectMask;
@@ -168,12 +168,12 @@ VkImageSubresourceRange Barrier::MakeSubresourceRange(VkImageAspectFlags AspectM
     return Range;
 }
 
-Barrier::Barrier()
+FBarrier::FBarrier()
 {
 }
 
-void Barrier::TransitionLayout(VkImage Image, VkImageLayout OldLayout, VkImageLayout NewLayout,
-                               const VkImageSubresourceRange& SubresourceRange)
+void FBarrier::TransitionLayout(VkImage Image, VkImageLayout OldLayout, VkImageLayout NewLayout,
+                                const VkImageSubresourceRange& SubresourceRange)
 {
     VkImageMemoryBarrier& Barrier = ImageBarrier.Emplace();
 
@@ -189,7 +189,7 @@ void Barrier::TransitionLayout(VkImage Image, VkImageLayout OldLayout, VkImageLa
     Barrier.subresourceRange = SubresourceRange;
 }
 
-void Barrier::Execute(VkCommandBuffer CmdBuffer)
+void FBarrier::Execute(VkCommandBuffer CmdBuffer)
 {
     VkPipelineStageFlags SrcStageMask = 0;
     VkPipelineStageFlags DstStageMask = 0;
@@ -205,7 +205,7 @@ void Barrier::Execute(VkCommandBuffer CmdBuffer)
     }
 }
 
-Semaphore::Semaphore(VulkanDevice* InDevice): IDeviceChild(InDevice), SemaphoreHandle(VK_NULL_HANDLE)
+RSemaphore::RSemaphore(FVulkanDevice* InDevice): IDeviceChild(InDevice), SemaphoreHandle(VK_NULL_HANDLE)
 {
     VkSemaphoreCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
@@ -214,7 +214,7 @@ Semaphore::Semaphore(VulkanDevice* InDevice): IDeviceChild(InDevice), SemaphoreH
         VulkanAPI::vkCreateSemaphore(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &SemaphoreHandle));
 }
 
-Semaphore::~Semaphore()
+RSemaphore::~RSemaphore()
 {
     if (SemaphoreHandle) {
         RHI::DeferedDeletion([Handle = SemaphoreHandle, Device = Device]() {
@@ -224,14 +224,14 @@ Semaphore::~Semaphore()
     SemaphoreHandle = VK_NULL_HANDLE;
 }
 
-void Semaphore::SetName(std::string_view InName)
+void RSemaphore::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SEMAPHORE, SemaphoreHandle, "{:s}.Semaphore", InName);
 }
 
-Fence::Fence(VulkanDevice* InDevice, bool bCreateSignaled)
-    : IDeviceChild(InDevice), State(bCreateSignaled ? Fence::State::Signaled : Fence::State::NotReady)
+RFence::RFence(FVulkanDevice* InDevice, bool bCreateSignaled)
+    : IDeviceChild(InDevice), State(bCreateSignaled ? RFence::EState::Signaled : RFence::EState::NotReady)
 {
     VkFenceCreateInfo Info{
         .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
@@ -243,7 +243,7 @@ Fence::Fence(VulkanDevice* InDevice, bool bCreateSignaled)
     VK_CHECK_RESULT(VulkanAPI::vkCreateFence(Device->GetHandle(), &Info, VULKAN_CPU_ALLOCATOR, &Handle));
 }
 
-Fence::~Fence()
+RFence::~RFence()
 {
     RHI::DeferedDeletion([Handle = Handle, Device = Device]() {
         VulkanAPI::vkDestroyFence(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR);
@@ -251,28 +251,28 @@ Fence::~Fence()
     Handle = VK_NULL_HANDLE;
 }
 
-void Fence::SetName(std::string_view InName)
+void RFence::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_FENCE, Handle, "{:s}.Fence", InName);
 }
 
-void Fence::Reset()
+void RFence::Reset()
 {
-    if (State != State::NotReady) {
+    if (State != EState::NotReady) {
         VK_CHECK_RESULT(VulkanAPI::vkResetFences(Device->GetHandle(), 1, &Handle));
-        State = State::NotReady;
+        State = EState::NotReady;
     }
 }
 
-bool Fence::Wait(uint64 TimeInNanoseconds)
+bool RFence::Wait(uint64 TimeInNanoseconds)
 {
-    check(State == State::NotReady);
+    check(State == EState::NotReady);
 
     VkResult Result = VulkanAPI::vkWaitForFences(Device->GetHandle(), 1, &Handle, true, TimeInNanoseconds);
     switch (Result) {
         case VK_SUCCESS:
-            State = State::Signaled;
+            State = EState::Signaled;
             return true;
         case VK_TIMEOUT:
             break;
@@ -283,13 +283,13 @@ bool Fence::Wait(uint64 TimeInNanoseconds)
     return false;
 }
 
-bool Fence::CheckFenceStatus()
+bool RFence::CheckFenceStatus()
 {
-    check(State == State::NotReady);
+    check(State == EState::NotReady);
     VkResult Result = VulkanAPI::vkGetFenceStatus(Device->GetHandle(), Handle);
     switch (Result) {
         case VK_SUCCESS:
-            State = State::Signaled;
+            State = EState::Signaled;
             return true;
 
         case VK_NOT_READY:

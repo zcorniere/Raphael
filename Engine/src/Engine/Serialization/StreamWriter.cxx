@@ -3,7 +3,7 @@
 namespace Serialization
 {
 
-void StreamWriter::WriteString(const std::string_view& String)
+void FStreamWriter::WriteString(const std::string_view& String)
 {
     uint32 Size = String.size();
     WriteData((uint8*)&Size, sizeof(uint32));

@@ -10,7 +10,7 @@ namespace VulkanRHI
 
 // Serialization
 
-void ShaderResource::StageIO::Serialize(Serialization::StreamWriter* Writer, const ShaderResource::StageIO& Value)
+void ShaderResource::FStageIO::Serialize(Serialization::FStreamWriter* Writer, const ShaderResource::FStageIO& Value)
 {
     Writer->WriteString(Value.Name);
     Writer->WriteRaw(Value.Type);
@@ -18,33 +18,33 @@ void ShaderResource::StageIO::Serialize(Serialization::StreamWriter* Writer, con
     Writer->WriteRaw(Value.Location);
 }
 
-void ShaderResource::PushConstantRange::Serialize(Serialization::StreamWriter* Writer,
-                                                  const ShaderResource::PushConstantRange& Value)
+void ShaderResource::FPushConstantRange::Serialize(Serialization::FStreamWriter* Writer,
+                                                   const ShaderResource::FPushConstantRange& Value)
 {
     Writer->WriteRaw(Value.Offset);
     Writer->WriteRaw(Value.Size);
     Writer->WriteObject(Value.Parameter);
 }
 
-void ShaderResource::StorageBuffer::Serialize(Serialization::StreamWriter* Writer,
-                                              const ShaderResource::StorageBuffer& Value)
+void ShaderResource::FStorageBuffer::Serialize(Serialization::FStreamWriter* Writer,
+                                               const ShaderResource::FStorageBuffer& Value)
 {
     Writer->WriteRaw(Value.Set);
     Writer->WriteRaw(Value.Binding);
     Writer->WriteObject(Value.Parameter);
 }
 
-void VulkanShader::ReflectionData::Serialize(Serialization::StreamWriter* Writer, const ReflectionData& Value)
+void RVulkanShader::FReflectionData::Serialize(Serialization::FStreamWriter* Writer, const FReflectionData& Value)
 {
-    Writer->WriteArray<ShaderResource::StageIO>(Value.StageInput);
-    Writer->WriteArray<ShaderResource::StageIO>(Value.StageOutput);
-    Writer->WriteObject<ShaderResource::PushConstantRange>(Value.PushConstants);
-    Writer->WriteArray<ShaderResource::StorageBuffer>(Value.StorageBuffers);
+    Writer->WriteArray<ShaderResource::FStageIO>(Value.StageInput);
+    Writer->WriteArray<ShaderResource::FStageIO>(Value.StageOutput);
+    Writer->WriteObject<ShaderResource::FPushConstantRange>(Value.PushConstants);
+    Writer->WriteArray<ShaderResource::FStorageBuffer>(Value.StorageBuffers);
 }
 
 // Deserialization
 
-void ShaderResource::StageIO::Deserialize(Serialization::StreamReader* Reader, ShaderResource::StageIO& OutValue)
+void ShaderResource::FStageIO::Deserialize(Serialization::FStreamReader* Reader, ShaderResource::FStageIO& OutValue)
 {
     Reader->ReadString(OutValue.Name);
     Reader->ReadRaw(OutValue.Type);
@@ -52,38 +52,38 @@ void ShaderResource::StageIO::Deserialize(Serialization::StreamReader* Reader, S
     Reader->ReadRaw(OutValue.Location);
 }
 
-void ShaderResource::PushConstantRange::Deserialize(Serialization::StreamReader* Reader,
-                                                    ShaderResource::PushConstantRange& OutValue)
+void ShaderResource::FPushConstantRange::Deserialize(Serialization::FStreamReader* Reader,
+                                                     ShaderResource::FPushConstantRange& OutValue)
 {
     Reader->ReadRaw(OutValue.Offset);
     Reader->ReadRaw(OutValue.Size);
     Reader->ReadObject(OutValue.Parameter);
 }
 
-void ShaderResource::StorageBuffer::Deserialize(Serialization::StreamReader* Reader,
-                                                ShaderResource::StorageBuffer& OutValue)
+void ShaderResource::FStorageBuffer::Deserialize(Serialization::FStreamReader* Reader,
+                                                 ShaderResource::FStorageBuffer& OutValue)
 {
     Reader->ReadRaw(OutValue.Set);
     Reader->ReadRaw(OutValue.Binding);
     Reader->ReadObject(OutValue.Parameter);
 }
 
-void VulkanShader::ReflectionData::Deserialize(Serialization::StreamReader* Reader, ReflectionData& OutValue)
+void RVulkanShader::FReflectionData::Deserialize(Serialization::FStreamReader* Reader, FReflectionData& OutValue)
 {
-    Reader->ReadArray<ShaderResource::StageIO>(OutValue.StageInput);
-    Reader->ReadArray<ShaderResource::StageIO>(OutValue.StageOutput);
-    Reader->ReadObject<ShaderResource::PushConstantRange>(OutValue.PushConstants);
-    Reader->ReadArray<ShaderResource::StorageBuffer>(OutValue.StorageBuffers);
+    Reader->ReadArray<ShaderResource::FStageIO>(OutValue.StageInput);
+    Reader->ReadArray<ShaderResource::FStageIO>(OutValue.StageOutput);
+    Reader->ReadObject<ShaderResource::FPushConstantRange>(OutValue.PushConstants);
+    Reader->ReadArray<ShaderResource::FStorageBuffer>(OutValue.StorageBuffers);
 }
 
-Array<GraphicsPipelineDescription::VertexAttribute> VulkanShader::ReflectionData::GetInputVertexAttributes() const
+TArray<FGraphicsPipelineDescription::FVertexAttribute> RVulkanShader::FReflectionData::GetInputVertexAttributes() const
 {
-    Array<GraphicsPipelineDescription::VertexAttribute> Result;
+    TArray<FGraphicsPipelineDescription::FVertexAttribute> Result;
     Result.Reserve(StageInput.Size());
 
     uint32 Offset = 0;
-    for (const ShaderResource::StageIO& Input: StageInput) {
-        Result.Add(GraphicsPipelineDescription::VertexAttribute{
+    for (const ShaderResource::FStageIO& Input: StageInput) {
+        Result.Add(FGraphicsPipelineDescription::FVertexAttribute{
             .Location = Input.Location,
             .Binding = Input.Binding,
             .Format = Input.Type,
@@ -94,14 +94,14 @@ Array<GraphicsPipelineDescription::VertexAttribute> VulkanShader::ReflectionData
     return Result;
 }
 
-Array<GraphicsPipelineDescription::VertexBinding> VulkanShader::ReflectionData::GetInputVertexBindings() const
+TArray<FGraphicsPipelineDescription::FVertexBinding> RVulkanShader::FReflectionData::GetInputVertexBindings() const
 {
-    Array<GraphicsPipelineDescription::VertexBinding> Result;
+    TArray<FGraphicsPipelineDescription::FVertexBinding> Result;
     uint32 Stride = 0;
-    for (const ShaderResource::StageIO& Input: StageInput) {
+    for (const ShaderResource::FStageIO& Input: StageInput) {
         Stride += GetSizeOfElementType(Input.Type);
     }
-    Result.Add(GraphicsPipelineDescription::VertexBinding{
+    Result.Add(FGraphicsPipelineDescription::FVertexBinding{
         .Stride = Stride,
         .Binding = 0,
         .InputRate = VK_VERTEX_INPUT_RATE_VERTEX,
@@ -109,9 +109,9 @@ Array<GraphicsPipelineDescription::VertexBinding> VulkanShader::ReflectionData::
     return Result;
 }
 
-VulkanShader::VulkanShader(ERHIShaderType Type, const Array<uint32>& InSPIRVCode,
-                           const ReflectionData& InReflectionData)
-    : RHIShader(Type), SPIRVCode(InSPIRVCode), m_ReflectionData(InReflectionData), Type(Type)
+RVulkanShader::RVulkanShader(ERHIShaderType Type, const TArray<uint32>& InSPIRVCode,
+                             const FReflectionData& InReflectionData)
+    : RRHIShader(Type), SPIRVCode(InSPIRVCode), m_ReflectionData(InReflectionData), Type(Type)
 {
     ShaderModuleCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
@@ -122,7 +122,7 @@ VulkanShader::VulkanShader(ERHIShaderType Type, const Array<uint32>& InSPIRVCode
     };
 }
 
-VulkanShader::~VulkanShader()
+RVulkanShader::~RVulkanShader()
 {
     for (VkDescriptorSetLayout& Layout: DescriptorSetLayout) {
         VulkanAPI::vkDestroyDescriptorSetLayout(GetVulkanDynamicRHI()->GetDevice()->GetHandle(), Layout,
@@ -130,22 +130,22 @@ VulkanShader::~VulkanShader()
     }
 }
 
-const VkShaderModuleCreateInfo& VulkanShader::GetShaderModuleCreateInfo() const
+const VkShaderModuleCreateInfo& RVulkanShader::GetShaderModuleCreateInfo() const
 {
     return ShaderModuleCreateInfo;
 }
 
-const char* VulkanShader::GetEntryPoint() const
+const char* RVulkanShader::GetEntryPoint() const
 {
     return "main";
 }
 
-Array<VkDescriptorSetLayout> VulkanShader::CompileDescriptorSetLayout()
+TArray<VkDescriptorSetLayout> RVulkanShader::CompileDescriptorSetLayout()
 {
     // Not the most efficient, but this will do for now
     for (uint32 Set = 0; Set < 32; Set += 1) {
-        Array<VkDescriptorSetLayoutBinding> Bindings;
-        for (const ShaderResource::StorageBuffer& Buffer: m_ReflectionData.StorageBuffers) {
+        TArray<VkDescriptorSetLayoutBinding> Bindings;
+        for (const ShaderResource::FStorageBuffer& Buffer: m_ReflectionData.StorageBuffers) {
             if (Buffer.Set != Set) {
                 continue;
             }

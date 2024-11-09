@@ -3,7 +3,7 @@
 #include "Engine/Core/Memory/Memory.hxx"
 
 /// Allocator using mimalloc
-class MiMalloc : public Malloc
+class FMiMalloc : public IMalloc
 {
 public:
     virtual void* Alloc(uint32 Size, uint32 Alignment = 0) override;

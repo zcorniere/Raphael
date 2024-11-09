@@ -3,7 +3,7 @@
 namespace Serialization
 {
 
-void StreamReader::ReadString(std::string& String)
+void FStreamReader::ReadString(std::string& String)
 {
     uint32 Size;
     ReadData((uint8*)&Size, sizeof(uint32));

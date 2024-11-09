@@ -12,7 +12,7 @@ TEST_CASE("Array: Basic Operation")
     int Value3 = GENERATE(take(2, random(42, 50)));
     int Value4 = GENERATE(take(2, random(0, 123)));
 
-    Array<int> TestVec;
+    TArray<int> TestVec;
     CHECK(TestVec.IsEmpty());
     CHECK(TestVec.Size() == 0);
 
@@ -64,7 +64,7 @@ TEST_CASE("Array: Basic Operation")
     SECTION("Test Append")
     {
         const int SizeBefore = TestVec.Size();
-        Array<int> TestVec2{10, 20, 30};
+        TArray<int> TestVec2{10, 20, 30};
 
         TestVec.Append(TestVec2);
         CHECK(TestVec.Size() == SizeBefore + 3);
@@ -143,7 +143,7 @@ TEST_CASE("Array: Test Advanced Type")
     ComplexType* TestType = new ComplexType(&DtorCounter);
     REQUIRE(DtorCounter == 1);
 
-    Array<ComplexType> Vec2;
+    TArray<ComplexType> Vec2;
     Vec2.Emplace(&DtorCounter);
     Vec2.Add(*TestType);
 
@@ -152,7 +152,7 @@ TEST_CASE("Array: Test Advanced Type")
 
     SECTION("Test Append")
     {
-        Array<ComplexType> TestVec2;
+        TArray<ComplexType> TestVec2;
 
         TestVec2.Emplace(&DtorCounter);
         TestVec2.Emplace(&DtorCounter);
@@ -181,7 +181,7 @@ TEST_CASE("Array: Test Find function")
     int Value1 = GENERATE(take(2, random(-10, 10)));
     int Value2 = GENERATE(take(2, random(100, 420)));
     int Value3 = GENERATE(take(2, random(-200, -11)));
-    Array<int> TestVec{Value1, Value2, Value3};
+    TArray<int> TestVec{Value1, Value2, Value3};
 
     SECTION("Make sur the vector is correctly init")
     {

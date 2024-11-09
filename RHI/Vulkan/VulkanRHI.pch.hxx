@@ -14,17 +14,17 @@
 namespace VulkanRHI
 {
 
-class VulkanDevice;
+class FVulkanDevice;
 class IDeviceChild
 {
 public:
     IDeviceChild() = delete;
-    IDeviceChild(VulkanDevice* InDevice): Device(InDevice)
+    IDeviceChild(FVulkanDevice* InDevice): Device(InDevice)
     {
     }
 
 protected:
-    VulkanDevice* const Device;
+    FVulkanDevice* const Device;
 };
 
 }    // namespace VulkanRHI

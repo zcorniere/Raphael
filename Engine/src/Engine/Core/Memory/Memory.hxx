@@ -11,7 +11,7 @@ struct Memory {
 };
 
 /// Allocator Interface
-class Malloc
+class IMalloc
 {
 public:
     virtual void* Alloc(uint32 Size, uint32 Alignment = 0) = 0;
@@ -31,18 +31,18 @@ namespace Raphael
 /// @brief STL-compliant allocator
 /// @tparam T The type of the allocated memory
 template <typename T>
-class Allocator
+class FAllocator
 {
 public:
     using value_type = T;
 
-    constexpr Allocator() = default;
-    constexpr ~Allocator() = default;
-    constexpr Allocator(const Allocator&) noexcept = default;
-    constexpr Allocator(Allocator&&) noexcept = default;
+    constexpr FAllocator() = default;
+    constexpr ~FAllocator() = default;
+    constexpr FAllocator(const FAllocator&) noexcept = default;
+    constexpr FAllocator(FAllocator&&) noexcept = default;
 
     template <class U>
-    constexpr Allocator(const Allocator<U>&) noexcept
+    constexpr FAllocator(const FAllocator<U>&) noexcept
     {
     }
 
@@ -75,7 +75,7 @@ public:
             Memory::Free(pPointer);
     }
 
-    bool operator==(const Allocator&) const
+    bool operator==(const FAllocator&) const
     {
         return true;
     }

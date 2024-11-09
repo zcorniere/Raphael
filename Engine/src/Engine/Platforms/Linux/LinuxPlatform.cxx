@@ -13,7 +13,7 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogUnixPlateform, Info)
 
-void LinuxPlateform::Initialize()
+void FLinuxPlateform::Initialize()
 {
     if (geteuid() == 0) {
         fprintf(stderr, "Refusing to run with the root privileges.\n");
@@ -21,7 +21,7 @@ void LinuxPlateform::Initialize()
     }
 }
 
-bool LinuxPlateform::isDebuggerPresent()
+bool FLinuxPlateform::isDebuggerPresent()
 {
     // If a process is tracing this one then TracerPid in /proc/self/status will
     // be the id of the tracing process.
@@ -55,12 +55,12 @@ bool LinuxPlateform::isDebuggerPresent()
     }
 }
 
-std::filesystem::path LinuxPlateform::GetExecutablePath()
+std::filesystem::path FLinuxPlateform::GetExecutablePath()
 {
     return std::filesystem::canonical("/proc/self/exe");
 }
 
-void LinuxPlateform::setThreadName(std::jthread& thread, const std::string& name)
+void FLinuxPlateform::setThreadName(std::jthread& thread, const std::string& name)
 {
     std::string sizeLimitedThreadName = name;
 
@@ -84,7 +84,7 @@ void LinuxPlateform::setThreadName(std::jthread& thread, const std::string& name
     }
 }
 
-std::string LinuxPlateform::getThreadName(std::jthread& thread)
+std::string FLinuxPlateform::getThreadName(std::jthread& thread)
 {
     char name[UnixThreadNameLimit + 1] = {'\0'};
 

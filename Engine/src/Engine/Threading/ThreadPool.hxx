@@ -12,9 +12,9 @@
 #include "Engine/Threading/ThreadRuntime.hxx"
 
 /// Manage a set of thread for scheduling work
-class ThreadPool
+class FThreadPool
 {
-    RPH_NONCOPYABLE(ThreadPool)
+    RPH_NONCOPYABLE(FThreadPool)
 private:
     using WorkUnits = std::function<void(unsigned id)>;
 
@@ -24,10 +24,10 @@ private:
         std::queue<WorkUnits> qWork;
     };
 
-    class WorkerPoolRuntime : public ThreadRuntime
+    class WorkerPoolRuntime : public IThreadRuntime
     {
     public:
-        WorkerPoolRuntime(std::shared_ptr<ThreadPool::State> context);
+        WorkerPoolRuntime(std::shared_ptr<FThreadPool::State> context);
 
         bool Init() override;
         std::uint32_t Run() override;
@@ -40,14 +40,14 @@ private:
     private:
         int i_threadID;
         std::atomic_bool b_requestExit;
-        std::shared_ptr<ThreadPool::State> p_state;
+        std::shared_ptr<FThreadPool::State> p_state;
     };
 
 public:
     /// Default construction
-    ThreadPool();
+    FThreadPool();
     /// Default dtor
-    ~ThreadPool() = default;
+    ~FThreadPool() = default;
 
     /// Create the pool with a given number of thread (default 2 / 3 of the max number of thread)
     void Start(unsigned size = std::max(((std::thread::hardware_concurrency() * 2) / 3), 1u));
@@ -84,5 +84,5 @@ public:
 
 private:
     std::shared_ptr<State> state;
-    Array<Thread> thread_p;
+    TArray<FThread> thread_p;
 };

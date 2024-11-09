@@ -9,22 +9,22 @@ VkAllocationCallbacks GAllocationCallbacks;
 
 #if VULKAN_CUSTOM_CPU_ALLOCATOR == 1
 
-static VulkanCPUMemoryManager GVulkanCPUMemMgr;
+static FVulkanCPUMemoryManager GVulkanCPUMemMgr;
 static std::recursive_mutex GVulkanCPUMemMutex;
 
-VulkanCPUMemoryManager::VulkanCPUMemoryManager()
+FVulkanCPUMemoryManager::FVulkanCPUMemoryManager()
 {
     VulkanRHI::GAllocationCallbacks.pUserData = nullptr;
-    VulkanRHI::GAllocationCallbacks.pfnAllocation = (PFN_vkAllocationFunction)&VulkanCPUMemoryManager::Alloc;
-    VulkanRHI::GAllocationCallbacks.pfnReallocation = (PFN_vkReallocationFunction)&VulkanCPUMemoryManager::Realloc;
-    VulkanRHI::GAllocationCallbacks.pfnFree = (PFN_vkFreeFunction)&VulkanCPUMemoryManager::Free;
+    VulkanRHI::GAllocationCallbacks.pfnAllocation = (PFN_vkAllocationFunction)&FVulkanCPUMemoryManager::Alloc;
+    VulkanRHI::GAllocationCallbacks.pfnReallocation = (PFN_vkReallocationFunction)&FVulkanCPUMemoryManager::Realloc;
+    VulkanRHI::GAllocationCallbacks.pfnFree = (PFN_vkFreeFunction)&FVulkanCPUMemoryManager::Free;
     VulkanRHI::GAllocationCallbacks.pfnInternalAllocation =
-        (PFN_vkInternalAllocationNotification)&VulkanCPUMemoryManager::InternalAllocationNotification;
+        (PFN_vkInternalAllocationNotification)&FVulkanCPUMemoryManager::InternalAllocationNotification;
     VulkanRHI::GAllocationCallbacks.pfnInternalFree =
-        (PFN_vkInternalFreeNotification)&VulkanCPUMemoryManager::InternalFreeNotification;
+        (PFN_vkInternalFreeNotification)&FVulkanCPUMemoryManager::InternalFreeNotification;
 }
 
-void* VulkanCPUMemoryManager::Alloc(void* UserData, size_t Size, size_t Alignment, VkSystemAllocationScope AllocScope)
+void* FVulkanCPUMemoryManager::Alloc(void* UserData, size_t Size, size_t Alignment, VkSystemAllocationScope AllocScope)
 {
     (void)UserData;
     (void)AllocScope;
@@ -34,7 +34,7 @@ void* VulkanCPUMemoryManager::Alloc(void* UserData, size_t Size, size_t Alignmen
     return Data;
 }
 
-void VulkanCPUMemoryManager::Free(void* UserData, void* Mem)
+void FVulkanCPUMemoryManager::Free(void* UserData, void* Mem)
 {
     (void)UserData;
     std::scoped_lock Lock(GVulkanCPUMemMutex);
@@ -42,8 +42,8 @@ void VulkanCPUMemoryManager::Free(void* UserData, void* Mem)
     Memory::Free(Mem);
 }
 
-void* VulkanCPUMemoryManager::Realloc(void* UserData, void* Original, size_t Size, size_t Alignment,
-                                      VkSystemAllocationScope AllocScope)
+void* FVulkanCPUMemoryManager::Realloc(void* UserData, void* Original, size_t Size, size_t Alignment,
+                                       VkSystemAllocationScope AllocScope)
 {
     (void)UserData;
     (void)AllocScope;
@@ -51,9 +51,9 @@ void* VulkanCPUMemoryManager::Realloc(void* UserData, void* Original, size_t Siz
     return Memory::Realloc(Original, Size, Alignment);
 }
 
-void VulkanCPUMemoryManager::InternalAllocationNotification(void* UserData, size_t Size,
-                                                            VkInternalAllocationType AllocationType,
-                                                            VkSystemAllocationScope AllocScope)
+void FVulkanCPUMemoryManager::InternalAllocationNotification(void* UserData, size_t Size,
+                                                             VkInternalAllocationType AllocationType,
+                                                             VkSystemAllocationScope AllocScope)
 {
     (void)UserData;
     (void)Size;
@@ -61,9 +61,9 @@ void VulkanCPUMemoryManager::InternalAllocationNotification(void* UserData, size
     (void)AllocScope;
 }
 
-void VulkanCPUMemoryManager::InternalFreeNotification(void* UserData, size_t Size,
-                                                      VkInternalAllocationType AllocationType,
-                                                      VkSystemAllocationScope AllocScope)
+void FVulkanCPUMemoryManager::InternalFreeNotification(void* UserData, size_t Size,
+                                                       VkInternalAllocationType AllocationType,
+                                                       VkSystemAllocationScope AllocScope)
 {
     (void)UserData;
     (void)Size;

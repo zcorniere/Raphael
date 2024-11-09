@@ -15,7 +15,7 @@
 namespace VulkanRHI
 {
 
-VulkanViewport::VulkanViewport(VulkanDevice* InDevice, Ref<Window> InWindowHandle, UVector2 InSize)
+VulkanViewport::VulkanViewport(FVulkanDevice* InDevice, Ref<RWindow> InWindowHandle, UVector2 InSize)
     : IDeviceChild(InDevice),
       WindowHandle(InWindowHandle),
       Size(InSize),
@@ -38,7 +38,7 @@ VulkanViewport::~VulkanViewport()
 
 void VulkanViewport::SetName(std::string_view InName)
 {
-    RHIResource::SetName(InName);
+    RRHIResource::SetName(InName);
 
     if (!SwapChain)
         return;
@@ -65,14 +65,14 @@ void VulkanViewport::ResizeViewport(uint32_t Width, uint32_t Height)
     RecreateSwapchain(WindowHandle);
 }
 
-static void CopyImageToBackBuffer(VulkanCmdBuffer* CmdBuffer, VulkanTexture* SrcSurface, VkImage DstSurface,
+static void CopyImageToBackBuffer(FVulkanCmdBuffer* CmdBuffer, VulkanTexture* SrcSurface, VkImage DstSurface,
                                   UVector2 Size, UVector2 WindowSize)
 {
 
     const VkImageLayout OldLayout = SrcSurface->GetLayout();
     SrcSurface->SetLayout(CmdBuffer, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
-    const VkImageSubresourceRange Range = Barrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT, 0, 1);
+    const VkImageSubresourceRange Range = FBarrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT, 0, 1);
     VulkanSetImageLayout(CmdBuffer->GetHandle(), DstSurface, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, Range);
 
@@ -117,8 +117,8 @@ static void CopyImageToBackBuffer(VulkanCmdBuffer* CmdBuffer, VulkanTexture* Src
     SrcSurface->SetLayout(CmdBuffer, OldLayout);
 }
 
-bool VulkanViewport::Present(VulkanCommandContext* Context, VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue,
-                             VulkanQueue* PresentQueue)
+bool VulkanViewport::Present(FVulkanCommandContext* Context, FVulkanCmdBuffer* CmdBuffer, FVulkanQueue* Queue,
+                             FVulkanQueue* PresentQueue)
 {
     check(CmdBuffer->IsOutsideRenderPass());
 
@@ -131,7 +131,7 @@ bool VulkanViewport::Present(VulkanCommandContext* Context, VulkanCmdBuffer* Cmd
     if (AcquiredImageIndex != -1) [[likely]] {
         check(AcquiredSemaphore);
         CmdBuffer->AddWaitSemaphore(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, AcquiredSemaphore);
-        Ref<Semaphore> SignalSemaphore =
+        Ref<RSemaphore> SignalSemaphore =
             (AcquiredImageIndex >= 0) ? RenderingDoneSemaphores[AcquiredImageIndex] : nullptr;
         Context->GetCommandManager()->SubmitActiveCmdBufferFromPresent(SignalSemaphore);
     } else [[unlikely]] {
@@ -149,12 +149,12 @@ bool VulkanViewport::Present(VulkanCommandContext* Context, VulkanCmdBuffer* Cmd
     return bResult;
 }
 
-void VulkanViewport::RecreateSwapchain(Ref<Window> NewNativeWindow)
+void VulkanViewport::RecreateSwapchain(Ref<RWindow> NewNativeWindow)
 {
     RHI::RHIWaitUntilIdle();
 
-    ENQUEUE_RENDER_COMMAND(RecreateSwapchainCommand)
-    ([this, NewNativeWindow](RHICommandList&) {
+    ENQUEUE_RENDER_COMMAND(FRecreateSwapchainCommand)
+    ([this, NewNativeWindow](FFRHICommandList&) {
         VulkanSwapChainRecreateInfo RecreateInfo = {VK_NULL_HANDLE, VK_NULL_HANDLE};
         DeleteSwapchain(&RecreateInfo);
         WindowHandle = NewNativeWindow;
@@ -166,25 +166,25 @@ void VulkanViewport::RecreateSwapchain(Ref<Window> NewNativeWindow)
 
 void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
 {
-    VulkanDynamicRHI* RHI = GetVulkanDynamicRHI();
+    FVulkanDynamicRHI* RHI = GetVulkanDynamicRHI();
 
     RenderingBackbuffer = nullptr;
-    SwapChain = Ref<VulkanSwapChain>::Create(RHI->GetInstance(), Device, Size, WindowHandle.Raw(), 3, BackBufferImages,
-                                             true, RecreateInfo);
+    SwapChain = Ref<RVulkanSwapChain>::Create(RHI->GetInstance(), Device, Size, WindowHandle.Raw(), 3, BackBufferImages,
+                                              true, RecreateInfo);
 
     RenderingDoneSemaphores.Resize(BackBufferImages.Size());
     for (unsigned i = 0; i < BackBufferImages.Size(); i++) {
-        RenderingDoneSemaphores[i] = Ref<Semaphore>::Create(Device);
+        RenderingDoneSemaphores[i] = Ref<RSemaphore>::Create(Device);
     }
 
-    VulkanCmdBuffer* CmdBuffer = Device->GetImmediateContext()->GetCommandManager()->GetUploadCmdBuffer();
+    FVulkanCmdBuffer* CmdBuffer = Device->GetImmediateContext()->GetCommandManager()->GetUploadCmdBuffer();
     check(CmdBuffer);
     ensureAlways(CmdBuffer->IsOutsideRenderPass());
 
     VkClearColorValue ClearColor;
     std::memset(&ClearColor, 0, sizeof(VkClearColorValue));
 
-    const VkImageSubresourceRange Range = Barrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT);
+    const VkImageSubresourceRange Range = FBarrier::MakeSubresourceRange(VK_IMAGE_ASPECT_COLOR_BIT);
 
     TexturesViews.Resize(BackBufferImages.Size());
     for (unsigned i = 0; i < BackBufferImages.Size(); i++) {
@@ -200,7 +200,7 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
 
     if (!RenderingBackbuffer) {
         Size = SwapChain->GetInternalSize();
-        RHITextureSpecification Description{
+        FRHITextureSpecification Description{
             .Flags = ETextureUsageFlags::RenderTargetable | ETextureUsageFlags::ResolveTargetable |
                      ETextureUsageFlags::TransferTargetable,
             .Dimension = EImageDimension::Texture2D,
@@ -248,15 +248,15 @@ bool VulkanViewport::TryAcquireImageIndex()
     return false;
 }
 
-bool VulkanViewport::TryPresenting(VulkanQueue* PresentQueue)
+bool VulkanViewport::TryPresenting(FVulkanQueue* PresentQueue)
 {
     int32 AttemptsPending = 4;
-    VulkanSwapChain::Status Status = SwapChain->Present(PresentQueue, RenderingDoneSemaphores[AcquiredImageIndex]);
+    RVulkanSwapChain::EStatus Status = SwapChain->Present(PresentQueue, RenderingDoneSemaphores[AcquiredImageIndex]);
 
-    while (Status < VulkanSwapChain::Status::Healty && AttemptsPending > 0) {
-        if (Status == VulkanSwapChain::Status::OutOfDate) {
+    while (Status < RVulkanSwapChain::EStatus::Healty && AttemptsPending > 0) {
+        if (Status == RVulkanSwapChain::EStatus::OutOfDate) {
             LOG(LogVulkanRHI, Info, "Swapchain is out of date! Trying to recreate the swapchain.");
-        } else if (Status == VulkanSwapChain::Status::SurfaceLost) {
+        } else if (Status == RVulkanSwapChain::EStatus::SurfaceLost) {
             LOG(LogVulkanRHI, Warning, "Swapchain surface lost! Trying to recreate the swapchain.");
         } else {
             checkNoEntry();
@@ -272,7 +272,7 @@ bool VulkanViewport::TryPresenting(VulkanQueue* PresentQueue)
 
         AttemptsPending -= 1;
     }
-    return Status >= VulkanSwapChain::Status::Healty;
+    return Status >= RVulkanSwapChain::EStatus::Healty;
 }
 
 }    // namespace VulkanRHI

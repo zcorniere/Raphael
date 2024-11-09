@@ -2,7 +2,7 @@
 
 #include <mimalloc.h>
 
-void* MiMalloc::Alloc(uint32 Size, uint32 Alignment)
+void* FMiMalloc::Alloc(uint32 Size, uint32 Alignment)
 {
     void* NewPtr = nullptr;
 
@@ -16,7 +16,7 @@ void* MiMalloc::Alloc(uint32 Size, uint32 Alignment)
     return NewPtr;
 }
 
-void* MiMalloc::Realloc(void* Original, uint32 Size, uint32 Alignment)
+void* FMiMalloc::Realloc(void* Original, uint32 Size, uint32 Alignment)
 {
     void* NewPtr = nullptr;
 
@@ -35,7 +35,7 @@ void* MiMalloc::Realloc(void* Original, uint32 Size, uint32 Alignment)
     return NewPtr;
 }
 
-void MiMalloc::Free(void* Ptr)
+void FMiMalloc::Free(void* Ptr)
 {
     if (!Ptr) {
         return;
@@ -43,7 +43,7 @@ void MiMalloc::Free(void* Ptr)
     mi_free(Ptr);
 }
 
-bool MiMalloc::GetAllocationSize(void* Ptr, uint32& OutSize)
+bool FMiMalloc::GetAllocationSize(void* Ptr, uint32& OutSize)
 {
     OutSize = mi_malloc_size(Ptr);
     return true;

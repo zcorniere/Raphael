@@ -11,74 +11,74 @@
 namespace VulkanRHI
 {
 
-class VulkanDevice;
+class FVulkanDevice;
 
 namespace ShaderResource
 {
-    struct PushConstantRange {
+    struct FPushConstantRange {
         uint32 Offset = 0;
         uint32 Size = 0;
 
-        ShaderParameter Parameter;
+        FShaderParameter Parameter;
 
-        bool operator==(const PushConstantRange&) const = default;
+        bool operator==(const FPushConstantRange&) const = default;
 
-        static void Serialize(Serialization::StreamWriter* Writer, const PushConstantRange& Value);
-        static void Deserialize(Serialization::StreamReader* Reader, PushConstantRange& OutValue);
+        static void Serialize(Serialization::FStreamWriter* Writer, const FPushConstantRange& Value);
+        static void Deserialize(Serialization::FStreamReader* Reader, FPushConstantRange& OutValue);
     };
 
-    struct StageIO {
+    struct FStageIO {
         std::string Name;
         EVertexElementType Type;
         uint32 Binding;
         uint32 Location;
 
-        bool operator==(const StageIO&) const = default;
+        bool operator==(const FStageIO&) const = default;
 
-        static void Serialize(Serialization::StreamWriter* Writer, const StageIO& Value);
-        static void Deserialize(Serialization::StreamReader* Reader, StageIO& OutValue);
+        static void Serialize(Serialization::FStreamWriter* Writer, const FStageIO& Value);
+        static void Deserialize(Serialization::FStreamReader* Reader, FStageIO& OutValue);
     };
 
-    struct StorageBuffer {
+    struct FStorageBuffer {
         uint32 Set = 0;
         uint32 Binding = 0;
-        ShaderParameter Parameter;
+        FShaderParameter Parameter;
 
-        bool operator==(const StorageBuffer&) const = default;
+        bool operator==(const FStorageBuffer&) const = default;
 
-        static void Serialize(Serialization::StreamWriter* Writer, const StorageBuffer& Value);
-        static void Deserialize(Serialization::StreamReader* Reader, StorageBuffer& OutValue);
+        static void Serialize(Serialization::FStreamWriter* Writer, const FStorageBuffer& Value);
+        static void Deserialize(Serialization::FStreamReader* Reader, FStorageBuffer& OutValue);
     };
 
 }    // namespace ShaderResource
 
-class VulkanShader : public RHIShader
+class RVulkanShader : public RRHIShader
 {
-    RTTI_DECLARE_TYPEINFO(VulkanShader, RHIShader);
+    RTTI_DECLARE_TYPEINFO(RVulkanShader, RRHIShader);
 
 public:
-    struct ReflectionData {
-        Array<ShaderResource::StageIO> StageInput;
-        Array<ShaderResource::StageIO> StageOutput;
+    struct FReflectionData {
+        TArray<ShaderResource::FStageIO> StageInput;
+        TArray<ShaderResource::FStageIO> StageOutput;
 
-        std::optional<ShaderResource::PushConstantRange> PushConstants;
+        std::optional<ShaderResource::FPushConstantRange> PushConstants;
 
-        Array<ShaderResource::StorageBuffer> StorageBuffers;
+        TArray<ShaderResource::FStorageBuffer> StorageBuffers;
 
-        Array<GraphicsPipelineDescription::VertexBinding> GetInputVertexBindings() const;
-        Array<GraphicsPipelineDescription::VertexAttribute> GetInputVertexAttributes() const;
+        TArray<FGraphicsPipelineDescription::FVertexBinding> GetInputVertexBindings() const;
+        TArray<FGraphicsPipelineDescription::FVertexAttribute> GetInputVertexAttributes() const;
 
-        bool operator==(const ReflectionData&) const = default;
+        bool operator==(const FReflectionData&) const = default;
 
-        static void Serialize(Serialization::StreamWriter* Writer, const ReflectionData& Value);
-        static void Deserialize(Serialization::StreamReader* Reader, ReflectionData& OutValue);
+        static void Serialize(Serialization::FStreamWriter* Writer, const FReflectionData& Value);
+        static void Deserialize(Serialization::FStreamReader* Reader, FReflectionData& OutValue);
     };
 
 public:
-    VulkanShader(ERHIShaderType Type, const Array<uint32>& InSPRIVCode, const ReflectionData& InReflectionData);
-    virtual ~VulkanShader();
+    RVulkanShader(ERHIShaderType Type, const TArray<uint32>& InSPRIVCode, const FReflectionData& InReflectionData);
+    virtual ~RVulkanShader();
 
-    const ReflectionData& GetReflectionData() const
+    const FReflectionData& GetReflectionData() const
     {
         return m_ReflectionData;
     }
@@ -91,43 +91,43 @@ public:
         return Type;
     }
 
-    Array<VkDescriptorSetLayout> GetDescriptorSetLayout() const
+    TArray<VkDescriptorSetLayout> GetDescriptorSetLayout() const
     {
         return DescriptorSetLayout;
     }
 
-    Array<VkDescriptorSetLayout> CompileDescriptorSetLayout();
+    TArray<VkDescriptorSetLayout> CompileDescriptorSetLayout();
 
 private:
-    const Array<uint32> SPIRVCode;
-    const ReflectionData m_ReflectionData;
+    const TArray<uint32> SPIRVCode;
+    const FReflectionData m_ReflectionData;
 
     ERHIShaderType Type;
 
     VkShaderModuleCreateInfo ShaderModuleCreateInfo;
 
-    Array<VkDescriptorSetLayout> DescriptorSetLayout;
+    TArray<VkDescriptorSetLayout> DescriptorSetLayout;
 
     friend class VulkanShaderCompiler;
 };
 
 }    // namespace VulkanRHI
 
-DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::PushConstantRange,
+DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::FPushConstantRange,
                       "PushConstantRange {{ Offset: {0}, Size: {1}, Parameter: {2:#} }}", Value.Offset, Value.Size,
                       Value.Parameter)
 
-DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::StageIO,
+DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::FStageIO,
                       "StageIO {{ Name: \"{0}\", Type: {1}, Binding: {2}, Location: {3} }}", Value.Name,
                       magic_enum::enum_name(Value.Type), Value.Binding, Value.Location)
 
-DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::StorageBuffer,
+DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::FStorageBuffer,
                       "StorageBuffer {{ Set: {0}, Binding: {1}, Parameter: {2:#} }}", Value.Set, Value.Binding,
                       Value.Parameter)
 
 DEFINE_PRINTABLE_TYPE(
-    VulkanRHI::VulkanShader::ReflectionData,
+    VulkanRHI::RVulkanShader::FReflectionData,
     "ReflectionData {{ StageInput: {0},\nStageOutput: {1},\nPushConstants: {2},\nStorageBuffers: {3} }}",
     Value.StageInput, Value.StageOutput,
-    Value.PushConstants.has_value() ? Value.PushConstants.value() : VulkanRHI::ShaderResource::PushConstantRange{},
+    Value.PushConstants.has_value() ? Value.PushConstants.value() : VulkanRHI::ShaderResource::FPushConstantRange{},
     Value.StorageBuffers)

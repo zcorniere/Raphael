@@ -3,41 +3,41 @@
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
 
-struct RHIAttachmentFormats {
-    Array<EImageFormat> ColorFormats;
+struct FRHIAttachmentFormats {
+    TArray<EImageFormat> ColorFormats;
     std::optional<EImageFormat> DepthFormat = std::nullopt;
     std::optional<EImageFormat> StencilFormat = std::nullopt;
 
-    bool operator==(const RHIAttachmentFormats&) const = default;
+    bool operator==(const FRHIAttachmentFormats&) const = default;
 };
 
-struct RHIGraphicsPipelineSpecification {
+struct FRHIGraphicsPipelineSpecification {
     std::string VertexShader;
     std::string PixelShader;
 
-    struct RasterizerDesc {
+    struct FRasterizerDesc {
         EPolygonMode PolygonMode;
         ECullMode CullMode;
         EFrontFace FrontFaceCulling;
 
-        bool operator==(const RasterizerDesc&) const = default;
+        bool operator==(const FRasterizerDesc&) const = default;
     };
-    RasterizerDesc Rasterizer;
+    FRasterizerDesc Rasterizer;
 
-    RHIAttachmentFormats AttachmentFormats;
+    FRHIAttachmentFormats AttachmentFormats;
 
-    bool operator==(const RHIGraphicsPipelineSpecification&) const = default;
+    bool operator==(const FRHIGraphicsPipelineSpecification&) const = default;
 };
 
 /// @brief Represent a shader used by the RHI
-class RHIGraphicsPipeline : public RHIResource
+class RRHIGraphicsPipeline : public RRHIResource
 {
-    RTTI_DECLARE_TYPEINFO(RHIGraphicsPipeline, RHIResource);
+    RTTI_DECLARE_TYPEINFO(RRHIGraphicsPipeline, RRHIResource);
 
 public:
-    RHIGraphicsPipeline(): RHIResource(ERHIResourceType::GraphicsPipeline)
+    RRHIGraphicsPipeline(): RRHIResource(ERHIResourceType::GraphicsPipeline)
     {
     }
 
-    virtual ~RHIGraphicsPipeline() = default;
+    virtual ~RRHIGraphicsPipeline() = default;
 };

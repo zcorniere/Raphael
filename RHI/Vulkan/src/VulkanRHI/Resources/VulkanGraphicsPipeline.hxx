@@ -6,21 +6,21 @@
 
 namespace VulkanRHI
 {
-class VulkanShader;
+class RVulkanShader;
 
-struct GraphicsPipelineDescription {
-    struct VertexBinding {
+struct FGraphicsPipelineDescription {
+    struct FVertexBinding {
         uint32 Stride;
         uint16 Binding;
         uint16 InputRate;
 
         void WriteInto(VkVertexInputBindingDescription& OutState) const;
 
-        bool operator==(const VertexBinding& In) const = default;
+        bool operator==(const FVertexBinding& In) const = default;
     };
-    Array<VertexBinding> VertexBindings;
+    TArray<FVertexBinding> VertexBindings;
 
-    struct VertexAttribute {
+    struct FVertexAttribute {
         uint32 Location;
         uint32 Binding;
         EVertexElementType Format;
@@ -28,40 +28,40 @@ struct GraphicsPipelineDescription {
 
         void WriteInto(VkVertexInputAttributeDescription& OutState) const;
 
-        bool operator==(const VertexAttribute& In) const = default;
+        bool operator==(const FVertexAttribute& In) const = default;
     };
-    Array<VertexAttribute> VertexAttributes;
+    TArray<FVertexAttribute> VertexAttributes;
 
-    struct Rasterizer {
+    struct FRasterizer {
         VkPolygonMode PolygonMode;
         VkCullModeFlags CullMode;
         VkFrontFace FrontFaceCulling;
 
         void WriteInto(VkPipelineRasterizationStateCreateInfo& OutState) const;
 
-        bool operator==(const Rasterizer& In) const = default;
+        bool operator==(const FRasterizer& In) const = default;
     };
-    Rasterizer Rasterizer;
+    FRasterizer Rasterizer;
 
-    RHIAttachmentFormats AttachmentFormats;
+    FRHIAttachmentFormats AttachmentFormats;
 
-    Ref<VulkanShader> VertexShader;
-    Ref<VulkanShader> PixelShader;
+    Ref<RVulkanShader> VertexShader;
+    Ref<RVulkanShader> PixelShader;
 
     bool Validate() const;
-    bool operator==(const GraphicsPipelineDescription&) const = default;
+    bool operator==(const FGraphicsPipelineDescription&) const = default;
 };
 
-class VulkanDevice;
-class VulkanShader;
+class FVulkanDevice;
+class RVulkanShader;
 
-class VulkanGraphicsPipeline : public RHIGraphicsPipeline, public IDeviceChild
+class RVulkanGraphicsPipeline : public RRHIGraphicsPipeline, public IDeviceChild
 {
-    RTTI_DECLARE_TYPEINFO(VulkanGraphicsPipeline, RHIGraphicsPipeline);
+    RTTI_DECLARE_TYPEINFO(RVulkanGraphicsPipeline, RRHIGraphicsPipeline);
 
 public:
-    VulkanGraphicsPipeline(VulkanDevice* InDevice, const GraphicsPipelineDescription& Description);
-    ~VulkanGraphicsPipeline();
+    RVulkanGraphicsPipeline(FVulkanDevice* InDevice, const FGraphicsPipelineDescription& Description);
+    ~RVulkanGraphicsPipeline();
 
     void SetName(std::string_view Name) override;
 
@@ -71,8 +71,8 @@ public:
         VulkanAPI::vkCmdBindPipeline(CmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VulkanPipeline);
     }
 
-    VulkanShader* GetShader(ERHIShaderType Type);
-    VulkanShader* GetShader(ERHIShaderType Type) const;
+    RVulkanShader* GetShader(ERHIShaderType Type);
+    RVulkanShader* GetShader(ERHIShaderType Type) const;
 
     VkPipeline GetVulkanPipeline() const
     {
@@ -83,7 +83,7 @@ private:
     bool CreatePipelineLayout();
 
 private:
-    GraphicsPipelineDescription Desc;
+    FGraphicsPipelineDescription Desc;
 
     VkPipelineLayout PipelineLayout;
     VkPipeline VulkanPipeline;

@@ -3,14 +3,14 @@
 namespace VulkanRHI
 {
 
-class VulkanCmdBuffer;
-class VulkanDevice;
+class FVulkanCmdBuffer;
+class FVulkanDevice;
 
-class VulkanQueue : public NamedClass, public IDeviceChild
+class FVulkanQueue : public FNamedClass, public IDeviceChild
 {
 public:
-    VulkanQueue(VulkanDevice* InDevice, std::uint32_t InFamilyIndex);
-    ~VulkanQueue();
+    FVulkanQueue(FVulkanDevice* InDevice, std::uint32_t InFamilyIndex);
+    ~FVulkanQueue();
 
     inline std::uint32_t GetFamilyIndex() const
     {
@@ -27,9 +27,9 @@ public:
         return Queue;
     }
 
-    void Submit(VulkanCmdBuffer* CmdBuffer, uint32 NumSignaledSemaphores = 0, VkSemaphore* SignalSemaphores = nullptr);
+    void Submit(FVulkanCmdBuffer* CmdBuffer, uint32 NumSignaledSemaphores = 0, VkSemaphore* SignalSemaphores = nullptr);
 
-    void Submit(VulkanCmdBuffer* CmdBuffer, VkSemaphore SignalSemaphores)
+    void Submit(FVulkanCmdBuffer* CmdBuffer, VkSemaphore SignalSemaphores)
     {
         return Submit(CmdBuffer, 1, &SignalSemaphores);
     }

@@ -9,15 +9,15 @@ static std::uniform_int_distribution<uint64> s_UniformDistribution;
 namespace Raphael
 {
 
-UUID::UUID(): m_UUID(s_UniformDistribution(eng))
+FUUID::FUUID(): m_UUID(s_UniformDistribution(eng))
 {
 }
 
-UUID::UUID(uint64 uuid): m_UUID(uuid)
+FUUID::FUUID(uint64 uuid): m_UUID(uuid)
 {
 }
 
-UUID::UUID(const UUID& other): m_UUID(other.m_UUID)
+FUUID::FUUID(const FUUID& other): m_UUID(other.m_UUID)
 {
 }
 

@@ -8,7 +8,7 @@ namespace VulkanRHI
 class VulkanRHI_Debug
 {
 public:
-    Array<const char*> GetSupportedInstanceLayers();
+    TArray<const char*> GetSupportedInstanceLayers();
     void SetupDebugLayer(VkInstance Instance);
     void RemoveDebugLayer(VkInstance Instance);
 

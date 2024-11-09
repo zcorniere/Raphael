@@ -5,8 +5,8 @@
 struct GLFWwindow;
 
 /// @brief Define a Window
-struct WindowDefinition {
-    using EventHandler = std::function<void(Event&)>;
+struct FWindowDefinition {
+    using EventHandler = std::function<void(FEvent&)>;
 
     /// The X position on the screen
     float XPositionOnScreen = 0;
@@ -40,7 +40,7 @@ struct WindowDefinition {
 /// @class Window
 ///
 /// @brief A class allowing some abstraction over the GLFW library
-class Window : public RObject
+class RWindow : public RObject
 {
 public:
     /// Make sure GLFW is initialized or do it if it is not
@@ -48,14 +48,14 @@ public:
 
 public:
     /// Default ctor
-    Window();
+    RWindow();
     /// Default dtor
-    ~Window();
+    ~RWindow();
 
     /// @brief Open the window
     /// @param InDefinition The definition of the window
     /// @param InParent (optional) The parent window of this window
-    void Initialize(const WindowDefinition& InDefinition);
+    void Initialize(const FWindowDefinition& InDefinition);
 
     /// Reshape the window
     void ReshapeWindow(int32 X, int32 Y, int32 Width, int32 Height);
@@ -91,7 +91,7 @@ public:
 
     GLFWwindow* GetHandle() const;
 
-    const WindowDefinition& GetDefinition() const
+    const FWindowDefinition& GetDefinition() const
     {
         return Definition;
     }
@@ -106,7 +106,7 @@ private:
     void SetupGLFWCallbacks();
 
 private:
-    WindowDefinition Definition;
+    FWindowDefinition Definition;
     GLFWwindow* p_Handle;
 
     bool bIsVisible;

@@ -2,10 +2,7 @@
 
 #include <fstream>
 
-namespace Utils
-{
-
-std::string readFile(const std::filesystem::path& filename)
+std::string Utils::ReadFile(const std::filesystem::path& filename)
 {
     /// Must be opened in binary mode, so Windows won't mess with the newlines
     std::string fileContent;
@@ -27,7 +24,7 @@ std::string readFile(const std::filesystem::path& filename)
     #define SPRINTF sprintf
 #endif
 
-std::string BytesToString(uint64 bytes)
+std::string Utils::BytesToString(uint64 bytes)
 {
     constexpr uint64_t GB = 1024 * 1024 * 1024;
     constexpr uint64_t MB = 1024 * 1024;
@@ -53,7 +50,7 @@ static struct {
     bool bHasRequested = false;
     int ExitStatus = 0;
 } GExitRequestInfo;
-void RequestExit(int Status, bool bForce)
+void Utils::RequestExit(int Status, bool bForce)
 {
     if (bForce) {
         std::exit(Status);
@@ -62,10 +59,8 @@ void RequestExit(int Status, bool bForce)
     GExitRequestInfo.bHasRequested = true;
 }
 
-bool HasRequestedExit(int& OutStatus)
+bool Utils::HasRequestedExit(int& OutStatus)
 {
     OutStatus = GExitRequestInfo.ExitStatus;
     return GExitRequestInfo.bHasRequested;
 }
-
-}    // namespace Utils

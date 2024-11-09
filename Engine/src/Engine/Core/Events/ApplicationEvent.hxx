@@ -2,12 +2,12 @@
 
 #include "Engine/Core/Events/Events.hxx"
 
-class WindowResizeEvent : public Event
+class FWindowResizeEvent : public FEvent
 {
-    RTTI_DECLARE_TYPEINFO(WindowResizeEvent, Event);
+    RTTI_DECLARE_TYPEINFO(FWindowResizeEvent, FEvent);
 
 public:
-    WindowResizeEvent(uint32 width, uint32 height): m_Width(width), m_Height(height)
+    FWindowResizeEvent(uint32 width, uint32 height): m_Width(width), m_Height(height)
     {
     }
 
@@ -27,12 +27,12 @@ private:
     uint32_t m_Height;
 };
 
-class WindowMinimizeEvent : public Event
+class FWindowMinimizeEvent : public FEvent
 {
-    RTTI_DECLARE_TYPEINFO(WindowMinimizeEvent, Event);
+    RTTI_DECLARE_TYPEINFO(FWindowMinimizeEvent, FEvent);
 
 public:
-    WindowMinimizeEvent(bool minimized): m_Minimized(minimized)
+    FWindowMinimizeEvent(bool minimized): m_Minimized(minimized)
     {
     }
 
@@ -47,12 +47,12 @@ private:
     bool m_Minimized = false;
 };
 
-class WindowCloseEvent : public Event
+class FWindowCloseEvent : public FEvent
 {
-    RTTI_DECLARE_TYPEINFO(WindowCloseEvent, Event);
+    RTTI_DECLARE_TYPEINFO(FWindowCloseEvent, FEvent);
 
 public:
-    WindowCloseEvent()
+    FWindowCloseEvent()
     {
     }
 
@@ -60,6 +60,6 @@ public:
     EVENT_CLASS_CATEGORY(EventCategoryApplication)
 };
 
-DEFINE_PRINTABLE_TYPE(WindowResizeEvent, "WindowResizeEvent {{ Width: {}, Height: {} }}", Value.GetWidth(),
+DEFINE_PRINTABLE_TYPE(FWindowResizeEvent, "WindowResizeEvent {{ Width: {}, Height: {} }}", Value.GetWidth(),
                       Value.GetHeight());
-DEFINE_PRINTABLE_TYPE(WindowMinimizeEvent, "WindowMinimizeEvent {{ IsMinimized: {} }}", Value.IsMinimized());
+DEFINE_PRINTABLE_TYPE(FWindowMinimizeEvent, "WindowMinimizeEvent {{ IsMinimized: {} }}", Value.IsMinimized());

@@ -28,12 +28,12 @@ bool AreThereAnyLiveObject(bool bPrintObjects = true);
 
 }    // namespace RObjectUtils
 
-class NamedClass : public RTTI::Enable
+class FNamedClass : public RTTI::Enable
 {
-    RTTI_DECLARE_TYPEINFO(NamedClass);
+    RTTI_DECLARE_TYPEINFO(FNamedClass);
 
 public:
-    virtual ~NamedClass() = default;
+    virtual ~FNamedClass() = default;
 
     /// Give the object a debug name
     virtual void SetName(std::string_view InName)
@@ -58,9 +58,9 @@ private:
 };
 
 /// Custom Ref Counting class
-class RObject : public NamedClass
+class RObject : public FNamedClass
 {
-    RTTI_DECLARE_TYPEINFO(RObject, NamedClass);
+    RTTI_DECLARE_TYPEINFO(RObject, FNamedClass);
 
 public:
     virtual ~RObject()

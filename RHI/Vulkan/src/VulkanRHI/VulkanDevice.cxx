@@ -42,7 +42,7 @@ static constexpr std::string GetQueueInfoString(const VkQueueFamilyProperties& P
 namespace VulkanRHI
 {
 
-VulkanDevice::VulkanDevice(VkPhysicalDevice InGpu)
+FVulkanDevice::FVulkanDevice(VkPhysicalDevice InGpu)
     : GraphicsQueue(nullptr),
       ComputeQueue(nullptr),
       TransferQueue(nullptr),
@@ -63,16 +63,16 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice InGpu)
         GpuProps.limits.timestampComputeAndGraphics);
 }
 
-VulkanDevice::~VulkanDevice()
+FVulkanDevice::~FVulkanDevice()
 {
     if (Device != VK_NULL_HANDLE) {
         Destroy();
     }
 }
 
-void VulkanDevice::SetName(std::string_view InName)
+void FVulkanDevice::SetName(std::string_view InName)
 {
-    NamedClass::SetName(InName);
+    FNamedClass::SetName(InName);
     if (Device) {
         VULKAN_SET_DEBUG_NAME(this, VK_OBJECT_TYPE_DEVICE, Device, "{:s}", InName);
         if (Gpu) {
@@ -81,12 +81,12 @@ void VulkanDevice::SetName(std::string_view InName)
     }
 }
 
-std::string_view VulkanDevice::GetDeviceName() const
+std::string_view FVulkanDevice::GetDeviceName() const
 {
     return GpuProps.deviceName;
 }
 
-void VulkanDevice::InitPhysicalDevice()
+void FVulkanDevice::InitPhysicalDevice()
 {
     std::uint32_t QueueCount = 0;
     VulkanAPI::vkGetPhysicalDeviceQueueFamilyProperties(Gpu, &QueueCount, nullptr);
@@ -99,16 +99,16 @@ void VulkanDevice::InitPhysicalDevice()
     VulkanAPI::vkGetPhysicalDeviceFeatures(Gpu, &PhysicalFeatures);
 
     // Setup layers and extensions
-    VulkanDeviceExtensionArray DeviceExtensions = VulkanPlatform::GetDeviceExtensions();
+    FVulkanDeviceExtensionArray DeviceExtensions = FVulkanPlatform::GetDeviceExtensions();
     CreateDeviceAndQueue({}, DeviceExtensions);
 
-    MemoryAllocator = std::make_unique<VulkanMemoryManager>(this);
+    MemoryAllocator = std::make_unique<FVulkanMemoryManager>(this);
 
-    ImmediateContext = static_cast<VulkanCommandContext*>(RHI::Get()->RHIGetCommandContext());
+    ImmediateContext = static_cast<FVulkanCommandContext*>(RHI::Get()->RHIGetCommandContext());
 }
 
-void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
-                                        const VulkanDeviceExtensionArray& Extensions)
+void FVulkanDevice::CreateDeviceAndQueue(const TArray<const char*>& DeviceLayers,
+                                         const FVulkanDeviceExtensionArray& Extensions)
 {
     VkPhysicalDeviceFeatures EnabledFeature{
         .fillModeNonSolid = VK_TRUE,
@@ -127,7 +127,7 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
         .pEnabledFeatures = &EnabledFeature,
     };
 
-    Array<const char*> DeviceExtensions;
+    TArray<const char*> DeviceExtensions;
     for (const std::unique_ptr<IDeviceVulkanExtension>& Extension: Extensions) {
         Extension->PreDeviceCreated(DeviceInfo);
         DeviceExtensions.Add(Extension->GetExtensionName());
@@ -135,7 +135,7 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
     DeviceInfo.enabledExtensionCount = DeviceExtensions.Size();
     DeviceInfo.ppEnabledExtensionNames = DeviceExtensions.Raw();
 
-    Array<VkDeviceQueueCreateInfo> QueueFamilyInfos;
+    TArray<VkDeviceQueueCreateInfo> QueueFamilyInfos;
     int32 GraphicsQueueFamilyIndex = -1;
     int32 ComputeQueueFamilyIndex = -1;
     int32 TransferQueueFamilyIndex = -1;
@@ -188,7 +188,7 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
         LOG(LogVulkanRHI, Info, "Initializing Queue Family {:d}: {:d} queues{:s}", FamilyIndex, CurrProps.queueCount,
             GetQueueInfoString(CurrProps));
     }
-    Array<float> QueuePriorities(NumPriorities);
+    TArray<float> QueuePriorities(NumPriorities);
     float* CurrentPriorities = QueuePriorities.Raw();
 
     for (int32 Index = 0; Index < (int32)QueueFamilyInfos.Size(); Index++) {
@@ -212,19 +212,19 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
     }
     VK_CHECK_RESULT_EXPANDED(Result);
 
-    GraphicsQueue = std::make_unique<VulkanQueue>(this, GraphicsQueueFamilyIndex);
+    GraphicsQueue = std::make_unique<FVulkanQueue>(this, GraphicsQueueFamilyIndex);
     GraphicsQueue->SetName("Graphics Queue");
 
     if (ComputeQueueFamilyIndex == -1) {
         ComputeQueueFamilyIndex = GraphicsQueueFamilyIndex;
     }
-    ComputeQueue = std::make_unique<VulkanQueue>(this, ComputeQueueFamilyIndex);
+    ComputeQueue = std::make_unique<FVulkanQueue>(this, ComputeQueueFamilyIndex);
     ComputeQueue->SetName("Compute Queue");
 
     if (TransferQueueFamilyIndex == -1) {
         TransferQueueFamilyIndex = ComputeQueueFamilyIndex;
     }
-    TransferQueue = std::make_unique<VulkanQueue>(this, TransferQueueFamilyIndex);
+    TransferQueue = std::make_unique<FVulkanQueue>(this, TransferQueueFamilyIndex);
     TransferQueue->SetName("Transfer Queue");
 
     LOG(LogVulkanRHI, Info, "Using {} device layers{}", DeviceLayers.Size(), DeviceLayers.Size() ? ":" : ".");
@@ -238,7 +238,7 @@ void VulkanDevice::CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
     }
 }
 
-static bool DoesQueueSupportPresent(VkSurfaceKHR Surface, VkPhysicalDevice PhysicalDevice, VulkanQueue* Queue)
+static bool DoesQueueSupportPresent(VkSurfaceKHR Surface, VkPhysicalDevice PhysicalDevice, FVulkanQueue* Queue)
 {
     VkBool32 bSupportsPresent = VK_FALSE;
     const uint32 FamilyIndex = Queue->GetFamilyIndex();
@@ -250,11 +250,11 @@ static bool DoesQueueSupportPresent(VkSurfaceKHR Surface, VkPhysicalDevice Physi
     return bSupportsPresent == VK_TRUE;
 }
 
-void VulkanDevice::SetupPresentQueue(VkSurfaceKHR Surface)
+void FVulkanDevice::SetupPresentQueue(VkSurfaceKHR Surface)
 {
     if (!PresentQueue) {
         if (!DoesQueueSupportPresent(Surface, Gpu, GraphicsQueue.get())) {
-            PlatformMisc::DisplayMessageBox(
+            FPlatformMisc::DisplayMessageBox(
                 EBoxMessageType::Ok, "Cannot find a compatible Vulkan device that supports surface presentation.\n\n",
                 "Vulkan device not available");
             Utils::RequestExit(1);
@@ -275,7 +275,7 @@ void VulkanDevice::SetupPresentQueue(VkSurfaceKHR Surface)
     }
 }
 
-void VulkanDevice::Destroy()
+void FVulkanDevice::Destroy()
 {
     WaitUntilIdle();
 
@@ -294,7 +294,7 @@ void VulkanDevice::Destroy()
     }
 }
 
-void VulkanDevice::WaitUntilIdle()
+void FVulkanDevice::WaitUntilIdle()
 {
     VK_CHECK_RESULT(VulkanAPI::vkDeviceWaitIdle(Device));
 }

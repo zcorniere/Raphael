@@ -21,10 +21,10 @@ public:
     virtual void Tick(const float DeltaTime) = 0;
 };
 
-class BaseApplication : public IApplication
+class FBaseApplication : public IApplication
 {
 public:
-    virtual ~BaseApplication()
+    virtual ~FBaseApplication()
     {
     }
 
@@ -34,15 +34,15 @@ public:
     virtual void Tick(const float DeltaTime) override;
 
 private:
-    virtual void WindowEventHandler(Event& Event);
+    virtual void WindowEventHandler(FEvent& Event);
 
-    virtual bool OnWindowResize(WindowResizeEvent& e);
-    virtual bool OnWindowMinimize(WindowMinimizeEvent& e);
-    virtual bool OnWindowClose(WindowCloseEvent& e);
+    virtual bool OnWindowResize(FWindowResizeEvent& e);
+    virtual bool OnWindowMinimize(FWindowMinimizeEvent& e);
+    virtual bool OnWindowClose(FWindowCloseEvent& e);
 
 protected:
     bool bShouldExit = false;
 
-    Ref<Window> MainWindow;
-    Ref<RHIViewport> MainViewport;
+    Ref<RWindow> MainWindow;
+    Ref<RRHIViewport> MainViewport;
 };

@@ -15,7 +15,7 @@ static_assert(false, "Unix Platform header included on a non Unix platform");
 #define PLATFORM_BREAK() raise(SIGTRAP)
 
 /// @brief Unix-specific functions
-class LinuxPlateform : public GenericPlatform
+class FLinuxPlateform : public FGenericPlatform
 {
 private:
     /// Unix limit thread names to only 15 char + '\0'
@@ -38,4 +38,4 @@ public:
 };
 
 /// Alias to the current platform
-using Platform = LinuxPlateform;
+using FPlatform = FLinuxPlateform;

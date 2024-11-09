@@ -14,17 +14,17 @@ enum class ERHIResourceType {
 };
 
 /// Represent and abstract above RHI resources
-class RHIResource : public RObject
+class RRHIResource : public RObject
 {
-    RTTI_DECLARE_TYPEINFO(RHIResource, RObject);
+    RTTI_DECLARE_TYPEINFO(RRHIResource, RObject);
 
 public:
-    RHIResource() = delete;
-    explicit RHIResource(ERHIResourceType InResourceType): ResourceType(InResourceType)
+    RRHIResource() = delete;
+    explicit RRHIResource(ERHIResourceType InResourceType): ResourceType(InResourceType)
     {
     }
 
-    virtual ~RHIResource() = default;
+    virtual ~RRHIResource() = default;
 
 protected:
     const ERHIResourceType ResourceType;

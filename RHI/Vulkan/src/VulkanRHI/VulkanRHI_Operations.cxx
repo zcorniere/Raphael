@@ -1,4 +1,3 @@
-#include "Engine/Core/Engine.hxx"
 #include "VulkanRHI/Resources/VulkanBuffer.hxx"
 #include "VulkanRHI/VulkanCommandContext.hxx"
 #include "VulkanRHI/VulkanRHI.hxx"
@@ -17,19 +16,19 @@
 namespace VulkanRHI
 {
 
-void VulkanDynamicRHI::RHISubmitCommandLists(RHICommandList* const CommandLists, std::uint32_t NumCommandLists)
+void FVulkanDynamicRHI::RHISubmitCommandLists(FFRHICommandList* const CommandLists, std::uint32_t NumCommandLists)
 {
     for (std::uint32_t i = 0; i < NumCommandLists; ++i) {
-        VulkanCommandContext* Context = static_cast<VulkanCommandContext*>(CommandLists[i].GetContext());
+        FVulkanCommandContext* Context = static_cast<FVulkanCommandContext*>(CommandLists[i].GetContext());
         Context->GetCommandManager()->SubmitActiveCmdBuffer();
     }
 }
 
-RHIContext* VulkanDynamicRHI::RHIGetCommandContext()
+FRHIContext* FVulkanDynamicRHI::RHIGetCommandContext()
 {
-    VulkanCommandContext* Context = nullptr;
+    FVulkanCommandContext* Context = nullptr;
     if (AvailableCommandContexts.IsEmpty()) {
-        Context = new VulkanCommandContext(Device.get(), Device->GraphicsQueue.get(), Device->PresentQueue);
+        Context = new FVulkanCommandContext(Device.get(), Device->GraphicsQueue.get(), Device->PresentQueue);
     } else {
         Context = AvailableCommandContexts.Pop();
         Context->GetCommandManager()->RefreshFenceStatus();
@@ -39,17 +38,17 @@ RHIContext* VulkanDynamicRHI::RHIGetCommandContext()
     return Context;
 }
 
-void VulkanDynamicRHI::RHIReleaseCommandContext(RHIContext* Context)
+void FVulkanDynamicRHI::RHIReleaseCommandContext(FRHIContext* Context)
 {
-    VulkanCommandContext* VulkanContext = static_cast<VulkanCommandContext*>(Context);
+    FVulkanCommandContext* VulkanContext = static_cast<FVulkanCommandContext*>(Context);
     CommandContexts.Remove(VulkanContext);
     AvailableCommandContexts.Add(VulkanContext);
 }
 
-void VulkanDynamicRHI::WaitUntilIdle()
+void FVulkanDynamicRHI::WaitUntilIdle()
 {
     Device->WaitUntilIdle();
-    for (VulkanCommandContext* Context: CommandContexts) {
+    for (FVulkanCommandContext* Context: CommandContexts) {
         Context->GetCommandManager()->RefreshFenceStatus();
     }
 }
@@ -58,40 +57,40 @@ void VulkanDynamicRHI::WaitUntilIdle()
 //  -------------------- RHI Create resources --------------------
 //
 
-Ref<RHIViewport> VulkanDynamicRHI::CreateViewport(Ref<Window> InWindowHandle, UVector2 InSize)
+Ref<RRHIViewport> FVulkanDynamicRHI::CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize)
 {
     return Ref<VulkanViewport>::Create(GetDevice(), std::move(InWindowHandle), std::move(InSize));
 }
 
-Ref<RHITexture> VulkanDynamicRHI::CreateTexture(const RHITextureSpecification& InDesc)
+Ref<RRHITexture> FVulkanDynamicRHI::CreateTexture(const FRHITextureSpecification& InDesc)
 {
     return Ref<VulkanTexture>::CreateNamed(InDesc.Name, GetDevice(), InDesc);
 }
 
-Ref<RHIBuffer> VulkanDynamicRHI::CreateBuffer(const RHIBufferDesc& InDesc)
+Ref<RRHIBuffer> FVulkanDynamicRHI::CreateBuffer(const FRHIBufferDesc& InDesc)
 {
-    Ref<VulkanBuffer> Buffer = Ref<VulkanBuffer>::Create(GetDevice(), InDesc);
+    Ref<RVulkanBuffer> Buffer = Ref<RVulkanBuffer>::Create(GetDevice(), InDesc);
     if (!InDesc.DebugName.empty()) {
         Buffer->SetName(InDesc.DebugName);
     }
     return Buffer;
 }
 
-Ref<RHIShader> VulkanDynamicRHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)
+Ref<RRHIShader> FVulkanDynamicRHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)
 {
     std::filesystem::path RefPath = DataLocationFinder::GetShaderPath();
-    Ref<VulkanShader> Shader = ShaderCompiler->Get(RefPath / Path, bForceCompile);
+    Ref<RVulkanShader> Shader = ShaderCompiler->Get(RefPath / Path, bForceCompile);
     check(Shader);
     return Shader;
 }
 
-Ref<RHIGraphicsPipeline>
-VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineSpecification& Config)
+Ref<RRHIGraphicsPipeline>
+VulkanRHI::FVulkanDynamicRHI::CreateGraphicsPipeline(const FRHIGraphicsPipelineSpecification& Config)
 {
-    std::future<Ref<RHIShader>> VertexShader = RHI::CreateShaderAsync(Config.VertexShader, false);
-    std::future<Ref<RHIShader>> PixelShader = RHI::CreateShaderAsync(Config.PixelShader, false);
+    std::future<Ref<RRHIShader>> VertexShader = RHI::CreateShaderAsync(Config.VertexShader, false);
+    std::future<Ref<RRHIShader>> PixelShader = RHI::CreateShaderAsync(Config.PixelShader, false);
 
-    GraphicsPipelineDescription Desc;
+    FGraphicsPipelineDescription Desc;
     Desc.Rasterizer.CullMode = ConvertToVulkanType(Config.Rasterizer.CullMode);
     Desc.Rasterizer.FrontFaceCulling = ConvertToVulkanType(Config.Rasterizer.FrontFaceCulling);
     Desc.Rasterizer.PolygonMode = ConvertToVulkanType(Config.Rasterizer.PolygonMode);
@@ -108,6 +107,6 @@ VulkanRHI::VulkanDynamicRHI::CreateGraphicsPipeline(const RHIGraphicsPipelineSpe
 
     check(Desc.Validate());
 
-    return Ref<VulkanGraphicsPipeline>::Create(Device.get(), Desc);
+    return Ref<RVulkanGraphicsPipeline>::Create(Device.get(), Desc);
 }
 }    // namespace VulkanRHI

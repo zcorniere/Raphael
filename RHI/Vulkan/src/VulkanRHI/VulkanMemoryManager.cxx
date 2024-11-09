@@ -11,7 +11,7 @@ DECLARE_LOGGER_CATEGORY(Core, LogVulkanMemoryAllocator, Info);
 namespace VulkanRHI
 {
 
-VulkanMemoryAllocation::VulkanMemoryAllocation(VulkanMemoryManager& InManager)
+RVulkanMemoryAllocation::RVulkanMemoryAllocation(FVulkanMemoryManager& InManager)
     : ManagerHandle(InManager),
       Allocation(VK_NULL_HANDLE),
       AllocationInfo(),
@@ -22,7 +22,7 @@ VulkanMemoryAllocation::VulkanMemoryAllocation(VulkanMemoryManager& InManager)
 {
 }
 
-void VulkanMemoryAllocation::SetName(std::string_view InName)
+void RVulkanMemoryAllocation::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
     if (!InName.empty()) {
@@ -36,7 +36,7 @@ void VulkanMemoryAllocation::SetName(std::string_view InName)
     }
 }
 
-void* VulkanMemoryAllocation::Map(VkDeviceSize InSize, VkDeviceSize Offset)
+void* RVulkanMemoryAllocation::Map(VkDeviceSize InSize, VkDeviceSize Offset)
 {
     check(bCanBeMapped);
     if (AllocationInfo.pMappedData) {
@@ -50,7 +50,7 @@ void* VulkanMemoryAllocation::Map(VkDeviceSize InSize, VkDeviceSize Offset)
     return MappedPointer;
 }
 
-void VulkanMemoryAllocation::Unmap()
+void RVulkanMemoryAllocation::Unmap()
 {
     if (MappedPointer) {
         vmaUnmapMemory(ManagerHandle.GetAllocator(), Allocation);
@@ -58,7 +58,7 @@ void VulkanMemoryAllocation::Unmap()
     }
 }
 
-void VulkanMemoryAllocation::FlushMappedMemory(VkDeviceSize InOffset, VkDeviceSize InSize)
+void RVulkanMemoryAllocation::FlushMappedMemory(VkDeviceSize InOffset, VkDeviceSize InSize)
 {
     if (!IsCoherent()) {
         check(IsMapped());
@@ -66,7 +66,7 @@ void VulkanMemoryAllocation::FlushMappedMemory(VkDeviceSize InOffset, VkDeviceSi
         VK_CHECK_RESULT(vmaFlushAllocation(ManagerHandle.GetAllocator(), Allocation, InOffset, InSize));
     }
 }
-void VulkanMemoryAllocation::InvalidateMappedMemory(VkDeviceSize InOffset, VkDeviceSize InSize)
+void RVulkanMemoryAllocation::InvalidateMappedMemory(VkDeviceSize InOffset, VkDeviceSize InSize)
 {
     if (!IsCoherent()) {
         check(IsMapped());
@@ -76,12 +76,12 @@ void VulkanMemoryAllocation::InvalidateMappedMemory(VkDeviceSize InOffset, VkDev
     }
 }
 
-void VulkanMemoryAllocation::BindBuffer(VkBuffer Buffer)
+void RVulkanMemoryAllocation::BindBuffer(VkBuffer Buffer)
 {
     VK_CHECK_RESULT(vmaBindBufferMemory(ManagerHandle.GetAllocator(), Allocation, Buffer));
 }
 
-void VulkanMemoryAllocation::BindImage(VkImage Image)
+void RVulkanMemoryAllocation::BindImage(VkImage Image)
 {
     VK_CHECK_RESULT(vmaBindImageMemory(ManagerHandle.GetAllocator(), Allocation, Image));
 }
@@ -90,12 +90,12 @@ void VulkanMemoryAllocation::BindImage(VkImage Image)
 /// VulkanMemoryManager
 ////////////////////////////////////////////////////////////////////
 
-VulkanMemoryManager::VulkanMemoryManager(VulkanDevice* InDevice)
+FVulkanMemoryManager::FVulkanMemoryManager(FVulkanDevice* InDevice)
     : IDeviceChild(InDevice), Allocator(VK_NULL_HANDLE), MemoryProperties(), AllocationCount(0)
 {
     check(Device);
 
-    VulkanDynamicRHI* RHI = GetVulkanDynamicRHI();
+    FVulkanDynamicRHI* RHI = GetVulkanDynamicRHI();
 
     VulkanAPI::vkGetPhysicalDeviceMemoryProperties(Device->GetPhysicalHandle(), &MemoryProperties);
 
@@ -116,7 +116,7 @@ VulkanMemoryManager::VulkanMemoryManager(VulkanDevice* InDevice)
     PrintMemInfo();
 }
 
-VulkanMemoryManager::~VulkanMemoryManager()
+FVulkanMemoryManager::~FVulkanMemoryManager()
 {
     if (AllocationCount > 0) {
         LOG(LogVulkanMemoryAllocator, Error, "Some memory allocation ({}) are still in flight !",
@@ -124,7 +124,7 @@ VulkanMemoryManager::~VulkanMemoryManager()
 
         std::unique_lock Lock(MemoryAllocationArrayMutex);
 
-        for (WeakRef<VulkanMemoryAllocation>& Alloc: MemoryAllocationArray) {
+        for (WeakRef<RVulkanMemoryAllocation>& Alloc: MemoryAllocationArray) {
             if (Alloc.IsValid()) {
                 LOG(LogVulkanMemoryAllocator, Error, "Allocation: \"{:s}\" ({})", Alloc->GetName(),
                     Alloc->GetRefCount());
@@ -138,14 +138,14 @@ VulkanMemoryManager::~VulkanMemoryManager()
     Allocator = VK_NULL_HANDLE;
 }
 
-Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(const VkMemoryRequirements& MemoryRequirement,
-                                                       VmaMemoryUsage MemUsage, bool Mappable)
+Ref<RVulkanMemoryAllocation> FVulkanMemoryManager::Alloc(const VkMemoryRequirements& MemoryRequirement,
+                                                         VmaMemoryUsage MemUsage, bool Mappable)
 {
     if (MemUsage == VMA_MEMORY_USAGE_GPU_ONLY) {
         checkMsg(!Mappable, "GPU only memory can't be mapped !");
     }
     VmaAllocationCreateInfo CreateInfo = GetCreateInfo(MemUsage, Mappable);
-    Ref<VulkanMemoryAllocation> Alloc = Ref<VulkanMemoryAllocation>::Create(*this);
+    Ref<RVulkanMemoryAllocation> Alloc = Ref<RVulkanMemoryAllocation>::Create(*this);
 
 #if VULKAN_DEBUGGING_ENABLED
     {
@@ -168,10 +168,10 @@ Ref<VulkanMemoryAllocation> VulkanMemoryManager::Alloc(const VkMemoryRequirement
     return Alloc;
 }
 
-std::pair<VkBuffer, Ref<VulkanMemoryAllocation>>
-VulkanMemoryManager::Alloc(const VkBufferCreateInfo& BufferCreateInfo, const VmaAllocationCreateInfo& AllocCreateInfo)
+std::pair<VkBuffer, Ref<RVulkanMemoryAllocation>>
+FVulkanMemoryManager::Alloc(const VkBufferCreateInfo& BufferCreateInfo, const VmaAllocationCreateInfo& AllocCreateInfo)
 {
-    Ref<VulkanMemoryAllocation> Alloc = Ref<VulkanMemoryAllocation>::Create(*this);
+    Ref<RVulkanMemoryAllocation> Alloc = Ref<RVulkanMemoryAllocation>::Create(*this);
 
 #if VULKAN_DEBUGGING_ENABLED
     {
@@ -195,7 +195,7 @@ VulkanMemoryManager::Alloc(const VkBufferCreateInfo& BufferCreateInfo, const Vma
     return {Buffer, Alloc};
 }
 
-void VulkanMemoryManager::Free(Ref<VulkanMemoryAllocation>& Allocation)
+void FVulkanMemoryManager::Free(Ref<RVulkanMemoryAllocation>& Allocation)
 {
     // Allocator should be removed after this call
     check(Allocation->GetRefCount() == 1);
@@ -211,7 +211,7 @@ void VulkanMemoryManager::Free(Ref<VulkanMemoryAllocation>& Allocation)
     AllocationCount -= 1;
 }
 
-uint64 VulkanMemoryManager::GetTotalMemory(bool bGPUOnly) const
+uint64 FVulkanMemoryManager::GetTotalMemory(bool bGPUOnly) const
 {
     uint64 TotalMemory = 0;
     for (uint32 Index = 0; Index < MemoryProperties.memoryHeapCount; ++Index) {
@@ -225,16 +225,16 @@ uint64 VulkanMemoryManager::GetTotalMemory(bool bGPUOnly) const
     return TotalMemory;
 }
 
-void VulkanMemoryManager::PrintMemInfo() const
+void FVulkanMemoryManager::PrintMemInfo() const
 {
     LOG(LogVulkanMemoryAllocator, Info, "Max memory allocations {}", Device->GetLimits().maxMemoryAllocationCount);
     LOG(LogVulkanMemoryAllocator, Info, "{} Device Memory Heaps:", MemoryProperties.memoryHeapCount);
 
-    std::vector<VmaBudget> Budgets(MemoryProperties.memoryHeapCount);
-    vmaGetHeapBudgets(Allocator, Budgets.data());
+    TArray<VmaBudget> Budgets(MemoryProperties.memoryHeapCount);
+    vmaGetHeapBudgets(Allocator, Budgets.Raw());
 
-    for (unsigned i = 0; i < Budgets.size(); i++) {
-        const VmaBudget& b = Budgets.at(i);
+    for (unsigned i = 0; i < Budgets.Size(); i++) {
+        const VmaBudget& b = Budgets[i];
         LOG(LogVulkanMemoryAllocator, Info, "{} - VmaBudget.allocationBytes = {}", i,
             Utils::BytesToString(b.statistics.allocationBytes));
         LOG(LogVulkanMemoryAllocator, Info, "{} - VmaBudget.allocationCount = {}", i,
@@ -252,7 +252,7 @@ void VulkanMemoryManager::PrintMemInfo() const
     vmaFreeStatsString(Allocator, JsonString);
 }
 
-VmaAllocationCreateInfo VulkanMemoryManager::GetCreateInfo(VmaMemoryUsage MemUsage, bool Mappable)
+VmaAllocationCreateInfo FVulkanMemoryManager::GetCreateInfo(VmaMemoryUsage MemUsage, bool Mappable)
 {
     VmaAllocationCreateFlags flags = 0;
     if (Mappable)

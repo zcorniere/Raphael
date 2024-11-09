@@ -2,7 +2,7 @@
 
 #include <Engine/Core/Application.hxx>
 
-class EditorApplication : public BaseApplication
+class EditorApplication : public FBaseApplication
 {
 public:
     EditorApplication();
@@ -14,8 +14,8 @@ public:
     void Tick(const float DeltaTime) override;
 
 private:
-    Ref<RHIGraphicsPipeline> Pipeline;
+    Ref<RRHIGraphicsPipeline> Pipeline;
 
-    Ref<RHIBuffer> Buffer;
-    Ref<RHIBuffer> IndexBuffer;
+    Ref<RRHIBuffer> Buffer;
+    Ref<RRHIBuffer> IndexBuffer;
 };

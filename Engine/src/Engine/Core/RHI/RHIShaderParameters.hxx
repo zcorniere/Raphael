@@ -20,8 +20,8 @@
         struct zzFirstMemberId {                                                          \
         };                                                                                \
         typedef void* zzFuncPtr;                                                          \
-        typedef zzFuncPtr (*zzMemberFunc)(zzFirstMemberId, Array<ShaderParameter>*);      \
-        static zzFuncPtr zzGetPreviousMember(zzFirstMemberId, Array<ShaderParameter>*)    \
+        typedef zzFuncPtr (*zzMemberFunc)(zzFirstMemberId, TArray<FShaderParameter>*);    \
+        static zzFuncPtr zzGetPreviousMember(zzFirstMemberId, TArray<FShaderParameter>*)  \
         {                                                                                 \
             return nullptr;                                                               \
         }                                                                                 \
@@ -30,39 +30,39 @@
 #define SHADER_PARAMETER(ParameterType, ParameterName) \
     SHADER_PARAMETER_INTERNAL(ParameterType, ParameterName, TSupportedShaderType<ParameterType>)
 
-#define SHADER_PARAMETER_INTERNAL(ParameterType, ParameterName, TypeInfo)                                     \
-    zzMemberId##ParameterName;                                                                                \
-                                                                                                              \
-public:                                                                                                       \
-    alignas(TypeInfo::Alignment) TypeInfo::AlignedType ParameterName;                                         \
-                                                                                                              \
-private:                                                                                                      \
-    struct zzNextMemberId##ParameterName {                                                                    \
-    };                                                                                                        \
-    static zzFuncPtr zzGetPreviousMember(zzNextMemberId##ParameterName, Array<ShaderParameter>* zzParameters) \
-    {                                                                                                         \
-        zzParameters->Add(ShaderParameter{                                                                    \
-            .Name = #ParameterName,                                                                           \
-            .Type = TypeInfo::Type,                                                                           \
-            .Size = sizeof(ParameterName),                                                                    \
-            .Offset = offsetof(zzTThisStruct, ParameterName),                                                 \
-            .Columns = TypeInfo::NumColumns,                                                                  \
-            .Rows = TypeInfo::NumRows,                                                                        \
-        });                                                                                                   \
-        zzFuncPtr (*PrevFunc)(zzMemberId##ParameterName, Array<ShaderParameter>*);                            \
-        PrevFunc = zzGetPreviousMember;                                                                       \
-        return (zzFuncPtr)PrevFunc;                                                                           \
-    }                                                                                                         \
+#define SHADER_PARAMETER_INTERNAL(ParameterType, ParameterName, TypeInfo)                                       \
+    zzMemberId##ParameterName;                                                                                  \
+                                                                                                                \
+public:                                                                                                         \
+    alignas(TypeInfo::Alignment) TypeInfo::AlignedType ParameterName;                                           \
+                                                                                                                \
+private:                                                                                                        \
+    struct zzNextMemberId##ParameterName {                                                                      \
+    };                                                                                                          \
+    static zzFuncPtr zzGetPreviousMember(zzNextMemberId##ParameterName, TArray<FShaderParameter>* zzParameters) \
+    {                                                                                                           \
+        zzParameters->Add(FShaderParameter{                                                                     \
+            .Name = #ParameterName,                                                                             \
+            .Type = TypeInfo::Type,                                                                             \
+            .Size = sizeof(ParameterName),                                                                      \
+            .Offset = offsetof(zzTThisStruct, ParameterName),                                                   \
+            .Columns = TypeInfo::NumColumns,                                                                    \
+            .Rows = TypeInfo::NumRows,                                                                          \
+        });                                                                                                     \
+        zzFuncPtr (*PrevFunc)(zzMemberId##ParameterName, TArray<FShaderParameter>*);                            \
+        PrevFunc = zzGetPreviousMember;                                                                         \
+        return (zzFuncPtr)PrevFunc;                                                                             \
+    }                                                                                                           \
     typedef zzNextMemberId##ParameterName
 
 #define END_SHADER_PARAMETER_STRUCT()                                               \
     zzLastMemberId;                                                                 \
                                                                                     \
 public:                                                                             \
-    static Array<ShaderParameter> GetMembers()                                      \
+    static TArray<FShaderParameter> GetMembers()                                    \
     {                                                                               \
-        Array<ShaderParameter> Members;                                             \
-        zzFuncPtr (*LastFunc)(zzLastMemberId, Array<ShaderParameter>*);             \
+        TArray<FShaderParameter> Members;                                           \
+        zzFuncPtr (*LastFunc)(zzLastMemberId, TArray<FShaderParameter>*);           \
         LastFunc = zzGetPreviousMember;                                             \
         zzFuncPtr Ptr = (zzFuncPtr)LastFunc;                                        \
         do {                                                                        \
@@ -86,7 +86,7 @@ enum class EShaderBufferType {
 };
 
 /// This structure define a shader parameters (uniforms, storage buffers, etc)
-struct ShaderParameter {
+struct FShaderParameter {
     std::string Name = "";
     EShaderBufferType Type = EShaderBufferType::Invalid;
     uint64 Size = 0;
@@ -95,16 +95,16 @@ struct ShaderParameter {
     uint64 Rows = 0;
 
     /// If the parameter is a struct, this array contains the members of the struct
-    Array<ShaderParameter> Members;
+    TArray<FShaderParameter> Members;
 
-    bool operator==(const ShaderParameter& Other) const
+    bool operator==(const FShaderParameter& Other) const
     {
         // Name is not compared, because it does not matter
         return Type == Other.Type && Size == Other.Size && Offset == Other.Offset && Columns == Other.Columns &&
                Rows == Other.Rows && Members == Other.Members;
     };
 
-    static void Serialize(Serialization::StreamWriter* Writer, const ShaderParameter& Value)
+    static void Serialize(Serialization::FStreamWriter* Writer, const FShaderParameter& Value)
     {
         Writer->WriteString(Value.Name);
         Writer->WriteRaw(Value.Type);
@@ -115,7 +115,7 @@ struct ShaderParameter {
         Writer->WriteArray(Value.Members);
     }
 
-    static void Deserialize(Serialization::StreamReader* Reader, ShaderParameter& Value)
+    static void Deserialize(Serialization::FStreamReader* Reader, FShaderParameter& Value)
     {
         Reader->ReadString(Value.Name);
         Reader->ReadRaw(Value.Type);
@@ -126,7 +126,7 @@ struct ShaderParameter {
         Reader->ReadArray(Value.Members);
     }
 };
-DECLARE_PRINTABLE_TYPE(ShaderParameter);
+DECLARE_PRINTABLE_TYPE(FShaderParameter);
 
 template <typename T>
 struct TSupportedShaderType;
@@ -204,7 +204,7 @@ struct TSupportedShaderType<FMatrix4> {
 };
 
 // your code for which the warning gets suppressed
-inline std::string PrintShaderParameter(const ShaderParameter& Param, unsigned Indent, bool bSimple)
+inline std::string PrintShaderParameter(const FShaderParameter& Param, unsigned Indent, bool bSimple)
 {
     if (bSimple) {
         return std::format("Name: \"{0}\", Type: {1}, Size: {2}, Offset: {3}, Columns: {4}, Rows: {5}", Param.Name,
@@ -226,7 +226,7 @@ inline std::string PrintShaderParameter(const ShaderParameter& Param, unsigned I
     Result += std::format("{0}Columns: {1}\n", Padding, Param.Columns);
     Result += std::format("{0}Rows: {1}\n", Padding, Param.Rows);
 
-    for (const ShaderParameter& Member: Param.Members) {
+    for (const FShaderParameter& Member: Param.Members) {
         Result += PrintShaderParameter(Member, Indent + 2, bSimple);
     }
 
@@ -234,7 +234,7 @@ inline std::string PrintShaderParameter(const ShaderParameter& Param, unsigned I
     return Result;
 }
 template <>
-struct std::formatter<ShaderParameter, char> {
+struct std::formatter<FShaderParameter, char> {
     bool bSimple = false;
 
     constexpr auto parse(format_parse_context& ctx)
@@ -253,14 +253,14 @@ struct std::formatter<ShaderParameter, char> {
         return it;
     }
     template <class FormatContext>
-    auto format(const ShaderParameter& Value, FormatContext& ctx) const
+    auto format(const FShaderParameter& Value, FormatContext& ctx) const
     {
         auto&& out = ctx.out();
         format_to(out, "ShaderParameter{{ {0} }}", PrintShaderParameter(Value, 0, bSimple));
         return out;
     }
 };
-inline std::ostream& operator<<(std::ostream& os, const ShaderParameter& m)
+inline std::ostream& operator<<(std::ostream& os, const FShaderParameter& m)
 {
     os << std ::format("{}", m);
     return os;

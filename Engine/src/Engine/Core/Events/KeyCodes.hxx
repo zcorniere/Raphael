@@ -1,6 +1,6 @@
 #pragma once
 
-enum class KeyCode : uint16_t {
+enum class EKeyCode : uint16_t {
     // From glfw3.h
     Space = 32,
     Apostrophe = 39, /* ' */
@@ -134,11 +134,11 @@ enum class KeyCode : uint16_t {
     Menu = 348
 };
 
-enum class KeyState { None = -1, Pressed, Held, Released };
+enum class EKeyState { None = -1, Pressed, Held, Released };
 
-enum class CursorMode { Normal = 0, Hidden = 1, Locked = 2 };
+enum class ECursorMode { Normal = 0, Hidden = 1, Locked = 2 };
 
-enum class MouseButton : uint16_t {
+enum class EMouseButton : uint16_t {
     Button0 = 0,
     Button1 = 1,
     Button2 = 2,
@@ -150,5 +150,5 @@ enum class MouseButton : uint16_t {
     Middle = Button2
 };
 
-DEFINE_PRINTABLE_TYPE(KeyCode, "KeyCode {{ Code: {:s} }}", magic_enum::enum_name(Value));
-DEFINE_PRINTABLE_TYPE(MouseButton, "MouseButton {{ Code: {:s} }}", magic_enum::enum_name(Value));
+DEFINE_PRINTABLE_TYPE(EKeyCode, "KeyCode {{ Code: {:s} }}", magic_enum::enum_name(Value));
+DEFINE_PRINTABLE_TYPE(EMouseButton, "MouseButton {{ Code: {:s} }}", magic_enum::enum_name(Value));

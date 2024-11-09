@@ -9,11 +9,11 @@
 namespace VulkanRHI
 {
 
-class VulkanPendingState : public IDeviceChild
+class FVulkanPendingState : public IDeviceChild
 {
 public:
-    VulkanPendingState(VulkanDevice* InDevice, VulkanCommandContext& InCmdContext);
-    ~VulkanPendingState();
+    FVulkanPendingState(FVulkanDevice* InDevice, FVulkanCommandContext& InCmdContext);
+    ~FVulkanPendingState();
 
     void Reset();
 
@@ -37,28 +37,28 @@ public:
         };
     }
 
-    void SetVertexBuffer(Ref<VulkanBuffer>& Buffer, uint32 BufferIndex = 0, uint32 Offset = 0);
+    void SetVertexBuffer(Ref<RVulkanBuffer>& Buffer, uint32 BufferIndex = 0, uint32 Offset = 0);
 
     void Bind(VkCommandBuffer CmdBuffer)
     {
         CurrentPipeline->Bind(CmdBuffer);
     }
 
-    void PrepareForDraw(VulkanCmdBuffer* CommandBuffer);
-    bool SetGraphicsPipeline(Ref<VulkanGraphicsPipeline>& InPipeline, bool bForceReset = false);
+    void PrepareForDraw(FVulkanCmdBuffer* CommandBuffer);
+    bool SetGraphicsPipeline(Ref<RVulkanGraphicsPipeline>& InPipeline, bool bForceReset = false);
 
 private:
-    Array<VkViewport> Viewports;
-    Array<VkRect2D> Scissors;
+    TArray<VkViewport> Viewports;
+    TArray<VkRect2D> Scissors;
 
     struct FVertexSource {
-        Ref<VulkanBuffer> Buffer = nullptr;
+        Ref<RVulkanBuffer> Buffer = nullptr;
         uint32 Offset = 0;
     };
-    Array<FVertexSource> VertexSources;
+    TArray<FVertexSource> VertexSources;
 
-    Ref<VulkanGraphicsPipeline> CurrentPipeline = nullptr;
-    VulkanCommandContext& CmdContext;
+    Ref<RVulkanGraphicsPipeline> CurrentPipeline = nullptr;
+    FVulkanCommandContext& CmdContext;
 };
 
 }    // namespace VulkanRHI

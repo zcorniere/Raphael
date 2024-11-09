@@ -19,7 +19,7 @@ static_assert(false, "Windows Platform header included on a non windows platform
 /// @brief Windows-specific function and commands
 ///
 ///
-class WindowsPlatform : public GenericPlatform
+class FWindowsPlatform : public FGenericPlatform
 {
 public:
     /// @copydoc GenericPlatform::Initialize
@@ -45,4 +45,4 @@ public:
 };
 
 /// Alias to the current platform
-using Platform = WindowsPlatform;
+using FPlatform = FWindowsPlatform;

@@ -10,41 +10,41 @@
             return #Type;                           \
         }                                           \
     };                                              \
-    RHICommandListExecutor::GetCommandList().EnqueueLambda<MACRO_EXPENDER(Type##String, __LINE__)>
+    FRHICommandListExecutor::GetCommandList().EnqueueLambda<MACRO_EXPENDER(Type##String, __LINE__)>
 
 DECLARE_LOGGER_CATEGORY(Core, LogRenderCommand, Warning)
 
-class RHICommandList;
+class FFRHICommandList;
 
 /// @brief Base class for all render commands
-class RHIRenderCommandBase
+class FRHIRenderCommandBase
 {
 public:
-    virtual ~RHIRenderCommandBase() = default;
+    virtual ~FRHIRenderCommandBase() = default;
 
-    virtual void DoTask(RHICommandList&) = 0;
+    virtual void DoTask(FFRHICommandList&) = 0;
 
 public:
     /// @brief Pointer to the next command
     /// @note The current object own the next object
-    RHIRenderCommandBase* p_Next = nullptr;
+    FRHIRenderCommandBase* p_Next = nullptr;
 };
 
-struct MissingNameCommand {
+struct FMissingNameCommand {
     static const char* Str()
     {
         return "MissingNameCommand";
     }
 };
 
-template <typename TNameType = MissingNameCommand>
-class TRHIRenderCommand : public RHIRenderCommandBase
+template <typename TNameType = FMissingNameCommand>
+class TRHIRenderCommand : public FRHIRenderCommandBase
 {
 public:
     TRHIRenderCommand() = default;
     virtual ~TRHIRenderCommand() = default;
 
-    virtual void DoTask(RHICommandList& CommandList) override final
+    virtual void DoTask(FFRHICommandList& CommandList) override final
     {
         RPH_PROFILE_SCOPE_DYNAMIC(TNameType::Str());
         LOG(LogRenderCommand, Trace, "Running task: {:s}", TNameType::Str());
@@ -52,11 +52,11 @@ public:
         Execute(CommandList);
     }
 
-    virtual void Execute(RHICommandList&) = 0;
+    virtual void Execute(FFRHICommandList&) = 0;
 };
 
 template <typename TTypeString, typename TLambda>
-class TLambdaRenderCommandType : public RHIRenderCommandBase
+class TLambdaRenderCommandType : public FRHIRenderCommandBase
 {
 public:
     TLambdaRenderCommandType(TLambda&& InLambda): Lambda(std::forward<TLambda>(InLambda))
@@ -64,7 +64,7 @@ public:
     }
     virtual ~TLambdaRenderCommandType() = default;
 
-    virtual void DoTask(RHICommandList& CommandList) override final
+    virtual void DoTask(FFRHICommandList& CommandList) override final
     {
         RPH_PROFILE_SCOPE_DYNAMIC(TTypeString::Str());
         LOG(LogRenderCommand, Trace, "Running task: {:s}", TTypeString::Str());
@@ -75,12 +75,12 @@ private:
     TLambda Lambda;
 };
 
-class RHICommandList : public NamedClass
+class FFRHICommandList : public FNamedClass
 {
 
 public:
-    RHICommandList();
-    ~RHICommandList();
+    FFRHICommandList();
+    ~FFRHICommandList();
 
 public:
     /// @brief Begin a new frame
@@ -89,9 +89,9 @@ public:
     void EndFrame();
 
     /// @brief Mark the given viewport as the current drawing target
-    void BeginRenderingViewport(RHIViewport* Viewport);
+    void BeginRenderingViewport(RRHIViewport* Viewport);
     /// @brief Stop rendering to the given viewport and present it
-    void EndRenderingViewport(RHIViewport* Viewport);
+    void EndRenderingViewport(RRHIViewport* Viewport);
 
     /// @brief Begin a new rendering pass
     void BeginRendering(const RHIRenderPassDescription& Description);
@@ -99,9 +99,9 @@ public:
     void EndRendering();
 
     /// @brief Set the current pipeline
-    void SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline);
+    void SetPipeline(Ref<RRHIGraphicsPipeline>& Pipeline);
     /// @brief Set the vertex buffer
-    void SetVertexBuffer(Ref<RHIBuffer>& VertexBuffer, uint32 BufferIndex = 0, uint32 Offset = 0);
+    void SetVertexBuffer(Ref<RRHIBuffer>& VertexBuffer, uint32 BufferIndex = 0, uint32 Offset = 0);
 
     /// @brief Set the viewport used to render
     void SetViewport(FVector3 Min, FVector3 Max);
@@ -125,7 +125,7 @@ public:
     /// @param NumInstances The number of instances to draw
     ///
     /// @note We only support Triangle primitive type, so the num of primitive is the number of triangles to draw
-    void DrawIndexed(Ref<RHIBuffer>& IndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance, uint32 NumVertices,
+    void DrawIndexed(Ref<RRHIBuffer>& IndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance, uint32 NumVertices,
                      uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances);
 
     /// @brief Copy the content of a buffer to another buffer
@@ -135,21 +135,21 @@ public:
     /// @param SourceOffset The offset in the source buffer
     /// @param DestinationOffset The offset in the destination buffer
     /// @param Size The number of bytes to copy
-    void CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<RHIBuffer>& Destination, uint64 SourceOffset,
+    void CopyBufferToBuffer(const Ref<RRHIBuffer>& Source, Ref<RRHIBuffer>& Destination, uint64 SourceOffset,
                             uint64 DestinationOffset, uint64 Size);
 
     /// @brief Add a command to the back of the queue
     template <typename TSTR, typename TFunction>
-    requires std::is_invocable_v<TFunction, RHICommandList&>
+    requires std::is_invocable_v<TFunction, FFRHICommandList&>
     void EnqueueLambda(TFunction&& Function)
     {
         return Enqueue(new TLambdaRenderCommandType<TSTR, TFunction>(std::forward<TFunction>(Function)));
     }
 
     /// @brief Execute the command in the given context
-    void Execute(RHIContext* const Context);
+    void Execute(FRHIContext* const Context);
 
-    RHIContext* GetContext() const
+    FRHIContext* GetContext() const
     {
         return m_Context;
     }
@@ -157,38 +157,38 @@ public:
 private:
     /// @brief Add a command to the back of the queue
     /// @note Take ownership of the command
-    void Enqueue(RHIRenderCommandBase* RenderCommand);
+    void Enqueue(FRHIRenderCommandBase* RenderCommand);
 
     /// @brief Reset the command list, deleting all the commands
     void Reset();
 
 private:
-    RHIContext* m_Context = nullptr;
+    FRHIContext* m_Context = nullptr;
 
     bool bIsExecuting = false;
     /// @brief Head of the command queue
     /// @note "this" has ownership of the object. Can't use unique_ptr because of some ""issues"" with destroying the
     /// list without stack overflow
-    RHIRenderCommandBase* m_CommandList = nullptr;
+    FRHIRenderCommandBase* m_CommandList = nullptr;
 
     /// @brief Tail of the command queue
-    RHIRenderCommandBase* m_CommandListTail = nullptr;
+    FRHIRenderCommandBase* m_CommandListTail = nullptr;
 };
 
-class RHICommandListExecutor
+class FRHICommandListExecutor
 {
 public:
-    static RHICommandListExecutor& Get()
+    static FRHICommandListExecutor& Get()
     {
-        static RHICommandListExecutor Instance;
+        static FRHICommandListExecutor Instance;
         return Instance;
     }
 
-    static RHICommandList& GetCommandList()
+    static FFRHICommandList& GetCommandList()
     {
         return Get().m_CommandList;
     }
 
 private:
-    RHICommandList m_CommandList;
+    FFRHICommandList m_CommandList;
 };

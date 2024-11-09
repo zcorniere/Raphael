@@ -11,16 +11,16 @@ enum class ERHIShaderType : uint8 {
 };
 
 /// @brief Represent a shader used by the RHI
-class RHIShader : public RHIResource
+class RRHIShader : public RRHIResource
 {
-    RTTI_DECLARE_TYPEINFO(RHIShader, RHIResource);
+    RTTI_DECLARE_TYPEINFO(RRHIShader, RRHIResource);
 
 public:
-    explicit RHIShader(ERHIShaderType Type): RHIResource(ERHIResourceType::Shader), ShaderType(Type)
+    explicit RRHIShader(ERHIShaderType Type): RRHIResource(ERHIResourceType::Shader), ShaderType(Type)
     {
     }
 
-    virtual ~RHIShader() = default;
+    virtual ~RRHIShader() = default;
 
     /// @brief Return the type of the shader
     ERHIShaderType GetShaderType() const

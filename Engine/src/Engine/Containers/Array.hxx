@@ -5,7 +5,7 @@
 
 /// Simple array class that uses a custom allocator
 template <typename T, unsigned MinimalCapacity = 0, typename SizeType = uint32>
-class Array
+class TArray
 {
 public:
     using TSize = SizeType;
@@ -13,16 +13,16 @@ public:
 
 public:
     /// Initialize the array to the minimal size
-    constexpr Array()
+    constexpr TArray()
     {
         Reserve(MinimalCapacity);
     }
     /// Initialize the array to the given size
-    constexpr Array(const TSize Count)
+    constexpr TArray(const TSize Count)
     {
         Resize(Count);
     }
-    constexpr Array(const TSize Count, T DefaultValue): Array(Count)
+    constexpr TArray(const TSize Count, T DefaultValue): TArray(Count)
     {
         for (TSize i = 0; i < Count; i++) {
             (*this)[i] = DefaultValue;
@@ -31,7 +31,7 @@ public:
 
     /// Initialize the array by copying the given array
     /// The copy will be done according to the type stored so copy constructors will be called if needed
-    constexpr Array(const T* const Ptr, const TSize Count): Array(Count)
+    constexpr TArray(const T* const Ptr, const TSize Count): TArray(Count)
     {
         if (Count > 0) {
             CopyItems(Data, Ptr, ArraySize);
@@ -39,20 +39,20 @@ public:
     }
     /// Initialize the array by copying the memory between the two pointers
     /// The copy will be done according to the type stored so copy constructors will be called if needed
-    constexpr Array(const T* const Start, const T* const End): Array(Start, End - Start)
+    constexpr TArray(const T* const Start, const T* const End): TArray(Start, End - Start)
     {
     }
 
     /// Initialize the array by copying the initializer list
-    constexpr Array(std::initializer_list<T> InitList): Array(InitList.begin(), InitList.end())
+    constexpr TArray(std::initializer_list<T> InitList): TArray(InitList.begin(), InitList.end())
     {
     }
 
-    constexpr Array(const Array& Other): Array(Other.Raw(), Other.Size())
+    constexpr TArray(const TArray& Other): TArray(Other.Raw(), Other.Size())
     {
     }
 
-    constexpr Array(Array&& Other) noexcept
+    constexpr TArray(TArray&& Other) noexcept
     {
         Data = Other.Data;
         ArraySize = Other.ArraySize;
@@ -63,12 +63,12 @@ public:
         Other.ArrayCapacity = 0;
     }
 
-    constexpr ~Array()
+    constexpr ~TArray()
     {
         Clear();
     }
 
-    constexpr Array& operator=(const Array& Other)
+    constexpr TArray& operator=(const TArray& Other)
     {
         if (this == &Other) {
             return *this;
@@ -84,7 +84,7 @@ public:
         return *this;
     }
 
-    constexpr Array& operator=(Array&& Other) noexcept
+    constexpr TArray& operator=(TArray&& Other) noexcept
     {
         if (this == &Other) {
             return *this;
@@ -102,7 +102,7 @@ public:
         return *this;
     }
 
-    constexpr Array& operator=(std::initializer_list<T> InitList)
+    constexpr TArray& operator=(std::initializer_list<T> InitList)
     {
         // Resize the array to fit the list, destroy everything, and copy the list into the array
         Resize(InitList.size());
@@ -395,7 +395,7 @@ public:
     }
 
     /// Append the given array to this one
-    void Append(const Array& Source)
+    void Append(const TArray& Source)
     {
         check((void*)this != (void*)&Source);
 
@@ -427,7 +427,7 @@ public:
     }
 
     /// Equality operator
-    constexpr bool operator==(const Array& other) const
+    constexpr bool operator==(const TArray& other) const
     {
         if (other.Size() != this->Size())
             return false;
@@ -466,21 +466,21 @@ private:
 };
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const Array<T>& m)
+std::ostream& operator<<(std::ostream& os, const TArray<T>& m)
 {
     os << std::formatter<decltype(m)>::format(m);
     return os;
 }
 
 template <typename T>
-struct std::formatter<Array<T>> : std::formatter<T> {
+struct std::formatter<TArray<T>> : std::formatter<T> {
 
     template <class FormatContext>
-    auto format(const Array<T>& Value, FormatContext& ctx) const
+    auto format(const TArray<T>& Value, FormatContext& ctx) const
     {
         auto&& out = ctx.out();
         format_to(out, "[");
-        for (typename Array<T>::TSize i = 0; i < Value.Size(); i++) {
+        for (typename TArray<T>::TSize i = 0; i < Value.Size(); i++) {
             format_to(out, "{}{}", Value[i], (i + 1 < Value.Size()) ? ", " : "");
         }
         format_to(out, "]");

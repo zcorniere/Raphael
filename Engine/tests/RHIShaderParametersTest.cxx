@@ -20,7 +20,7 @@ TEST_CASE("ShaderParameterStruct")
 
     REQUIRE(sizeof(FShaderStruct) % 4 == 0);    // Make sure the struct produced is aligned
 
-    Array<ShaderParameter> Members = FShaderStruct::GetMembers();
+    TArray<FShaderParameter> Members = FShaderStruct::GetMembers();
     CHECK(Members.Size() == 4);
 
     REQUIRE(Members[0].Name == "TestValue");

@@ -5,40 +5,40 @@
 
 uint64 GFrameCounter = 0;
 
-Engine* GEngine = nullptr;
+FEngine* GEngine = nullptr;
 
-Engine::Engine()
+FEngine::FEngine()
 {
     GEngine = this;
 }
 
-Engine::~Engine()
+FEngine::~FEngine()
 {
 }
 
-bool Engine::ShouldExit() const
+bool FEngine::ShouldExit() const
 {
     return false;
 }
 
-bool Engine::Initialisation()
+bool FEngine::Initialisation()
 {
-    Window::EnsureGLFWInit();
+    RWindow::EnsureGLFWInit();
 
     m_ThreadPool.Start();
 
     return true;
 }
 
-void Engine::Destroy()
+void FEngine::Destroy()
 {
     m_ThreadPool.Stop();
 }
 
-void Engine::PreTick()
+void FEngine::PreTick()
 {
 }
 
-void Engine::PostTick()
+void FEngine::PostTick()
 {
 }

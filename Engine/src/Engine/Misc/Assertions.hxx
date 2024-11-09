@@ -27,14 +27,14 @@ consteval bool ShouldCheckPrintStackTrace()
 }
 
 #ifndef NDEBUG
-class RecursionScopeMarker
+class FRecursionScopeMarker
 {
 public:
-    RecursionScopeMarker(uint16& InCounter): Counter(InCounter)
+    FRecursionScopeMarker(uint16& InCounter): Counter(InCounter)
     {
         ++Counter;
     }
-    ~RecursionScopeMarker()
+    ~FRecursionScopeMarker()
     {
         --Counter;
     }

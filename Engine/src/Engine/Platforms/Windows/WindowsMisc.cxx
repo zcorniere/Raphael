@@ -7,9 +7,8 @@
 #include <libloaderapi.h>
 #include <shlobj_core.h>
 
-
-EBoxReturnType WindowsMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
-                                              const std::string_view Caption)
+EBoxReturnType FWindowsMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
+                                               const std::string_view Caption)
 {
     unsigned WindowFlags = MB_ICONWARNING;
     switch (MsgType) {
@@ -42,43 +41,43 @@ EBoxReturnType WindowsMisc::DisplayMessageBox(EBoxMessageType MsgType, const std
 
 // ------------------ Windows External Module --------------------------
 
-static std::unordered_map<std::string, WeakRef<WindowsExternalModule>> s_ModuleStorage;
+static std::unordered_map<std::string, WeakRef<RWindowsExternalModule>> s_ModuleStorage;
 
-WindowsExternalModule::WindowsExternalModule(std::string_view ModulePath): IExternalModule(ModulePath)
+RWindowsExternalModule::RWindowsExternalModule(std::string_view ModulePath): IExternalModule(ModulePath)
 {
     ModuleHandle = ::LoadLibrary(ModulePath.data());
 }
 
-WindowsExternalModule::~WindowsExternalModule()
+RWindowsExternalModule::~RWindowsExternalModule()
 {
     ::FreeLibrary(HMODULE(ModuleHandle));
 }
 
-void* WindowsExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
+void* RWindowsExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
 {
     return ::GetProcAddress(HMODULE(ModuleHandle), SymbolName.data());
 }
 
-Malloc* WindowsMisc::BaseAllocator()
+Malloc* FWindowsMisc::BaseAllocator()
 {
     void* Ptr = std::malloc(sizeof(MiMalloc));
     new (Ptr) MiMalloc;
     return reinterpret_cast<MiMalloc*>(Ptr);
 }
 
-Ref<IExternalModule> WindowsMisc::LoadExternalModule(const std::string& ModuleName)
+Ref<IExternalModule> FWindowsMisc::LoadExternalModule(const std::string& ModuleName)
 {
     auto Iter = s_ModuleStorage.find(ModuleName);
 
     if (Iter == s_ModuleStorage.end() || !Iter->second.IsValid()) {
-        Ref<WindowsExternalModule> Module = Ref<WindowsExternalModule>::Create(ModuleName);
+        Ref<RWindowsExternalModule> Module = Ref<RWindowsExternalModule>::Create(ModuleName);
         s_ModuleStorage[ModuleName] = Module;
         return Module;
     }
     return Ref(Iter->second);
 }
 
-std::filesystem::path WindowsMisc::GetConfigPath()
+std::filesystem::path FWindowsMisc::GetConfigPath()
 {
     std::filesystem::path returnPath = std::filesystem::current_path();
 #ifdef NDEBUG

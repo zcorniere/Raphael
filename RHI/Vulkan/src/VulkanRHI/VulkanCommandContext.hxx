@@ -5,20 +5,20 @@
 namespace VulkanRHI
 {
 
-class VulkanDevice;
-class VulkanQueue;
-class VulkanPendingState;
+class FVulkanDevice;
+class FVulkanQueue;
+class FVulkanPendingState;
 class VulkanCommandBufferManager;
 
 class VulkanTexture;
 
-class VulkanCommandContext : public RHIContext
+class FVulkanCommandContext : public FRHIContext
 {
-    RTTI_DECLARE_TYPEINFO(VulkanCommandContext, RHIContext);
+    RTTI_DECLARE_TYPEINFO(FVulkanCommandContext, FRHIContext);
 
 public:
-    VulkanCommandContext(VulkanDevice* InDevice, VulkanQueue* InGraphicsQueue, VulkanQueue* InPresentQueue);
-    ~VulkanCommandContext();
+    FVulkanCommandContext(FVulkanDevice* InDevice, FVulkanQueue* InGraphicsQueue, FVulkanQueue* InPresentQueue);
+    ~FVulkanCommandContext();
 
     void Reset() override;
 
@@ -29,25 +29,25 @@ public:
     virtual void EndFrame() override;
 
     /// @brief Indicate the RHI that we are starting drawing in the given viewport
-    virtual void RHIBeginDrawingViewport(RHIViewport* const Viewport) override;
+    virtual void RHIBeginDrawingViewport(RRHIViewport* const Viewport) override;
     /// @brief Indicate the RHI that we are done drawing in the given viewport
-    virtual void RHIEndDrawningViewport(RHIViewport* const Viewport) override;
+    virtual void RHIEndDrawningViewport(RRHIViewport* const Viewport) override;
 
     virtual void RHIBeginRendering(const RHIRenderPassDescription& Description) override;
     virtual void RHIEndRendering() override;
 
-    virtual void SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline) override;
+    virtual void SetPipeline(Ref<RRHIGraphicsPipeline>& Pipeline) override;
 
-    virtual void SetVertexBuffer(Ref<RHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset) override;
+    virtual void SetVertexBuffer(Ref<RRHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset) override;
 
     virtual void SetViewport(FVector3 Min, FVector3 Max) override;
     virtual void SetScissor(IVector2 Offset, UVector2 Size) override;
 
     virtual void Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances) override;
-    virtual void DrawIndexed(Ref<RHIBuffer> InIndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
+    virtual void DrawIndexed(Ref<RRHIBuffer> InIndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
                              uint32 NumVertices, uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances) override;
 
-    virtual void CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<RHIBuffer>& Destination, uint64 SourceOffset,
+    virtual void CopyBufferToBuffer(const Ref<RRHIBuffer>& Source, Ref<RRHIBuffer>& Destination, uint64 SourceOffset,
                                     uint64 DestinationOffset, uint64 Size) override;
 
     /// @brief VulkanRHI only, set the layout of the given texture
@@ -59,12 +59,12 @@ public:
     }
 
 private:
-    std::unique_ptr<VulkanPendingState> PendingState;
+    std::unique_ptr<FVulkanPendingState> PendingState;
     std::unique_ptr<VulkanCommandBufferManager> CommandManager;
 
-    VulkanDevice* const Device = nullptr;
-    VulkanQueue* const GfxQueue = nullptr;
-    VulkanQueue* const PresentQueue = nullptr;
+    FVulkanDevice* const Device = nullptr;
+    FVulkanQueue* const GfxQueue = nullptr;
+    FVulkanQueue* const PresentQueue = nullptr;
 };
 
 }    // namespace VulkanRHI

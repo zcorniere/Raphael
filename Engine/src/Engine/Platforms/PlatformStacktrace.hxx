@@ -14,8 +14,8 @@ struct DetailedSymbolInfo {
     char FunctionName[MaxNameLength] = {'\0'};
     int64 ProgramCounter;
 
-     char Filename[MaxNameLength] = {'\0'};
-     int32 LineNumber;
+    char Filename[MaxNameLength] = {'\0'};
+    int32 LineNumber;
 };
 
 /// @brief Hold the raw information about a stacktrace
@@ -34,7 +34,7 @@ struct StacktraceContent {
 };
 
 /// Generic stacktrace collection
-class GenericStacktrace
+class FGenericStacktrace
 {
 public:
     /// @brief Return a stacktrace of the current running process

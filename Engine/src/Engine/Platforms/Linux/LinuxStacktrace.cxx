@@ -4,7 +4,7 @@
 #include <execinfo.h>
 #include <fcntl.h>
 
-StacktraceContent LinuxStacktrace::GetStackTraceFromReturnAddress(void* returnAddress)
+StacktraceContent FLinuxStacktrace::GetStackTraceFromReturnAddress(void* returnAddress)
 {
     StacktraceContent trace;
     trace.Depth = backtrace(reinterpret_cast<void**>(trace.StackTrace), trace.MaxDepth);
@@ -23,7 +23,7 @@ StacktraceContent LinuxStacktrace::GetStackTraceFromReturnAddress(void* returnAd
     return trace;
 }
 
-bool LinuxStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedSymbolInfo& detailed_info)
+bool FLinuxStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedSymbolInfo& detailed_info)
 {
     Dl_info info;
     bool ret = dladdr(reinterpret_cast<void*>(ProgramCounter), &info);

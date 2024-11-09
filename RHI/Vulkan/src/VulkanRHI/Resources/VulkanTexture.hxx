@@ -6,16 +6,16 @@
 namespace VulkanRHI
 {
 
-class VulkanDevice;
-class VulkanCmdBuffer;
-class VulkanMemoryAllocation;
+class FVulkanDevice;
+class FVulkanCmdBuffer;
+class RVulkanMemoryAllocation;
 
-class VulkanTexture : public RHITexture, public IDeviceChild
+class VulkanTexture : public RRHITexture, public IDeviceChild
 {
-    RTTI_DECLARE_TYPEINFO(VulkanTexture, RHITexture);
+    RTTI_DECLARE_TYPEINFO(VulkanTexture, RRHITexture);
 
 public:
-    VulkanTexture(VulkanDevice* InDevice, const RHITextureSpecification& InDesc);
+    VulkanTexture(FVulkanDevice* InDevice, const FRHITextureSpecification& InDesc);
     virtual ~VulkanTexture();
 
     virtual void SetName(std::string_view InName) override;
@@ -27,7 +27,7 @@ public:
     VkImageViewType GetViewType() const;
 
     VkImageLayout GetLayout() const;
-    void SetLayout(VulkanCmdBuffer* CommandBuffer, VkImageLayout NewLayout);
+    void SetLayout(FVulkanCmdBuffer* CommandBuffer, VkImageLayout NewLayout);
 
     VkImageLayout GetDefaultLayout() const;
 
@@ -36,7 +36,7 @@ private:
     void DestroyTexture();
 
 private:
-    Ref<VulkanMemoryAllocation> Allocation;
+    Ref<RVulkanMemoryAllocation> Allocation;
     VkMemoryRequirements MemoryRequirements;
     VkImage Image = VK_NULL_HANDLE;
     VkImageLayout Layout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -48,9 +48,9 @@ struct VulkanTextureView {
     {
     }
 
-    void Create(VulkanDevice* Device, VkImage InImage, VkImageViewType ViewType, VkImageAspectFlags AspectFlags,
+    void Create(FVulkanDevice* Device, VkImage InImage, VkImageViewType ViewType, VkImageAspectFlags AspectFlags,
                 VkFormat Format, uint32 FirstMip, uint32 NumMips);
-    void Destroy(VulkanDevice* Device);
+    void Destroy(FVulkanDevice* Device);
 
     VkImageView View;
     VkImage Image;

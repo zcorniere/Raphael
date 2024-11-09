@@ -11,47 +11,47 @@
 namespace VulkanRHI
 {
 
-VulkanCommandContext::VulkanCommandContext(VulkanDevice* InDevice, VulkanQueue* InGraphicsQueue,
-                                           VulkanQueue* InPresentQueue)
+FVulkanCommandContext::FVulkanCommandContext(FVulkanDevice* InDevice, FVulkanQueue* InGraphicsQueue,
+                                             FVulkanQueue* InPresentQueue)
     : Device(InDevice), GfxQueue(InGraphicsQueue), PresentQueue(InPresentQueue)
 {
-    PendingState = std::make_unique<VulkanPendingState>(Device, *this);
+    PendingState = std::make_unique<FVulkanPendingState>(Device, *this);
 
     // TODO: Differentiate between immediate context and frame context to use the transfer Queue
     CommandManager = std::make_unique<VulkanCommandBufferManager>(Device, GfxQueue);
 }
 
-VulkanCommandContext::~VulkanCommandContext()
+FVulkanCommandContext::~FVulkanCommandContext()
 {
 }
 
-void VulkanCommandContext::Reset()
+void FVulkanCommandContext::Reset()
 {
-    VulkanDevice* const ODevice = this->Device;
-    VulkanQueue* const OGfxQueue = this->GfxQueue;
-    VulkanQueue* const OPresentQueue = this->PresentQueue;
+    FVulkanDevice* const ODevice = this->Device;
+    FVulkanQueue* const OGfxQueue = this->GfxQueue;
+    FVulkanQueue* const OPresentQueue = this->PresentQueue;
 
     // Not the best to do it, but I find it funnier to do it this way
-    VulkanCommandContext::~VulkanCommandContext();
-    new (this) VulkanCommandContext(ODevice, OGfxQueue, OPresentQueue);    // Placement new (reconstruct the object
+    FVulkanCommandContext::~FVulkanCommandContext();
+    new (this) FVulkanCommandContext(ODevice, OGfxQueue, OPresentQueue);    // Placement new (reconstruct the object
 }
 
-void VulkanCommandContext::BeginFrame()
+void FVulkanCommandContext::BeginFrame()
 {
     CommandManager->PrepareForNewActiveCommandBuffer();
 }
 
-void VulkanCommandContext::EndFrame()
+void FVulkanCommandContext::EndFrame()
 {
 }
 
-void VulkanCommandContext::RHIBeginDrawingViewport(RHIViewport* const Viewport)
+void FVulkanCommandContext::RHIBeginDrawingViewport(RRHIViewport* const Viewport)
 {
     VulkanViewport* const VKViewport = Viewport->cast<VulkanViewport>();
     GetVulkanDynamicRHI()->DrawingViewport = VKViewport;
 }
 
-void VulkanCommandContext::RHIEndDrawningViewport(RHIViewport* const Viewport)
+void FVulkanCommandContext::RHIEndDrawningViewport(RRHIViewport* const Viewport)
 {
     VulkanViewport* const VKViewport = Viewport->cast<VulkanViewport>();
     VKViewport->Present(this, CommandManager->GetActiveCmdBuffer(), GfxQueue, PresentQueue);
@@ -60,7 +60,7 @@ void VulkanCommandContext::RHIEndDrawningViewport(RHIViewport* const Viewport)
     GetVulkanDynamicRHI()->DrawingViewport = nullptr;
 }
 
-void VulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Description)
+void FVulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Description)
 {
     auto RenderTargetToAttachmentInfo = [](const RHIRenderTarget& Target) -> VkRenderingAttachmentInfo {
         Ref<VulkanTexture> const Texture = Target.Texture.As<VulkanTexture>();
@@ -94,7 +94,7 @@ void VulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Des
     };
 
     bool bNeedTransition = false;
-    Array<VkRenderingAttachmentInfo> ColorAttachments;
+    TArray<VkRenderingAttachmentInfo> ColorAttachments;
     ColorAttachments.Reserve(Description.ColorTargets.Size());
     for (const RHIRenderTarget& ColorTarget: Description.ColorTargets) {
         bNeedTransition |= TransitionToCorrectLayout(ColorTarget);
@@ -124,76 +124,77 @@ void VulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Des
         .pDepthAttachment = DepthAttachment.has_value() ? &DepthAttachment.value() : nullptr,
     };
 
-    VulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
+    FVulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
     CmdBuffer->BeginRendering(RenderingInfo);
 }
 
-void VulkanCommandContext::RHIEndRendering()
+void FVulkanCommandContext::RHIEndRendering()
 {
-    VulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
+    FVulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
 
     CmdBuffer->EndRendering();
 }
 
-void VulkanCommandContext::SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline)
+void FVulkanCommandContext::SetPipeline(Ref<RRHIGraphicsPipeline>& Pipeline)
 {
-    Ref<VulkanGraphicsPipeline> VulkanPipeline = Pipeline.As<VulkanGraphicsPipeline>();
+    Ref<RVulkanGraphicsPipeline> VulkanPipeline = Pipeline.As<RVulkanGraphicsPipeline>();
     PendingState->SetGraphicsPipeline(VulkanPipeline);
 }
 
-void VulkanCommandContext::SetVertexBuffer(Ref<RHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset)
+void FVulkanCommandContext::SetVertexBuffer(Ref<RRHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset)
 {
-    Ref<VulkanBuffer> VulkanBufferRef = VertexBuffer.As<VulkanBuffer>();
+    Ref<RVulkanBuffer> VulkanBufferRef = VertexBuffer.As<RVulkanBuffer>();
     PendingState->SetVertexBuffer(VulkanBufferRef, BufferIndex, Offset);
 }
 
-void VulkanCommandContext::SetViewport(FVector3 Min, FVector3 Max)
+void FVulkanCommandContext::SetViewport(FVector3 Min, FVector3 Max)
 {
     PendingState->SetViewport(Min, Max);
 }
 
-void VulkanCommandContext::SetScissor(IVector2 Offset, UVector2 Size)
+void FVulkanCommandContext::SetScissor(IVector2 Offset, UVector2 Size)
 {
     PendingState->SetScissor(Offset, Size);
 }
 
-void VulkanCommandContext::Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances)
+void FVulkanCommandContext::Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances)
 {
 
-    VulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
+    FVulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
     PendingState->PrepareForDraw(CmdBuffer);
     VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), NumPrimitives * 3, NumInstances, BaseVertexIndex, 0);
 }
 
-void VulkanCommandContext::DrawIndexed(Ref<RHIBuffer> InIndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
-                                       uint32 NumVertices, uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances)
+void FVulkanCommandContext::DrawIndexed(Ref<RRHIBuffer> InIndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
+                                        uint32 NumVertices, uint32 StartIndex, uint32 NumPrimitives,
+                                        uint32 NumInstances)
 {
     (void)NumVertices;
-    VulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
+    FVulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
     PendingState->PrepareForDraw(CmdBuffer);
 
-    VulkanBuffer* const IndexBuffer = InIndexBuffer.AsRaw<VulkanBuffer>();
+    RVulkanBuffer* const IndexBuffer = InIndexBuffer.AsRaw<RVulkanBuffer>();
     VulkanAPI::vkCmdBindIndexBuffer(CmdBuffer->GetHandle(), IndexBuffer->GetHandle(), 0, IndexBuffer->GetIndexType());
     VulkanAPI::vkCmdDrawIndexed(CmdBuffer->GetHandle(), NumPrimitives * 3, NumInstances, StartIndex, BaseVertexIndex,
                                 FirstInstance);
 }
 
-void VulkanCommandContext::CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<RHIBuffer>& Destination,
-                                              uint64 SourceOffset, uint64 DestinationOffset, uint64 Size)
+void FVulkanCommandContext::CopyBufferToBuffer(const Ref<RRHIBuffer>& Source, Ref<RRHIBuffer>& Destination,
+                                               uint64 SourceOffset, uint64 DestinationOffset, uint64 Size)
 {
-    const VulkanBuffer* const SrcBuffer = Source.AsRaw<VulkanBuffer>();
-    VulkanBuffer* const DstBuffer = Destination.AsRaw<VulkanBuffer>();
+    const RVulkanBuffer* const SrcBuffer = Source.AsRaw<RVulkanBuffer>();
+    RVulkanBuffer* const DstBuffer = Destination.AsRaw<RVulkanBuffer>();
     const VkBufferCopy copyRegion{
         .srcOffset = SourceOffset,
         .dstOffset = DestinationOffset,
         .size = Size,
     };
-    VulkanCmdBuffer* CmdBuffer = CommandManager->GetUploadCmdBuffer();
+    FVulkanCmdBuffer* CmdBuffer = CommandManager->GetUploadCmdBuffer();
     VulkanAPI::vkCmdCopyBuffer(CmdBuffer->GetHandle(), SrcBuffer->GetHandle(), DstBuffer->GetHandle(), 1, &copyRegion);
     CommandManager->SubmitUploadCmdBuffer();
 }
 
-void VulkanCommandContext::SetLayout(VulkanTexture* const Texture, VkImageLayout Layout)
+void FVulkanCommandContext::SetLayout(VulkanTexture* const Texture, VkImageLayout Layout)
 {
     Texture->SetLayout(CommandManager->GetActiveCmdBuffer(), Layout);
 }

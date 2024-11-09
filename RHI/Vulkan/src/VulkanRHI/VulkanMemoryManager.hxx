@@ -5,15 +5,15 @@
 namespace VulkanRHI
 {
 
-class VulkanDevice;
+class FVulkanDevice;
 
-class VulkanMemoryManager;
+class FVulkanMemoryManager;
 
-class VulkanMemoryAllocation : public RObject
+class RVulkanMemoryAllocation : public RObject
 {
 public:
-    VulkanMemoryAllocation() = delete;
-    explicit VulkanMemoryAllocation(VulkanMemoryManager& InManager);
+    RVulkanMemoryAllocation() = delete;
+    explicit RVulkanMemoryAllocation(FVulkanMemoryManager& InManager);
 
     void SetName(std::string_view InName) override;
 
@@ -56,7 +56,7 @@ public:
     }
 
 private:
-    VulkanMemoryManager& ManagerHandle;
+    FVulkanMemoryManager& ManagerHandle;
 
     VmaAllocation Allocation = VK_NULL_HANDLE;
     VmaAllocationInfo AllocationInfo;
@@ -66,21 +66,21 @@ private:
     bool bCanBeMapped = false;
     bool bIsCoherent = false;
 
-    friend class VulkanMemoryManager;
+    friend class FVulkanMemoryManager;
 };
 
-class VulkanMemoryManager : public IDeviceChild
+class FVulkanMemoryManager : public IDeviceChild
 {
 public:
-    explicit VulkanMemoryManager(VulkanDevice* InDevice);
-    ~VulkanMemoryManager();
+    explicit FVulkanMemoryManager(FVulkanDevice* InDevice);
+    ~FVulkanMemoryManager();
 
-    [[nodiscard]] Ref<VulkanMemoryAllocation> Alloc(const VkMemoryRequirements& MemoryRequirement,
-                                                    VmaMemoryUsage MemUsage, bool Mappable);
-    [[nodiscard]] std::pair<VkBuffer, Ref<VulkanMemoryAllocation>>
+    [[nodiscard]] Ref<RVulkanMemoryAllocation> Alloc(const VkMemoryRequirements& MemoryRequirement,
+                                                     VmaMemoryUsage MemUsage, bool Mappable);
+    [[nodiscard]] std::pair<VkBuffer, Ref<RVulkanMemoryAllocation>>
     Alloc(const VkBufferCreateInfo& BufferCreateInfo, const VmaAllocationCreateInfo& AllocCreateInfo);
 
-    void Free(Ref<VulkanMemoryAllocation>& Allocation);
+    void Free(Ref<RVulkanMemoryAllocation>& Allocation);
 
     uint64 GetTotalMemory(bool bGPUOnly) const;
     void PrintMemInfo() const;
@@ -100,11 +100,11 @@ private:
     std::atomic<uint32> AllocationCount;
 
 #if VULKAN_DEBUGGING_ENABLED
-    Array<WeakRef<VulkanMemoryAllocation>> MemoryAllocationArray;
+    TArray<WeakRef<RVulkanMemoryAllocation>> MemoryAllocationArray;
     std::mutex MemoryAllocationArrayMutex;
 #endif    // VULKAN_DEBUGGING_ENABLED
 
-    friend VulkanMemoryAllocation;
+    friend RVulkanMemoryAllocation;
 };
 
 }    // namespace VulkanRHI

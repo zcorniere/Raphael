@@ -2,11 +2,11 @@
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "Engine/Core/RHI/RHICommand.hxx"
 
-RHICommandList::RHICommandList()
+FFRHICommandList::FFRHICommandList()
 {
 }
 
-RHICommandList::~RHICommandList()
+FFRHICommandList::~FFRHICommandList()
 {
     Reset();
 
@@ -16,72 +16,72 @@ RHICommandList::~RHICommandList()
     }
 }
 
-void RHICommandList::BeginFrame()
+void FFRHICommandList::BeginFrame()
 {
-    Enqueue(new RHIBeginFrame());
+    Enqueue(new FRHIBeginFrame());
 }
-void RHICommandList::EndFrame()
+void FFRHICommandList::EndFrame()
 {
-    Enqueue(new RHIEndFrame());
-}
-
-void RHICommandList::BeginRenderingViewport(RHIViewport* Viewport)
-{
-    Enqueue(new RHIBeginDrawingViewport(Viewport));
-}
-void RHICommandList::EndRenderingViewport(RHIViewport* Viewport)
-{
-    Enqueue(new RHIEndDrawningViewport(Viewport));
+    Enqueue(new FRHIEndFrame());
 }
 
-void RHICommandList::BeginRendering(const RHIRenderPassDescription& Description)
+void FFRHICommandList::BeginRenderingViewport(RRHIViewport* Viewport)
 {
-    Enqueue(new RHIBeginRendering(Description));
+    Enqueue(new FRHIBeginDrawingViewport(Viewport));
 }
-void RHICommandList::EndRendering()
+void FFRHICommandList::EndRenderingViewport(RRHIViewport* Viewport)
 {
-    Enqueue(new RHIEndRendering());
-}
-
-void RHICommandList::SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline)
-{
-    Enqueue(new RHISetPipeline(Pipeline));
+    Enqueue(new FRHIEndDrawningViewport(Viewport));
 }
 
-void RHICommandList::SetVertexBuffer(Ref<RHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset)
+void FFRHICommandList::BeginRendering(const RHIRenderPassDescription& Description)
 {
-    Enqueue(new RHISetVertexBuffer(VertexBuffer, BufferIndex, Offset));
+    Enqueue(new FRHIBeginRendering(Description));
+}
+void FFRHICommandList::EndRendering()
+{
+    Enqueue(new FRHIEndRendering());
 }
 
-void RHICommandList::SetViewport(FVector3 Min, FVector3 Max)
+void FFRHICommandList::SetPipeline(Ref<RRHIGraphicsPipeline>& Pipeline)
 {
-    Enqueue(new RHISetViewport(Min, Max));
+    Enqueue(new FRHISetPipeline(Pipeline));
 }
 
-void RHICommandList::SetScissor(IVector2 Offset, UVector2 Size)
+void FFRHICommandList::SetVertexBuffer(Ref<RRHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset)
 {
-    Enqueue(new RHISetScissor(Offset, Size));
+    Enqueue(new FRHISetVertexBuffer(VertexBuffer, BufferIndex, Offset));
 }
 
-void RHICommandList::Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances)
+void FFRHICommandList::SetViewport(FVector3 Min, FVector3 Max)
 {
-    Enqueue(new RHIDraw(BaseVertexIndex, NumPrimitives, NumInstances));
+    Enqueue(new FRHISetViewport(Min, Max));
 }
 
-void RHICommandList::DrawIndexed(Ref<RHIBuffer>& IndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
-                                 uint32 NumVertices, uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances)
+void FFRHICommandList::SetScissor(IVector2 Offset, UVector2 Size)
+{
+    Enqueue(new FRHISetScissor(Offset, Size));
+}
+
+void FFRHICommandList::Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances)
+{
+    Enqueue(new FRHIDraw(BaseVertexIndex, NumPrimitives, NumInstances));
+}
+
+void FFRHICommandList::DrawIndexed(Ref<RRHIBuffer>& IndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
+                                   uint32 NumVertices, uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances)
 {
     Enqueue(new RHIDrawIndexed(IndexBuffer, BaseVertexIndex, FirstInstance, NumVertices, StartIndex, NumPrimitives,
                                NumInstances));
 }
 
-void RHICommandList::CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<RHIBuffer>& Destination, uint64 SourceOffset,
-                                        uint64 DestinationOffset, uint64 Size)
+void FFRHICommandList::CopyBufferToBuffer(const Ref<RRHIBuffer>& Source, Ref<RRHIBuffer>& Destination,
+                                          uint64 SourceOffset, uint64 DestinationOffset, uint64 Size)
 {
     Enqueue(new RHICopyBufferToBuffer(Source, Destination, SourceOffset, DestinationOffset, Size));
 }
 
-void RHICommandList::Enqueue(RHIRenderCommandBase* RenderCommand)
+void FFRHICommandList::Enqueue(FRHIRenderCommandBase* RenderCommand)
 {
     // If we are executing the command list, we need to execute the command immediately
     if (bIsExecuting) {
@@ -101,7 +101,7 @@ void RHICommandList::Enqueue(RHIRenderCommandBase* RenderCommand)
     check(m_CommandListTail != nullptr);
 }
 
-void RHICommandList::Execute(RHIContext* const InContext)
+void FFRHICommandList::Execute(FRHIContext* const InContext)
 {
     m_Context = InContext;
     check(m_Context != nullptr);
@@ -114,7 +114,7 @@ void RHICommandList::Execute(RHIContext* const InContext)
         }
     };
     this->EnqueueLambda<FinalizeAndSubmitCommandListString>(
-        [](RHICommandList& CommandList) { RHI::Get()->RHISubmitCommandLists(&CommandList, 1); });
+        [](FFRHICommandList& CommandList) { RHI::Get()->RHISubmitCommandLists(&CommandList, 1); });
 
     // Execute all the commands
     bIsExecuting = true;
@@ -123,7 +123,7 @@ void RHICommandList::Execute(RHIContext* const InContext)
         m_CommandList->DoTask(*this);
 
         // Delete the object after grabbing a ref to the next one
-        RHIRenderCommandBase* const Next = m_CommandList->p_Next;
+        FRHIRenderCommandBase* const Next = m_CommandList->p_Next;
         delete m_CommandList;
         m_CommandList = Next;
     }
@@ -134,13 +134,13 @@ void RHICommandList::Execute(RHIContext* const InContext)
     m_Context = nullptr;
 }
 
-void RHICommandList::Reset()
+void FFRHICommandList::Reset()
 {
     // We need to be very careful with deleting the chained list
     // By doing it that way we are to destroy one node at a time
 
     while (m_CommandList != nullptr) {
-        RHIRenderCommandBase* const Next = m_CommandList->p_Next;
+        FRHIRenderCommandBase* const Next = m_CommandList->p_Next;
 
         delete m_CommandList;
         m_CommandList = Next;

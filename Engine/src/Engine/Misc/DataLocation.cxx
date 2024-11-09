@@ -1,12 +1,14 @@
 #include "Engine/Misc/DataLocation.hxx"
 
-#include "Engine/Platforms/PlatformMisc.hxx"
+#ifdef NDEBUG
+    #include "Engine/Platforms/PlatformMisc.hxx"
+#endif
 
 namespace fs = std::filesystem;
 
 fs::path DataLocationFinder::GetShaderPath()
 {
-    fs::path ExePath = Platform::GetExecutablePath();
+    fs::path ExePath = FPlatform::GetExecutablePath();
 
     fs::path SearchDirectory = ExePath;
     // Search all the way to the root. (add a limit ?)
@@ -25,6 +27,6 @@ fs::path DataLocationFinder::GetConfigPath()
 #ifndef NDEBUG
     return fs::current_path();
 #else
-    return PlatformMisc::GetConfigPath();
+    return FPlatformMisc::GetConfigPath();
 #endif
 }

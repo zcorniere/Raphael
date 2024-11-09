@@ -6,14 +6,14 @@
 namespace VulkanRHI
 {
 
-void GraphicsPipelineDescription::VertexBinding::WriteInto(VkVertexInputBindingDescription& OutState) const
+void FGraphicsPipelineDescription::FVertexBinding::WriteInto(VkVertexInputBindingDescription& OutState) const
 {
     OutState.binding = Binding;
     OutState.inputRate = (VkVertexInputRate)InputRate;
     OutState.stride = Stride;
 }
 
-void GraphicsPipelineDescription::VertexAttribute::WriteInto(VkVertexInputAttributeDescription& OutState) const
+void FGraphicsPipelineDescription::FVertexAttribute::WriteInto(VkVertexInputAttributeDescription& OutState) const
 {
     OutState.binding = Binding;
     OutState.format = VertexElementToFormat(Format);
@@ -21,7 +21,7 @@ void GraphicsPipelineDescription::VertexAttribute::WriteInto(VkVertexInputAttrib
     OutState.offset = Offset;
 }
 
-void GraphicsPipelineDescription::Rasterizer::WriteInto(VkPipelineRasterizationStateCreateInfo& OutState) const
+void FGraphicsPipelineDescription::FRasterizer::WriteInto(VkPipelineRasterizationStateCreateInfo& OutState) const
 {
     OutState.polygonMode = PolygonMode;
     OutState.cullMode = CullMode;
@@ -34,7 +34,7 @@ void GraphicsPipelineDescription::Rasterizer::WriteInto(VkPipelineRasterizationS
     OutState.lineWidth = 1.0f;
 }
 
-bool GraphicsPipelineDescription::Validate() const
+bool FGraphicsPipelineDescription::Validate() const
 {
     // Vertex shader is required
     if (!VertexShader.IsValid())
@@ -49,13 +49,14 @@ bool GraphicsPipelineDescription::Validate() const
     return true;
 }
 
-VulkanGraphicsPipeline::VulkanGraphicsPipeline(VulkanDevice* InDevice, const GraphicsPipelineDescription& Description)
+RVulkanGraphicsPipeline::RVulkanGraphicsPipeline(FVulkanDevice* InDevice,
+                                                 const FGraphicsPipelineDescription& Description)
     : IDeviceChild(InDevice), Desc(Description)
 {
     Create();
 }
 
-VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
+RVulkanGraphicsPipeline::~RVulkanGraphicsPipeline()
 {
     RHI::RHIWaitUntilIdle();
     if (VulkanPipeline) {
@@ -66,7 +67,7 @@ VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
     }
 }
 
-void VulkanGraphicsPipeline::SetName(std::string_view Name)
+void RVulkanGraphicsPipeline::SetName(std::string_view Name)
 {
     RObject::SetName(Name);
     if (VulkanPipeline) {
@@ -77,9 +78,10 @@ void VulkanGraphicsPipeline::SetName(std::string_view Name)
     }
 }
 
-bool VulkanGraphicsPipeline::Create()
+bool RVulkanGraphicsPipeline::Create()
 {
-    auto FillShaderStageInfo = [](Ref<VulkanShader>& InShader, Array<VkPipelineShaderStageCreateInfo>& OutShaderStage) {
+    auto FillShaderStageInfo = [](Ref<RVulkanShader>& InShader,
+                                  TArray<VkPipelineShaderStageCreateInfo>& OutShaderStage) {
         OutShaderStage.Add(VkPipelineShaderStageCreateInfo{
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .pNext = &InShader->GetShaderModuleCreateInfo(),
@@ -90,15 +92,15 @@ bool VulkanGraphicsPipeline::Create()
     };
     CreatePipelineLayout();
 
-    Array<VkPipelineShaderStageCreateInfo> ShaderStage;
+    TArray<VkPipelineShaderStageCreateInfo> ShaderStage;
     FillShaderStageInfo(Desc.VertexShader, ShaderStage);
     FillShaderStageInfo(Desc.PixelShader, ShaderStage);
 
-    Array<VkVertexInputBindingDescription> InputBinding(Desc.VertexBindings.Size());
+    TArray<VkVertexInputBindingDescription> InputBinding(Desc.VertexBindings.Size());
     for (unsigned i = 0; i < Desc.VertexBindings.Size(); i++) {
         Desc.VertexBindings[i].WriteInto(InputBinding[i]);
     }
-    Array<VkVertexInputAttributeDescription> InputAttribute(Desc.VertexAttributes.Size());
+    TArray<VkVertexInputAttributeDescription> InputAttribute(Desc.VertexAttributes.Size());
     for (unsigned i = 0; i < Desc.VertexAttributes.Size(); i++) {
         Desc.VertexAttributes[i].WriteInto(InputAttribute[i]);
     }
@@ -168,7 +170,7 @@ bool VulkanGraphicsPipeline::Create()
     };
 
     // Dynamic rendering
-    Array<VkFormat> ColorFormats(Desc.AttachmentFormats.ColorFormats.Size());
+    TArray<VkFormat> ColorFormats(Desc.AttachmentFormats.ColorFormats.Size());
     for (unsigned i = 0; i < Desc.AttachmentFormats.ColorFormats.Size(); i++) {
         ColorFormats[i] = ImageFormatToFormat(Desc.AttachmentFormats.ColorFormats[i]);
     }
@@ -209,13 +211,13 @@ bool VulkanGraphicsPipeline::Create()
     return false;
 }
 
-VulkanShader* VulkanGraphicsPipeline::GetShader(ERHIShaderType Type)
+RVulkanShader* RVulkanGraphicsPipeline::GetShader(ERHIShaderType Type)
 {
     switch (Type) {
         case ERHIShaderType::Vertex:
-            return Desc.VertexShader.AsRaw<VulkanShader>();
+            return Desc.VertexShader.AsRaw<RVulkanShader>();
         case ERHIShaderType::Pixel:
-            return Desc.PixelShader.AsRaw<VulkanShader>();
+            return Desc.PixelShader.AsRaw<RVulkanShader>();
         case ERHIShaderType::Compute: {
             checkNoEntry();
             return nullptr;
@@ -224,12 +226,12 @@ VulkanShader* VulkanGraphicsPipeline::GetShader(ERHIShaderType Type)
     checkNoEntry();
     return nullptr;
 }
-VulkanShader* VulkanGraphicsPipeline::GetShader(ERHIShaderType Type) const
+RVulkanShader* RVulkanGraphicsPipeline::GetShader(ERHIShaderType Type) const
 {
-    return const_cast<VulkanGraphicsPipeline*>(this)->GetShader(Type);
+    return const_cast<RVulkanGraphicsPipeline*>(this)->GetShader(Type);
 }
 
-static bool GetConstantRangeFromShader(Array<VkPushConstantRange>& OutPushRanges, Ref<VulkanShader>& InShader,
+static bool GetConstantRangeFromShader(TArray<VkPushConstantRange>& OutPushRanges, Ref<RVulkanShader>& InShader,
                                        const VkShaderStageFlags ShaderStage)
 {
     if (!InShader->GetReflectionData().PushConstants.has_value())
@@ -251,14 +253,14 @@ static bool GetConstantRangeFromShader(Array<VkPushConstantRange>& OutPushRanges
     return true;
 }
 
-bool VulkanGraphicsPipeline::CreatePipelineLayout()
+bool RVulkanGraphicsPipeline::CreatePipelineLayout()
 {
-    Array<VkPushConstantRange> PushRanges;
+    TArray<VkPushConstantRange> PushRanges;
     GetConstantRangeFromShader(PushRanges, Desc.VertexShader, VK_SHADER_STAGE_VERTEX_BIT);
     GetConstantRangeFromShader(PushRanges, Desc.PixelShader, VK_SHADER_STAGE_FRAGMENT_BIT);
 
     // TODO: Shader descriptor set reflection
-    Array<VkDescriptorSetLayout> SetLayout;
+    TArray<VkDescriptorSetLayout> SetLayout;
     SetLayout.Append(Desc.VertexShader->CompileDescriptorSetLayout());
     SetLayout.Append(Desc.PixelShader->CompileDescriptorSetLayout());
 

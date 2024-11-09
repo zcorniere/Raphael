@@ -14,7 +14,7 @@
 ///
 /// @brief Unix-specific functions
 ///
-class GenericPlatform
+class FGenericPlatform
 {
 public:
     /// Called before engine init, should the platform required it

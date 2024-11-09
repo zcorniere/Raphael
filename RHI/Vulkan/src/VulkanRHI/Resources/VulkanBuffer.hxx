@@ -5,16 +5,16 @@
 namespace VulkanRHI
 {
 
-class VulkanDevice;
-class VulkanMemoryAllocation;
+class FVulkanDevice;
+class RVulkanMemoryAllocation;
 
-class VulkanBuffer : public RHIBuffer, public IDeviceChild
+class RVulkanBuffer : public RRHIBuffer, public IDeviceChild
 {
-    RTTI_DECLARE_TYPEINFO(VulkanBuffer, RHIBuffer);
+    RTTI_DECLARE_TYPEINFO(RVulkanBuffer, RRHIBuffer);
 
 public:
-    VulkanBuffer(VulkanDevice* InDevice, const RHIBufferDesc& InDescription);
-    ~VulkanBuffer();
+    RVulkanBuffer(FVulkanDevice* InDevice, const FRHIBufferDesc& InDescription);
+    ~RVulkanBuffer();
 
     void SetName(std::string_view InName) override;
 
@@ -36,7 +36,7 @@ public:
 
 private:
     VkBuffer BufferHandle;
-    Ref<VulkanMemoryAllocation> Memory;
+    Ref<RVulkanMemoryAllocation> Memory;
 };
 
 }    // namespace VulkanRHI

@@ -24,8 +24,8 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage)
     return OutUsage;
 }
 
-VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const RHIBufferDesc& InDescription)
-    : RHIBuffer(InDescription), IDeviceChild(InDevice)
+RVulkanBuffer::RVulkanBuffer(FVulkanDevice* InDevice, const FRHIBufferDesc& InDescription)
+    : RRHIBuffer(InDescription), IDeviceChild(InDevice)
 {
     if (Description.Size == 0) {
         return;
@@ -62,16 +62,16 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* InDevice, const RHIBufferDesc& InDescri
     }
 }
 
-VulkanBuffer::~VulkanBuffer()
+RVulkanBuffer::~RVulkanBuffer()
 {
-    RHI::DeferedDeletion([Memory = this->Memory, BufferHandle = this->BufferHandle, Device = this->Device] () mutable {
+    RHI::DeferedDeletion([Memory = this->Memory, BufferHandle = this->BufferHandle, Device = this->Device]() mutable {
         Device->GetMemoryManager()->Free(Memory);
 
         VulkanAPI::vkDestroyBuffer(Device->GetHandle(), BufferHandle, VULKAN_CPU_ALLOCATOR);
     });
 }
 
-void VulkanBuffer::SetName(std::string_view InName)
+void RVulkanBuffer::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_BUFFER, BufferHandle, "{:s}", InName);

@@ -73,7 +73,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
     LOG_V(LogVulkanRHI, VulkanMessageSeverityToLogLevel(MsgSeverity), "{:s} [ {:s} ]\n\t{:s}\n{:s}",
           VulkanMessageType(messageType), pCallbackData->pMessageIdName, InterestingPart.data() + Size, Objects);
 
-    if (Platform::isDebuggerPresent()) {
+    if (FPlatform::isDebuggerPresent()) {
         PLATFORM_BREAK();
     }
     return VK_FALSE;
@@ -82,13 +82,13 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
 namespace VulkanRHI
 {
 
-Array<const char*> VulkanRHI_Debug::GetSupportedInstanceLayers()
+TArray<const char*> VulkanRHI_Debug::GetSupportedInstanceLayers()
 {
-    static const Array<const char*> ExpectedValidationLayers{"VK_LAYER_KHRONOS_validation"};
-    Array<const char*> FoundLayers;
+    static const TArray<const char*> ExpectedValidationLayers{"VK_LAYER_KHRONOS_validation"};
+    TArray<const char*> FoundLayers;
 
     uint32 PropertiesCount;
-    Array<VkLayerProperties> AvailableLayers;
+    TArray<VkLayerProperties> AvailableLayers;
     VulkanAPI::vkEnumerateInstanceLayerProperties(&PropertiesCount, nullptr);
     AvailableLayers.Resize(PropertiesCount);
     VulkanAPI::vkEnumerateInstanceLayerProperties(&PropertiesCount, AvailableLayers.Raw());
@@ -109,7 +109,7 @@ Array<const char*> VulkanRHI_Debug::GetSupportedInstanceLayers()
             }
             return true;
         };
-        Array<const char*> MissingLayer;
+        TArray<const char*> MissingLayer;
         LOG(LogVulkanRHI, Error, "Some Validation layers were not found !");
         for (const char* Layer: ExpectedValidationLayers | std::views::filter(FilterLambda)) {
             LOG(LogVulkanRHI, Error, "- {}", Layer);

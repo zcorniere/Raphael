@@ -17,8 +17,8 @@ std::filesystem::path GetCurrentFilePath()
     return File.parent_path();
 }
 
-static void CheckReflection(const VulkanRHI::VulkanShader::ReflectionData& ExpectedReflection,
-                            const VulkanRHI::VulkanShader::ReflectionData& GotReflection)
+static void CheckReflection(const VulkanRHI::RVulkanShader::FReflectionData& ExpectedReflection,
+                            const VulkanRHI::RVulkanShader::FReflectionData& GotReflection)
 {
     REQUIRE(GotReflection.PushConstants.has_value() == ExpectedReflection.PushConstants.has_value());
     if (GotReflection.PushConstants.has_value() && ExpectedReflection.PushConstants.has_value()) {
@@ -43,22 +43,22 @@ TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
     ::Log::Init();
 
     std::filesystem::path SimpleShaderPath = GetCurrentFilePath() / "test_shaders/SimpleShader.vert";
-    VulkanShaderCompiler Compiler;
-    Compiler.SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::None);
+    FVulkanShaderCompiler Compiler;
+    Compiler.SetOptimizationLevel(FVulkanShaderCompiler::EOptimizationLevel::None);
 
-    Ref<VulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
+    Ref<RVulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
     REQUIRE(ShaderResult);
 
     SECTION("Test shader Cache")
     {
-        Ref<VulkanShader> CachedResult = Compiler.Get(SimpleShaderPath);
+        Ref<RVulkanShader> CachedResult = Compiler.Get(SimpleShaderPath);
 
         CHECK(ShaderResult == CachedResult);
     }
 
     CHECK(ShaderResult->GetShaderType() == ERHIShaderType::Vertex);
 
-    const VulkanShader::ReflectionData ExpectedReflection{
+    const RVulkanShader::FReflectionData ExpectedReflection{
         .StageInput =
             {
                 {
@@ -82,7 +82,7 @@ TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
             },
         .PushConstants = {},
     };
-    const VulkanShader::ReflectionData& GotReflection = ShaderResult->GetReflectionData();
+    const RVulkanShader::FReflectionData& GotReflection = ShaderResult->GetReflectionData();
 
     CheckReflection(ExpectedReflection, GotReflection);
 
@@ -140,16 +140,16 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
     ::Log::Init();
 
     std::filesystem::path SimpleShaderPath = GetCurrentFilePath() / "test_shaders/TestComplex.frag";
-    VulkanShaderCompiler Compiler;
-    Compiler.SetOptimizationLevel(VulkanRHI::VulkanShaderCompiler::OptimizationLevel::None);
+    FVulkanShaderCompiler Compiler;
+    Compiler.SetOptimizationLevel(VulkanRHI::FVulkanShaderCompiler::EOptimizationLevel::None);
 
-    Ref<VulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
+    Ref<RVulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
     REQUIRE(ShaderResult);
 
     CHECK(ShaderResult->GetShaderType() == ERHIShaderType::Pixel);
 
     const uint32 ExpectedPushConstantOffset = 64;
-    const ShaderResource::PushConstantRange ExpectedPushConstant{
+    const ShaderResource::FPushConstantRange ExpectedPushConstant{
         .Offset = ExpectedPushConstantOffset,
         .Size = ExpectedPushConstantOffset + sizeof(PushConstantStruct),
         .Parameter =
@@ -209,7 +209,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
             },
     };
 
-    const VulkanShader::ReflectionData
+    const RVulkanShader::FReflectionData
         ExpectedReflection{
             .StageInput =
                 {
@@ -258,12 +258,12 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                 },
             .StorageBuffers =
                 {
-                    ShaderResource::StorageBuffer{
+                    ShaderResource::FStorageBuffer{
                         .Set = 2,
                         .Binding = 1,
                         .Parameter =
                             {
-                                ShaderParameter{
+                                FShaderParameter{
                                     .Name = "ObjectMaterials",
                                     .Type = EShaderBufferType::Struct,
                                     .Size = 0,
@@ -403,11 +403,11 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                 },
                             },
                     },
-                    ShaderResource::StorageBuffer{
+                    ShaderResource::FStorageBuffer{
                         .Set = 1,
                         .Binding = 0,
                         .Parameter =
-                            ShaderParameter{
+                            FShaderParameter{
                                 .Name = "DirectLight",
                                 .Type = EShaderBufferType::Struct,
                                 .Size = 0,
@@ -457,12 +457,12 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                             },
                     },
 
-                    ShaderResource::StorageBuffer{
+                    ShaderResource::FStorageBuffer{
                         .Set = 1,
                         .Binding = 1,
                         .Parameter =
                             {
-                                ShaderParameter{
+                                FShaderParameter{
                                     .Name = "SpoLight",
                                     .Type = EShaderBufferType::Struct,
                                     .Size = 0,
@@ -540,12 +540,12 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                 },
                             },
                     },
-                    ShaderResource::StorageBuffer{
+                    ShaderResource::FStorageBuffer{
                         .Set = 1,
                         .Binding = 2,
                         .Parameter =
                             {
-                                ShaderParameter{
+                                FShaderParameter{
                                     .Name = "LightBuffer",
                                     .Type = EShaderBufferType::Struct,
                                     .Size = 0,
@@ -608,20 +608,20 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                     },
                 },
         };
-    const VulkanShader::ReflectionData& GotReflection = ShaderResult->GetReflectionData();
+    const RVulkanShader::FReflectionData& GotReflection = ShaderResult->GetReflectionData();
 
     CheckReflection(ExpectedReflection, GotReflection);
 
     SECTION("Test Serialization")
     {
         {
-            Serialization::FileStreamWriter Writer("test.txt");
+            Serialization::FFileStreamWriter Writer("test.txt");
             Writer.WriteObject(ExpectedReflection);
             Writer.Flush();
         }
-        VulkanShader::ReflectionData GotExpectedReflection;
+        RVulkanShader::FReflectionData GotExpectedReflection;
         {
-            Serialization::FileStreamReader Reader("test.txt");
+            Serialization::FFileStreamReader Reader("test.txt");
             CHECK(Reader);
             CHECK(Reader.IsGood());
 

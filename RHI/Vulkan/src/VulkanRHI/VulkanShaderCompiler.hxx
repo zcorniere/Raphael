@@ -5,13 +5,13 @@
 namespace VulkanRHI
 {
 
-class VulkanShader;
+class RVulkanShader;
 
-class VulkanShaderCompiler
+class FVulkanShaderCompiler
 {
 public:
     /// Which optimization level to use when compiling
-    enum class OptimizationLevel {
+    enum class EOptimizationLevel {
         /// No optimization, enable debug symbols
         None,
         /// Optimize for size, no debug symbols
@@ -23,7 +23,7 @@ public:
     };
 
 private:
-    enum class CompilationStatus {
+    enum class ECompilationStatus {
         None,
         CheckCache,
         Loading,
@@ -34,39 +34,39 @@ private:
     };
 
     struct ShaderCompileResult {
-        CompilationStatus Status = CompilationStatus::None;
+        ECompilationStatus Status = ECompilationStatus::None;
         std::filesystem::path Path;
         ERHIShaderType ShaderType;
         std::string SourceCode;
-        Array<uint32> CompiledCode;
-        VulkanShader::ReflectionData Reflection;
+        TArray<uint32> CompiledCode;
+        RVulkanShader::FReflectionData Reflection;
     };
 
 public:
-    VulkanShaderCompiler();
-    ~VulkanShaderCompiler();
+    FVulkanShaderCompiler();
+    ~FVulkanShaderCompiler();
 
     /// @brief Set the optimization level expected when compiling
     ///
     /// Changing the value does not trigger a recompilation
-    void SetOptimizationLevel(OptimizationLevel Level);
+    void SetOptimizationLevel(EOptimizationLevel Level);
 
     /// @brief Return a shader handle
     /// @param Path The path (internally used as ID) of the shader
     /// @param bForceCompile Should the shader be recompiled regardless of its cached status ?
-    Ref<VulkanShader> Get(std::filesystem::path Path, bool bForceCompile = false);
+    Ref<RVulkanShader> Get(std::filesystem::path Path, bool bForceCompile = false);
 
 private:
-    Ref<VulkanShader> CheckCache(ShaderCompileResult& Result);
+    Ref<RVulkanShader> CheckCache(ShaderCompileResult& Result);
     bool LoadShaderSourceFile(ShaderCompileResult& Result);
     bool CompileShader(ShaderCompileResult& Result);
     bool GenerateReflection(ShaderCompileResult& Result);
 
 private:
-    OptimizationLevel Level = OptimizationLevel::None;
+    EOptimizationLevel Level = EOptimizationLevel::None;
 
     std::mutex m_ShaderCacheMutex;
-    std::unordered_map<std::string, WeakRef<VulkanShader>> m_ShaderCache;
+    std::unordered_map<std::string, WeakRef<RVulkanShader>> m_ShaderCache;
 };
 
 }    // namespace VulkanRHI

@@ -2,7 +2,7 @@ namespace Math
 {
 
 template <unsigned Size, typename T>
-constexpr std::strong_ordering IsVectorEqual(const Vector<Size, T>& lhs, const Vector<Size, T>& rhs)
+constexpr std::strong_ordering IsVectorEqual(const FVector<Size, T>& lhs, const FVector<Size, T>& rhs)
 {
     for (unsigned i = 0; i < Size; ++i) {
         if (lhs.data[i] < rhs.data[i]) {
@@ -14,139 +14,139 @@ constexpr std::strong_ordering IsVectorEqual(const Vector<Size, T>& lhs, const V
     return std::strong_ordering::equal;
 }
 
-// Vector 2
+// FVector 2
 template <typename T>
-Vector<2, T>::Vector()
+FVector<2, T>::FVector()
 {
     x = y = 0;
-    static_assert(sizeof(Vector<2, T>) == 2 * sizeof(T));
+    static_assert(sizeof(FVector<2, T>) == 2 * sizeof(T));
 }
 
 template <typename T>
-Vector<2, T>::Vector(T x, T y): x(x), y(y)
+FVector<2, T>::FVector(T x, T y): x(x), y(y)
 {
 }
 
 template <typename T>
-Vector<2, T>::Vector(T scalar): x(scalar), y(scalar)
+FVector<2, T>::FVector(T scalar): x(scalar), y(scalar)
 {
 }
 
 template <typename T>
-Vector<2, T>::Vector(const Vector<2, T>& other): x(other.x), y(other.y)
+FVector<2, T>::FVector(const FVector<2, T>& other): x(other.x), y(other.y)
 {
 }
 
 template <typename T>
-bool Vector<2, T>::operator==(const Vector<2, T>& other) const
+bool FVector<2, T>::operator==(const FVector<2, T>& other) const
 {
     return IsVectorEqual(*this, other) == std::strong_ordering::equal;
 }
 
 template <typename T>
-std::strong_ordering Vector<2, T>::operator<=>(const Vector<2, T>& other) const
+std::strong_ordering FVector<2, T>::operator<=>(const FVector<2, T>& other) const
 {
     return IsVectorEqual(*this, other);
 }
-// End Vector 2
+// End FVector 2
 
-// Vector 3
+// FVector 3
 template <typename T>
-Vector<3, T>::Vector()
+FVector<3, T>::FVector()
 {
     x = y = z = 0;
-    static_assert(sizeof(Vector<3, T>) == 3 * sizeof(T));
+    static_assert(sizeof(FVector<3, T>) == 3 * sizeof(T));
 }
 
 template <typename T>
-Vector<3, T>::Vector(T x, T y, T z): x(x), y(y), z(z)
+FVector<3, T>::FVector(T x, T y, T z): x(x), y(y), z(z)
 {
 }
 
 template <typename T>
-Vector<3, T>::Vector(T scalar): x(scalar), y(scalar), z(scalar)
+FVector<3, T>::FVector(T scalar): x(scalar), y(scalar), z(scalar)
 {
 }
 
 template <typename T>
-Vector<3, T>::Vector(const Vector<3, T>& other): x(other.x), y(other.y), z(other.z)
+FVector<3, T>::FVector(const FVector<3, T>& other): x(other.x), y(other.y), z(other.z)
 {
 }
 
 template <typename T>
-Vector<3, T>::Vector(const Vector<2, T>& other, T z): x(other.x), y(other.y), z(z)
+FVector<3, T>::FVector(const FVector<2, T>& other, T z): x(other.x), y(other.y), z(z)
 {
 }
 
 template <typename T>
-bool Vector<3, T>::operator==(const Vector<3, T>& other) const
+bool FVector<3, T>::operator==(const FVector<3, T>& other) const
 {
     return IsVectorEqual(*this, other) == std::strong_ordering::equal;
 }
 
 template <typename T>
-std::strong_ordering Vector<3, T>::operator<=>(const Vector<3, T>& other) const
+std::strong_ordering FVector<3, T>::operator<=>(const FVector<3, T>& other) const
 {
     return IsVectorEqual(*this, other);
 }
-// End Vector 3
+// End FVector 3
 
-// Vector 4
+// FVector 4
 template <typename T>
-Vector<4, T>::Vector()
+FVector<4, T>::FVector()
 {
     x = y = z = w = 0;
-    static_assert(sizeof(Vector<4, T>) == 4 * sizeof(T));
+    static_assert(sizeof(FVector<4, T>) == 4 * sizeof(T));
 }
 
 template <typename T>
-Vector<4, T>::Vector(T x, T y, T z, T w): x(x), y(y), z(z), w(w)
+FVector<4, T>::FVector(T x, T y, T z, T w): x(x), y(y), z(z), w(w)
 {
 }
 
 template <typename T>
-Vector<4, T>::Vector(T scalar): x(scalar), y(scalar), z(scalar), w(scalar)
+FVector<4, T>::FVector(T scalar): x(scalar), y(scalar), z(scalar), w(scalar)
 {
 }
 
 template <typename T>
-Vector<4, T>::Vector(const Vector<4, T>& other): x(other.x), y(other.y), z(other.z), w(other.w)
+FVector<4, T>::FVector(const FVector<4, T>& other): x(other.x), y(other.y), z(other.z), w(other.w)
 {
 }
 
 template <typename T>
-Vector<4, T>::Vector(const Vector<3, T>& other, T w): x(other.x), y(other.y), z(other.z), w(w)
+FVector<4, T>::FVector(const FVector<3, T>& other, T w): x(other.x), y(other.y), z(other.z), w(w)
 {
 }
 
 template <typename T>
-Vector<4, T>::Vector(const Vector<2, T>& other, T z, T w): x(other.x), y(other.y), z(z), w(w)
+FVector<4, T>::FVector(const FVector<2, T>& other, T z, T w): x(other.x), y(other.y), z(z), w(w)
 {
 }
 
 template <typename T>
-Vector<4, T>::Vector(const Vector<2, T>& other1, const Vector<2, T>& other2)
+FVector<4, T>::FVector(const FVector<2, T>& other1, const FVector<2, T>& other2)
     : x(other1.x), y(other1.y), z(other2.x), w(other2.y)
 {
 }
 
 template <typename T>
-bool Vector<4, T>::operator==(const Vector<4, T>& other) const
+bool FVector<4, T>::operator==(const FVector<4, T>& other) const
 {
     return IsVectorEqual(*this, other) == std::strong_ordering::equal;
 }
 
 template <typename T>
-std::strong_ordering Vector<4, T>::operator<=>(const Vector<4, T>& other) const
+std::strong_ordering FVector<4, T>::operator<=>(const FVector<4, T>& other) const
 {
     return IsVectorEqual(*this, other);
 }
-// End Vector 4
+// End FVector 4
 
 template <unsigned Size, typename T>
-Vector<Size, T> operator+(const Vector<Size, T>& lhs, const Vector<Size, T>& rhs)
+FVector<Size, T> operator+(const FVector<Size, T>& lhs, const FVector<Size, T>& rhs)
 {
-    Vector<Size, T> result;
+    FVector<Size, T> result;
     for (unsigned i = 0; i < Size; ++i) {
         result.data[i] = lhs.data[i] + rhs.data[i];
     }
@@ -154,9 +154,9 @@ Vector<Size, T> operator+(const Vector<Size, T>& lhs, const Vector<Size, T>& rhs
 }
 
 template <unsigned Size, typename T>
-Vector<Size, T> operator-(const Vector<Size, T>& lhs, const Vector<Size, T>& rhs)
+FVector<Size, T> operator-(const FVector<Size, T>& lhs, const FVector<Size, T>& rhs)
 {
-    Vector<Size, T> result;
+    FVector<Size, T> result;
     for (unsigned i = 0; i < Size; ++i) {
         result.data[i] = lhs.data[i] - rhs.data[i];
     }
@@ -164,9 +164,9 @@ Vector<Size, T> operator-(const Vector<Size, T>& lhs, const Vector<Size, T>& rhs
 }
 
 template <unsigned Size, typename T>
-Vector<Size, T> operator*(const Vector<Size, T>& lhs, const Vector<Size, T>& rhs)
+FVector<Size, T> operator*(const FVector<Size, T>& lhs, const FVector<Size, T>& rhs)
 {
-    Vector<Size, T> result;
+    FVector<Size, T> result;
     for (unsigned i = 0; i < Size; ++i) {
         result.data[i] = lhs.data[i] * rhs.data[i];
     }
@@ -174,9 +174,9 @@ Vector<Size, T> operator*(const Vector<Size, T>& lhs, const Vector<Size, T>& rhs
 }
 
 template <unsigned Size, typename T>
-Vector<Size, T> operator/(const Vector<Size, T>& lhs, const Vector<Size, T>& rhs)
+FVector<Size, T> operator/(const FVector<Size, T>& lhs, const FVector<Size, T>& rhs)
 {
-    Vector<Size, T> result;
+    FVector<Size, T> result;
     for (unsigned i = 0; i < Size; ++i) {
         result.data[i] = lhs.data[i] / rhs.data[i];
     }
@@ -184,9 +184,9 @@ Vector<Size, T> operator/(const Vector<Size, T>& lhs, const Vector<Size, T>& rhs
 }
 
 template <unsigned Size, typename T>
-Vector<Size, T> operator*(const Vector<Size, T>& lhs, T scalar)
+FVector<Size, T> operator*(const FVector<Size, T>& lhs, T scalar)
 {
-    Vector<Size, T> result;
+    FVector<Size, T> result;
     for (unsigned i = 0; i < Size; ++i) {
         result.data[i] = lhs.data[i] * scalar;
     }
@@ -194,9 +194,9 @@ Vector<Size, T> operator*(const Vector<Size, T>& lhs, T scalar)
 }
 
 template <unsigned Size, typename T>
-Vector<Size, T> operator/(const Vector<Size, T>& lhs, T scalar)
+FVector<Size, T> operator/(const FVector<Size, T>& lhs, T scalar)
 {
-    Vector<Size, T> result;
+    FVector<Size, T> result;
     for (unsigned i = 0; i < Size; ++i) {
         result.data[i] = lhs.data[i] / scalar;
     }

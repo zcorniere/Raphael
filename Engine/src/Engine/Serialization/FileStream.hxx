@@ -8,12 +8,12 @@
 
 namespace Serialization
 {
-class FileStreamWriter : public StreamWriter
+class FFileStreamWriter : public FStreamWriter
 {
 public:
-    FileStreamWriter(const std::filesystem::path& Path);
-    FileStreamWriter(const FileStreamWriter&) = delete;
-    virtual ~FileStreamWriter();
+    FFileStreamWriter(const std::filesystem::path& Path);
+    FFileStreamWriter(const FFileStreamWriter&) = delete;
+    virtual ~FFileStreamWriter();
 
     virtual bool IsGood() const override final;
     virtual uint64_t GetStreamPosition() override final;
@@ -27,13 +27,13 @@ private:
     std::ofstream File;
 };
 
-class FileStreamReader : public StreamReader
+class FFileStreamReader : public FStreamReader
 {
 
 public:
-    FileStreamReader(const std::filesystem::path& Path);
-    FileStreamReader(const FileStreamReader&) = delete;
-    virtual ~FileStreamReader();
+    FFileStreamReader(const std::filesystem::path& Path);
+    FFileStreamReader(const FFileStreamReader&) = delete;
+    virtual ~FFileStreamReader();
 
     virtual bool IsGood() const override final;
     virtual uint64_t GetStreamPosition() override final;

@@ -7,23 +7,23 @@
 namespace VulkanRHI
 {
 
-VulkanQueue::VulkanQueue(VulkanDevice* InDevice, std::uint32_t InFamilyIndex)
+FVulkanQueue::FVulkanQueue(FVulkanDevice* InDevice, std::uint32_t InFamilyIndex)
     : IDeviceChild(InDevice), Queue(VK_NULL_HANDLE), FamilyIndex(InFamilyIndex), QueueIndex(0)
 {
     VulkanAPI::vkGetDeviceQueue(Device->GetHandle(), FamilyIndex, QueueIndex, &Queue);
 }
 
-VulkanQueue::~VulkanQueue()
+FVulkanQueue::~FVulkanQueue()
 {
 }
 
-void VulkanQueue::Submit(VulkanCmdBuffer* CmdBuffer, uint32 NumSignaledSemaphores, VkSemaphore* SignalSemaphores)
+void FVulkanQueue::Submit(FVulkanCmdBuffer* CmdBuffer, uint32 NumSignaledSemaphores, VkSemaphore* SignalSemaphores)
 {
     RPH_PROFILE_FUNC()
 
     check(CmdBuffer && CmdBuffer->HasEnded());
 
-    Ref<Fence>& Fence = CmdBuffer->m_Fence;
+    Ref<RFence>& Fence = CmdBuffer->m_Fence;
     check(!Fence->IsSignaled());
 
     const VkCommandBuffer CmdBuffers[] = {
@@ -38,10 +38,10 @@ void VulkanQueue::Submit(VulkanCmdBuffer* CmdBuffer, uint32 NumSignaledSemaphore
         .pSignalSemaphores = SignalSemaphores,
     };
 
-    Array<VkSemaphore> WaitSemaphores;
+    TArray<VkSemaphore> WaitSemaphores;
     if (!CmdBuffer->WaitSemaphore.IsEmpty()) {
         WaitSemaphores.Reserve(CmdBuffer->WaitSemaphore.Size());
-        for (Ref<Semaphore>& Semaphore: CmdBuffer->WaitSemaphore) {
+        for (Ref<RSemaphore>& Semaphore: CmdBuffer->WaitSemaphore) {
             WaitSemaphores.Add(Semaphore->GetHandle());
         }
         SubmitInfo.waitSemaphoreCount = CmdBuffer->WaitSemaphore.Size();
@@ -50,13 +50,13 @@ void VulkanQueue::Submit(VulkanCmdBuffer* CmdBuffer, uint32 NumSignaledSemaphore
     }
     VK_CHECK_RESULT(VulkanAPI::vkQueueSubmit(Queue, 1, &SubmitInfo, Fence->GetHandle()));
 
-    CmdBuffer->State = VulkanCmdBuffer::EState::Submitted;
+    CmdBuffer->State = FVulkanCmdBuffer::EState::Submitted;
     CmdBuffer->WaitSemaphore.Clear();
 }
 
-void VulkanQueue::SetName(std::string_view InName)
+void FVulkanQueue::SetName(std::string_view InName)
 {
-    NamedClass::SetName(InName);
+    FNamedClass::SetName(InName);
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_QUEUE, Queue, "{:s}", InName);
 }
 

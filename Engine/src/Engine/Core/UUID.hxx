@@ -8,12 +8,12 @@ namespace Raphael
 // GUID and UUID, at the moment we're simply using a randomly generated 64-bit
 // integer, as the possibility of a clash is low enough for now.
 // This may change in the future.
-class UUID
+class FUUID
 {
 public:
-    UUID();
-    explicit UUID(uint64 uuid);
-    UUID(const UUID& other);
+    FUUID();
+    explicit FUUID(uint64 uuid);
+    FUUID(const FUUID& other);
 
     uint64 ID() const
     {
@@ -39,8 +39,8 @@ namespace std
 {
 
 template <>
-struct hash<Raphael::UUID> {
-    std::size_t operator()(const Raphael::UUID& uuid) const
+struct hash<Raphael::FUUID> {
+    std::size_t operator()(const Raphael::FUUID& uuid) const
     {
         // uuid is already a randomly generated number, and is suitable as a hash key as-is.
         return uuid;

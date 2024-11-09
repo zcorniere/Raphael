@@ -4,26 +4,26 @@
 
 #include "VulkanRHI/Resources/VulkanTexture.hxx"
 
-class Window;
+class RWindow;
 
 namespace VulkanRHI
 {
 
-class VulkanDevice;
-class Semaphore;
-class VulkanSwapChain;
-class VulkanQueue;
-class VulkanCmdBuffer;
+class FVulkanDevice;
+class RSemaphore;
+class RVulkanSwapChain;
+class FVulkanQueue;
+class FVulkanCmdBuffer;
 struct VulkanSwapChainRecreateInfo;
 
-class VulkanCommandContext;
+class FVulkanCommandContext;
 
-class VulkanViewport : public RHIViewport, public IDeviceChild
+class VulkanViewport : public RRHIViewport, public IDeviceChild
 {
-    RTTI_DECLARE_TYPEINFO(VulkanViewport, RHIViewport);
+    RTTI_DECLARE_TYPEINFO(VulkanViewport, RRHIViewport);
 
 public:
-    VulkanViewport(VulkanDevice* InDevice, Ref<Window> InWindowHandle, UVector2 InSize);
+    VulkanViewport(FVulkanDevice* InDevice, Ref<RWindow> InWindowHandle, UVector2 InSize);
     ~VulkanViewport();
 
     virtual UVector2 GetSize() const override
@@ -33,14 +33,14 @@ public:
     virtual void ResizeViewport(uint32 Width, uint32 Height) override;
 
     void SetName(std::string_view InName) override;
-    bool Present(VulkanCommandContext* Context, VulkanCmdBuffer* CmdBuffer, VulkanQueue* Queue,
-                 VulkanQueue* PresentQueue);
-    void RecreateSwapchain(Ref<Window> NewNativeWindow);
+    bool Present(FVulkanCommandContext* Context, FVulkanCmdBuffer* CmdBuffer, FVulkanQueue* Queue,
+                 FVulkanQueue* PresentQueue);
+    void RecreateSwapchain(Ref<RWindow> NewNativeWindow);
 
-    virtual Ref<RHITexture> GetBackbuffer() const override
+    virtual Ref<RRHITexture> GetBackbuffer() const override
     {
         check(RenderingBackbuffer);
-        return RenderingBackbuffer.As<RHITexture>();
+        return RenderingBackbuffer.As<RRHITexture>();
     }
 
 private:
@@ -48,23 +48,23 @@ private:
     void DeleteSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo);
     bool TryAcquireImageIndex();
 
-    bool TryPresenting(VulkanQueue* PresentQueue);
+    bool TryPresenting(FVulkanQueue* PresentQueue);
 
 private:
-    Ref<VulkanSwapChain> SwapChain;
+    Ref<RVulkanSwapChain> SwapChain;
 
-    Array<VkImage> BackBufferImages;
-    Array<VulkanTextureView> TexturesViews;
-    Array<Ref<Semaphore>> RenderingDoneSemaphores;
+    TArray<VkImage> BackBufferImages;
+    TArray<VulkanTextureView> TexturesViews;
+    TArray<Ref<RSemaphore>> RenderingDoneSemaphores;
 
     Ref<VulkanTexture> RenderingBackbuffer;
-    Ref<Window> WindowHandle;
+    Ref<RWindow> WindowHandle;
     UVector2 Size;
 
     int32 AcquiredImageIndex;
-    Ref<Semaphore> AcquiredSemaphore;
+    Ref<RSemaphore> AcquiredSemaphore;
 
-    friend class VulkanDynamicRHI;
+    friend class FVulkanDynamicRHI;
 };
 
 }    // namespace VulkanRHI

@@ -12,10 +12,10 @@ DECLARE_LOGGER_CATEGORY(Core, LogVulkanSwapchain, Info);
 namespace VulkanRHI
 {
 
-VulkanSwapChain::SupportDetails VulkanSwapChain::SupportDetails::QuerySwapChainSupport(const VulkanDevice* Device,
-                                                                                       const VkSurfaceKHR& Surface)
+RVulkanSwapChain::FSupportDetails RVulkanSwapChain::FSupportDetails::QuerySwapChainSupport(const FVulkanDevice* Device,
+                                                                                           const VkSurfaceKHR& Surface)
 {
-    VulkanSwapChain::SupportDetails Details;
+    RVulkanSwapChain::FSupportDetails Details;
 
     {
         VK_CHECK_RESULT(VulkanAPI::vkGetPhysicalDeviceSurfaceCapabilitiesKHR(Device->GetPhysicalHandle(), Surface,
@@ -46,7 +46,7 @@ VulkanSwapChain::SupportDetails VulkanSwapChain::SupportDetails::QuerySwapChainS
     return Details;
 }
 
-VkSurfaceFormatKHR VulkanSwapChain::SupportDetails::ChooseSwapSurfaceFormat() const noexcept
+VkSurfaceFormatKHR RVulkanSwapChain::FSupportDetails::ChooseSwapSurfaceFormat() const noexcept
 {
     for (const auto& availableFormat: Formats)
         if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
@@ -55,7 +55,7 @@ VkSurfaceFormatKHR VulkanSwapChain::SupportDetails::ChooseSwapSurfaceFormat() co
     return Formats[0];
 }
 
-VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool LockToVSync) const noexcept
+VkPresentModeKHR RVulkanSwapChain::FSupportDetails::ChooseSwapPresentMode(bool LockToVSync) const noexcept
 {
     bool bFoundPresentModeMailbox = false;
     bool bFoundPresentModeImmediate = false;
@@ -94,7 +94,7 @@ VkPresentModeKHR VulkanSwapChain::SupportDetails::ChooseSwapPresentMode(bool Loc
     }
 }
 
-VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const UVector2& InSize) const noexcept
+VkExtent2D RVulkanSwapChain::FSupportDetails::ChooseSwapExtent(const UVector2& InSize) const noexcept
 {
     return {
         .width = std::clamp(InSize.x, Capabilities.minImageExtent.width, Capabilities.maxImageExtent.width),
@@ -102,9 +102,9 @@ VkExtent2D VulkanSwapChain::SupportDetails::ChooseSwapExtent(const UVector2& InS
     };
 }
 
-VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, const UVector2& InSize,
-                                 Window* WindowHandle, uint32 InDesiredNumBackBuffers, Array<VkImage>& OutImages,
-                                 bool LockToVSync, VulkanSwapChainRecreateInfo* RecreateInfo)
+RVulkanSwapChain::RVulkanSwapChain(VkInstance InInstance, FVulkanDevice* InDevice, const UVector2& InSize,
+                                   RWindow* WindowHandle, uint32 InDesiredNumBackBuffers, TArray<VkImage>& OutImages,
+                                   bool LockToVSync, VulkanSwapChainRecreateInfo* RecreateInfo)
     : IDeviceChild(InDevice),
       CurrentImageIndex(-1),
       SemaphoreIndex(0),
@@ -118,10 +118,10 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, 
         Surface = RecreateInfo->Surface;
         RecreateInfo->Surface = VK_NULL_HANDLE;
     } else {
-        VulkanPlatform::CreateSurface(WindowHandle, Instance, &Surface);
+        FVulkanPlatform::CreateSurface(WindowHandle, Instance, &Surface);
     }
 
-    const SupportDetails SwapChainSupport = SupportDetails::QuerySwapChainSupport(Device, Surface);
+    const FSupportDetails SwapChainSupport = FSupportDetails::QuerySwapChainSupport(Device, Surface);
     VkSurfaceFormatKHR SurfaceFormat = SwapChainSupport.ChooseSwapSurfaceFormat();
     VkPresentModeKHR PresentMode = SwapChainSupport.ChooseSwapPresentMode(LockToVSync);
     VkExtent2D Extent = SwapChainSupport.ChooseSwapExtent(InSize);
@@ -188,18 +188,18 @@ VulkanSwapChain::VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, 
 
     ImageAcquiredSemaphore.Resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
-        ImageAcquiredSemaphore[BufferIndex] = Ref<Semaphore>::Create(Device);
+        ImageAcquiredSemaphore[BufferIndex] = Ref<RSemaphore>::Create(Device);
         ImageAcquiredSemaphore[BufferIndex]->SetName(std::format("{}.SwapchainImageAcquired", BufferIndex));
     }
 
     ImageInUseFence.Resize(NumSwapchainImages);
     for (uint32 BufferIndex = 0; BufferIndex < NumSwapchainImages; BufferIndex++) {
-        ImageInUseFence[BufferIndex] = Ref<Fence>::Create(Device, true);
+        ImageInUseFence[BufferIndex] = Ref<RFence>::Create(Device, true);
         ImageInUseFence[BufferIndex]->SetName(std::format("{}.SwapchainImageInUse", BufferIndex));
     }
 }
 
-void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo* RecreateInfo)
+void RVulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo* RecreateInfo)
 {
     if (RecreateInfo) {
         RecreateInfo->SwapChain = SwapChain;
@@ -218,7 +218,7 @@ void VulkanSwapChain::Destroy(VulkanSwapChainRecreateInfo* RecreateInfo)
     ImageInUseFence.Clear();
 }
 
-VulkanSwapChain::Status VulkanSwapChain::Present(VulkanQueue* PresentQueue, Ref<Semaphore>& RenderingComplete)
+RVulkanSwapChain::EStatus RVulkanSwapChain::Present(FVulkanQueue* PresentQueue, Ref<RSemaphore>& RenderingComplete)
 {
     RPH_PROFILE_FUNC()
 
@@ -244,27 +244,27 @@ VulkanSwapChain::Status VulkanSwapChain::Present(VulkanQueue* PresentQueue, Ref<
     CurrentImageIndex = -1;
 
     if (PresentResult == VK_ERROR_OUT_OF_DATE_KHR) {
-        return Status::OutOfDate;
+        return EStatus::OutOfDate;
     }
 
     if (PresentResult == VK_ERROR_SURFACE_LOST_KHR) {
-        return Status::SurfaceLost;
+        return EStatus::SurfaceLost;
     }
 
     if (PresentResult != VK_SUCCESS && PresentResult != VK_SUBOPTIMAL_KHR) {
         VK_CHECK_RESULT(PresentResult);
     }
 
-    return Status::Healty;
+    return EStatus::Healty;
 }
 
-void VulkanSwapChain::SetName(std::string_view InName)
+void RVulkanSwapChain::SetName(std::string_view InName)
 {
     RObject::SetName(InName);
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SWAPCHAIN_KHR, SwapChain, "{:s}", InName);
 }
 
-int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore>& OutSemaphore)
+int32 RVulkanSwapChain::AcquireImageIndex(Ref<RSemaphore>& OutSemaphore)
 {
     RPH_PROFILE_FUNC()
 
@@ -274,7 +274,7 @@ int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore>& OutSemaphore)
     const int32 PrevSemaphoreIndex = SemaphoreIndex;
     SemaphoreIndex = (SemaphoreIndex + 1) % ImageAcquiredSemaphore.Size();
 
-    Ref<Fence>& AcquiredFence = ImageInUseFence[SemaphoreIndex];
+    Ref<RFence>& AcquiredFence = ImageInUseFence[SemaphoreIndex];
     AcquiredFence->Reset();
 
     VkResult Result = VulkanAPI::vkAcquireNextImageKHR(Device->GetHandle(), SwapChain, UINT64_MAX,
@@ -283,11 +283,11 @@ int32 VulkanSwapChain::AcquireImageIndex(Ref<Semaphore>& OutSemaphore)
 
     if (Result == VK_ERROR_OUT_OF_DATE_KHR) {
         SemaphoreIndex = PrevSemaphoreIndex;
-        return (int32)Status::OutOfDate;
+        return (int32)EStatus::OutOfDate;
     }
     if (Result == VK_ERROR_SURFACE_LOST_KHR) {
         SemaphoreIndex = PrevSemaphoreIndex;
-        return (int32)Status::SurfaceLost;
+        return (int32)EStatus::SurfaceLost;
     }
     OutSemaphore = ImageAcquiredSemaphore[SemaphoreIndex];
 

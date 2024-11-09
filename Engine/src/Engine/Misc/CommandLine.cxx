@@ -2,12 +2,12 @@
 
 static char CommandLineStorage[16384] = {0};
 
-void CommandLine::Set(const char* CommandLine)
+void FCommandLine::Set(const char* CommandLine)
 {
     std::strncpy(CommandLineStorage, CommandLine, sizeof(CommandLineStorage));
 }
 
-void CommandLine::Set(const int argc, const char* const* const argv)
+void FCommandLine::Set(const int argc, const char* const* const argv)
 {
     std::memset(CommandLineStorage, 0, sizeof(CommandLineStorage));
     for (int i = 1; i < argc; ++i) {
@@ -16,22 +16,22 @@ void CommandLine::Set(const int argc, const char* const* const argv)
     }
 }
 
-void CommandLine::Reset()
+void FCommandLine::Reset()
 {
     std::memset(CommandLineStorage, 0, sizeof(CommandLineStorage));
 }
 
-const char* CommandLine::Get()
+const char* FCommandLine::Get()
 {
     return CommandLineStorage;
 }
 
-bool CommandLine::Param(const char* Key)
+bool FCommandLine::Param(const char* Key)
 {
     return std::strstr(CommandLineStorage, Key) != nullptr;
 }
 
-bool CommandLine::Parse(const char* Key, int& Value)
+bool FCommandLine::Parse(const char* Key, int& Value)
 {
     const char* const FoundKey = std::strstr(CommandLineStorage, Key);
     if (FoundKey == nullptr) {
@@ -40,7 +40,7 @@ bool CommandLine::Parse(const char* Key, int& Value)
     Value = std::atoi(FoundKey + std::strlen(Key));
     return true;
 }
-bool CommandLine::Parse(const char* Key, std::string& Value)
+bool FCommandLine::Parse(const char* Key, std::string& Value)
 {
     const char* const FoundKey = std::strstr(CommandLineStorage, Key);
     if (FoundKey == nullptr) {

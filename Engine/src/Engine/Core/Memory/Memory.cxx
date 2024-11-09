@@ -4,19 +4,19 @@
 #include "Engine/Misc/Assertions.hxx"
 #include "Engine/Platforms/PlatformMisc.hxx"
 
-Malloc* GMalloc = 0;
+IMalloc* GMalloc = 0;
 
 static void EnsureAllocatorIsSetup()
 {
     // Note: must manually allocate the memory
     if (!GMalloc) [[unlikely]] {
         checkNoReentry();
-        GMalloc = PlatformMisc::BaseAllocator();
+        GMalloc = FPlatformMisc::BaseAllocator();
 
 #if RPH_POISON_ALLOCATION
         if (GMalloc->SupportPoison()) {
-            void* const AllocPoisonMemory = std::malloc(sizeof(AllocatorPoison));
-            GMalloc = new (AllocPoisonMemory) AllocatorPoison(GMalloc);
+            void* const AllocPoisonMemory = std::malloc(sizeof(FAllocatorPoison));
+            GMalloc = new (AllocPoisonMemory) FAllocatorPoison(GMalloc);
         }
 #endif
     }

@@ -2,11 +2,11 @@
 
 /// Interface used to type erase an Array<T> in an RHI buffer context
 /// where we don't care that much about the type. We care much more about the size of the data and the data itself.
-class ResourceArrayInterface
+class IResourceArrayInterface
 {
 
 public:
-    virtual ~ResourceArrayInterface()
+    virtual ~IResourceArrayInterface()
     {
     }
 
@@ -22,17 +22,17 @@ public:
 
 /// Array subtype used in the context of the RHI
 template <typename Type>
-class ResourceArray : public ResourceArrayInterface, public Array<Type>
+class TResourceArray : public IResourceArrayInterface, public TArray<Type>
 {
 public:
-    using Array<Type>::Array;
-    ResourceArray() = default;
-    ResourceArray(ResourceArray&&) = default;
-    ResourceArray(const ResourceArray&) = default;
-    ResourceArray& operator=(ResourceArray&&) = default;
-    ResourceArray& operator=(const ResourceArray&) = default;
+    using TArray<Type>::TArray;
+    TResourceArray() = default;
+    TResourceArray(TResourceArray&&) = default;
+    TResourceArray(const TResourceArray&) = default;
+    TResourceArray& operator=(TResourceArray&&) = default;
+    TResourceArray& operator=(const TResourceArray&) = default;
 
-    virtual ~ResourceArray() = default;
+    virtual ~TResourceArray() = default;
 
     const void* GetData() const override
     {

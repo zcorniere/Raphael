@@ -5,13 +5,13 @@
 ///
 /// @brief The internal runtime of a thread (ie: the code that will run on the thread)
 ///
-class ThreadRuntime
+class IThreadRuntime
 {
 public:
     ///
     /// @brief Destroy the IThreadRuntime object
     ///
-    virtual ~ThreadRuntime()
+    virtual ~IThreadRuntime()
     {
     }
 

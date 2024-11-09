@@ -32,25 +32,25 @@ namespace VulkanRHI
 namespace Utils
 {
 
-    static shaderc::CompileOptions GetCompileOption(VulkanShaderCompiler::OptimizationLevel Level)
+    static shaderc::CompileOptions GetCompileOption(FVulkanShaderCompiler::EOptimizationLevel Level)
     {
         shaderc::CompileOptions Options;
         Options.SetTargetEnvironment(shaderc_target_env_vulkan, VulkanVersionToShaderc(RHI_VULKAN_VERSION));
         Options.SetPreserveBindings(true);
 
         switch (Level) {
-            case VulkanShaderCompiler::OptimizationLevel::None:
+            case FVulkanShaderCompiler::EOptimizationLevel::None:
                 Options.SetGenerateDebugInfo();
                 Options.SetOptimizationLevel(shaderc_optimization_level_zero);
                 break;
-            case VulkanShaderCompiler::OptimizationLevel::Size:
+            case FVulkanShaderCompiler::EOptimizationLevel::Size:
                 Options.SetOptimizationLevel(shaderc_optimization_level_size);
                 break;
-            case VulkanShaderCompiler::OptimizationLevel::PerfWithDebug:
+            case FVulkanShaderCompiler::EOptimizationLevel::PerfWithDebug:
                 Options.SetOptimizationLevel(shaderc_optimization_level_performance);
                 Options.SetGenerateDebugInfo();
                 break;
-            case VulkanShaderCompiler::OptimizationLevel::Performance:
+            case FVulkanShaderCompiler::EOptimizationLevel::Performance:
                 Options.SetOptimizationLevel(shaderc_optimization_level_performance);
                 break;
         }
@@ -116,25 +116,25 @@ namespace Utils
 #undef SPIRV_CONVERT_VEC
 }    // namespace Utils
 
-VulkanShaderCompiler::VulkanShaderCompiler()
+FVulkanShaderCompiler::FVulkanShaderCompiler()
 {
 }
 
-VulkanShaderCompiler::~VulkanShaderCompiler()
+FVulkanShaderCompiler::~FVulkanShaderCompiler()
 {
     m_ShaderCache.clear();
 }
 
-void VulkanShaderCompiler::SetOptimizationLevel(OptimizationLevel InLevel)
+void FVulkanShaderCompiler::SetOptimizationLevel(EOptimizationLevel InLevel)
 {
     Level = InLevel;
 }
 
-Ref<VulkanShader> VulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile)
+Ref<RVulkanShader> FVulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile)
 try {
     RPH_PROFILE_FUNC()
 
-    Ref<VulkanShader> ShaderUnit = nullptr;
+    Ref<RVulkanShader> ShaderUnit = nullptr;
     ShaderCompileResult Result{
         .Path = Path,
     };
@@ -163,9 +163,9 @@ try {
         return nullptr;
     }
 
-    ShaderUnit = Ref<VulkanShader>::CreateNamed(Path.filename().string(), Result.ShaderType, Result.CompiledCode,
-                                                Result.Reflection);
-    Result.Status = CompilationStatus::Done;
+    ShaderUnit = Ref<RVulkanShader>::CreateNamed(Path.filename().string(), Result.ShaderType, Result.CompiledCode,
+                                                 Result.Reflection);
+    Result.Status = ECompilationStatus::Done;
     {
         std::unique_lock Lock(m_ShaderCacheMutex);
         m_ShaderCache[Path.filename().string()] = ShaderUnit;
@@ -177,9 +177,9 @@ try {
     return nullptr;
 };
 
-Ref<VulkanShader> VulkanShaderCompiler::CheckCache(ShaderCompileResult& Result)
+Ref<RVulkanShader> FVulkanShaderCompiler::CheckCache(ShaderCompileResult& Result)
 {
-    Result.Status = CompilationStatus::CheckCache;
+    Result.Status = ECompilationStatus::CheckCache;
     std::unique_lock Lock(m_ShaderCacheMutex);
     auto Iter = m_ShaderCache.find(Result.Path.filename().string());
     if (Iter != m_ShaderCache.end()) {
@@ -188,11 +188,11 @@ Ref<VulkanShader> VulkanShaderCompiler::CheckCache(ShaderCompileResult& Result)
     return nullptr;
 }
 
-bool VulkanShaderCompiler::LoadShaderSourceFile(ShaderCompileResult& Result)
+bool FVulkanShaderCompiler::LoadShaderSourceFile(ShaderCompileResult& Result)
 {
     RPH_PROFILE_FUNC()
 
-    Result.Status = CompilationStatus::Loading;
+    Result.Status = ECompilationStatus::Loading;
 
     std::optional<ERHIShaderType> ShaderType = Utils::GetShaderKind(Result.Path);
     if (!ShaderType.has_value()) {
@@ -200,7 +200,7 @@ bool VulkanShaderCompiler::LoadShaderSourceFile(ShaderCompileResult& Result)
         return false;
     }
     Result.ShaderType = ShaderType.value();
-    Result.SourceCode = ::Utils::readFile(Result.Path);
+    Result.SourceCode = ::Utils::ReadFile(Result.Path);
     if (Result.SourceCode.empty()) {
         LOG(LogVulkanShaderCompiler, Error, "Shader file not found ! \"{}\"", Result.Path.string().c_str());
         return false;
@@ -208,7 +208,7 @@ bool VulkanShaderCompiler::LoadShaderSourceFile(ShaderCompileResult& Result)
     return true;
 }
 
-bool VulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
+bool FVulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
 {
     RPH_PROFILE_FUNC()
 
@@ -219,7 +219,7 @@ bool VulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
     shaderc::CompileOptions Options = Utils::GetCompileOption(Level);
     shaderc_shader_kind ShaderKind = Utils::ShaderTypeToShaderc(Result.ShaderType);
 
-    Result.Status = CompilationStatus::PreProcess;
+    Result.Status = ECompilationStatus::PreProcess;
     shaderc::PreprocessedSourceCompilationResult PreProcessResult =
         ShaderCompiler.PreprocessGlsl(Result.SourceCode, ShaderKind, Result.Path.string().c_str(), Options);
     if (PreProcessResult.GetCompilationStatus() != shaderc_compilation_status_success) {
@@ -230,7 +230,7 @@ bool VulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
     std::string PreprocessCode(PreProcessResult.begin(), PreProcessResult.end());
     LOG(LogVulkanShaderCompiler, Trace, "Pre-process Result \"{}\":\n{}", Result.Path.string().c_str(), PreprocessCode);
 
-    Result.Status = CompilationStatus::Compilation;
+    Result.Status = ECompilationStatus::Compilation;
     shaderc::CompilationResult CompilationResult =
         ShaderCompiler.CompileGlslToSpv(PreprocessCode, ShaderKind, Result.Path.string().c_str(), Options);
     if (CompilationResult.GetCompilationStatus() != shaderc_compilation_status_success) {
@@ -238,16 +238,16 @@ bool VulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
             CompilationResult.GetErrorMessage());
         return false;
     }
-    Result.CompiledCode = Array(CompilationResult.begin(), CompilationResult.end());
+    Result.CompiledCode = TArray(CompilationResult.begin(), CompilationResult.end());
     return true;
 }
 
 static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resource>& ResourceStage,
-                               const spirv_cross::Compiler& Compiler, Array<ShaderResource::StageIO>& StageIO)
+                               const spirv_cross::Compiler& Compiler, TArray<ShaderResource::FStageIO>& StageIO)
 {
     StageIO.Reserve(ResourceStage.size());
     for (const spirv_cross::Resource& resource: ResourceStage) {
-        ShaderResource::StageIO& OutResource = StageIO.Emplace();
+        ShaderResource::FStageIO& OutResource = StageIO.Emplace();
 
         const spirv_cross::SPIRType& ResourceType = Compiler.get_type(resource.base_type_id);
         std::optional<EVertexElementType> ElementType = Utils::SPRIVTypeToVertexElement(ResourceType);
@@ -260,19 +260,19 @@ static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resou
         OutResource.Binding = Compiler.get_decoration(resource.id, spv::DecorationBinding);
         OutResource.Location = Compiler.get_decoration(resource.id, spv::DecorationLocation);
     }
-    std::sort(StageIO.begin(), StageIO.end(), [](const ShaderResource::StageIO& A, const ShaderResource::StageIO& B) {
+    std::sort(StageIO.begin(), StageIO.end(), [](const ShaderResource::FStageIO& A, const ShaderResource::FStageIO& B) {
         return A.Location < B.Location;
     });
-    for (const ShaderResource::StageIO& Resource: StageIO) {
+    for (const ShaderResource::FStageIO& Resource: StageIO) {
         LOG(LogVulkanShaderCompiler, Info, "- {}", Resource);
     }
     return true;
 }
 
-static ShaderParameter RecursiveTypeDescription(const spirv_cross::Compiler& Compiler, spirv_cross::TypeID BaseTypeID,
-                                                spirv_cross::TypeID ID, uint32 Index)
+static FShaderParameter RecursiveTypeDescription(const spirv_cross::Compiler& Compiler, spirv_cross::TypeID BaseTypeID,
+                                                 spirv_cross::TypeID ID, uint32 Index)
 {
-    ShaderParameter Parameter;
+    FShaderParameter Parameter;
 
     const spirv_cross::SPIRType& Type = Compiler.get_type(ID);
     const spirv_cross::SPIRType& BaseType = Compiler.get_type(BaseTypeID);
@@ -315,7 +315,7 @@ static ShaderParameter RecursiveTypeDescription(const spirv_cross::Compiler& Com
 
 static bool GetPushConstantReflection(const spirv_cross::Compiler& Compiler,
                                       const spirv_cross::SmallVector<spirv_cross::Resource>& PushConstants,
-                                      std::optional<ShaderResource::PushConstantRange>& OutPushConstant)
+                                      std::optional<ShaderResource::FPushConstantRange>& OutPushConstant)
 {
     if (PushConstants.size() == 0) {
         // Nothing to do, technically still a success.
@@ -328,7 +328,7 @@ static bool GetPushConstantReflection(const spirv_cross::Compiler& Compiler,
     const spirv_cross::Resource& resource = PushConstants.front();
     const spirv_cross::SPIRType& Type = Compiler.get_type(resource.base_type_id);
 
-    OutPushConstant = ShaderResource::PushConstantRange{
+    OutPushConstant = ShaderResource::FPushConstantRange{
         .Offset = Compiler.type_struct_member_offset(Type, 0),
         .Size = static_cast<uint32>(Compiler.get_declared_struct_size(Type)),
         .Parameter = RecursiveTypeDescription(Compiler, resource.base_type_id, resource.base_type_id, 0),
@@ -340,12 +340,12 @@ static bool GetPushConstantReflection(const spirv_cross::Compiler& Compiler,
 
 static bool GetStorageBufferReflection(const spirv_cross::Compiler& Compiler,
                                        const spirv_cross::SmallVector<spirv_cross::Resource>& ShaderStorageBuffers,
-                                       Array<ShaderResource::StorageBuffer>& OutStorageBuffers)
+                                       TArray<ShaderResource::FStorageBuffer>& OutStorageBuffers)
 {
     for (const spirv_cross::Resource& resource: ShaderStorageBuffers) {
         const spirv_cross::SPIRType& Type = Compiler.get_type(resource.base_type_id);
 
-        ShaderResource::StorageBuffer& Buffer = OutStorageBuffers.Emplace();
+        ShaderResource::FStorageBuffer& Buffer = OutStorageBuffers.Emplace();
         Buffer.Set = Compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
         Buffer.Binding = Compiler.get_decoration(resource.id, spv::DecorationBinding);
         Buffer.Parameter.Name = resource.name;
@@ -364,11 +364,11 @@ static bool GetStorageBufferReflection(const spirv_cross::Compiler& Compiler,
     return true;
 }
 
-bool VulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
+bool FVulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
 {
     RPH_PROFILE_FUNC()
 
-    Result.Status = CompilationStatus::Reflection;
+    Result.Status = ECompilationStatus::Reflection;
     LOG(LogVulkanShaderCompiler, Info, "===========================");
     LOG(LogVulkanShaderCompiler, Info, " Vulkan Shader Reflection - {}", magic_enum::enum_name(Result.ShaderType));
     LOG(LogVulkanShaderCompiler, Info, " {} ", Result.Path.string());

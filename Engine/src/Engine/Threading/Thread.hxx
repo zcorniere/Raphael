@@ -9,23 +9,23 @@
 /// @brief Wrapper of the std::jthread
 ///
 ///
-class Thread
+class FThread
 {
 public:
     ///
     /// @brief Construct a new Thread object
     ///
-    Thread();
+    FThread();
 
-    Thread(Thread& other) = delete;
+    FThread(FThread& other) = delete;
     /// Default move ctor
-    Thread(Thread&& other) = default;
+    FThread(FThread&& other) = default;
 
     /// Default move assignment
-    Thread& operator=(Thread&& other) = default;
-    Thread& operator=(Thread& other) = delete;
+    FThread& operator=(FThread&& other) = default;
+    FThread& operator=(FThread& other) = delete;
 
-    virtual ~Thread();
+    virtual ~FThread();
     /// Initialize the thread
     void Start();
     ///
@@ -39,7 +39,7 @@ public:
     ///
     /// @param name the name of the new thread
     /// @param threadCode The runtime to be executed in the thread
-    void Create(const std::string& name, std::unique_ptr<ThreadRuntime> threadCode);
+    void Create(const std::string& name, std::unique_ptr<IThreadRuntime> threadCode);
 
 protected:
     /// Executed from the thread when started
@@ -50,10 +50,10 @@ protected:
     virtual void PostRun();
 
 private:
-    static void thread_runtime(Thread* pThis);
+    static void thread_runtime(FThread* pThis);
 
 private:
     std::string m_name;
     std::jthread m_managedThread;
-    std::unique_ptr<ThreadRuntime> m_internalRuntime;
+    std::unique_ptr<IThreadRuntime> m_internalRuntime;
 };

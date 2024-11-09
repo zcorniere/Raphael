@@ -56,11 +56,11 @@ private:
     Array.AddUnique(std::make_unique<ExtensionType>(ExtensionName))
 #define ADD_COMPLEX_ENTENSION(Array, ExtensionType) Array.AddUnique(std::make_unique<ExtensionType>())
 
-VulkanInstanceExtensionArray VulkanPlatform::GetInstanceExtensions()
+FVulkanInstanceExtensionArray FVulkanPlatform::GetInstanceExtensions()
 {
 
-    VulkanInstanceExtensionArray InstanceExtension;
-    Window::EnsureGLFWInit();
+    FVulkanInstanceExtensionArray InstanceExtension;
+    RWindow::EnsureGLFWInit();
 
     uint32 glfwExtensionCount = 0;
     const char** glfwExtentsions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -76,9 +76,9 @@ VulkanInstanceExtensionArray VulkanPlatform::GetInstanceExtensions()
     return InstanceExtension;
 }
 
-VulkanDeviceExtensionArray VulkanPlatform::GetDeviceExtensions()
+FVulkanDeviceExtensionArray FVulkanPlatform::GetDeviceExtensions()
 {
-    VulkanDeviceExtensionArray DeviceExtension;
+    FVulkanDeviceExtensionArray DeviceExtension;
 
     ADD_SIMPLE_EXTENSION(DeviceExtension, IDeviceVulkanExtension, VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     ADD_SIMPLE_EXTENSION(DeviceExtension, IDeviceVulkanExtension, VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);

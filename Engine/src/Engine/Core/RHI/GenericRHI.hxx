@@ -7,10 +7,10 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogRHI, Info);
 
-class GenericRHI
+class FGenericRHI
 {
 public:
-    virtual ~GenericRHI() = default;
+    virtual ~FGenericRHI() = default;
 
     /// Initialize the RHI
     virtual void Init() = 0;
@@ -27,9 +27,9 @@ public:
     /// Return the name of the RHI
     virtual const char* GetName() const = 0;
     /// Return the type of the RHI
-    virtual RHIInterfaceType GetInterfaceType() const
+    virtual ERHIInterfaceType GetInterfaceType() const
     {
-        return RHIInterfaceType::Null;
+        return ERHIInterfaceType::Null;
     }
 
     /// @brief Defer the execution of the given function to the next frame
@@ -45,18 +45,18 @@ public:
     // ---------------------- RHI Operations --------------------- //
 
     /// @brief Submit a list of command lists to the RHI
-    virtual void RHISubmitCommandLists(RHICommandList* const CommandLists, std::uint32_t NumCommandLists) = 0;
-    virtual RHIContext* RHIGetCommandContext() = 0;
-    virtual void RHIReleaseCommandContext(RHIContext*) = 0;
+    virtual void RHISubmitCommandLists(FFRHICommandList* const CommandLists, std::uint32_t NumCommandLists) = 0;
+    virtual FRHIContext* RHIGetCommandContext() = 0;
+    virtual void RHIReleaseCommandContext(FRHIContext*) = 0;
 
     /// @copydoc RHI::CreateViewport
-    virtual Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, UVector2 InSize) = 0;
+    virtual Ref<RRHIViewport> CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize) = 0;
     /// @copydoc RHI::CreateTexture
-    virtual Ref<RHITexture> CreateTexture(const RHITextureSpecification& InDesc) = 0;
+    virtual Ref<RRHITexture> CreateTexture(const FRHITextureSpecification& InDesc) = 0;
     /// @copydoc RHI::CreateBuffer
-    virtual Ref<RHIBuffer> CreateBuffer(const RHIBufferDesc& InDesc) = 0;
+    virtual Ref<RRHIBuffer> CreateBuffer(const FRHIBufferDesc& InDesc) = 0;
     /// @copydoc RHI::CreateShader
-    virtual Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) = 0;
+    virtual Ref<RRHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) = 0;
     /// @copydoc RHI::CreateGraphicsPipeline
-    virtual Ref<RHIGraphicsPipeline> CreateGraphicsPipeline(const RHIGraphicsPipelineSpecification& Config) = 0;
+    virtual Ref<RRHIGraphicsPipeline> CreateGraphicsPipeline(const FRHIGraphicsPipelineSpecification& Config) = 0;
 };

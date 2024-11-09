@@ -5,12 +5,12 @@
 namespace VulkanRHI
 {
 
-class VulkanDevice;
+class FVulkanDevice;
 
 void VulkanSetImageLayout(VkCommandBuffer CmdBuffer, VkImage Image, VkImageLayout OldLayout, VkImageLayout NewLayout,
                           const VkImageSubresourceRange& SubresourceRange);
 
-class Barrier
+class FBarrier
 {
 public:
     static VkImageSubresourceRange MakeSubresourceRange(VkImageAspectFlags AspectMask, uint32 FirstMip = 0,
@@ -18,21 +18,21 @@ public:
                                                         uint32 NumLayers = VK_REMAINING_ARRAY_LAYERS);
 
 public:
-    Barrier();
+    FBarrier();
 
     void TransitionLayout(VkImage Image, VkImageLayout OldLayout, VkImageLayout NewLayout,
                           const VkImageSubresourceRange& SubresourceRange);
     void Execute(VkCommandBuffer CmdBuffer);
 
 private:
-    Array<VkImageMemoryBarrier> ImageBarrier;
+    TArray<VkImageMemoryBarrier> ImageBarrier;
 };
 
-class Semaphore : public RObject, public IDeviceChild
+class RSemaphore : public RObject, public IDeviceChild
 {
 public:
-    Semaphore(VulkanDevice* InDevice);
-    virtual ~Semaphore();
+    RSemaphore(FVulkanDevice* InDevice);
+    virtual ~RSemaphore();
 
     virtual void SetName(std::string_view InName) override final;
 
@@ -45,10 +45,10 @@ private:
     VkSemaphore SemaphoreHandle;
 };
 
-class Fence : public RObject, public IDeviceChild
+class RFence : public RObject, public IDeviceChild
 {
 protected:
-    enum class State {
+    enum class EState {
         // Initial state
         NotReady,
 
@@ -57,8 +57,8 @@ protected:
     };
 
 public:
-    Fence(VulkanDevice* InDevice, bool bCreateSignaled);
-    ~Fence();
+    RFence(FVulkanDevice* InDevice, bool bCreateSignaled);
+    ~RFence();
 
     virtual void SetName(std::string_view InName) override final;
 
@@ -72,7 +72,7 @@ public:
 
     inline bool IsSignaled()
     {
-        return State == State::Signaled || CheckFenceStatus();
+        return State == EState::Signaled || CheckFenceStatus();
     }
 
 private:
@@ -80,7 +80,7 @@ private:
 
 private:
     VkFence Handle;
-    State State;
+    EState State;
 };
 
 }    // namespace VulkanRHI

@@ -5,10 +5,7 @@
 static std::unordered_set<RObject*> s_LiveReferences;
 static std::recursive_mutex s_LiveReferenceMutex;
 
-namespace RObjectUtils
-{
-
-void AddToLiveReferences(RObject* instance)
+void RObjectUtils::AddToLiveReferences(RObject* instance)
 {
     check(instance);
 
@@ -16,7 +13,7 @@ void AddToLiveReferences(RObject* instance)
     s_LiveReferences.insert(instance);
 }
 
-void RemoveFromLiveReferences(RObject* instance)
+void RObjectUtils::RemoveFromLiveReferences(RObject* instance)
 {
     check(instance);
 
@@ -25,14 +22,14 @@ void RemoveFromLiveReferences(RObject* instance)
     s_LiveReferences.erase(instance);
 }
 
-bool IsLive(RObject* instance)
+bool RObjectUtils::IsLive(RObject* instance)
 {
     check(instance);
     std::scoped_lock lock(s_LiveReferenceMutex);
     return s_LiveReferences.find(instance) != s_LiveReferences.end();
 }
 
-bool AreThereAnyLiveObject(bool bPrintObjects)
+bool RObjectUtils::AreThereAnyLiveObject(bool bPrintObjects)
 {
     std::scoped_lock lock(s_LiveReferenceMutex);
 
@@ -44,5 +41,3 @@ bool AreThereAnyLiveObject(bool bPrintObjects)
     }
     return s_LiveReferences.size() > 0;
 }
-
-}    // namespace RObjectUtils

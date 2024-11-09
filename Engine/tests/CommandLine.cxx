@@ -7,32 +7,32 @@
 
 TEST_CASE("Sanity test : Simple command line")
 {
-    CommandLine::Set("Test");
-    REQUIRE(strcmp(CommandLine::Get(), "Test") == 0);
-    CommandLine::Reset();
+    FCommandLine::Set("Test");
+    REQUIRE(strcmp(FCommandLine::Get(), "Test") == 0);
+    FCommandLine::Reset();
 }
 
 TEST_CASE("Command line with multiple argument")
 {
-    CommandLine::Set("-intarg=42 -qargument=\"Test Value Argument\" -argument=TestValue Argument");
+    FCommandLine::Set("-intarg=42 -qargument=\"Test Value Argument\" -argument=TestValue Argument");
 
     SECTION("Command line with quote argument")
     {
         std::string value;
-        REQUIRE(CommandLine::Parse("-qargument=", value));
+        REQUIRE(FCommandLine::Parse("-qargument=", value));
         REQUIRE(value == "Test Value Argument");
     }
     SECTION("Command line without quote argument")
     {
         std::string value;
-        REQUIRE(CommandLine::Parse("-argument=", value));
+        REQUIRE(FCommandLine::Parse("-argument=", value));
         REQUIRE(value == "TestValue");
     }
     SECTION("Command line with int argument")
     {
         int value;
-        REQUIRE(CommandLine::Parse("-intarg=", value));
+        REQUIRE(FCommandLine::Parse("-intarg=", value));
         REQUIRE(value == 42);
     }
-    CommandLine::Reset();
+    FCommandLine::Reset();
 }

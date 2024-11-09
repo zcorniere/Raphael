@@ -3,19 +3,19 @@
 #include "Engine/Core/Memory/Memory.hxx"
 
 /// Allocator using mimalloc
-class AllocatorPoison : public Malloc
+class FAllocatorPoison : public IMalloc
 {
 public:
     constexpr static int AllocFillNew = 0xbb;
     constexpr static int AllocFillFree = 0xcc;
 
 public:
-    AllocatorPoison() = delete;
-    explicit AllocatorPoison(Malloc* InMalloc): TrueMalloc(InMalloc)
+    FAllocatorPoison() = delete;
+    explicit FAllocatorPoison(IMalloc* InMalloc): TrueMalloc(InMalloc)
     {
         check(TrueMalloc);
     }
-    ~AllocatorPoison()
+    ~FAllocatorPoison()
     {
         std::free(TrueMalloc);
     }
@@ -72,5 +72,5 @@ public:
     }
 
 private:
-    Malloc* TrueMalloc;
+    IMalloc* TrueMalloc;
 };

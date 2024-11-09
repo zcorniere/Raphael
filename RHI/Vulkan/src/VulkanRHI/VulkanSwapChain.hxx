@@ -1,25 +1,25 @@
 #pragma once
 
-class Window;
+class RWindow;
 
 namespace VulkanRHI
 {
 
-class VulkanTexture;
-class VulkanDevice;
-class Semaphore;
-class Fence;
-class VulkanQueue;
+class FVulkanTexture;
+class FVulkanDevice;
+class RSemaphore;
+class RFence;
+class FVulkanQueue;
 
 struct VulkanSwapChainRecreateInfo {
     VkSwapchainKHR SwapChain = VK_NULL_HANDLE;
     VkSurfaceKHR Surface = VK_NULL_HANDLE;
 };
 
-class VulkanSwapChain : public RObject, public IDeviceChild
+class RVulkanSwapChain : public RObject, public IDeviceChild
 {
 public:
-    enum class Status {
+    enum class EStatus {
         Healty = 0,
         OutOfDate = -1,
         SurfaceLost = -2,
@@ -27,11 +27,11 @@ public:
 
 private:
     /// @brief Helper class to gather all information required for swapchain creation
-    class SupportDetails
+    class FSupportDetails
     {
     public:
         /// Gather swapchain support information
-        static SupportDetails QuerySwapChainSupport(const VulkanDevice* Device, const VkSurfaceKHR& Surface);
+        static FSupportDetails QuerySwapChainSupport(const FVulkanDevice* Device, const VkSurfaceKHR& Surface);
 
     public:
         /// Choose a fitting format
@@ -45,20 +45,20 @@ private:
         /// surface capability
         VkSurfaceCapabilitiesKHR Capabilities;
         /// List of supported format
-        Array<VkSurfaceFormatKHR> Formats;
+        TArray<VkSurfaceFormatKHR> Formats;
         /// List of supported presentation modes
-        Array<VkPresentModeKHR> PresentModes;
+        TArray<VkPresentModeKHR> PresentModes;
     };
 
 public:
-    VulkanSwapChain(VkInstance InInstance, VulkanDevice* InDevice, const UVector2& InSize, Window* WindowHandle,
-                    uint32 InOutDesiredNumBackBuffers, Array<VkImage>& OutImages, bool LockToVSync,
-                    VulkanSwapChainRecreateInfo* RecreateInfo);
+    RVulkanSwapChain(VkInstance InInstance, FVulkanDevice* InDevice, const UVector2& InSize, RWindow* WindowHandle,
+                     uint32 InOutDesiredNumBackBuffers, TArray<VkImage>& OutImages, bool LockToVSync,
+                     VulkanSwapChainRecreateInfo* RecreateInfo);
     void SetName(std::string_view InName) override;
 
     void Destroy(VulkanSwapChainRecreateInfo* RecreateInfo);
 
-    Status Present(VulkanQueue* PresentQueue, Ref<Semaphore>& RenderingComplete);
+    EStatus Present(FVulkanQueue* PresentQueue, Ref<RSemaphore>& RenderingComplete);
 
     VkFormat GetFormat() const
     {
@@ -81,7 +81,7 @@ public:
     }
 
 private:
-    int32 AcquireImageIndex(Ref<Semaphore>& OutSemaphore);
+    int32 AcquireImageIndex(Ref<RSemaphore>& OutSemaphore);
 
 private:
     int32 CurrentImageIndex;
@@ -96,8 +96,8 @@ private:
     VkSurfaceKHR Surface;
     VkInstance Instance;
 
-    Array<Ref<Semaphore>> ImageAcquiredSemaphore;
-    Array<Ref<Fence>> ImageInUseFence;
+    TArray<Ref<RSemaphore>> ImageAcquiredSemaphore;
+    TArray<Ref<RFence>> ImageInUseFence;
 
     friend class VulkanViewport;
 };

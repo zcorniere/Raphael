@@ -16,7 +16,7 @@ extern "C" IApplication* GetApplication();
 
 int EngineLoop()
 try {
-    GEngine = new Engine;
+    GEngine = new FEngine;
 
     if (!GEngine->Initialisation()) {
         return -1;
@@ -86,20 +86,20 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
     (void)hPrevInstance;
     (void)lpCmdLine;
     (void)nShowCmd;
-    CommandLine::Set(GetCommandLine());
+    FCommandLine::Set(GetCommandLine());
 #else
 int main(int ac, char** av)
 {
-    CommandLine::Set(ac, av);
+    FCommandLine::Set(ac, av);
 #endif    // !PLATFORM_WINDOWS
 
-    if (CommandLine::Param("-waitfordebugger")) {
-        while (!Platform::isDebuggerPresent()) {
+    FPlatform::Initialize();
+    if (FCommandLine::Param("-waitfordebugger")) {
+        while (!FPlatform::isDebuggerPresent()) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         PLATFORM_BREAK();
     }
-    Platform::Initialize();
     Log::Init();
 
     const int GuardedReturnValue = EngineLoop();
@@ -109,6 +109,6 @@ int main(int ac, char** av)
     check(RObjectUtils::AreThereAnyLiveObject() == false);
 
     Log::Shutdown();
-    Platform::Deinitialize();
+    FPlatform::Deinitialize();
     return GuardedReturnValue;
 }

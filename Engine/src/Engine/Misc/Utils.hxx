@@ -8,24 +8,24 @@ namespace Utils
 
 /// Read a whole file into a vector of byte.
 template <typename T = std::byte>
-std::vector<T> readBinaryFile(const std::filesystem::path& filename)
+bool ReadBinaryFile(const std::filesystem::path& filename, TArray<T>& FileContent)
 {
-    size_t fileSize = std::filesystem::file_size(filename);
+    const size_t fileSize = std::filesystem::file_size(filename);
     std::ifstream file(filename, std::ios::binary);
-    std::vector<T> fileContent(fileSize / sizeof(T));
 
+    FileContent.Resize(fileSize / sizeof(T));
     if (!file.is_open())
-        throw std::runtime_error("failed to open file " + filename.string());
-    file.read(reinterpret_cast<char*>(fileContent.data()), fileSize * sizeof(T));
+        return {};
+    file.read(reinterpret_cast<char*>(FileContent.data()), fileSize * sizeof(T));
     file.close();
-    return fileContent;
+    return FileContent;
 }
 
 /// Read a whole file into a string
-std::string readFile(const std::filesystem::path& filename);
+std::string ReadFile(const std::filesystem::path& filename);
 
 template <typename T = std::byte>
-std::size_t writeBinaryFile(const std::filesystem::path& filename, const std::span<const T>& code)
+std::size_t WriteBinaryFile(const std::filesystem::path& filename, const std::span<const T>& code)
 {
     std::ofstream file(filename, std::ios::binary);
     file.write(reinterpret_cast<const char*>(code.data()), code.size_bytes());

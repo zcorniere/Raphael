@@ -11,16 +11,16 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogBaseApplication, Info)
 
-bool BaseApplication::OnEngineInitialization()
+bool FBaseApplication::OnEngineInitialization()
 {
     RPH_PROFILE_FUNC()
 
-    WindowDefinition WindowDef{
+    FWindowDefinition WindowDef{
         .AppearsInTaskbar = true,
         .Title = "Raphael Engine",
-        .EventCallback = [this](Event& event) { WindowEventHandler(event); },
+        .EventCallback = [this](FEvent& event) { WindowEventHandler(event); },
     };
-    MainWindow = Ref<Window>::Create();
+    MainWindow = Ref<RWindow>::Create();
     MainWindow->SetName("MainWindow");
     MainWindow->Initialize(WindowDef);
     MainWindow->Show();
@@ -31,7 +31,7 @@ bool BaseApplication::OnEngineInitialization()
     return true;
 }
 
-void BaseApplication::OnEngineDestruction()
+void FBaseApplication::OnEngineDestruction()
 {
     RPH_PROFILE_FUNC()
 
@@ -39,19 +39,19 @@ void BaseApplication::OnEngineDestruction()
     MainWindow->Destroy();
 }
 
-void BaseApplication::WindowEventHandler(Event& Event)
+void FBaseApplication::WindowEventHandler(FEvent& Event)
 {
-    EventDispatcher dispatcher(Event);
-    dispatcher.Dispatch<WindowResizeEvent>([this](WindowResizeEvent& Event) { return OnWindowResize(Event); });
-    dispatcher.Dispatch<WindowMinimizeEvent>([this](WindowMinimizeEvent& Event) { return OnWindowMinimize(Event); });
-    dispatcher.Dispatch<WindowCloseEvent>([this](WindowCloseEvent& Event) { return OnWindowClose(Event); });
+    FEventDispatcher dispatcher(Event);
+    dispatcher.Dispatch<FWindowResizeEvent>([this](FWindowResizeEvent& Event) { return OnWindowResize(Event); });
+    dispatcher.Dispatch<FWindowMinimizeEvent>([this](FWindowMinimizeEvent& Event) { return OnWindowMinimize(Event); });
+    dispatcher.Dispatch<FWindowCloseEvent>([this](FWindowCloseEvent& Event) { return OnWindowClose(Event); });
 
     if (!Event.Handled) {
         LOG(LogBaseApplication, Trace, "Unhandled Event : {}", Event);
     }
 }
 
-void BaseApplication::Tick(const float DeltaTime)
+void FBaseApplication::Tick(const float DeltaTime)
 {
     RPH_PROFILE_FUNC()
 
@@ -59,7 +59,7 @@ void BaseApplication::Tick(const float DeltaTime)
     MainWindow->ProcessEvents();
 }
 
-bool BaseApplication::OnWindowResize(WindowResizeEvent& E)
+bool FBaseApplication::OnWindowResize(FWindowResizeEvent& E)
 {
     RPH_PROFILE_FUNC()
 
@@ -75,12 +75,12 @@ bool BaseApplication::OnWindowResize(WindowResizeEvent& E)
     return false;
 }
 
-bool BaseApplication::OnWindowMinimize(WindowMinimizeEvent& E)
+bool FBaseApplication::OnWindowMinimize(FWindowMinimizeEvent& E)
 {
     (void)E;
     return false;
 }
-bool BaseApplication::OnWindowClose(WindowCloseEvent& E)
+bool FBaseApplication::OnWindowClose(FWindowCloseEvent& E)
 {
     (void)E;
     Utils::RequestExit(0);

@@ -1,15 +1,15 @@
 #pragma once
 
 #include "Engine/Platforms/PlatformMisc.hxx"
-// IWYU pragma: private, include "PlatformMisc.hxx"
+// IWYU pragma: private, include "FPlatformMisc.hxx"
 
 /// @brief Linux implementation of the IExternalModule interface
-class LinuxExternalModule : public IExternalModule
+class RLinuxExternalModule : public IExternalModule
 {
 public:
     /// @copydoc IExternalModule::IExternalModule
-    explicit LinuxExternalModule(std::string_view ModulePath);
-    virtual ~LinuxExternalModule();
+    explicit RLinuxExternalModule(std::string_view ModulePath);
+    virtual ~RLinuxExternalModule();
 
 private:
     virtual void* GetSymbol_Internal(std::string_view SymbolName) const override;
@@ -19,13 +19,13 @@ private:
 };
 
 /// @brief Miscellaneous Linux feature
-class LinuxMisc : public GenericMisc
+class FLinuxMisc : public FGenericMisc
 {
 public:
     /// @copydoc GenericMisc::DisplayMessageBox
     static EBoxReturnType DisplayMessageBox(EBoxMessageType MsgType, const std::string Title, const std::string Text);
 
-    static Malloc* BaseAllocator();
+    static IMalloc* BaseAllocator();
 
     /// @copydoc GenericMisc::LoadExternalModule
     static Ref<IExternalModule> LoadExternalModule(const std::string& ModuleName);
@@ -35,4 +35,4 @@ public:
 };
 
 // Helper to use the platform implementation
-using PlatformMisc = LinuxMisc;
+using FPlatformMisc = FLinuxMisc;

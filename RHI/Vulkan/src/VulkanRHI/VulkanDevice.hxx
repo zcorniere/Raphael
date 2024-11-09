@@ -15,16 +15,16 @@
 namespace VulkanRHI
 {
 
-class VulkanQueue;
-class VulkanCmdBuffer;
-class VulkanMemoryManager;
+class FVulkanQueue;
+class FVulkanCmdBuffer;
+class FVulkanMemoryManager;
 class VulkanCommandBufferManager;
 
-class VulkanDevice : public NamedClass
+class FVulkanDevice : public FNamedClass
 {
 public:
-    explicit VulkanDevice(VkPhysicalDevice Gpu);
-    ~VulkanDevice();
+    explicit FVulkanDevice(VkPhysicalDevice Gpu);
+    ~FVulkanDevice();
 
     virtual void SetName(std::string_view InName) override final;
 
@@ -69,42 +69,42 @@ public:
     {
         return GpuProps.limits;
     }
-    inline VulkanMemoryManager* GetMemoryManager()
+    inline FVulkanMemoryManager* GetMemoryManager()
     {
         check(MemoryAllocator);
         return MemoryAllocator.get();
     }
 
-    VulkanCommandContext* GetImmediateContext() const
+    FVulkanCommandContext* GetImmediateContext() const
     {
         return ImmediateContext;
     }
 
 private:
     void Destroy();
-    void CreateDeviceAndQueue(const Array<const char*>& DeviceLayers,
-                              const VulkanDeviceExtensionArray& DeviceExtensions);
+    void CreateDeviceAndQueue(const TArray<const char*>& DeviceLayers,
+                              const FVulkanDeviceExtensionArray& DeviceExtensions);
 
 public:
-    std::unique_ptr<VulkanQueue> GraphicsQueue;
-    std::unique_ptr<VulkanQueue> ComputeQueue;
-    std::unique_ptr<VulkanQueue> TransferQueue;
+    std::unique_ptr<FVulkanQueue> GraphicsQueue;
+    std::unique_ptr<FVulkanQueue> ComputeQueue;
+    std::unique_ptr<FVulkanQueue> TransferQueue;
     // Present queue is not a dedicated object, it's just a reference to one of the above queues
-    VulkanQueue* PresentQueue = nullptr;
+    FVulkanQueue* PresentQueue = nullptr;
 
-    VulkanCommandContext* ImmediateContext = nullptr;
+    FVulkanCommandContext* ImmediateContext = nullptr;
 
 private:
-    std::unique_ptr<VulkanMemoryManager> MemoryAllocator;
+    std::unique_ptr<FVulkanMemoryManager> MemoryAllocator;
 
     VkDevice Device = VK_NULL_HANDLE;
     VkPhysicalDevice Gpu = VK_NULL_HANDLE;
     VkPhysicalDeviceProperties GpuProps;
 
     VkPhysicalDeviceFeatures PhysicalFeatures;
-    Array<VkQueueFamilyProperties> QueueFamilyProps;
+    TArray<VkQueueFamilyProperties> QueueFamilyProps;
 
-    friend class VulkanDynamicRHI;
+    friend class FVulkanDynamicRHI;
 };
 
 }    // namespace VulkanRHI

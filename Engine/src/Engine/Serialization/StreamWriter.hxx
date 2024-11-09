@@ -5,10 +5,10 @@
 namespace Serialization
 {
 
-class StreamWriter
+class FStreamWriter
 {
 public:
-    virtual ~StreamWriter() = default;
+    virtual ~FStreamWriter() = default;
 
     virtual bool IsGood() const = 0;
     virtual uint64_t GetStreamPosition() = 0;
@@ -45,7 +45,7 @@ public:
     void WriteString(const std::string_view& String);
 
     template <typename T>
-    void WriteArray(const Array<T>& Array, bool bWriteSize = true)
+    void WriteArray(const TArray<T>& Array, bool bWriteSize = true)
     {
         if (bWriteSize) {
             WriteRaw<uint32>(static_cast<uint32>(Array.Size()));

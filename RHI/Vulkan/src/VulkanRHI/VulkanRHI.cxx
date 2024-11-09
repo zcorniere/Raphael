@@ -17,27 +17,27 @@
 #include "VulkanRHI/VulkanUtils.hxx"
 
 // RHI Creation Implementation
-extern "C" GenericRHI* RHI_CreateRHI()
+extern "C" FGenericRHI* RHI_CreateRHI()
 {
     RPH_PROFILE_FUNC()
 
-    return new VulkanRHI::VulkanDynamicRHI;
+    return new VulkanRHI::FVulkanDynamicRHI;
 }
 //
 
-static std::string GetMissingExtensions(Array<const char*> VulkanExtensions);
+static std::string GetMissingExtensions(TArray<const char*> VulkanExtensions);
 
 namespace VulkanRHI
 {
 
-VulkanDynamicRHI::VulkanDynamicRHI(): Device(nullptr), ShaderCompiler(nullptr)
+FVulkanDynamicRHI::FVulkanDynamicRHI(): Device(nullptr), ShaderCompiler(nullptr)
 {
     LOG(LogVulkanRHI, Info, "Built with Vulkan header version {}.{}.{}",
         VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
         VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 
-    if (!ensure(VulkanPlatform::LoadVulkanLibrary())) {
-        PlatformMisc::DisplayMessageBox(
+    if (!ensure(FVulkanPlatform::LoadVulkanLibrary())) {
+        FPlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok,
             "Unable to load Vulkan library and/or acquire the necessary function pointers. Make sure an "
             "up-to-date libvulkan.so.1 is installed.",
@@ -48,27 +48,27 @@ VulkanDynamicRHI::VulkanDynamicRHI(): Device(nullptr), ShaderCompiler(nullptr)
     }
 }
 
-VulkanDynamicRHI::~VulkanDynamicRHI()
+FVulkanDynamicRHI::~FVulkanDynamicRHI()
 {
-    VulkanPlatform::FreeVulkanLibrary();
+    FVulkanPlatform::FreeVulkanLibrary();
 }
 
-void VulkanDynamicRHI::Tick(float fDeltaTime)
+void FVulkanDynamicRHI::Tick(float fDeltaTime)
 {
     (void)fDeltaTime;
 }
 
-VkDevice VulkanDynamicRHI::RHIGetVkDevice() const
+VkDevice FVulkanDynamicRHI::RHIGetVkDevice() const
 {
     return Device->GetHandle();
 }
 
-VkPhysicalDevice VulkanDynamicRHI::RHIGetVkPhysicalDevice() const
+VkPhysicalDevice FVulkanDynamicRHI::RHIGetVkPhysicalDevice() const
 {
     return Device->GetPhysicalHandle();
 }
 
-void VulkanDynamicRHI::Init()
+void FVulkanDynamicRHI::Init()
 {
     RPH_PROFILE_FUNC()
 
@@ -85,16 +85,16 @@ void VulkanDynamicRHI::Init()
     Device->InitPhysicalDevice();
     Device->SetName("Main Vulkan Device");
 
-    ShaderCompiler = std::make_unique<VulkanShaderCompiler>();
-    ShaderCompiler->SetOptimizationLevel(VulkanShaderCompiler::OptimizationLevel::PerfWithDebug);
+    ShaderCompiler = std::make_unique<FVulkanShaderCompiler>();
+    ShaderCompiler->SetOptimizationLevel(FVulkanShaderCompiler::EOptimizationLevel::PerfWithDebug);
 }
 
-void VulkanDynamicRHI::PostInit()
+void FVulkanDynamicRHI::PostInit()
 {
     IMGUI_CHECKVERSION();
 }
 
-void VulkanDynamicRHI::FlushDeletionQueue()
+void FVulkanDynamicRHI::FlushDeletionQueue()
 {
     int Counter = 0;
     for (std::function<void()>& DeletionFunction: DeletionQueue) {
@@ -107,12 +107,12 @@ void VulkanDynamicRHI::FlushDeletionQueue()
     }
 }
 
-void VulkanDynamicRHI::DeferedDeletion(std::function<void()>&& InDeletionFunction)
+void FVulkanDynamicRHI::DeferedDeletion(std::function<void()>&& InDeletionFunction)
 {
     DeletionQueue.Emplace(std::move(InDeletionFunction));
 }
 
-void VulkanDynamicRHI::Shutdown()
+void FVulkanDynamicRHI::Shutdown()
 {
     WaitUntilIdle();
 
@@ -135,7 +135,7 @@ void VulkanDynamicRHI::Shutdown()
     m_Instance = VK_NULL_HANDLE;
 }
 
-VkInstance VulkanDynamicRHI::CreateInstance(const Array<const char*>& ValidationLayers)
+VkInstance FVulkanDynamicRHI::CreateInstance(const TArray<const char*>& ValidationLayers)
 {
     VkApplicationInfo AppInfo{
         .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -148,8 +148,8 @@ VkInstance VulkanDynamicRHI::CreateInstance(const Array<const char*>& Validation
         .pApplicationInfo = &AppInfo,
     };
 
-    VulkanInstanceExtensionArray Extensions = VulkanPlatform::GetInstanceExtensions();
-    Array<const char*> InstanceExtensions;
+    FVulkanInstanceExtensionArray Extensions = FVulkanPlatform::GetInstanceExtensions();
+    TArray<const char*> InstanceExtensions;
     for (const std::unique_ptr<IInstanceVulkanExtension>& Extension: Extensions) {
         Extension->PreInstanceCreated(InstInfo);
         InstanceExtensions.AddUnique(Extension->GetExtensionName());
@@ -166,7 +166,7 @@ VkInstance VulkanDynamicRHI::CreateInstance(const Array<const char*>& Validation
     VkResult Result = VulkanAPI::vkCreateInstance(&InstInfo, VULKAN_CPU_ALLOCATOR, &Instance);
 
     if (Result == VK_ERROR_INCOMPATIBLE_DRIVER) {
-        PlatformMisc::DisplayMessageBox(
+        FPlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok, "Unable to initialize Vulkan.",
             "Unable to load Vulkan library and/or acquire the necessary function pointers. Make sure an "
             "up-to-date libvulkan.so.1 is installed.");
@@ -175,7 +175,7 @@ VkInstance VulkanDynamicRHI::CreateInstance(const Array<const char*>& Validation
     } else if (Result == VK_ERROR_EXTENSION_NOT_PRESENT) {
         std::string MissingExtensions = GetMissingExtensions(InstanceExtensions);
 
-        PlatformMisc::DisplayMessageBox(
+        FPlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok, "Incompatible Vulkan driver found!",
             std::format("Vulkan driver does not contain specified extensions:\n{:s}\nMake sure your layers "
                         "path is set appropriately.",
@@ -184,19 +184,19 @@ VkInstance VulkanDynamicRHI::CreateInstance(const Array<const char*>& Validation
         Utils::RequestExit(1);
     } else if (Result != VK_SUCCESS) {
         LOG(LogVulkanRHI, Fatal, "Vulkan failed to create instance! {:s}", magic_enum::enum_name(Result));
-        PlatformMisc::DisplayMessageBox(EBoxMessageType::Ok, "No Vulkan driver found!",
-                                        "Vulkan failed to create instance !\n\nDo you have a compatible Vulkan "
-                                        "driver (ICD) installed?");
+        FPlatformMisc::DisplayMessageBox(EBoxMessageType::Ok, "No Vulkan driver found!",
+                                         "Vulkan failed to create instance !\n\nDo you have a compatible Vulkan "
+                                         "driver (ICD) installed?");
         Utils::RequestExit(1);
     }
 
     VK_CHECK_RESULT(Result);
 
-    if (!VulkanPlatform::LoadVulkanInstanceFunctions(Instance)) {
+    if (!FVulkanPlatform::LoadVulkanInstanceFunctions(Instance)) {
         LOG(LogVulkanRHI, Fatal, "Couldn't find some of Vulkan's entry points !");
-        PlatformMisc::DisplayMessageBox(EBoxMessageType::Ok,
-                                        "Failed to find all required Vulkan entry points! Try updating your driver.",
-                                        "No Vulkan entry points found!");
+        FPlatformMisc::DisplayMessageBox(EBoxMessageType::Ok,
+                                         "Failed to find all required Vulkan entry points! Try updating your driver.",
+                                         "No Vulkan entry points found!");
         Utils::RequestExit(1);
     }
 
@@ -209,7 +209,7 @@ VkInstance VulkanDynamicRHI::CreateInstance(const Array<const char*>& Validation
     return Instance;
 }
 
-VulkanDevice* VulkanDynamicRHI::SelectDevice(VkInstance Instance)
+FVulkanDevice* FVulkanDynamicRHI::SelectDevice(VkInstance Instance)
 {
     std::uint32_t GpuCount = 0;
     VkResult Result = VulkanAPI::vkEnumeratePhysicalDevices(Instance, &GpuCount, nullptr);
@@ -220,23 +220,23 @@ VulkanDevice* VulkanDynamicRHI::SelectDevice(VkInstance Instance)
     VK_CHECK_RESULT_EXPANDED(Result);
     checkMsg(GpuCount >= 1, "No GPU(s)/Driver(s) that support Vulkan were found!");
 
-    Array<VkPhysicalDevice> PhysicalDevices(GpuCount);
+    TArray<VkPhysicalDevice> PhysicalDevices(GpuCount);
     VK_CHECK_RESULT_EXPANDED(VulkanAPI::vkEnumeratePhysicalDevices(Instance, &GpuCount, PhysicalDevices.Raw()));
     checkMsg(GpuCount >= 1, "Couldn't enumerate physical devices!");
 
-    struct DeviceInfo {
-        VulkanDevice* Device;
+    struct FDeviceInfo {
+        FVulkanDevice* Device;
         std::uint32_t DeviceIndex;
     };
-    Array<VulkanDevice*> Devices;
-    Array<DeviceInfo> DiscreteDevice;
-    Array<DeviceInfo> IntegratedDevice;
+    TArray<FVulkanDevice*> Devices;
+    TArray<FDeviceInfo> DiscreteDevice;
+    TArray<FDeviceInfo> IntegratedDevice;
 
     // Sort the physical devices into discrete and integrated
     LOG(LogVulkanRHI, Info, "Found {} device(s)", GpuCount);
     for (std::uint32_t Index = 0; Index < GpuCount; Index++) {
         LOG(LogVulkanRHI, Info, "Device {}:", Index);
-        VulkanDevice* NewDevice = new VulkanDevice(PhysicalDevices[Index]);
+        FVulkanDevice* NewDevice = new FVulkanDevice(PhysicalDevices[Index]);
         Devices.Add(NewDevice);
 
         const bool bIsDiscrete = (NewDevice->GetDeviceProperties().deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
@@ -256,7 +256,7 @@ VulkanDevice* VulkanDynamicRHI::SelectDevice(VkInstance Instance)
     DiscreteDevice.Append(IntegratedDevice);
 
     uint32 DeviceIndex = (uint32)-1;
-    VulkanDevice* SelectedDevice = nullptr;
+    FVulkanDevice* SelectedDevice = nullptr;
     if (DiscreteDevice.Size() > 0) {
         SelectedDevice = DiscreteDevice[0].Device;
         DeviceIndex = DiscreteDevice[0].DeviceIndex;
@@ -266,7 +266,7 @@ VulkanDevice* VulkanDynamicRHI::SelectDevice(VkInstance Instance)
     }
 
     // Remove all the other devices
-    for (VulkanDevice* const Device: Devices) {
+    for (FVulkanDevice* const Device: Devices) {
         if (Device != SelectedDevice) {
             delete Device;
         }
@@ -282,13 +282,13 @@ VulkanDevice* VulkanDynamicRHI::SelectDevice(VkInstance Instance)
 
 }    // namespace VulkanRHI
 
-static std::string GetMissingExtensions(Array<const char*> VulkanExtensions)
+static std::string GetMissingExtensions(TArray<const char*> VulkanExtensions)
 {
     std::string MissingExtensions;
     uint32_t PropertyCount;
     VulkanRHI::VulkanAPI::vkEnumerateInstanceExtensionProperties(nullptr, &PropertyCount, nullptr);
 
-    Array<VkExtensionProperties> Properties;
+    TArray<VkExtensionProperties> Properties;
     Properties.Resize(PropertyCount);
     VulkanRHI::VulkanAPI::vkEnumerateInstanceExtensionProperties(nullptr, &PropertyCount, Properties.Raw());
 

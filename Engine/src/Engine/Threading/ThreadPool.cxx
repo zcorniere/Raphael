@@ -2,22 +2,22 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogWorkerThreadRuntime, Warning);
 
-ThreadPool::ThreadPool(): state(std::make_shared<ThreadPool::State>())
+FThreadPool::FThreadPool(): state(std::make_shared<FThreadPool::State>())
 {
 }
 
-void ThreadPool::Start(unsigned i)
+void FThreadPool::Start(unsigned i)
 {
     Resize(i);
 }
 
-void ThreadPool::Stop()
+void FThreadPool::Stop()
 {
     state->q_var.notify_all();
     thread_p.Clear();
 }
 
-void ThreadPool::Resize(unsigned size)
+void FThreadPool::Resize(unsigned size)
 {
     unsigned old_size = thread_p.Size();
     thread_p.Resize(size);
@@ -27,23 +27,23 @@ void ThreadPool::Resize(unsigned size)
     }
 }
 
-std::atomic_int ThreadPool::WorkerPoolRuntime::s_threadIDCounter = 0;
+std::atomic_int FThreadPool::WorkerPoolRuntime::s_threadIDCounter = 0;
 
-ThreadPool::WorkerPoolRuntime::WorkerPoolRuntime(std::shared_ptr<ThreadPool::State> context)
+FThreadPool::WorkerPoolRuntime::WorkerPoolRuntime(std::shared_ptr<FThreadPool::State> context)
     : i_threadID(0), b_requestExit(false), p_state(std::move(context))
 {
 }
 
-bool ThreadPool::WorkerPoolRuntime::Init()
+bool FThreadPool::WorkerPoolRuntime::Init()
 {
     i_threadID = s_threadIDCounter++;
     return true;
 }
 
-std::uint32_t ThreadPool::WorkerPoolRuntime::Run()
+std::uint32_t FThreadPool::WorkerPoolRuntime::Run()
 {
     using namespace std::chrono_literals;
-    ThreadPool::WorkUnits work;
+    FThreadPool::WorkUnits work;
 
     while (!b_requestExit) {
         try {
@@ -71,13 +71,13 @@ std::uint32_t ThreadPool::WorkerPoolRuntime::Run()
     return 0;
 }
 
-void ThreadPool::WorkerPoolRuntime::Stop()
+void FThreadPool::WorkerPoolRuntime::Stop()
 {
     b_requestExit = true;
     LOG(LogWorkerThreadRuntime, Info, "Thread {}: exit requested", i_threadID);
 }
 
-void ThreadPool::WorkerPoolRuntime::Exit()
+void FThreadPool::WorkerPoolRuntime::Exit()
 {
     b_requestExit = true;
     LOG(LogWorkerThreadRuntime, Info, "Thread {}: exit requested", i_threadID);

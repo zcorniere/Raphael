@@ -3,17 +3,17 @@
 namespace VulkanRHI
 {
 
-VulkanPendingState::VulkanPendingState(VulkanDevice* InDevice, VulkanCommandContext& InCmdContext)
+FVulkanPendingState::FVulkanPendingState(FVulkanDevice* InDevice, FVulkanCommandContext& InCmdContext)
     : IDeviceChild(InDevice), CmdContext(InCmdContext)
 {
     Reset();
 }
 
-VulkanPendingState::~VulkanPendingState()
+FVulkanPendingState::~FVulkanPendingState()
 {
 }
 
-void VulkanPendingState::Reset()
+void FVulkanPendingState::Reset()
 {
     Viewports.Clear();
     Viewports.Resize(1);
@@ -23,7 +23,7 @@ void VulkanPendingState::Reset()
     CurrentPipeline = nullptr;
 }
 
-void VulkanPendingState::SetVertexBuffer(Ref<VulkanBuffer>& Buffer, uint32 BufferIndex, uint32 Offset)
+void FVulkanPendingState::SetVertexBuffer(Ref<RVulkanBuffer>& Buffer, uint32 BufferIndex, uint32 Offset)
 {
     check(EnumHasAnyFlags(EBufferUsageFlags::VertexBuffer, Buffer->GetUsage()));
     if (VertexSources.Size() <= BufferIndex) {
@@ -32,7 +32,7 @@ void VulkanPendingState::SetVertexBuffer(Ref<VulkanBuffer>& Buffer, uint32 Buffe
     VertexSources[BufferIndex] = {Buffer, Offset};
 }
 
-bool VulkanPendingState::SetGraphicsPipeline(Ref<VulkanGraphicsPipeline>& InPipeline, bool bForceReset)
+bool FVulkanPendingState::SetGraphicsPipeline(Ref<RVulkanGraphicsPipeline>& InPipeline, bool bForceReset)
 {
     bool bNeedReset = bForceReset;
 
@@ -45,7 +45,7 @@ bool VulkanPendingState::SetGraphicsPipeline(Ref<VulkanGraphicsPipeline>& InPipe
     return bNeedReset;
 }
 
-void VulkanPendingState::PrepareForDraw(VulkanCmdBuffer* CommandBuffer)
+void FVulkanPendingState::PrepareForDraw(FVulkanCmdBuffer* CommandBuffer)
 {
     if (Viewports.Size() > 0) {
         VulkanAPI::vkCmdSetViewport(CommandBuffer->GetHandle(), 0, Viewports.Size(), Viewports.Raw());
@@ -57,9 +57,9 @@ void VulkanPendingState::PrepareForDraw(VulkanCmdBuffer* CommandBuffer)
 
     CurrentPipeline->Bind(CommandBuffer->GetHandle());
 
-    Array<VkBuffer> VertexBuffers;
+    TArray<VkBuffer> VertexBuffers;
     VertexBuffers.Reserve(VertexSources.Size());
-    Array<VkDeviceSize> Offsets;
+    TArray<VkDeviceSize> Offsets;
     Offsets.Reserve(VertexSources.Size());
 
     for (const FVertexSource& VertexSource: VertexSources) {

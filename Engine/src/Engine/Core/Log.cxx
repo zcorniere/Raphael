@@ -15,7 +15,7 @@ void Log::Init()
         s_CoreLogger->addSink<cpplogger::StdoutSink, Log::ColorFormatter>(stdout);
 
         std::string LogFileLocation;
-        if (CommandLine::Parse("-logfile=", LogFileLocation)) {
+        if (FCommandLine::Parse("-logfile=", LogFileLocation)) {
             printf("%s\n", LogFileLocation.c_str());
 
             s_CoreLogger->addSink<cpplogger::FileSink, Log::BaseFormatter>(LogFileLocation, false);

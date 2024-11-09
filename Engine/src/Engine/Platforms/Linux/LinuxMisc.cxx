@@ -10,10 +10,10 @@
 #include <filesystem>
 #include <xdg.hpp>
 
-EBoxReturnType LinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string Title, const std::string Text)
+EBoxReturnType FLinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string Title, const std::string Text)
 {
-    if (!Window::EnsureGLFWInit()) {
-        return GenericMisc::DisplayMessageBox(MsgType, Title, Text);
+    if (!RWindow::EnsureGLFWInit()) {
+        return FGenericMisc::DisplayMessageBox(MsgType, Title, Text);
     }
 
     MD::Style Style = MD::Style::Error;
@@ -32,7 +32,7 @@ EBoxReturnType LinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::
 
     switch (Result) {
         case MD::Selection::Error:
-            return GenericMisc::DisplayMessageBox(MsgType, Title, Text);
+            return FGenericMisc::DisplayMessageBox(MsgType, Title, Text);
         case MD::Selection::OK:
             return EBoxReturnType::Ok;
         case MD::Selection::Cancel:
@@ -49,35 +49,35 @@ EBoxReturnType LinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::
 
 // ------------------ Linux External Module --------------------------
 
-LinuxExternalModule::LinuxExternalModule(std::string_view ModulePath): IExternalModule(ModulePath)
+RLinuxExternalModule::RLinuxExternalModule(std::string_view ModulePath): IExternalModule(ModulePath)
 {
     ModuleHandle = dlopen(ModulePath.data(), RTLD_NOW | RTLD_LOCAL);
 }
 
-LinuxExternalModule::~LinuxExternalModule()
+RLinuxExternalModule::~RLinuxExternalModule()
 {
     dlclose(ModuleHandle);
 }
 
-void* LinuxExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
+void* RLinuxExternalModule::GetSymbol_Internal(std::string_view SymbolName) const
 {
     return dlsym(ModuleHandle, SymbolName.data());
 }
 
-Malloc* LinuxMisc::BaseAllocator()
+IMalloc* FLinuxMisc::BaseAllocator()
 {
     checkNoReentry();
-    void* const Ptr = std::malloc(sizeof(MiMalloc));
-    new (Ptr) MiMalloc;
-    return reinterpret_cast<MiMalloc*>(Ptr);
+    void* const Ptr = std::malloc(sizeof(FMiMalloc));
+    new (Ptr) FMiMalloc;
+    return reinterpret_cast<FMiMalloc*>(Ptr);
 }
 
-Ref<IExternalModule> LinuxMisc::LoadExternalModule(const std::string& ModuleName)
+Ref<IExternalModule> FLinuxMisc::LoadExternalModule(const std::string& ModuleName)
 {
-    return Ref<LinuxExternalModule>::CreateNamed(ModuleName, ModuleName);
+    return Ref<RLinuxExternalModule>::CreateNamed(ModuleName, ModuleName);
 }
 
-std::filesystem::path LinuxMisc::GetConfigPath()
+std::filesystem::path FLinuxMisc::GetConfigPath()
 {
 #ifndef NDEBUG
     return std::filesystem::current_path();

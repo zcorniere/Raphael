@@ -24,25 +24,25 @@ enum class EBufferUsageFlags {
 };
 ENUM_CLASS_FLAGS(EBufferUsageFlags);
 
-struct RHIBufferDesc {
+struct FRHIBufferDesc {
     /// Size in bytes of the buffer
     uint32 Size = 0;
     uint32 Stride = 0;
     EBufferUsageFlags Usage = EBufferUsageFlags::None;
-    ResourceArrayInterface* ResourceArray = nullptr;
+    IResourceArrayInterface* ResourceArray = nullptr;
     std::string DebugName;
 };
 
 /// @brief Represent a Buffer used by the RHI
-class RHIBuffer : public RHIResource
+class RRHIBuffer : public RRHIResource
 {
-    RTTI_DECLARE_TYPEINFO(RHIBuffer, RHIResource);
+    RTTI_DECLARE_TYPEINFO(RRHIBuffer, RRHIResource);
 
 public:
-    RHIBuffer(const RHIBufferDesc& InDescription): RHIResource(ERHIResourceType::Buffer), Description(InDescription)
+    RRHIBuffer(const FRHIBufferDesc& InDescription): RRHIResource(ERHIResourceType::Buffer), Description(InDescription)
     {
     }
-    virtual ~RHIBuffer() = default;
+    virtual ~RRHIBuffer() = default;
 
     /// @return The number of bytes in the buffer.
     uint32 GetSize() const
@@ -63,5 +63,5 @@ public:
     }
 
 protected:
-    RHIBufferDesc Description;
+    FRHIBufferDesc Description;
 };

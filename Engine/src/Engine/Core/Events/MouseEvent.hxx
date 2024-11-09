@@ -3,12 +3,12 @@
 #include "Engine/Core/Events/Events.hxx"
 #include "Engine/Core/Events/KeyCodes.hxx"
 
-class MouseMovedEvent : public Event
+class FMouseMovedEvent : public FEvent
 {
-    RTTI_DECLARE_TYPEINFO(MouseMovedEvent, Event);
+    RTTI_DECLARE_TYPEINFO(FMouseMovedEvent, FEvent);
 
 public:
-    MouseMovedEvent(float x, float y): m_MouseX(x), m_MouseY(y)
+    FMouseMovedEvent(float x, float y): m_MouseX(x), m_MouseY(y)
     {
     }
 
@@ -28,12 +28,12 @@ private:
     float m_MouseY = 0.0f;
 };
 
-class MouseScrolledEvent : public Event
+class FMouseScrolledEvent : public FEvent
 {
-    RTTI_DECLARE_TYPEINFO(MouseScrolledEvent, Event);
+    RTTI_DECLARE_TYPEINFO(FMouseScrolledEvent, FEvent);
 
 public:
-    MouseScrolledEvent(float xOffset, float yOffset): m_XOffset(xOffset), m_YOffset(yOffset)
+    FMouseScrolledEvent(float xOffset, float yOffset): m_XOffset(xOffset), m_YOffset(yOffset)
     {
     }
 
@@ -53,61 +53,61 @@ private:
     float m_YOffset = 0.0f;
 };
 
-class MouseButtonEvent : public Event
+class FMouseButtonEvent : public FEvent
 {
-    RTTI_DECLARE_TYPEINFO(MouseButtonEvent, Event);
+    RTTI_DECLARE_TYPEINFO(FMouseButtonEvent, FEvent);
 
 public:
-    inline MouseButton GetMouseButton() const
+    inline EMouseButton GetMouseButton() const
     {
         return m_Button;
     }
 
     EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 protected:
-    MouseButtonEvent(MouseButton button): m_Button(button)
+    FMouseButtonEvent(EMouseButton button): m_Button(button)
     {
     }
 
-    MouseButton m_Button;
+    EMouseButton m_Button;
 };
 
-class MouseButtonPressedEvent : public MouseButtonEvent
+class FMouseButtonPressedEvent : public FMouseButtonEvent
 {
-    RTTI_DECLARE_TYPEINFO(MouseButtonPressedEvent, MouseButtonEvent)
+    RTTI_DECLARE_TYPEINFO(FMouseButtonPressedEvent, FMouseButtonEvent)
 public:
-    MouseButtonPressedEvent(MouseButton button): MouseButtonEvent(button)
+    FMouseButtonPressedEvent(EMouseButton button): FMouseButtonEvent(button)
     {
     }
 
     EVENT_CLASS_TYPE(MouseButtonPressed)
 };
 
-class MouseButtonReleasedEvent : public MouseButtonEvent
+class FMouseButtonReleasedEvent : public FMouseButtonEvent
 {
-    RTTI_DECLARE_TYPEINFO(MouseButtonReleasedEvent, MouseButtonEvent)
+    RTTI_DECLARE_TYPEINFO(FMouseButtonReleasedEvent, FMouseButtonEvent)
 public:
-    MouseButtonReleasedEvent(MouseButton button): MouseButtonEvent(button)
+    FMouseButtonReleasedEvent(EMouseButton button): FMouseButtonEvent(button)
     {
     }
 
     EVENT_CLASS_TYPE(MouseButtonReleased)
 };
 
-class MouseButtonDownEvent : public MouseButtonEvent
+class FMouseButtonDownEvent : public FMouseButtonEvent
 {
-    RTTI_DECLARE_TYPEINFO(MouseButtonDownEvent, MouseButtonEvent)
+    RTTI_DECLARE_TYPEINFO(FMouseButtonDownEvent, FMouseButtonEvent)
 public:
-    MouseButtonDownEvent(MouseButton button): MouseButtonEvent(button)
+    FMouseButtonDownEvent(EMouseButton button): FMouseButtonEvent(button)
     {
     }
 
     EVENT_CLASS_TYPE(MouseButtonDown)
 };
 
-DEFINE_PRINTABLE_TYPE(MouseMovedEvent, "MouseMovedEvent {{ X: {}, Y: {} }}", Value.GetX(), Value.GetY());
-DEFINE_PRINTABLE_TYPE(MouseScrolledEvent, "MouseScrolledEvent {{ OffsetX: {}, OffsetY: {} }}", Value.GetXOffset(),
+DEFINE_PRINTABLE_TYPE(FMouseMovedEvent, "MouseMovedEvent {{ X: {}, Y: {} }}", Value.GetX(), Value.GetY());
+DEFINE_PRINTABLE_TYPE(FMouseScrolledEvent, "MouseScrolledEvent {{ OffsetX: {}, OffsetY: {} }}", Value.GetXOffset(),
                       Value.GetYOffset());
-DEFINE_PRINTABLE_TYPE(MouseButtonPressedEvent, "MouseButtonPressedEvent {{ Button: {} }}", Value.GetMouseButton())
-DEFINE_PRINTABLE_TYPE(MouseButtonReleasedEvent, "MouseButtonReleasedEvent {{ Button: {} }}", Value.GetMouseButton())
-DEFINE_PRINTABLE_TYPE(MouseButtonDownEvent, "MouseButtonDownEvent {{ Button: {} }}", Value.GetMouseButton())
+DEFINE_PRINTABLE_TYPE(FMouseButtonPressedEvent, "MouseButtonPressedEvent {{ Button: {} }}", Value.GetMouseButton())
+DEFINE_PRINTABLE_TYPE(FMouseButtonReleasedEvent, "MouseButtonReleasedEvent {{ Button: {} }}", Value.GetMouseButton())
+DEFINE_PRINTABLE_TYPE(FMouseButtonDownEvent, "MouseButtonDownEvent {{ Button: {} }}", Value.GetMouseButton())

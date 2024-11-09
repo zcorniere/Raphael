@@ -2,23 +2,23 @@
 
 #include "Engine/Core/RHI/RHIResource.hxx"
 
-class RHITexture;
+class RRHITexture;
 
 /// @brief Represent a viewport used by the RHI to be drawn on
-class RHIViewport : public RHIResource
+class RRHIViewport : public RRHIResource
 {
-    RTTI_DECLARE_TYPEINFO(RHIViewport, RHIResource);
+    RTTI_DECLARE_TYPEINFO(RRHIViewport, RRHIResource);
 
 public:
-    RHIViewport(): RHIResource(ERHIResourceType::Viewport)
+    RRHIViewport(): RRHIResource(ERHIResourceType::Viewport)
     {
     }
-    virtual ~RHIViewport() = default;
+    virtual ~RRHIViewport() = default;
 
     /// @brief The current viewport will be resized
     virtual void ResizeViewport(uint32 Width, uint32 Height) = 0;
 
-    virtual Ref<RHITexture> GetBackbuffer() const = 0;
+    virtual Ref<RRHITexture> GetBackbuffer() const = 0;
 
     virtual UVector2 GetSize() const = 0;
 };

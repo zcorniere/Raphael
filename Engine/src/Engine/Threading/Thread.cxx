@@ -2,20 +2,20 @@
 
 DECLARE_LOGGER_CATEGORY(Core, LogThread, Warning)
 
-Thread::Thread(): m_name(), m_internalRuntime(nullptr)
+FThread::FThread(): m_name(), m_internalRuntime(nullptr)
 {
 }
 
-Thread::~Thread()
+FThread::~FThread()
 {
     End();
 }
 
-void Thread::Start()
+void FThread::Start()
 {
 }
 
-void Thread::End(bool bShouldWait)
+void FThread::End(bool bShouldWait)
 {
     if (m_internalRuntime) {
         m_internalRuntime->Stop();
@@ -27,7 +27,7 @@ void Thread::End(bool bShouldWait)
     }
 }
 
-void Thread::Create(const std::string& name, std::unique_ptr<ThreadRuntime> threadCode)
+void FThread::Create(const std::string& name, std::unique_ptr<IThreadRuntime> threadCode)
 {
     if (m_managedThread.joinable()) {
         m_managedThread.request_stop();
@@ -38,14 +38,14 @@ void Thread::Create(const std::string& name, std::unique_ptr<ThreadRuntime> thre
     m_name = name;
 
     m_managedThread = std::jthread(thread_runtime, this);
-    Platform::setThreadName(m_managedThread, m_name);
+    FPlatform::setThreadName(m_managedThread, m_name);
 }
 
-void Thread::PreRun()
+void FThread::PreRun()
 {
 }
 
-std::uint32_t Thread::Run()
+std::uint32_t FThread::Run()
 {
     std::uint32_t exitCode = 1;
     check(m_internalRuntime);
@@ -61,11 +61,11 @@ std::uint32_t Thread::Run()
     return exitCode;
 }
 
-void Thread::PostRun()
+void FThread::PostRun()
 {
 }
 
-void Thread::thread_runtime(Thread* pThis)
+void FThread::thread_runtime(FThread* pThis)
 {
     check(pThis);
     pThis->Start();

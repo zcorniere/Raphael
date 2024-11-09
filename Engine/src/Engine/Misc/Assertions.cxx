@@ -12,13 +12,13 @@ bool Raphael::Debug::HandleCheckFailure(const std::string& Message, bool bShould
     fflush(stderr);
 
     if (bShouldAbort) {
-        if (Platform::isDebuggerPresent()) {
+        if (FPlatform::isDebuggerPresent()) {
             PLATFORM_BREAK();
         } else {
             std::abort();
         }
     }
-    return Platform::isDebuggerPresent();
+    return FPlatform::isDebuggerPresent();
 }
 
 void Raphael::Debug::CollectAndPrintStackTrace(void* ReturnAddress)
@@ -29,14 +29,14 @@ void Raphael::Debug::CollectAndPrintStackTrace(void* ReturnAddress)
         return;
     bIsAlreadyHandlerAssertions = true;
 
-    StacktraceContent trace = PlatformStacktrace::GetStackTraceFromReturnAddress(ReturnAddress);
+    StacktraceContent trace = FPlatformStacktrace::GetStackTraceFromReturnAddress(ReturnAddress);
 
     LOG(LogAssert, Trace, "StackTrace :");
     for (std::uint32_t CurrentDepth = trace.CurrentDepth; CurrentDepth < trace.Depth; CurrentDepth++) {
         DetailedSymbolInfo detailed_info;
         std::memset(&detailed_info, 0, sizeof(detailed_info));
         std::strcpy(detailed_info.Filename, "Unknown file");
-        PlatformStacktrace::TryFillDetailedSymbolInfo(trace.StackTrace[CurrentDepth], detailed_info);
+        FPlatformStacktrace::TryFillDetailedSymbolInfo(trace.StackTrace[CurrentDepth], detailed_info);
 
         std::string demangled = Compiler::Demangle(detailed_info.FunctionName);
         void* ProgramCounter = reinterpret_cast<void*>(detailed_info.ProgramCounter);

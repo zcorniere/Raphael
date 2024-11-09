@@ -10,8 +10,8 @@
 namespace VulkanRHI
 {
 
-VulkanTexture::VulkanTexture(VulkanDevice* InDevice, const RHITextureSpecification& InDesc)
-    : RHITexture(InDesc),
+VulkanTexture::VulkanTexture(FVulkanDevice* InDevice, const FRHITextureSpecification& InDesc)
+    : RRHITexture(InDesc),
       IDeviceChild(InDevice),
       Allocation(nullptr),
       Image(VK_NULL_HANDLE),
@@ -28,7 +28,7 @@ VulkanTexture::~VulkanTexture()
 
 void VulkanTexture::SetName(std::string_view InName)
 {
-    RHIResource::SetName(InName);
+    RRHIResource::SetName(InName);
     if (Image) {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, Image, "{:s}.Image", InName);
     }
@@ -42,13 +42,13 @@ void VulkanTexture::SetName(std::string_view InName)
 
 void VulkanTexture::Invalidate()
 {
-    ENQUEUE_RENDER_COMMAND(InvalidateTexture)
-    ([instance = WeakRef(this)](RHICommandList& CommandList) mutable {
+    ENQUEUE_RENDER_COMMAND(FInvalidateTexture)
+    ([instance = WeakRef(this)](FFRHICommandList& CommandList) mutable {
         const VkImageLayout Layout = instance->GetLayout();
         instance->DestroyTexture();
         instance->CreateTexture();
 
-        VulkanCommandContext* Context = CommandList.GetContext()->cast<VulkanCommandContext>();
+        FVulkanCommandContext* Context = CommandList.GetContext()->cast<FVulkanCommandContext>();
         Context->SetLayout(instance.Raw(), Layout);
     });
 }
@@ -75,7 +75,7 @@ VkImageView VulkanTexture::GetImageView() const
                 .b = VK_COMPONENT_SWIZZLE_IDENTITY,
                 .a = VK_COMPONENT_SWIZZLE_IDENTITY,
             },
-        .subresourceRange = Barrier::MakeSubresourceRange(TextureUsageFlagToVkImageAspectFlags(Description.Flags)),
+        .subresourceRange = FBarrier::MakeSubresourceRange(TextureUsageFlagToVkImageAspectFlags(Description.Flags)),
     };
     VK_CHECK_RESULT(VulkanAPI::vkCreateImageView(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &View));
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, View, "{:s}.Image.View", GetName());
@@ -92,7 +92,7 @@ VkImageLayout VulkanTexture::GetLayout() const
     return Layout;
 }
 
-void VulkanTexture::SetLayout(VulkanCmdBuffer* CmdBuffer, VkImageLayout NewLayout)
+void VulkanTexture::SetLayout(FVulkanCmdBuffer* CmdBuffer, VkImageLayout NewLayout)
 {
     VkImageAspectFlags AspectMask = 0;
     switch (Description.Format) {
@@ -105,7 +105,7 @@ void VulkanTexture::SetLayout(VulkanCmdBuffer* CmdBuffer, VkImageLayout NewLayou
             AspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
             break;
     }
-    VkImageSubresourceRange Range = Barrier::MakeSubresourceRange(AspectMask, 0, Description.NumMips);
+    VkImageSubresourceRange Range = FBarrier::MakeSubresourceRange(AspectMask, 0, Description.NumMips);
     VulkanSetImageLayout(CmdBuffer->GetHandle(), Image, Layout, NewLayout, Range);
     Layout = NewLayout;
 }
@@ -180,7 +180,7 @@ void VulkanTexture::CreateTexture()
 void VulkanTexture::DestroyTexture()
 {
     RHI::DeferedDeletion(
-        [View = this->View, Allocation = this->Allocation, Image = this->Image, Device = this->Device] () mutable {
+        [View = this->View, Allocation = this->Allocation, Image = this->Image, Device = this->Device]() mutable {
             if (View) {
                 VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, VULKAN_CPU_ALLOCATOR);
             }
@@ -211,7 +211,7 @@ VkImageLayout VulkanTexture::GetDefaultLayout() const
 
 //////////////////// VulkanTextureView ////////////////////
 
-void VulkanTextureView::Create(VulkanDevice* Device, VkImage InImage, VkImageViewType ViewType,
+void VulkanTextureView::Create(FVulkanDevice* Device, VkImage InImage, VkImageViewType ViewType,
                                VkImageAspectFlags AspectFlags, VkFormat Format, uint32 FirstMip, uint32 NumMips)
 {
     VkImageViewCreateInfo ViewInfo{
@@ -234,7 +234,7 @@ void VulkanTextureView::Create(VulkanDevice* Device, VkImage InImage, VkImageVie
     Image = InImage;
 }
 
-void VulkanTextureView::Destroy(VulkanDevice* Device)
+void VulkanTextureView::Destroy(FVulkanDevice* Device)
 {
     if (View) {
         RHI::DeferedDeletion([View = this->View, Device] {

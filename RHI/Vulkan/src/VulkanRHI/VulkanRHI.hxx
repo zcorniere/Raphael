@@ -8,14 +8,14 @@ DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Trace);
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 
 // Raphael classes
-class RHIResource;
+class RRHIResource;
 
 namespace VulkanRHI
 {
 
-class VulkanDevice;
+class FVulkanDevice;
 class VulkanViewport;
-class VulkanCommandContext;
+class FVulkanCommandContext;
 
 extern VkAllocationCallbacks GAllocationCallbacks;
 static FORCEINLINE const VkAllocationCallbacks* GetMemoryAllocator()
@@ -24,25 +24,25 @@ static FORCEINLINE const VkAllocationCallbacks* GetMemoryAllocator()
 }
 
 /// @brief Vulkan RHI implementation for Raphael
-class VulkanDynamicRHI : public GenericRHI
+class FVulkanDynamicRHI : public FGenericRHI
 {
 public:
     virtual void Tick(float fDeltaTime) override;
 
     // ---------------------- RHI Operations --------------------- //
-    virtual void RHISubmitCommandLists(RHICommandList* const CommandLists, std::uint32_t NumCommandLists) override;
-    virtual RHIContext* RHIGetCommandContext() override;
-    virtual void RHIReleaseCommandContext(RHIContext* Context) override;
+    virtual void RHISubmitCommandLists(FFRHICommandList* const CommandLists, std::uint32_t NumCommandLists) override;
+    virtual FRHIContext* RHIGetCommandContext() override;
+    virtual void RHIReleaseCommandContext(FRHIContext* Context) override;
 
-    virtual Ref<RHIViewport> CreateViewport(Ref<Window> InWindowHandle, UVector2 InSize) override;
-    virtual Ref<RHITexture> CreateTexture(const RHITextureSpecification& InDesc) override;
-    virtual Ref<RHIBuffer> CreateBuffer(const RHIBufferDesc& InDesc) override;
-    virtual Ref<RHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) override;
-    virtual Ref<RHIGraphicsPipeline> CreateGraphicsPipeline(const RHIGraphicsPipelineSpecification& Config) override;
+    virtual Ref<RRHIViewport> CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize) override;
+    virtual Ref<RRHITexture> CreateTexture(const FRHITextureSpecification& InDesc) override;
+    virtual Ref<RRHIBuffer> CreateBuffer(const FRHIBufferDesc& InDesc) override;
+    virtual Ref<RRHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) override;
+    virtual Ref<RRHIGraphicsPipeline> CreateGraphicsPipeline(const FRHIGraphicsPipelineSpecification& Config) override;
 
 public:
-    VulkanDynamicRHI();
-    virtual ~VulkanDynamicRHI();
+    FVulkanDynamicRHI();
+    virtual ~FVulkanDynamicRHI();
 
     /// Return the Vulkan Device of the RHI
     VkDevice RHIGetVkDevice() const;
@@ -61,9 +61,9 @@ public:
     {
         return "Vulkan";
     }
-    RHIInterfaceType GetInterfaceType() const final override
+    ERHIInterfaceType GetInterfaceType() const final override
     {
-        return RHIInterfaceType::Vulkan;
+        return ERHIInterfaceType::Vulkan;
     }
 
     inline VkInstance GetInstance() const
@@ -71,42 +71,42 @@ public:
         return m_Instance;
     }
 
-    VulkanDevice* GetDevice()
+    FVulkanDevice* GetDevice()
     {
         return Device.get();
     }
 
 private:
-    static VkInstance CreateInstance(const Array<const char*>& ValidationLayers);
-    static VulkanDevice* SelectDevice(VkInstance Instance);
+    static VkInstance CreateInstance(const TArray<const char*>& ValidationLayers);
+    static FVulkanDevice* SelectDevice(VkInstance Instance);
 
 private:
-    friend class VulkanCommandContext;
+    friend class FVulkanCommandContext;
 
 private:
 #if VULKAN_DEBUGGING_ENABLED
     VulkanRHI_Debug DebugLayer;
 #endif
     VkInstance m_Instance = VK_NULL_HANDLE;
-    std::unique_ptr<VulkanDevice> Device;
+    std::unique_ptr<FVulkanDevice> Device;
 
-    std::unique_ptr<VulkanShaderCompiler> ShaderCompiler;
+    std::unique_ptr<FVulkanShaderCompiler> ShaderCompiler;
 
     // Used during runtime //
-    Array<VulkanCommandContext*> CommandContexts;
-    Array<VulkanCommandContext*> AvailableCommandContexts;
+    TArray<FVulkanCommandContext*> CommandContexts;
+    TArray<FVulkanCommandContext*> AvailableCommandContexts;
     VulkanViewport* DrawingViewport = nullptr;
 
-    Array<std::function<void()>> DeletionQueue;
+    TArray<std::function<void()>> DeletionQueue;
 };
 
 }    // namespace VulkanRHI
 
-FORCEINLINE VulkanRHI::VulkanDynamicRHI* GetVulkanDynamicRHI()
+FORCEINLINE VulkanRHI::FVulkanDynamicRHI* GetVulkanDynamicRHI()
 {
     checkMsg(GDynamicRHI, "Tried to fetch RHI too early");
-    check(GDynamicRHI->GetInterfaceType() == RHIInterfaceType::Vulkan);
-    return RHI::Get<VulkanRHI::VulkanDynamicRHI>();
+    check(GDynamicRHI->GetInterfaceType() == ERHIInterfaceType::Vulkan);
+    return RHI::Get<VulkanRHI::FVulkanDynamicRHI>();
 }
 
 #if VULKAN_CUSTOM_CPU_ALLOCATOR == 1

@@ -2,30 +2,30 @@
 
 #include "VulkanRHI/VulkanExtension.hxx"
 
-class Window;
+class RWindow;
 
 namespace VulkanRHI
 {
 
-class VulkanDevice;
+class FVulkanDevice;
 
-using VulkanDeviceExtensionArray = Array<std::unique_ptr<IDeviceVulkanExtension>>;
-using VulkanInstanceExtensionArray = Array<std::unique_ptr<IInstanceVulkanExtension>>;
+using FVulkanDeviceExtensionArray = TArray<std::unique_ptr<IDeviceVulkanExtension>>;
+using FVulkanInstanceExtensionArray = TArray<std::unique_ptr<IInstanceVulkanExtension>>;
 
-class VulkanPlatform
+class FVulkanPlatform
 {
 public:
     static bool LoadVulkanLibrary();
     static bool LoadVulkanInstanceFunctions(VkInstance inInstance);
     static void FreeVulkanLibrary();
 
-    static VulkanInstanceExtensionArray GetInstanceExtensions();
-    static void GetInstanceLayers(Array<const char*>& OutLayers);
+    static FVulkanInstanceExtensionArray GetInstanceExtensions();
+    static void GetInstanceLayers(TArray<const char*>& OutLayers);
 
-    static VulkanDeviceExtensionArray GetDeviceExtensions();
-    static void GetDeviceLayers(Array<const char*>& OutLayers);
+    static FVulkanDeviceExtensionArray GetDeviceExtensions();
+    static void GetDeviceLayers(TArray<const char*>& OutLayers);
 
-    static void CreateSurface(Window* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface);
+    static void CreateSurface(RWindow* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface);
 };
 
 }    // namespace VulkanRHI

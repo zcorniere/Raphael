@@ -3,27 +3,28 @@
 #include "Engine/Core/Events/Events.hxx"
 #include "Engine/Core/Events/KeyCodes.hxx"
 
-class KeyEvent : public Event
+class FKeyEvent : public FEvent
 {
 public:
-    inline KeyCode GetKeyCode() const
+    inline EKeyCode GetKeyCode() const
     {
         return m_KeyCode;
     }
 
     EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
+
 protected:
-    KeyEvent(KeyCode keycode): m_KeyCode(keycode)
+    FKeyEvent(EKeyCode keycode): m_KeyCode(keycode)
     {
     }
 
-    KeyCode m_KeyCode;
+    EKeyCode m_KeyCode;
 };
 
-class KeyPressedEvent : public KeyEvent
+class FKeyPressedEvent : public FKeyEvent
 {
 public:
-    KeyPressedEvent(KeyCode keycode, int repeatCount): KeyEvent(keycode), m_RepeatCount(repeatCount)
+    FKeyPressedEvent(EKeyCode keycode, int repeatCount): FKeyEvent(keycode), m_RepeatCount(repeatCount)
     {
     }
 
@@ -33,31 +34,32 @@ public:
     }
 
     EVENT_CLASS_TYPE(KeyPressed)
+
 private:
     int m_RepeatCount;
 };
 
-class KeyReleasedEvent : public KeyEvent
+class FKeyReleasedEvent : public FKeyEvent
 {
 public:
-    KeyReleasedEvent(KeyCode keycode): KeyEvent(keycode)
+    FKeyReleasedEvent(EKeyCode keycode): FKeyEvent(keycode)
     {
     }
 
     EVENT_CLASS_TYPE(KeyReleased)
 };
 
-class KeyTypedEvent : public KeyEvent
+class FKeyTypedEvent : public FKeyEvent
 {
 public:
-    KeyTypedEvent(KeyCode keycode): KeyEvent(keycode)
+    FKeyTypedEvent(EKeyCode keycode): FKeyEvent(keycode)
     {
     }
 
     EVENT_CLASS_TYPE(KeyTyped)
 };
 
-DEFINE_PRINTABLE_TYPE(KeyPressedEvent, "KeyReleasedEvent {{ Key: {:s}, RepeatCount: {} }}",
+DEFINE_PRINTABLE_TYPE(FKeyPressedEvent, "KeyReleasedEvent {{ Key: {:s}, RepeatCount: {} }}",
                       magic_enum::enum_name(Value.GetKeyCode()), Value.GetRepeatCount());
-DEFINE_PRINTABLE_TYPE(KeyReleasedEvent, "KeyReleasedEvent {{ Key: {:s} }}", magic_enum::enum_name(Value.GetKeyCode()));
-DEFINE_PRINTABLE_TYPE(KeyTypedEvent, "KeyTypedEvent {{ Key: {:s} }}", magic_enum::enum_name(Value.GetKeyCode()));
+DEFINE_PRINTABLE_TYPE(FKeyReleasedEvent, "KeyReleasedEvent {{ Key: {:s} }}", magic_enum::enum_name(Value.GetKeyCode()));
+DEFINE_PRINTABLE_TYPE(FKeyTypedEvent, "KeyTypedEvent {{ Key: {:s} }}", magic_enum::enum_name(Value.GetKeyCode()));

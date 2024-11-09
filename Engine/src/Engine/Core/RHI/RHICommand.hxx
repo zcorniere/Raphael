@@ -11,130 +11,130 @@
     };                                     \
     class CommandName final : public TRHIRenderCommand<CommandName##String>
 
-RHICOMMAND_MACRO(RHIBeginFrame)
+RHICOMMAND_MACRO(FRHIBeginFrame)
 {
 public:
-    RHIBeginFrame() = default;
-    virtual ~RHIBeginFrame() = default;
+    FRHIBeginFrame() = default;
+    virtual ~FRHIBeginFrame() = default;
 
-    virtual void Execute(RHICommandList & CommandList) override final;
+    virtual void Execute(FFRHICommandList & CommandList) override final;
 };
 
-RHICOMMAND_MACRO(RHIEndFrame)
+RHICOMMAND_MACRO(FRHIEndFrame)
 {
 public:
-    RHIEndFrame() = default;
-    virtual ~RHIEndFrame() = default;
+    FRHIEndFrame() = default;
+    virtual ~FRHIEndFrame() = default;
 
-    virtual void Execute(RHICommandList & CommandList) override final;
+    virtual void Execute(FFRHICommandList & CommandList) override final;
 };
 
-RHICOMMAND_MACRO(RHIBeginDrawingViewport)
+RHICOMMAND_MACRO(FRHIBeginDrawingViewport)
 {
 public:
-    RHIBeginDrawingViewport() = delete;
-    RHIBeginDrawingViewport(Ref<RHIViewport> InViewport);
-    virtual ~RHIBeginDrawingViewport() = default;
+    FRHIBeginDrawingViewport() = delete;
+    FRHIBeginDrawingViewport(Ref<RRHIViewport> InViewport);
+    virtual ~FRHIBeginDrawingViewport() = default;
 
-    virtual void Execute(RHICommandList & CommandList) override final;
+    virtual void Execute(FFRHICommandList & CommandList) override final;
 
 public:
-    Ref<RHIViewport> Viewport = nullptr;
+    Ref<RRHIViewport> Viewport = nullptr;
 };
 
-RHICOMMAND_MACRO(RHIEndDrawningViewport)
+RHICOMMAND_MACRO(FRHIEndDrawningViewport)
 {
 public:
-    RHIEndDrawningViewport() = delete;
-    RHIEndDrawningViewport(Ref<RHIViewport> InViewport);
-    virtual ~RHIEndDrawningViewport() = default;
+    FRHIEndDrawningViewport() = delete;
+    FRHIEndDrawningViewport(Ref<RRHIViewport> InViewport);
+    virtual ~FRHIEndDrawningViewport() = default;
 
-    virtual void Execute(RHICommandList & CommandList) override final;
+    virtual void Execute(FFRHICommandList & CommandList) override final;
 
 public:
-    Ref<RHIViewport> Viewport = nullptr;
+    Ref<RRHIViewport> Viewport = nullptr;
 };
 
-RHICOMMAND_MACRO(RHIBeginRendering)
+RHICOMMAND_MACRO(FRHIBeginRendering)
 {
 public:
-    RHIBeginRendering(const RHIRenderPassDescription& InDescription);
-    virtual ~RHIBeginRendering() = default;
+    FRHIBeginRendering(const RHIRenderPassDescription& InDescription);
+    virtual ~FRHIBeginRendering() = default;
 
-    virtual void Execute(RHICommandList & CommandList) override final;
+    virtual void Execute(FFRHICommandList & CommandList) override final;
 
 public:
     const RHIRenderPassDescription Description = {};
 };
 
-RHICOMMAND_MACRO(RHIEndRendering)
+RHICOMMAND_MACRO(FRHIEndRendering)
 {
 public:
-    RHIEndRendering() = default;
-    virtual ~RHIEndRendering() = default;
+    FRHIEndRendering() = default;
+    virtual ~FRHIEndRendering() = default;
 
-    virtual void Execute(RHICommandList & CommandList) override final;
+    virtual void Execute(FFRHICommandList & CommandList) override final;
 };
 
-RHICOMMAND_MACRO(RHISetPipeline)
+RHICOMMAND_MACRO(FRHISetPipeline)
 {
 public:
-    RHISetPipeline(Ref<RHIGraphicsPipeline> InPipeline);
-    virtual ~RHISetPipeline() = default;
+    FRHISetPipeline(Ref<RRHIGraphicsPipeline> InPipeline);
+    virtual ~FRHISetPipeline() = default;
 
-    virtual void Execute(RHICommandList & CommandList) override final;
+    virtual void Execute(FFRHICommandList & CommandList) override final;
 
 private:
-    Ref<RHIGraphicsPipeline> Pipeline = nullptr;
+    Ref<RRHIGraphicsPipeline> Pipeline = nullptr;
 };
 
-RHICOMMAND_MACRO(RHISetVertexBuffer)
+RHICOMMAND_MACRO(FRHISetVertexBuffer)
 {
 public:
-    RHISetVertexBuffer(Ref<RHIBuffer> InVertexBuffer, uint32 BufferIndex = 0, uint32 Offset = 0);
-    virtual ~RHISetVertexBuffer() = default;
+    FRHISetVertexBuffer(Ref<RRHIBuffer> InVertexBuffer, uint32 BufferIndex = 0, uint32 Offset = 0);
+    virtual ~FRHISetVertexBuffer() = default;
 
-    virtual void Execute(RHICommandList & CommandList) override final;
+    virtual void Execute(FFRHICommandList & CommandList) override final;
 
 private:
-    Ref<RHIBuffer> VertexBuffer = nullptr;
+    Ref<RRHIBuffer> VertexBuffer = nullptr;
     uint32 BufferIndex = 0;
     uint32 Offset = 0;
 };
 
-RHICOMMAND_MACRO(RHISetViewport)
+RHICOMMAND_MACRO(FRHISetViewport)
 {
 public:
-    RHISetViewport(FVector3 Min, FVector3 Max);
-    virtual ~RHISetViewport() = default;
+    FRHISetViewport(FVector3 Min, FVector3 Max);
+    virtual ~FRHISetViewport() = default;
 
-    virtual void Execute(RHICommandList & CommandList) override final;
+    virtual void Execute(FFRHICommandList & CommandList) override final;
 
 private:
     FVector3 Min;
     FVector3 Max;
 };
 
-RHICOMMAND_MACRO(RHISetScissor)
+RHICOMMAND_MACRO(FRHISetScissor)
 {
 public:
-    RHISetScissor(IVector2 Offset, UVector2 Size);
-    virtual ~RHISetScissor() = default;
+    FRHISetScissor(IVector2 Offset, UVector2 Size);
+    virtual ~FRHISetScissor() = default;
 
-    virtual void Execute(RHICommandList & CommandList) override final;
+    virtual void Execute(FFRHICommandList & CommandList) override final;
 
 private:
     IVector2 Offset;
     UVector2 Size;
 };
 
-RHICOMMAND_MACRO(RHIDraw)
+RHICOMMAND_MACRO(FRHIDraw)
 {
 public:
-    RHIDraw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances);
-    virtual ~RHIDraw() = default;
+    FRHIDraw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances);
+    virtual ~FRHIDraw() = default;
 
-    virtual void Execute(RHICommandList & CommandList) override final;
+    virtual void Execute(FFRHICommandList & CommandList) override final;
 
 public:
     uint32 BaseVertexIndex = 0;
@@ -145,14 +145,14 @@ public:
 RHICOMMAND_MACRO(RHIDrawIndexed)
 {
 public:
-    RHIDrawIndexed(Ref<RHIBuffer> InIndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance, uint32 NumVertices,
+    RHIDrawIndexed(Ref<RRHIBuffer> InIndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance, uint32 NumVertices,
                    uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances);
     virtual ~RHIDrawIndexed() = default;
 
-    virtual void Execute(RHICommandList & CommandList) override final;
+    virtual void Execute(FFRHICommandList & CommandList) override final;
 
 private:
-    Ref<RHIBuffer> IndexBuffer = nullptr;
+    Ref<RRHIBuffer> IndexBuffer = nullptr;
     int32 BaseVertexIndex = 0;
     uint32 FirstInstance = 0;
     uint32 NumVertices = 0;
@@ -164,15 +164,15 @@ private:
 RHICOMMAND_MACRO(RHICopyBufferToBuffer)
 {
 public:
-    RHICopyBufferToBuffer(const Ref<RHIBuffer> Source, Ref<RHIBuffer> Destination, uint64 SourceOffset,
+    RHICopyBufferToBuffer(const Ref<RRHIBuffer> Source, Ref<RRHIBuffer> Destination, uint64 SourceOffset,
                           uint64 DestinationOffset, uint64 Size);
     virtual ~RHICopyBufferToBuffer() = default;
 
-    virtual void Execute(RHICommandList & CommandList) override final;
+    virtual void Execute(FFRHICommandList & CommandList) override final;
 
 private:
-    const Ref<RHIBuffer> SourceBuffer = nullptr;
-    Ref<RHIBuffer> DestinationBuffer = nullptr;
+    const Ref<RRHIBuffer> SourceBuffer = nullptr;
+    Ref<RRHIBuffer> DestinationBuffer = nullptr;
     uint64 Size = 0;
     uint64 SourceOffset = 0;
     uint64 DestinationOffset = 0;

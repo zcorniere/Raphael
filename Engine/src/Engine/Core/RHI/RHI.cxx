@@ -6,7 +6,7 @@
 #include "Engine/Core/RHI/RHIShaderParameters.hxx"
 #include "Engine/Core/Window.hxx"
 
-GenericRHI* GDynamicRHI = nullptr;
+FGenericRHI* GDynamicRHI = nullptr;
 
 void RHI::Create()
 {
@@ -33,8 +33,8 @@ void RHI::Tick(float fDeltaTime)
 void RHI::EndFrame()
 {
     // Run the command list
-    RHIContext* const Context = RHI::Get()->RHIGetCommandContext();
-    RHICommandListExecutor::Get().GetCommandList().Execute(Context);
+    FRHIContext* const Context = RHI::Get()->RHIGetCommandContext();
+    FRHICommandListExecutor::Get().GetCommandList().Execute(Context);
     RHI::Get()->RHIReleaseCommandContext(Context);
 
     GFrameCounter += 1;
@@ -59,33 +59,33 @@ void RHI::RHIWaitUntilIdle()
 //  -------------------- RHI Create resources --------------------
 //
 
-Ref<RHIViewport> RHI::CreateViewport(Ref<Window> InWindowHandle, UVector2 InSize)
+Ref<RRHIViewport> RHI::CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize)
 {
     return RHI::Get()->CreateViewport(std::move(InWindowHandle), std::move(InSize));
 }
 
-Ref<RHITexture> RHI::CreateTexture(const RHITextureSpecification& InDesc)
+Ref<RRHITexture> RHI::CreateTexture(const FRHITextureSpecification& InDesc)
 {
     return RHI::Get()->CreateTexture(InDesc);
 }
 
-Ref<RHIBuffer> RHI::CreateBuffer(const RHIBufferDesc& InDesc)
+Ref<RRHIBuffer> RHI::CreateBuffer(const FRHIBufferDesc& InDesc)
 {
     return RHI::Get()->CreateBuffer(InDesc);
 }
 
-Ref<RHIShader> RHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)
+Ref<RRHIShader> RHI::CreateShader(const std::filesystem::path Path, bool bForceCompile)
 {
     return RHI::Get()->CreateShader(Path, bForceCompile);
 }
 
-std::future<Ref<RHIShader>> RHI::CreateShaderAsync(const std::filesystem::path Path, bool bForceCompile)
+std::future<Ref<RRHIShader>> RHI::CreateShaderAsync(const std::filesystem::path Path, bool bForceCompile)
 {
     return GEngine->GetThreadPool().Push(
         [Path, bForceCompile](int) { return RHI::Get()->CreateShader(Path, bForceCompile); });
 }
 
-Ref<RHIGraphicsPipeline> RHI::CreateGraphicsPipeline(const RHIGraphicsPipelineSpecification& Config)
+Ref<RRHIGraphicsPipeline> RHI::CreateGraphicsPipeline(const FRHIGraphicsPipelineSpecification& Config)
 {
     return RHI::Get()->CreateGraphicsPipeline(Config);
 }

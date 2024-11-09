@@ -2,12 +2,12 @@
 
 #include "Engine/Core/RHI/Resources/RHIViewport.hxx"
 
-class RHIContext : public RTTI::Enable
+class FRHIContext : public RTTI::Enable
 {
-    RTTI_DECLARE_TYPEINFO(RHIContext);
+    RTTI_DECLARE_TYPEINFO(FRHIContext);
 
 public:
-    virtual ~RHIContext() = default;
+    virtual ~FRHIContext() = default;
 
     virtual void Reset() = 0;
 
@@ -17,9 +17,9 @@ public:
     virtual void EndFrame() = 0;
 
     /// @brief Indicate the RHI that we are starting drawing in the given viewport
-    virtual void RHIBeginDrawingViewport(RHIViewport* const Viewport) = 0;
+    virtual void RHIBeginDrawingViewport(RRHIViewport* const Viewport) = 0;
     /// @brief Indicate the RHI that we are done drawing in the given viewport
-    virtual void RHIEndDrawningViewport(RHIViewport* const Viewport) = 0;
+    virtual void RHIEndDrawningViewport(RRHIViewport* const Viewport) = 0;
 
     /// @brief Begin rendering a new render pass
     virtual void RHIBeginRendering(const RHIRenderPassDescription& Description) = 0;
@@ -27,19 +27,19 @@ public:
     virtual void RHIEndRendering() = 0;
 
     /// @brief Set the pipeline to use for the next draw calls
-    virtual void SetPipeline(Ref<RHIGraphicsPipeline>& Pipeline) = 0;
+    virtual void SetPipeline(Ref<RRHIGraphicsPipeline>& Pipeline) = 0;
 
-    virtual void SetVertexBuffer(Ref<RHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset) = 0;
+    virtual void SetVertexBuffer(Ref<RRHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset) = 0;
 
     virtual void SetViewport(FVector3 Min, FVector3 Max) = 0;
     virtual void SetScissor(IVector2 Offset, UVector2 Size) = 0;
 
     /// @brief Send a draw call to the RHI
     virtual void Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances) = 0;
-    virtual void DrawIndexed(Ref<RHIBuffer> InIndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
+    virtual void DrawIndexed(Ref<RRHIBuffer> InIndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
                              uint32 NumVertices, uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances) = 0;
 
     /// @brief Copy the content of a buffer to another buffer
-    virtual void CopyBufferToBuffer(const Ref<RHIBuffer>& Source, Ref<RHIBuffer>& Destination, uint64 SourceOffset,
+    virtual void CopyBufferToBuffer(const Ref<RRHIBuffer>& Source, Ref<RRHIBuffer>& Destination, uint64 SourceOffset,
                                     uint64 DestinationOffset, uint64 Size) = 0;
 };

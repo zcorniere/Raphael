@@ -50,7 +50,7 @@ private:
 DECLARE_LOGGER_CATEGORY(Core, LogPlatformMisc, Info);
 
 /// @brief Miscellaneous platform agnostic function
-class GenericMisc
+class FGenericMisc
 {
 public:
     /// @brief Display a simple message box
@@ -64,7 +64,7 @@ public:
         return EBoxReturnType::Ok;
     }
 
-    static Malloc* BaseAllocator()
+    static IMalloc* BaseAllocator()
     {
         checkNoEntry();
     }

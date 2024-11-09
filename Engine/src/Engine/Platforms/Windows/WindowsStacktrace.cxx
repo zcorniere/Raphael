@@ -4,7 +4,7 @@
 
 #include <dbghelp.h>
 
-StacktraceContent WindowsStacktrace::GetStackTraceFromReturnAddress(void* returnAddress)
+StacktraceContent FWindowsStacktrace::GetStackTraceFromReturnAddress(void* returnAddress)
 {
     StacktraceContent trace;
     std::memset(&trace, 0, sizeof(StacktraceContent));
@@ -23,7 +23,7 @@ StacktraceContent WindowsStacktrace::GetStackTraceFromReturnAddress(void* return
     return trace;
 }
 
-bool WindowsStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedSymbolInfo& detailed_info)
+bool FWindowsStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedSymbolInfo& detailed_info)
 {
     DWORD64 dwAddress = ProgramCounter;
     detailed_info.ProgramCounter = ProgramCounter;
@@ -49,8 +49,7 @@ bool WindowsStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, Detailed
         IMAGEHLP_MODULE ModuleInfo;
         ModuleInfo.SizeOfStruct = sizeof(ModuleInfo);
 
-        if (SymGetModuleInfo64(WindowsPlatform::GetDebugSymbolHandle(), dwAddress, &ModuleInfo))
-        {
+        if (SymGetModuleInfo64(WindowsPlatform::GetDebugSymbolHandle(), dwAddress, &ModuleInfo)) {
             const char* const ModulePath = ModuleInfo.ImageName;
             const char* ModuleName = std::strrchr(ModulePath, '\\');
             if (ModuleName) {

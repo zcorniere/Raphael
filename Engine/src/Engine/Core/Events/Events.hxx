@@ -2,7 +2,7 @@
 
 #include <functional>
 
-enum class EventType {
+enum class EEventType {
     None = 0,
     WindowClose,
     WindowMinimize,
@@ -20,7 +20,7 @@ enum class EventType {
     MouseScrolled,
 };
 
-enum EventCategory {
+enum EEventCategory {
     None = 0,
     EventCategoryApplication = BIT(0),
     EventCategoryInput = BIT(1),
@@ -29,18 +29,18 @@ enum EventCategory {
     EventCategoryMouseButton = BIT(4),
 };
 
-#define EVENT_CLASS_TYPE(Type)                      \
-    static EventType GetStaticType()                \
-    {                                               \
-        return EventType::Type;                     \
-    }                                               \
-    virtual EventType GetEventType() const override \
-    {                                               \
-        return GetStaticType();                     \
-    }                                               \
-    virtual const char* GetName() const override    \
-    {                                               \
-        return #Type;                               \
+#define EVENT_CLASS_TYPE(Type)                       \
+    static EEventType GetStaticType()                \
+    {                                                \
+        return EEventType::Type;                     \
+    }                                                \
+    virtual EEventType GetEventType() const override \
+    {                                                \
+        return GetStaticType();                      \
+    }                                                \
+    virtual const char* GetName() const override     \
+    {                                                \
+        return #Type;                                \
     }
 
 #define EVENT_CLASS_CATEGORY(category)            \
@@ -49,19 +49,19 @@ enum EventCategory {
         return category;                          \
     }
 
-class Event : public RTTI::Enable
+class FEvent : public RTTI::Enable
 {
-    RTTI_DECLARE_TYPEINFO(Event);
+    RTTI_DECLARE_TYPEINFO(FEvent);
 
 public:
-    virtual ~Event()
+    virtual ~FEvent()
     {
     }
-    virtual EventType GetEventType() const = 0;
+    virtual EEventType GetEventType() const = 0;
     virtual const char* GetName() const = 0;
     virtual int GetCategoryFlags() const = 0;
 
-    inline bool IsInCategory(EventCategory category)
+    inline bool IsInCategory(EEventCategory category)
     {
         return GetCategoryFlags() & category;
     }
@@ -71,20 +71,18 @@ public:
 };
 
 template <typename T>
-concept DispatchableEvent = std::derived_from<T, Event> && requires(T a) {
-    {
-        T::GetStaticType()
-    } -> std::convertible_to<EventType>;
+concept DispatchableEvent = std::derived_from<T, FEvent> && requires(T a) {
+    { T::GetStaticType() } -> std::convertible_to<EEventType>;
 };
 
-class EventDispatcher
+class FEventDispatcher
 {
 private:
     template <DispatchableEvent T>
     using EventFn = std::function<bool(T&)>;
 
 public:
-    EventDispatcher(Event& event): m_Event(event)
+    FEventDispatcher(FEvent& event): m_Event(event)
     {
     }
 
@@ -101,8 +99,8 @@ public:
     }
 
 private:
-    Event& m_Event;
+    FEvent& m_Event;
 };
 
-DEFINE_PRINTABLE_TYPE(Event, "Event {{ Name: {:s}, Type: {:s} }}", Value.GetName(),
+DEFINE_PRINTABLE_TYPE(FEvent, "Event {{ Name: {:s}, Type: {:s} }}", Value.GetName(),
                       magic_enum::enum_name(Value.GetEventType()));

@@ -32,7 +32,7 @@ static constexpr auto VulkanLibraryName = "libvulkan.so.1";
     #error "Unsupported Platform"
 #endif
 
-bool VulkanPlatform::LoadVulkanLibrary()
+bool FVulkanPlatform::LoadVulkanLibrary()
 {
     RPH_PROFILE_FUNC()
 
@@ -40,7 +40,7 @@ bool VulkanPlatform::LoadVulkanLibrary()
         return true;
     }
 
-    s_VulkanModuleHandle = PlatformMisc::LoadExternalModule(VulkanLibraryName);
+    s_VulkanModuleHandle = FPlatformMisc::LoadExternalModule(VulkanLibraryName);
 
     if (s_VulkanModuleHandle == nullptr) {
         return false;
@@ -68,7 +68,7 @@ bool VulkanPlatform::LoadVulkanLibrary()
     return true;
 }
 
-bool VulkanPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
+bool FVulkanPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
 {
     RPH_PROFILE_FUNC()
 
@@ -98,7 +98,7 @@ bool VulkanPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
     return bFoundAllEntryPoints;
 }
 
-void VulkanPlatform::FreeVulkanLibrary()
+void FVulkanPlatform::FreeVulkanLibrary()
 {
     if (s_VulkanModuleHandle != nullptr) {
 #define CLEAR_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = nullptr;
@@ -113,9 +113,9 @@ void VulkanPlatform::FreeVulkanLibrary()
     }
 }
 
-void VulkanPlatform::CreateSurface(Window* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface)
+void FVulkanPlatform::CreateSurface(RWindow* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface)
 {
-    Window::EnsureGLFWInit();
+    RWindow::EnsureGLFWInit();
 
     VK_CHECK_RESULT(glfwCreateWindowSurface(Instance, WindowHandle->GetHandle(), VULKAN_CPU_ALLOCATOR, OutSurface));
 }

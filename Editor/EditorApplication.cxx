@@ -32,13 +32,13 @@ bool EditorApplication::OnEngineInitialization()
 {
     RPH_PROFILE_FUNC()
 
-    BaseApplication::OnEngineInitialization();
+    FBaseApplication::OnEngineInitialization();
 
     struct Vertex {
         FVector3 Position;
         FVector3 Color;
     };
-    ResourceArray<Vertex> Vertices;
+    TResourceArray<Vertex> Vertices;
     Vertices.Resize(4);
     Vertices[0].Position = {0.5, -0.5, 0};
     Vertices[1].Position = {0.5, 0.5, 0};
@@ -50,32 +50,32 @@ bool EditorApplication::OnEngineInitialization()
     Vertices[2].Color = {1, 0, 0};
     Vertices[3].Color = {0, 1, 0};
 
-    ResourceArray<uint32> Indices = {0, 1, 2, 2, 1, 3};
+    TResourceArray<uint32> Indices = {0, 1, 2, 2, 1, 3};
 
-    Ref<RHIBuffer> TmpBuffer = RHI::CreateBuffer(RHIBufferDesc{
+    Ref<RRHIBuffer> TmpBuffer = RHI::CreateBuffer(FRHIBufferDesc{
         .Size = Vertices.GetByteSize(),
         .Stride = sizeof(Vertex),
         .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::SourceCopy | EBufferUsageFlags::KeepCPUAccessible,
         .ResourceArray = &Vertices,
         .DebugName = "Staging Vertex Buffer",
     });
-    Ref<RHIBuffer> TmpIndexBuffer = RHI::CreateBuffer(RHIBufferDesc{
+    Ref<RRHIBuffer> TmpIndexBuffer = RHI::CreateBuffer(FRHIBufferDesc{
         .Size = Indices.GetByteSize(),
         .Stride = sizeof(uint32),
         .Usage = EBufferUsageFlags::IndexBuffer | EBufferUsageFlags::SourceCopy | EBufferUsageFlags::KeepCPUAccessible,
         .ResourceArray = &Indices,
         .DebugName = "Staging Index Buffer",
     });
-    ENQUEUE_RENDER_COMMAND(CopyBuffer)
-    ([this, TmpBuffer, TmpIndexBuffer](RHICommandList& CommandList) {
-        Buffer = RHI::CreateBuffer(RHIBufferDesc{
+    ENQUEUE_RENDER_COMMAND(FCopyBuffer)
+    ([this, TmpBuffer, TmpIndexBuffer](FFRHICommandList& CommandList) {
+        Buffer = RHI::CreateBuffer(FRHIBufferDesc{
             .Size = TmpBuffer->GetSize(),
             .Stride = sizeof(Vertex),
             .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::DestinationCopy,
             .ResourceArray = nullptr,
             .DebugName = "Vertex Buffer",
         });
-        IndexBuffer = RHI::CreateBuffer(RHIBufferDesc{
+        IndexBuffer = RHI::CreateBuffer(FRHIBufferDesc{
             .Size = TmpIndexBuffer->GetSize(),
             .Stride = sizeof(uint32),
             .Usage = EBufferUsageFlags::IndexBuffer | EBufferUsageFlags::DestinationCopy,
@@ -85,7 +85,7 @@ bool EditorApplication::OnEngineInitialization()
         CommandList.CopyBufferToBuffer(TmpBuffer, Buffer, 0, 0, TmpBuffer->GetSize());
         CommandList.CopyBufferToBuffer(TmpIndexBuffer, IndexBuffer, 0, 0, TmpIndexBuffer->GetSize());
     });
-    Pipeline = RHI::CreateGraphicsPipeline(RHIGraphicsPipelineSpecification{
+    Pipeline = RHI::CreateGraphicsPipeline(FRHIGraphicsPipelineSpecification{
         .VertexShader = "DefaultTriangle.vert",
         .PixelShader = "DefaultTriangle.frag",
         .Rasterizer =
@@ -110,20 +110,20 @@ void EditorApplication::OnEngineDestruction()
     IndexBuffer = nullptr;
     Pipeline = nullptr;
 
-    BaseApplication::OnEngineDestruction();
+    FBaseApplication::OnEngineDestruction();
 }
 
 void EditorApplication::Tick(const float DeltaTime)
 {
     RPH_PROFILE_FUNC()
-    ENQUEUE_RENDER_COMMAND(BeginFrame)([](RHICommandList& CommandList) { CommandList.BeginFrame(); });
+    ENQUEUE_RENDER_COMMAND(FBeginFrame)([](FFRHICommandList& CommandList) { CommandList.BeginFrame(); });
 
-    BaseApplication::Tick(DeltaTime);
+    FBaseApplication::Tick(DeltaTime);
 
     MainWindow->SetText(std::to_string(1.0f / DeltaTime));
 
-    ENQUEUE_RENDER_COMMAND(EmptyRender)
-    ([this](RHICommandList& CommandList) {
+    ENQUEUE_RENDER_COMMAND(FEmptyRender)
+    ([this](FFRHICommandList& CommandList) {
         RHIRenderPassDescription Description{
             .RenderAreaLocation = {0, 0},
             .RenderAreaSize = MainViewport->GetSize(),
@@ -154,7 +154,7 @@ void EditorApplication::Tick(const float DeltaTime)
         CommandList.EndRenderingViewport(MainViewport.Raw());
     });
 
-    ENQUEUE_RENDER_COMMAND(EndFrame)([](RHICommandList& CommandList) { CommandList.EndFrame(); });
+    ENQUEUE_RENDER_COMMAND(FEndFrame)([](FFRHICommandList& CommandList) { CommandList.EndFrame(); });
 }
 
 // Not really extern "C" but I use it to mark that this function will be called by an external unit

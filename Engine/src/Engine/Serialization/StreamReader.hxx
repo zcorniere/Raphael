@@ -5,10 +5,10 @@
 namespace Serialization
 {
 
-class StreamReader
+class FStreamReader
 {
 public:
-    virtual ~StreamReader() = default;
+    virtual ~FStreamReader() = default;
 
     virtual bool IsGood() const = 0;
     virtual uint64_t GetStreamPosition() = 0;
@@ -48,7 +48,7 @@ public:
     void ReadString(std::string& String);
 
     template <typename T>
-    void ReadArray(Array<T>& Array, bool bReadSize = true)
+    void ReadArray(TArray<T>& Array, bool bReadSize = true)
     {
         if (bReadSize) {
             uint32 Size = 0;

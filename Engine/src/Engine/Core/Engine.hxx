@@ -2,15 +2,15 @@
 
 #include "Engine/Threading/ThreadPool.hxx"
 
-extern class Engine* GEngine;
+extern class FEngine* GEngine;
 
-class Engine
+class FEngine
 {
 public:
-    Engine();
-    ~Engine();
+    FEngine();
+    ~FEngine();
 
-    ThreadPool& GetThreadPool()
+    FThreadPool& GetThreadPool()
     {
         return m_ThreadPool;
     }
@@ -25,5 +25,5 @@ public:
     void PostTick();
 
 public:
-    ThreadPool m_ThreadPool;
+    FThreadPool m_ThreadPool;
 };
