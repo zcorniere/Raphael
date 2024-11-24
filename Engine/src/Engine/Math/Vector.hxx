@@ -24,9 +24,6 @@ struct FVector<2, T> {
     FVector(T x, T y);
     FVector(T scalar);
     FVector(const FVector<2, T>& other);
-
-    bool operator==(const FVector<2, T>& other) const;
-    std::strong_ordering operator<=>(const FVector<2, T>& other) const;
 };
 
 template <typename T>
@@ -48,9 +45,6 @@ struct FVector<3, T> {
     FVector(T scalar);
     FVector(const FVector<3, T>& other);
     FVector(const FVector<2, T>& other, T z);
-
-    bool operator==(const FVector<3, T>& other) const;
-    std::strong_ordering operator<=>(const FVector<3, T>& other) const;
 };
 
 template <typename T>
@@ -74,9 +68,6 @@ struct FVector<4, T> {
     FVector(const FVector<3, T>& other, T w);
     FVector(const FVector<2, T>& other, T z, T w);
     FVector(const FVector<2, T>& other1, const FVector<2, T>& other2);
-
-    bool operator==(const FVector<4, T>& other) const;
-    std::strong_ordering operator<=>(const FVector<4, T>& other) const;
 };
 
 // FVector operations
@@ -96,6 +87,11 @@ template <unsigned Size, typename T>
 FVector<Size, T> operator*(const FVector<Size, T>& lhs, T scalar);
 template <unsigned Size, typename T>
 FVector<Size, T> operator/(const FVector<Size, T>& lhs, T scalar);
+
+template <unsigned Size, typename T>
+std::strong_ordering operator<=>(const FVector<Size, T>& lhs, const FVector<Size, T>& rhs);
+template <unsigned Size, typename T>
+bool operator==(const FVector<Size, T>& lhs, const FVector<Size, T>& rhs);
 
 }    // namespace Math
 

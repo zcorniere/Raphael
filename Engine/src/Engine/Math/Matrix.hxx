@@ -11,10 +11,20 @@ struct TMatrix {
     using Type = T;
     static constexpr const unsigned Rows = TRows;
     static constexpr const unsigned Columns = TColumns;
-    static constexpr const bool IsSquare = Rows == Columns;
+
+public:
+    TMatrix(const Type& InDefaultValue = 0)
+    {
+        std::memset(Data, InDefaultValue, sizeof(Data));
+    }
+
+    constexpr bool IsSquare() const
+    {
+        return Rows == Columns;
+    }
 
 private:
-    FVector<Rows, Type> data[Columns] = {};
+    Type Data[Rows][Columns];
 };
 
 }    // namespace Math
