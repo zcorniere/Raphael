@@ -51,7 +51,7 @@ bool FGraphicsPipelineDescription::Validate() const
 
 RVulkanGraphicsPipeline::RVulkanGraphicsPipeline(FVulkanDevice* InDevice,
                                                  const FGraphicsPipelineDescription& Description)
-    : IDeviceChild(InDevice), Desc(Description)
+    : IDeviceChild(InDevice), Desc(Description), DescriptorManager(InDevice)
 {
     Create();
 }
@@ -59,6 +59,8 @@ RVulkanGraphicsPipeline::RVulkanGraphicsPipeline(FVulkanDevice* InDevice,
 RVulkanGraphicsPipeline::~RVulkanGraphicsPipeline()
 {
     RHI::RHIWaitUntilIdle();
+    DescriptorManager.Destroy();
+
     if (VulkanPipeline) {
         VulkanAPI::vkDestroyPipeline(Device->GetHandle(), VulkanPipeline, VULKAN_CPU_ALLOCATOR);
     }
@@ -74,7 +76,7 @@ void RVulkanGraphicsPipeline::SetName(std::string_view Name)
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE, VulkanPipeline, "{:s}", Name);
     }
     if (PipelineLayout) {
-        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE_LAYOUT, PipelineLayout, "{:s}.Layout", Name);
+        VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE_LAYOUT, PipelineLayout, "{:s}.PipelineLayout", Name);
     }
 }
 
@@ -259,21 +261,30 @@ bool RVulkanGraphicsPipeline::CreatePipelineLayout()
     GetConstantRangeFromShader(PushRanges, Desc.VertexShader, VK_SHADER_STAGE_VERTEX_BIT);
     GetConstantRangeFromShader(PushRanges, Desc.PixelShader, VK_SHADER_STAGE_FRAGMENT_BIT);
 
-    // TODO: Shader descriptor set reflection
-    TArray<VkDescriptorSetLayout> SetLayout;
-    SetLayout.Append(Desc.VertexShader->CompileDescriptorSetLayout());
-    SetLayout.Append(Desc.PixelShader->CompileDescriptorSetLayout());
+    CreateDescriptorSetLayout();
 
     VkPipelineLayoutCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
         .pNext = nullptr,
-        .setLayoutCount = SetLayout.Size(),
-        .pSetLayouts = SetLayout.Raw(),
+        .setLayoutCount = DescriptorManager.GetDescriptorSetLayout().Size(),
+        .pSetLayouts = DescriptorManager.GetDescriptorSetLayout().Raw(),
         .pushConstantRangeCount = PushRanges.Size(),
         .pPushConstantRanges = PushRanges.Raw(),
     };
     VK_CHECK_RESULT(
         VulkanAPI::vkCreatePipelineLayout(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &PipelineLayout));
+    return true;
+}
+
+bool RVulkanGraphicsPipeline::CreateDescriptorSetLayout()
+{
+    TArray<TArray<VkDescriptorSetLayoutBinding>> DescriptorSetBindings;
+    if (!Desc.VertexShader->GetDescriptorSetLayoutBindings(DescriptorSetBindings))
+        return false;
+    if (!Desc.PixelShader->GetDescriptorSetLayoutBindings(DescriptorSetBindings))
+        return false;
+
+    DescriptorManager.Initialize(DescriptorSetBindings, 1);
     return true;
 }
 

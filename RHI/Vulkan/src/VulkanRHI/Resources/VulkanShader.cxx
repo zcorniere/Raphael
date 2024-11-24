@@ -1,8 +1,6 @@
 #include "VulkanRHI/Resources/VulkanShader.hxx"
 
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
-#include "VulkanRHI/VulkanDevice.hxx"
-#include "VulkanRHI/VulkanRHI.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
 
 namespace VulkanRHI
@@ -124,10 +122,6 @@ RVulkanShader::RVulkanShader(ERHIShaderType Type, const TArray<uint32>& InSPIRVC
 
 RVulkanShader::~RVulkanShader()
 {
-    for (VkDescriptorSetLayout& Layout: DescriptorSetLayout) {
-        VulkanAPI::vkDestroyDescriptorSetLayout(GetVulkanDynamicRHI()->GetDevice()->GetHandle(), Layout,
-                                                VULKAN_CPU_ALLOCATOR);
-    }
 }
 
 const VkShaderModuleCreateInfo& RVulkanShader::GetShaderModuleCreateInfo() const
@@ -140,40 +134,31 @@ const char* RVulkanShader::GetEntryPoint() const
     return "main";
 }
 
-TArray<VkDescriptorSetLayout> RVulkanShader::CompileDescriptorSetLayout()
+bool RVulkanShader::GetDescriptorSetLayoutBindings(TArray<TArray<VkDescriptorSetLayoutBinding>>& OutBindings) const
 {
     // Not the most efficient, but this will do for now
-    for (uint32 Set = 0; Set < 32; Set += 1) {
-        TArray<VkDescriptorSetLayoutBinding> Bindings;
-        for (const ShaderResource::FStorageBuffer& Buffer: m_ReflectionData.StorageBuffers) {
-            if (Buffer.Set != Set) {
-                continue;
-            }
-            Bindings.Emplace(VkDescriptorSetLayoutBinding{
-                .binding = Buffer.Binding,
-                .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                .descriptorCount = 1,
-                .stageFlags = ConvertToVulkanType(GetShaderType()),
-                .pImmutableSamplers = nullptr,
-            });
+    for (const ShaderResource::FStorageBuffer& Buffer: m_ReflectionData.StorageBuffers) {
+        if (Buffer.Set >= OutBindings.Size()) {
+            OutBindings.Resize(Buffer.Set + 1);
         }
-
-        if (Bindings.IsEmpty()) {
+        VkDescriptorSetLayoutBinding* FoundBinding = OutBindings[Buffer.Set].FindByLambda(
+            [Buffer](const VkDescriptorSetLayoutBinding& Binding) { return Binding.binding == Buffer.Binding; });
+        if (FoundBinding) {
+            FoundBinding->stageFlags |= ConvertToVulkanType(GetShaderType());
             continue;
         }
-        VkDescriptorSetLayoutCreateInfo CreateInfo{
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = 0,
-            .bindingCount = Bindings.Size(),
-            .pBindings = Bindings.Raw(),
+
+        VkDescriptorSetLayoutBinding Binding{
+            .binding = Buffer.Binding,
+            .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+            .descriptorCount = 1,
+            .stageFlags = ConvertToVulkanType(GetShaderType()),
+            .pImmutableSamplers = nullptr,
         };
-        VK_CHECK_RESULT(VulkanAPI::vkCreateDescriptorSetLayout(GetVulkanDynamicRHI()->GetDevice()->GetHandle(),
-                                                               &CreateInfo, VULKAN_CPU_ALLOCATOR,
-                                                               &DescriptorSetLayout.Emplace()));
+        OutBindings[Buffer.Set].Add(Binding);
     }
 
-    return DescriptorSetLayout;
+    return true;
 }
 
 }    // namespace VulkanRHI

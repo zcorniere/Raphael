@@ -13,13 +13,7 @@ namespace VulkanRHI
 {
 
 #define DEFINE_VK_ENTRYPOINTS(Type, Func) Type VulkanAPI::Func = nullptr;
-
 VK_ENTRYPOINT_ALL(DEFINE_VK_ENTRYPOINTS)
-
-#if VULKAN_DEBUGGING_ENABLED
-VK_ENTRYPOINTS_DEBUG_UTILS(DEFINE_VK_ENTRYPOINTS)
-#endif
-
 #undef DEFINE_VK_ENTRYPOINTS
 
 static Ref<IExternalModule> s_VulkanModuleHandle = nullptr;
@@ -47,24 +41,24 @@ bool FVulkanPlatform::LoadVulkanLibrary()
     }
 
     bool bFoundAllEntryPoints = true;
+
+#define GET_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = s_VulkanModuleHandle->GetSymbol<Type>(#Func);
 #define CHECK_VK_ENTRYPOINTS(Type, Func)                                   \
     if (VulkanAPI::Func == nullptr) {                                      \
         bFoundAllEntryPoints = false;                                      \
         LOG(LogVulkanRHI, Error, "Failed to find entry point for " #Func); \
     }
 
-#define GET_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = s_VulkanModuleHandle->GetSymbol<Type>(#Func);
-
     VK_ENTRYPOINTS_BASE(GET_VK_ENTRYPOINTS);
     VK_ENTRYPOINTS_BASE(CHECK_VK_ENTRYPOINTS);
+#undef GET_VK_ENTRYPOINTS
+#undef CHECK_VK_ENTRYPOINTS
 
     if (!bFoundAllEntryPoints) {
         FreeVulkanLibrary();
         return false;
     }
 
-#undef CHECK_VK_ENTRYPOINTS
-#undef GET_VK_ENTRYPOINTS
     return true;
 }
 
@@ -80,17 +74,14 @@ bool FVulkanPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
     }
 
 #define GETINSTANCE_VK_ENTRYPOINTS(Type, Func) \
-    VulkanAPI::Func = (Type)VulkanAPI::vkGetInstanceProcAddr(inInstance, #Func);
+    VulkanAPI::Func = reinterpret_cast<Type>(VulkanAPI::vkGetInstanceProcAddr(inInstance, #Func));
 
     VK_ENTRYPOINTS_INSTANCE(GETINSTANCE_VK_ENTRYPOINTS);
     VK_ENTRYPOINTS_INSTANCE(CHECK_VK_ENTRYPOINTS);
     VK_ENTRYPOINTS_SURFACE_INSTANCE(GETINSTANCE_VK_ENTRYPOINTS);
     VK_ENTRYPOINTS_SURFACE_INSTANCE(CHECK_VK_ENTRYPOINTS);
-
-#if VULKAN_DEBUGGING_ENABLED
     VK_ENTRYPOINTS_DEBUG_UTILS(GETINSTANCE_VK_ENTRYPOINTS);
     VK_ENTRYPOINTS_DEBUG_UTILS(CHECK_VK_ENTRYPOINTS);
-#endif
 
 #undef GETINSTANCE_VK_ENTRYPOINTS
 #undef CHECK_VK_ENTRY_POINTS
@@ -103,12 +94,8 @@ void FVulkanPlatform::FreeVulkanLibrary()
     if (s_VulkanModuleHandle != nullptr) {
 #define CLEAR_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = nullptr;
         VK_ENTRYPOINT_ALL(CLEAR_VK_ENTRYPOINTS);
-
-#if VULKAN_DEBUGGING_ENABLED
-        VK_ENTRYPOINTS_DEBUG_UTILS(CLEAR_VK_ENTRYPOINTS);
-#endif
-
 #undef CLEAR_VK_ENTRYPOINTS
+
         s_VulkanModuleHandle = nullptr;
     }
 }

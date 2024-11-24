@@ -2,6 +2,7 @@
 
 #include "Engine/Core/RHI/Resources/RHIGraphicsPipeline.hxx"
 
+#include "VulkanRHI/DescriptorPoolManager.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 
 namespace VulkanRHI
@@ -81,12 +82,15 @@ public:
 
 private:
     bool CreatePipelineLayout();
+    bool CreateDescriptorSetLayout();
 
 private:
     FGraphicsPipelineDescription Desc;
 
-    VkPipelineLayout PipelineLayout;
-    VkPipeline VulkanPipeline;
+    FDescriptorSetManager DescriptorManager;
+
+    VkPipelineLayout PipelineLayout = VK_NULL_HANDLE;
+    VkPipeline VulkanPipeline = VK_NULL_HANDLE;
 };
 
 }    // namespace VulkanRHI
