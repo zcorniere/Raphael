@@ -6,21 +6,22 @@
 ///
 /// This struct is supposed to only be used during the stacktrace generation, and should not be cached !
 struct DetailedSymbolInfo {
-    static constexpr auto MaxNameLength = 1024;
+    static constexpr int MaxNameLength = 1024;
 
     /// Name of the module (executable name or shared library name)
-    char ModuleName[MaxNameLength] = {'\0'};
+    char ModuleName[MaxNameLength];
     /// Name of the function (mangled) @see Compiler::Demangle
-    char FunctionName[MaxNameLength] = {'\0'};
+    char FunctionName[MaxNameLength];
     int64 ProgramCounter;
 
-    char Filename[MaxNameLength] = {'\0'};
+    char Filename[MaxNameLength];
     int32 LineNumber;
 };
+static_assert(std::is_trivial<DetailedSymbolInfo>::value, "DetailedSymbolInfo must be trivial");
 
 /// @brief Hold the raw information about a stacktrace
 struct StacktraceContent {
-    static constexpr auto MaxDepth = 99;
+    static constexpr int MaxDepth = 99;
 
     /// Max Depth of the of stack trace
     std::uint32_t Depth;
@@ -32,6 +33,7 @@ struct StacktraceContent {
     int64 StackTrace[MaxDepth];
     /// @brief Absolute max depth
 };
+static_assert(std::is_trivial<StacktraceContent>::value, "StacktraceContent must be trivial");
 
 /// Generic stacktrace collection
 class FGenericStacktrace
