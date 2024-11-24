@@ -2,7 +2,7 @@
 
 #include "Engine/Core/RHI/Resources/RHIViewport.hxx"
 
-class FRHIContext : public RTTI::Enable
+class FRHIContext : public RTTI::FEnable
 {
     RTTI_DECLARE_TYPEINFO(FRHIContext);
 

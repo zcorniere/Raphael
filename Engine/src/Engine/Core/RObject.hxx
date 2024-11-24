@@ -28,7 +28,7 @@ bool AreThereAnyLiveObject(bool bPrintObjects = true);
 
 }    // namespace RObjectUtils
 
-class FNamedClass : public RTTI::Enable
+class FNamedClass : public RTTI::FEnable
 {
     RTTI_DECLARE_TYPEINFO(FNamedClass);
 
@@ -271,14 +271,14 @@ public:
     requires std::convertible_to<T*, Other*> || std::derived_from<Other, T>
     const Other* AsRaw() const
     {
-        return Raw()->template cast<const Other>();
+        return Raw()->template Cast<const Other>();
     }
 
     template <typename Other>
     requires std::convertible_to<T*, Other*> || std::derived_from<Other, T>
     Other* AsRaw()
     {
-        return Raw()->template cast<Other>();
+        return Raw()->template Cast<Other>();
     }
 
     bool operator==(const Ref<T>& other) const

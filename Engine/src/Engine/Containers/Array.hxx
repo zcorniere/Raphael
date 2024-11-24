@@ -381,6 +381,19 @@ public:
         return std::nullopt;
     }
 
+    /// Find the index of the given element using a lambda
+    template <typename Lambda>
+    requires std::invocable<Lambda, const T&>
+    [[nodiscard]] FORCEINLINE T* FindByLambda(Lambda&& Func)
+    {
+        for (TSize i = 0; i < Size(); i++) {
+            if (Func((*this)[i])) {
+                return &(*this)[i];
+            }
+        }
+        return nullptr;
+    }
+
     /// Check if the given index is valid within the array
     [[nodiscard]] FORCEINLINE bool IsValidIndex(const TSize Index) const
     {

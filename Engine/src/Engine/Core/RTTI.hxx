@@ -89,17 +89,17 @@ inline std::string FilePosition(const std::source_location& location = std::sour
     return std::format("{:s}:{}", std::filesystem::path(location.file_name()).filename().string(), location.line());
 }
 
-struct Enable;
+struct FEnable;
 
 /// Type identifier used to identify types in the RTTI system
-using TypeId = std::uint32_t;
+using FTypeId = std::uint32_t;
 
 template <typename TThis, typename... TParents>
 concept IsRTTIValidEnabled =
-    ((... && std::derived_from<TThis, TParents>)) && ((... && std::derived_from<Enable, TParents>));
+    ((... && std::derived_from<TThis, TParents>)) && ((... && std::derived_from<FEnable, TParents>));
 
 template <typename TThis>
-concept IsRTTIEnabled = std::derived_from<TThis, Enable>;
+concept IsRTTIEnabled = std::derived_from<TThis, FEnable>;
 
 template <typename TThis, typename... TParents>
 /// Static typeinfo structure for registering types and accessing their information.
@@ -113,7 +113,7 @@ struct TypeInfo {
 
     /// Returns the type identifier of the type T.
     /// @returns Type identifier
-    [[nodiscard]] static constexpr TypeId Id() noexcept
+    [[nodiscard]] static constexpr FTypeId Id() noexcept
     {
         return details::Hash::FNV1a(Name());
     }
@@ -121,7 +121,7 @@ struct TypeInfo {
     /// Checks whether the passed type is the same or a parent of the type.
     /// @tparam The type to compare the identifier with.
     /// @returns True in case a match was found.
-    [[nodiscard]] static constexpr bool Is(TypeId typeId) noexcept
+    [[nodiscard]] static constexpr bool Is(FTypeId typeId) noexcept
     {
         return (Id() == typeId) || (... || (TParents::TypeInfo::Is(typeId)));
     }
@@ -135,7 +135,7 @@ struct TypeInfo {
     /// direct descendance of the type identified by the passed type id. Otherwise
     /// the value returned is a nullptr.
     template <typename T>
-    [[nodiscard]] static const void* DynamicCast(TypeId typeId, const T* ptr) noexcept
+    [[nodiscard]] static const void* DynamicCast(FTypeId typeId, const T* ptr) noexcept
     {
         // Check whether the current type matches the requested type.
         if (Id() == typeId) {
@@ -146,37 +146,41 @@ struct TypeInfo {
 
         // The current type does not match, recursively invoke the method
         // for all directly related parent types.
-        const std::array<const void*, sizeof...(TParents)> ptrs = {TParents::TypeInfo::DynamicCast(typeId, ptr)...};
+        const void* ppCastedPtr[sizeof...(TParents)]{TParents::TypeInfo::DynamicCast(typeId, ptr)...};
 
         // Check whether the traversal up the dependency hierarchy returned a pointer
         // that is not null.
-        auto it = std::find_if(ptrs.begin(), ptrs.end(), [](const void* ptr) { return ptr != nullptr; });
-        return (it != ptrs.end()) ? *it : nullptr;
+        for (unsigned i = 0; i < sizeof...(TParents); ++i) {
+            if (ppCastedPtr[i] != nullptr) {
+                return ppCastedPtr[i];
+            }
+        }
+        return nullptr;
     }
 };
 
 /// Parent type for types at the base of an open RTTI hierarchy
-struct Enable {
-    virtual ~Enable() = default;
+struct FEnable {
+    virtual ~FEnable() = default;
 
     /// Returns the type identifier of the object.
     /// @returns Type identifier
-    [[nodiscard]] virtual TypeId typeId() const noexcept = 0;
+    [[nodiscard]] virtual FTypeId TypeId() const noexcept = 0;
 
     /// Checks whether the object is a direct or derived instance of
     /// the type identified by the passed identifier.
     /// @tparam The identifier to compare with.
     /// @returns True in case a match was found.
-    [[nodiscard]] virtual bool isById(TypeId typeId) const noexcept = 0;
+    [[nodiscard]] virtual bool IsById(FTypeId typeId) const noexcept = 0;
 
     /// Checks whether the object is an instance of child instance of
     /// the passed type.
     /// @tparam The type to compare the identifier with.
     /// @returns True in case a match was found.
     template <typename T>
-    [[nodiscard]] bool is() const noexcept
+    [[nodiscard]] bool Is() const noexcept
     {
-        return isById(TypeInfo<T>::Id());
+        return IsById(TypeInfo<T>::Id());
     }
 
     /// Dynamically cast the object to the passed type. Attempts to find the
@@ -190,20 +194,20 @@ struct Enable {
     /// incase the object instance is not a direct descendence of the passed
     /// type.
     template <typename T>
-    [[nodiscard]] T* cast() noexcept
+    [[nodiscard]] T* Cast() noexcept
     {
         return reinterpret_cast<T*>(const_cast<void*>(_cast(TypeInfo<T>::Id())));
     }
 
     template <typename T>
-    [[nodiscard]] const T* cast() const noexcept
+    [[nodiscard]] const T* Cast() const noexcept
     {
         return reinterpret_cast<T const*>(_cast(TypeInfo<T>::Id()));
     }
 
-    bool operator==(const Enable& other) const noexcept
+    bool operator==(const FEnable& other) const noexcept
     {
-        return typeId() == other.typeId();
+        return TypeId() == other.TypeId();
     }
 
 protected:
@@ -214,7 +218,7 @@ protected:
     /// @returns Valid pointer to instance of requested type if the object is a
     /// direct descendance of the type identified by the passed type id. Otherwise
     /// the value returned is a nullptr.
-    [[nodiscard]] virtual const void* _cast(TypeId typeId) const noexcept = 0;
+    [[nodiscard]] virtual const void* _cast(FTypeId typeId) const noexcept = 0;
 };
 
 }    // namespace RTTI
@@ -224,26 +228,26 @@ protected:
 /// need to have been derived from RTTI::Enable.
 /// @param T The type it self.
 /// @param Parents Variadic number of direct parent types of the type
-#define RTTI_DECLARE_TYPEINFO(T, ...)                                                      \
-public:                                                                                    \
-    using TypeInfo = ::RTTI::TypeInfo<T, ##__VA_ARGS__>;                                   \
-    [[nodiscard]] virtual RTTI::TypeId typeId() const noexcept override                    \
-    {                                                                                      \
-        return TypeInfo::Id();                                                             \
-    }                                                                                      \
-    [[nodiscard]] virtual bool isById(::RTTI::TypeId typeId) const noexcept override       \
-    {                                                                                      \
-        return TypeInfo::Is(typeId);                                                       \
-    }                                                                                      \
-    [[nodiscard]] std::string_view GetTypeName() const                                     \
-    {                                                                                      \
-        return TypeInfo().Name();                                                          \
-    }                                                                                      \
-                                                                                           \
-protected:                                                                                 \
-    [[nodiscard]] virtual const void* _cast(::RTTI::TypeId typeId) const noexcept override \
-    {                                                                                      \
-        return TypeInfo::Is(typeId) ? TypeInfo::DynamicCast(typeId, this) : nullptr;       \
-    }                                                                                      \
-                                                                                           \
+#define RTTI_DECLARE_TYPEINFO(T, ...)                                                       \
+public:                                                                                     \
+    using TypeInfo = ::RTTI::TypeInfo<T, ##__VA_ARGS__>;                                    \
+    [[nodiscard]] virtual RTTI::FTypeId TypeId() const noexcept override                    \
+    {                                                                                       \
+        return TypeInfo::Id();                                                              \
+    }                                                                                       \
+    [[nodiscard]] virtual bool IsById(::RTTI::FTypeId typeId) const noexcept override       \
+    {                                                                                       \
+        return TypeInfo::Is(typeId);                                                        \
+    }                                                                                       \
+    [[nodiscard]] std::string_view GetTypeName() const                                      \
+    {                                                                                       \
+        return TypeInfo::Name();                                                            \
+    }                                                                                       \
+                                                                                            \
+protected:                                                                                  \
+    [[nodiscard]] virtual const void* _cast(::RTTI::FTypeId typeId) const noexcept override \
+    {                                                                                       \
+        return TypeInfo::Is(typeId) ? TypeInfo::DynamicCast(typeId, this) : nullptr;        \
+    }                                                                                       \
+                                                                                            \
 private:
