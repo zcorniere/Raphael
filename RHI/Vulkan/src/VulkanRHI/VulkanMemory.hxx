@@ -4,8 +4,7 @@
 
 #if VULKAN_CUSTOM_CPU_ALLOCATOR == 1
 
-
-class VulkanCPUMemoryManager
+class FVulkanCPUMemoryManager
 {
 public:
     static void* Alloc(void* UserData, size_t Size, size_t Alignment, VkSystemAllocationScope AllocScope);

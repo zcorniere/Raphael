@@ -47,6 +47,7 @@ void* FVulkanCPUMemoryManager::Realloc(void* UserData, void* Original, size_t Si
 {
     (void)UserData;
     (void)AllocScope;
+    std::scoped_lock Lock(GVulkanCPUMemMutex);
 
     return Memory::Realloc(Original, Size, Alignment);
 }
