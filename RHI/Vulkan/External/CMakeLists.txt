@@ -4,8 +4,7 @@ set(CMAKE_FOLDER  "Raphael/RHI/Vulkan/External")
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Vulkan-Headers EXCLUDE_FROM_ALL)
 
 # Vulkan Helpers
-add_library(VulkanHelpers INTERFACE EXCLUDE_FROM_ALL)
-target_include_directories(VulkanHelpers INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/VulkanHelpers)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Vulkan-Utility-Libraries EXCLUDE_FROM_ALL)
 
 # vma
 set(VMA_STATIC_VULKAN_FUNCTIONS

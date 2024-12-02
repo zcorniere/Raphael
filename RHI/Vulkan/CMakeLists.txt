@@ -28,7 +28,7 @@ target_link_libraries(
             spirv-cross-core
             shaderc
             VulkanMemoryAllocator
-            VulkanHelpers
+            Vulkan::UtilityHeaders
             Vulkan::Headers
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelEngine)
