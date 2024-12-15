@@ -16,6 +16,7 @@ public:
 private:
     Ref<RRHIGraphicsPipeline> Pipeline;
 
-    Ref<RRHIBuffer> Buffer;
+    Ref<RRHIBuffer> StorageBuffer;
+    Ref<RRHIBuffer> VertexBuffer;
     Ref<RRHIBuffer> IndexBuffer;
 };

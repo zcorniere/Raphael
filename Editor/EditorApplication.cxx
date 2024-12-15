@@ -36,7 +36,6 @@ bool EditorApplication::OnEngineInitialization()
 
     struct Vertex {
         FVector3 Position;
-        FVector3 Color;
     };
     TResourceArray<Vertex> Vertices;
     Vertices.Resize(4);
@@ -44,11 +43,6 @@ bool EditorApplication::OnEngineInitialization()
     Vertices[1].Position = {0.5, 0.5, 0};
     Vertices[2].Position = {-0.5, -0.5, 0};
     Vertices[3].Position = {-0.5, 0.5, 0};
-
-    Vertices[0].Color = {0, 0, 0};
-    Vertices[1].Color = {0.5, 0.5, 0.5};
-    Vertices[2].Color = {1, 0, 0};
-    Vertices[3].Color = {0, 1, 0};
 
     TResourceArray<uint32> Indices = {0, 1, 2, 2, 1, 3};
 
@@ -66,9 +60,20 @@ bool EditorApplication::OnEngineInitialization()
         .ResourceArray = &Indices,
         .DebugName = "Staging Index Buffer",
     });
+
+    FVector4 Value{1, 1, 1, 1};
+    TResourceArray<FVector4> Data;
+    Data.Emplace(Value);
+    StorageBuffer = RHI::CreateBuffer(FRHIBufferDesc{
+        .Size = sizeof(FVector4),
+        .Stride = sizeof(FVector4),
+        .Usage = EBufferUsageFlags::StorageBuffer | EBufferUsageFlags::KeepCPUAccessible,
+        .ResourceArray = &Data,
+        .DebugName = "Storage Buffer",
+    });
     ENQUEUE_RENDER_COMMAND(FCopyBuffer)
     ([this, TmpBuffer, TmpIndexBuffer](FFRHICommandList& CommandList) {
-        Buffer = RHI::CreateBuffer(FRHIBufferDesc{
+        VertexBuffer = RHI::CreateBuffer(FRHIBufferDesc{
             .Size = TmpBuffer->GetSize(),
             .Stride = sizeof(Vertex),
             .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::DestinationCopy,
@@ -82,7 +87,7 @@ bool EditorApplication::OnEngineInitialization()
             .ResourceArray = nullptr,
             .DebugName = "Index Buffer",
         });
-        CommandList.CopyBufferToBuffer(TmpBuffer, Buffer, 0, 0, TmpBuffer->GetSize());
+        CommandList.CopyBufferToBuffer(TmpBuffer, VertexBuffer, 0, 0, TmpBuffer->GetSize());
         CommandList.CopyBufferToBuffer(TmpIndexBuffer, IndexBuffer, 0, 0, TmpIndexBuffer->GetSize());
     });
     Pipeline = RHI::CreateGraphicsPipeline(FRHIGraphicsPipelineSpecification{
@@ -106,8 +111,9 @@ bool EditorApplication::OnEngineInitialization()
 
 void EditorApplication::OnEngineDestruction()
 {
-    Buffer = nullptr;
+    VertexBuffer = nullptr;
     IndexBuffer = nullptr;
+    StorageBuffer = nullptr;
     Pipeline = nullptr;
 
     FBaseApplication::OnEngineDestruction();
@@ -141,8 +147,9 @@ void EditorApplication::Tick(const float DeltaTime)
         CommandList.BeginRenderingViewport(MainViewport.Raw());
         CommandList.BeginRendering(Description);
 
+        Pipeline->SetInput("ColorValue", StorageBuffer);
         CommandList.SetPipeline(Pipeline);
-        CommandList.SetVertexBuffer(Buffer);
+        CommandList.SetVertexBuffer(VertexBuffer);
 
         CommandList.SetViewport({0, 0, 0}, {static_cast<float>(MainViewport->GetSize().x),
                                             static_cast<float>(MainViewport->GetSize().y), 1.0f});

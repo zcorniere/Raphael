@@ -1,7 +1,9 @@
 #include "VulkanRHI/Resources/VulkanGraphicsPipeline.hxx"
 
+#include "VulkanRHI/Resources/VulkanBuffer.hxx"
 #include "VulkanRHI/Resources/VulkanShader.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
+#include "VulkanRHI/VulkanLoader.hxx"
 
 namespace VulkanRHI
 {
@@ -78,6 +80,12 @@ void RVulkanGraphicsPipeline::SetName(std::string_view Name)
     if (PipelineLayout) {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE_LAYOUT, PipelineLayout, "{:s}.PipelineLayout", Name);
     }
+}
+
+void RVulkanGraphicsPipeline::SetInput(std::string_view Name, const Ref<RRHIBuffer>& Buffer)
+{
+    Ref<RVulkanBuffer> VulkanBuffer = Buffer.As<RVulkanBuffer>();
+    DescriptorManager.SetInput(Name, VulkanBuffer);
 }
 
 bool RVulkanGraphicsPipeline::Create()
@@ -213,6 +221,12 @@ bool RVulkanGraphicsPipeline::Create()
     return false;
 }
 
+void RVulkanGraphicsPipeline::Bind(VkCommandBuffer CmdBuffer)
+{
+    VulkanAPI::vkCmdBindPipeline(CmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VulkanPipeline);
+    DescriptorManager.Bind(CmdBuffer, PipelineLayout, VK_PIPELINE_BIND_POINT_GRAPHICS);
+}
+
 RVulkanShader* RVulkanGraphicsPipeline::GetShader(ERHIShaderType Type)
 {
     switch (Type) {
@@ -278,14 +292,8 @@ bool RVulkanGraphicsPipeline::CreatePipelineLayout()
 
 bool RVulkanGraphicsPipeline::CreateDescriptorSetLayout()
 {
-    TArray<TArray<VkDescriptorSetLayoutBinding>> DescriptorSetBindings;
-    if (!Desc.VertexShader->GetDescriptorSetLayoutBindings(DescriptorSetBindings))
-        return false;
-    if (!Desc.PixelShader->GetDescriptorSetLayoutBindings(DescriptorSetBindings))
-        return false;
-
-    DescriptorManager.Initialize(DescriptorSetBindings, 1);
-    return true;
+    TArray<Ref<RVulkanShader>> Shaders{Desc.VertexShader, Desc.PixelShader};
+    return DescriptorManager.Initialize(Shaders, 1);
 }
 
 }    // namespace VulkanRHI

@@ -3,7 +3,6 @@
 #include "Engine/Core/RHI/Resources/RHIGraphicsPipeline.hxx"
 
 #include "VulkanRHI/DescriptorPoolManager.hxx"
-#include "VulkanRHI/VulkanLoader.hxx"
 
 namespace VulkanRHI
 {
@@ -64,13 +63,12 @@ public:
     RVulkanGraphicsPipeline(FVulkanDevice* InDevice, const FGraphicsPipelineDescription& Description);
     ~RVulkanGraphicsPipeline();
 
-    void SetName(std::string_view Name) override;
+    virtual void SetName(std::string_view Name) override;
+
+    virtual void SetInput(std::string_view Name, const Ref<RRHIBuffer>& Buffer) override;
 
     bool Create();
-    void Bind(VkCommandBuffer CmdBuffer)
-    {
-        VulkanAPI::vkCmdBindPipeline(CmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VulkanPipeline);
-    }
+    void Bind(VkCommandBuffer CmdBuffer);
 
     RVulkanShader* GetShader(ERHIShaderType Type);
     RVulkanShader* GetShader(ERHIShaderType Type) const;

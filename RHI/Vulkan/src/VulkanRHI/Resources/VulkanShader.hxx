@@ -65,10 +65,16 @@ public:
 
         TArray<ShaderResource::FStorageBuffer> StorageBuffers;
 
+        std::unordered_map<std::string, VkWriteDescriptorSet> WriteDescriptorSet;
+
         TArray<FGraphicsPipelineDescription::FVertexBinding> GetInputVertexBindings() const;
         TArray<FGraphicsPipelineDescription::FVertexAttribute> GetInputVertexAttributes() const;
 
-        bool operator==(const FReflectionData&) const = default;
+        bool operator==(const FReflectionData& Other) const
+        {
+            return StageInput == Other.StageInput && StageOutput == Other.StageOutput &&
+                   PushConstants == Other.PushConstants && StorageBuffers == Other.StorageBuffers;
+        };
 
         static void Serialize(Serialization::FStreamWriter* Writer, const FReflectionData& Value);
         static void Deserialize(Serialization::FStreamReader* Reader, FReflectionData& OutValue);

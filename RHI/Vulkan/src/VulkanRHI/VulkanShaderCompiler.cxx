@@ -398,6 +398,20 @@ bool FVulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
         return false;
     }
 
+    for (const ShaderResource::FStorageBuffer& Buffer: Result.Reflection.StorageBuffers) {
+        Result.Reflection.WriteDescriptorSet[Buffer.Parameter.Name] = {
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .pNext = nullptr,
+            .dstSet = VK_NULL_HANDLE,
+            .dstBinding = Buffer.Binding,
+            .dstArrayElement = 0,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+            .pImageInfo = nullptr,
+            .pBufferInfo = nullptr,
+            .pTexelBufferView = nullptr,
+        };
+    }
     return true;
 }
 

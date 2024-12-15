@@ -200,7 +200,7 @@ public:
         other.IncrementRefCount();
         DecrementRefCount();
 
-        m_ObjPtr = (const T*)other.m_ObjPtr;
+        m_ObjPtr = other.m_ObjPtr;
         return *this;
     }
 

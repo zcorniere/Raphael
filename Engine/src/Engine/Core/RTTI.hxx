@@ -144,8 +144,13 @@ struct TypeInfo {
             return static_cast<const TThis*>(ptr);
         }
 
+        if constexpr (sizeof...(TParents) == 0) {
+            return nullptr;
+        }
+
         // The current type does not match, recursively invoke the method
         // for all directly related parent types.
+        // The following code don't compile on Windows when sizeof...(TParents) == 0
         const void* ppCastedPtr[sizeof...(TParents)]{TParents::TypeInfo::DynamicCast(typeId, ptr)...};
 
         // Check whether the traversal up the dependency hierarchy returned a pointer

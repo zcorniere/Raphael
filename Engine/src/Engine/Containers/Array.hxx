@@ -499,6 +499,4 @@ struct std::formatter<TArray<T>> : std::formatter<T> {
         format_to(out, "]");
         return out;
     }
-
-    std::string value_format;
 };

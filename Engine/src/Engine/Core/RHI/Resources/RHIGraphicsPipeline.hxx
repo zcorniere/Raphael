@@ -29,6 +29,8 @@ struct FRHIGraphicsPipelineSpecification {
     bool operator==(const FRHIGraphicsPipelineSpecification&) const = default;
 };
 
+class RRHIBuffer;
+
 /// @brief Represent a shader used by the RHI
 class RRHIGraphicsPipeline : public RRHIResource
 {
@@ -40,4 +42,6 @@ public:
     }
 
     virtual ~RRHIGraphicsPipeline() = default;
+
+    virtual void SetInput(std::string_view Name, const Ref<RRHIBuffer>& Buffer) = 0;
 };

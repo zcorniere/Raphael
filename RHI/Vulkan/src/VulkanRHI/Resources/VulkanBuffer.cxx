@@ -16,7 +16,7 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage)
 
     TranslateFlags(EBufferUsageFlags::VertexBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     TranslateFlags(EBufferUsageFlags::IndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
-    TranslateFlags(EBufferUsageFlags::StructuredBuffer, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    TranslateFlags(EBufferUsageFlags::StorageBuffer, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     TranslateFlags(EBufferUsageFlags::SourceCopy, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
     TranslateFlags(EBufferUsageFlags::DestinationCopy, VK_BUFFER_USAGE_TRANSFER_DST_BIT);
     TranslateFlags(EBufferUsageFlags::DrawIndirect, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
@@ -27,9 +27,6 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage)
 RVulkanBuffer::RVulkanBuffer(FVulkanDevice* InDevice, const FRHIBufferDesc& InDescription)
     : RRHIBuffer(InDescription), IDeviceChild(InDevice)
 {
-    if (Description.Size == 0) {
-        return;
-    }
 
     check(Device);
     VkBufferCreateInfo CreateInfo{
@@ -47,9 +44,14 @@ RVulkanBuffer::RVulkanBuffer(FVulkanDevice* InDevice, const FRHIBufferDesc& InDe
                                VMA_ALLOCATION_CREATE_MAPPED_BIT;
     }
 
+    if (CreateInfo.size == 0 && Description.ResourceArray) {
+        CreateInfo.size = Description.ResourceArray->GetByteSize();
+    }
+    checkMsg(CreateInfo.size > 0, "Buffer size must be greater than 0");
     std::tie(BufferHandle, Memory) = Device->GetMemoryManager()->Alloc(CreateInfo, AllocationInfo);
 
     if (Description.ResourceArray) {
+        ensure(Description.ResourceArray->GetByteSize() <= Description.Size);
         if (!ensure(EnumHasAnyFlags(Description.Usage, EBufferUsageFlags::KeepCPUAccessible))) {
             return;
         }
