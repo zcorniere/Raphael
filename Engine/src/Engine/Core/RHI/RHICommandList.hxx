@@ -138,6 +138,16 @@ public:
     void CopyBufferToBuffer(const Ref<RRHIBuffer>& Source, Ref<RRHIBuffer>& Destination, uint64 SourceOffset,
                             uint64 DestinationOffset, uint64 Size);
 
+    /// @brief Copy the content of a resource array to a buffer
+    ///
+    /// @param Source The resource array to copy from (the caller is responsible for the lifetime of the object)
+    /// @param Destination The buffer to copy to
+    /// @param SourceOffset The offset in the source buffer
+    /// @param DestinationOffset The offset in the destination buffer
+    /// @param Size The number of bytes to copy
+    void CopyRessourceArrayToBuffer(IResourceArrayInterface* Source, Ref<RRHIBuffer>& Destination, uint64 SourceOffset,
+                                    uint64 DestinationOffset, uint64 Size);
+
     /// @brief Add a command to the back of the queue
     template <typename TSTR, typename TFunction>
     requires std::is_invocable_v<TFunction, FFRHICommandList&>

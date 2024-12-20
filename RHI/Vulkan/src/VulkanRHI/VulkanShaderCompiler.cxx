@@ -340,7 +340,8 @@ static bool GetPushConstantReflection(const spirv_cross::Compiler& Compiler,
 
 static bool GetStorageBufferReflection(const spirv_cross::Compiler& Compiler,
                                        const spirv_cross::SmallVector<spirv_cross::Resource>& ShaderStorageBuffers,
-                                       TArray<ShaderResource::FStorageBuffer>& OutStorageBuffers)
+                                       TArray<ShaderResource::FStorageBuffer>& OutStorageBuffers,
+                                       std::unordered_map<std::string, VkWriteDescriptorSet>& WriteDescriptorSet)
 {
     for (const spirv_cross::Resource& resource: ShaderStorageBuffers) {
         const spirv_cross::SPIRType& Type = Compiler.get_type(resource.base_type_id);
@@ -360,7 +361,60 @@ static bool GetStorageBufferReflection(const spirv_cross::Compiler& Compiler,
             Buffer.Parameter.Members.Add(RecursiveTypeDescription(Compiler, resource.base_type_id, ID, i));
         }
         LOG(LogVulkanShaderCompiler, Info, "  {}", Buffer);
+
+        WriteDescriptorSet[Buffer.Parameter.Name] = {
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .pNext = nullptr,
+            .dstSet = VK_NULL_HANDLE,
+            .dstBinding = Buffer.Binding,
+            .dstArrayElement = 0,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+            .pImageInfo = nullptr,
+            .pBufferInfo = nullptr,
+            .pTexelBufferView = nullptr,
+        };
     }
+    return true;
+}
+static bool GetUniformBufferReflection(const spirv_cross::Compiler& Compiler,
+                                       const spirv_cross::SmallVector<spirv_cross::Resource>& ShaderUniformBuffers,
+                                       TArray<ShaderResource::FUniformBuffer>& OutUniformBuffers,
+                                       std::unordered_map<std::string, VkWriteDescriptorSet>& WriteDescriptorSet)
+{
+    for (const spirv_cross::Resource& resource: ShaderUniformBuffers) {
+        const spirv_cross::SPIRType& Type = Compiler.get_type(resource.base_type_id);
+
+        ShaderResource::FUniformBuffer& Buffer = OutUniformBuffers.Emplace();
+        Buffer.Set = Compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
+        Buffer.Binding = Compiler.get_decoration(resource.id, spv::DecorationBinding);
+        Buffer.Parameter.Name = resource.name;
+        Buffer.Parameter.Size = Compiler.get_declared_struct_size(Type);
+        Buffer.Parameter.Type = EShaderBufferType::Struct;
+        Buffer.Parameter.Offset = 0;
+        Buffer.Parameter.Rows = Type.vecsize;
+        Buffer.Parameter.Columns = Type.columns;
+
+        for (unsigned int i = 0; i < Type.member_types.size(); ++i) {
+            spirv_cross::TypeID ID = Type.member_types[i];
+            Buffer.Parameter.Members.Add(RecursiveTypeDescription(Compiler, resource.base_type_id, ID, i));
+        }
+        LOG(LogVulkanShaderCompiler, Info, "  {}", Buffer);
+
+        WriteDescriptorSet[Buffer.Parameter.Name] = {
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .pNext = nullptr,
+            .dstSet = VK_NULL_HANDLE,
+            .dstBinding = Buffer.Binding,
+            .dstArrayElement = 0,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+            .pImageInfo = nullptr,
+            .pBufferInfo = nullptr,
+            .pTexelBufferView = nullptr,
+        };
+    }
+
     return true;
 }
 
@@ -394,24 +448,16 @@ bool FVulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
     }
 
     LOG(LogVulkanShaderCompiler, Info, "Storage Buffers:{}", resources.storage_buffers.empty() ? " None" : "");
-    if (!GetStorageBufferReflection(compiler, resources.storage_buffers, Result.Reflection.StorageBuffers)) {
+    if (!GetStorageBufferReflection(compiler, resources.storage_buffers, Result.Reflection.StorageBuffers,
+                                    Result.Reflection.WriteDescriptorSet)) {
+        return false;
+    }
+    LOG(LogVulkanShaderCompiler, Info, "Uniform Buffers:{}", resources.uniform_buffers.empty() ? " None" : "");
+    if (!GetUniformBufferReflection(compiler, resources.uniform_buffers, Result.Reflection.UniformBuffers,
+                                    Result.Reflection.WriteDescriptorSet)) {
         return false;
     }
 
-    for (const ShaderResource::FStorageBuffer& Buffer: Result.Reflection.StorageBuffers) {
-        Result.Reflection.WriteDescriptorSet[Buffer.Parameter.Name] = {
-            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-            .pNext = nullptr,
-            .dstSet = VK_NULL_HANDLE,
-            .dstBinding = Buffer.Binding,
-            .dstArrayElement = 0,
-            .descriptorCount = 1,
-            .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-            .pImageInfo = nullptr,
-            .pBufferInfo = nullptr,
-            .pTexelBufferView = nullptr,
-        };
-    }
     return true;
 }
 

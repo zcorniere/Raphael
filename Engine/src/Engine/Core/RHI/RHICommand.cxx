@@ -107,6 +107,24 @@ void RHIDrawIndexed::Execute(FFRHICommandList& CommandList)
                                           NumPrimitives, NumInstances);
 }
 
+RHICopyRessourceArrayToBuffer::RHICopyRessourceArrayToBuffer(IResourceArrayInterface* const InSourceArray,
+                                                             Ref<RRHIBuffer> InDestinationBuffer, uint64 InSourceOffset,
+                                                             uint64 InDestinationOffset, uint64 InSize)
+    : SourceArray(InSourceArray),
+      DestinationBuffer(std::move(InDestinationBuffer)),
+      Size(InSize),
+      SourceOffset(InSourceOffset),
+      DestinationOffset(InDestinationOffset)
+{
+    check(EnumHasAnyFlags(EBufferUsageFlags::KeepCPUAccessible, DestinationBuffer->GetUsage()));
+}
+
+void RHICopyRessourceArrayToBuffer::Execute(FFRHICommandList& CommandList)
+{
+    CommandList.GetContext()->CopyRessourceArrayToBuffer(SourceArray, DestinationBuffer, SourceOffset,
+                                                         DestinationOffset, Size);
+}
+
 RHICopyBufferToBuffer::RHICopyBufferToBuffer(const Ref<RRHIBuffer> InSourceBuffer, Ref<RRHIBuffer> InDestinationBuffer,
                                              uint64 InSourceOffset, uint64 InDestinationOffset, uint64 InSize)
     : SourceBuffer(std::move(InSourceBuffer)),

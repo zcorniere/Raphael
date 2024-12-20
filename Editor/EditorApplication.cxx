@@ -1,6 +1,8 @@
 #include "EditorApplication.hxx"
 #include "Engine/Math/Vector.hxx"
 
+#include <memory>
+
 #include <Engine/Core/Log.hxx>
 #include <Engine/Core/RHI/RHICommandList.hxx>
 #include <Engine/Core/RHI/RHIShaderParameters.hxx>
@@ -61,16 +63,15 @@ bool EditorApplication::OnEngineInitialization()
         .DebugName = "Staging Index Buffer",
     });
 
-    FVector4 Value{1, 1, 1, 1};
-    TResourceArray<FVector4> Data;
-    Data.Emplace(Value);
+    srand(time(nullptr));
     StorageBuffer = RHI::CreateBuffer(FRHIBufferDesc{
         .Size = sizeof(FVector4),
         .Stride = sizeof(FVector4),
-        .Usage = EBufferUsageFlags::StorageBuffer | EBufferUsageFlags::KeepCPUAccessible,
-        .ResourceArray = &Data,
+        .Usage = EBufferUsageFlags::UniformBuffer | EBufferUsageFlags::KeepCPUAccessible,
+        .ResourceArray = nullptr,
         .DebugName = "Storage Buffer",
     });
+
     ENQUEUE_RENDER_COMMAND(FCopyBuffer)
     ([this, TmpBuffer, TmpIndexBuffer](FFRHICommandList& CommandList) {
         VertexBuffer = RHI::CreateBuffer(FRHIBufferDesc{
@@ -146,6 +147,12 @@ void EditorApplication::Tick(const float DeltaTime)
         };
         CommandList.BeginRenderingViewport(MainViewport.Raw());
         CommandList.BeginRendering(Description);
+
+        FVector4 Value{static_cast<float>(rand() % 1000) / 1000.f, static_cast<float>(rand() % 1000) / 1000.f,
+                       static_cast<float>(rand() % 1000) / 1000.f, 1};
+        TResourceArray<FVector4> Data;
+        Data.Emplace(Value);
+        CommandList.CopyRessourceArrayToBuffer(&Data, StorageBuffer, 0, 0, Data.GetByteSize());
 
         Pipeline->SetInput("ColorValue", StorageBuffer);
         CommandList.SetPipeline(Pipeline);

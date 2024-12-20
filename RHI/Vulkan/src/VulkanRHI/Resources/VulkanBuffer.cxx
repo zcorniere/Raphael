@@ -17,6 +17,7 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage)
     TranslateFlags(EBufferUsageFlags::VertexBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     TranslateFlags(EBufferUsageFlags::IndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
     TranslateFlags(EBufferUsageFlags::StorageBuffer, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    TranslateFlags(EBufferUsageFlags::UniformBuffer, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
     TranslateFlags(EBufferUsageFlags::SourceCopy, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
     TranslateFlags(EBufferUsageFlags::DestinationCopy, VK_BUFFER_USAGE_TRANSFER_DST_BIT);
     TranslateFlags(EBufferUsageFlags::DrawIndirect, VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);

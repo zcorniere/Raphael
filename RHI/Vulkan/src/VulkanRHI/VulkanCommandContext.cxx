@@ -5,6 +5,7 @@
 #include "VulkanRHI/Resources/VulkanViewport.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
+#include "VulkanRHI/VulkanMemoryManager.hxx"
 #include "VulkanRHI/VulkanPendingState.hxx"
 #include "VulkanRHI/VulkanRHI.hxx"
 
@@ -177,6 +178,20 @@ void FVulkanCommandContext::DrawIndexed(Ref<RRHIBuffer> InIndexBuffer, int32 Bas
     VulkanAPI::vkCmdBindIndexBuffer(CmdBuffer->GetHandle(), IndexBuffer->GetHandle(), 0, IndexBuffer->GetIndexType());
     VulkanAPI::vkCmdDrawIndexed(CmdBuffer->GetHandle(), NumPrimitives * 3, NumInstances, StartIndex, BaseVertexIndex,
                                 FirstInstance);
+}
+
+void FVulkanCommandContext::CopyRessourceArrayToBuffer(const IResourceArrayInterface* Source,
+                                                       Ref<RRHIBuffer>& Destination, uint64 SourceOffset,
+                                                       uint64 DestinationOffset, uint64 Size)
+{
+    RVulkanBuffer* const DstBuffer = Destination.AsRaw<RVulkanBuffer>();
+    RVulkanMemoryAllocation* const Memory = DstBuffer->GetMemory();
+
+    Memory->FlushMappedMemory(0, Size);
+    void* const MappedPtr = Memory->Map(Size, DestinationOffset);
+    uint8 const* const SourceData = reinterpret_cast<uint8 const*>(Source->GetData());
+    std::memcpy(MappedPtr, SourceData + SourceOffset, Size);
+    Memory->Unmap();
 }
 
 void FVulkanCommandContext::CopyBufferToBuffer(const Ref<RRHIBuffer>& Source, Ref<RRHIBuffer>& Destination,

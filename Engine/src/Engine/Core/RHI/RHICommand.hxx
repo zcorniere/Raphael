@@ -161,6 +161,23 @@ private:
     uint32 NumInstances = 0;
 };
 
+RHICOMMAND_MACRO(RHICopyRessourceArrayToBuffer)
+{
+public:
+    RHICopyRessourceArrayToBuffer(IResourceArrayInterface* const Source, Ref<RRHIBuffer> Destination,
+                                  uint64 SourceOffset, uint64 DestinationOffset, uint64 Size);
+    virtual ~RHICopyRessourceArrayToBuffer() = default;
+
+    virtual void Execute(FFRHICommandList & CommandList) override final;
+
+private:
+    IResourceArrayInterface* const SourceArray = nullptr;
+    Ref<RRHIBuffer> DestinationBuffer = nullptr;
+    uint64 Size = 0;
+    uint64 SourceOffset = 0;
+    uint64 DestinationOffset = 0;
+};
+
 RHICOMMAND_MACRO(RHICopyBufferToBuffer)
 {
 public:

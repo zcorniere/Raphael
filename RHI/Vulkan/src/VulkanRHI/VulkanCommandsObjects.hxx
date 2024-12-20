@@ -104,7 +104,6 @@ public:
 
 private:
     VulkanCommandBufferPool* m_OwnerPool = nullptr;
-    ;
 
     Ref<RFence> m_Fence = nullptr;
     TArray<VkPipelineStageFlags> WaitFlags;

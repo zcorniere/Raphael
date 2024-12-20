@@ -39,6 +39,9 @@ public:
     virtual void DrawIndexed(Ref<RRHIBuffer> InIndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
                              uint32 NumVertices, uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances) = 0;
 
+    /// @brief Copy the content of a resource array to a buffer
+    virtual void CopyRessourceArrayToBuffer(const IResourceArrayInterface* Source, Ref<RRHIBuffer>& Destination,
+                                            uint64 SourceOffset, uint64 DestinationOffset, uint64 Size) = 0;
     /// @brief Copy the content of a buffer to another buffer
     virtual void CopyBufferToBuffer(const Ref<RRHIBuffer>& Source, Ref<RRHIBuffer>& Destination, uint64 SourceOffset,
                                     uint64 DestinationOffset, uint64 Size) = 0;

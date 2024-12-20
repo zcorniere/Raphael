@@ -21,6 +21,7 @@ enum class EBufferUsageFlags {
     VertexBuffer = BIT(6),
     IndexBuffer = BIT(7),
     StorageBuffer = BIT(8),
+    UniformBuffer = BIT(9),
 };
 ENUM_CLASS_FLAGS(EBufferUsageFlags);
 

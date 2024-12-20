@@ -32,6 +32,13 @@ void ShaderResource::FStorageBuffer::Serialize(Serialization::FStreamWriter* Wri
     Writer->WriteObject(Value.Parameter);
 }
 
+void ShaderResource::FUniformBuffer::Serialize(Serialization::FStreamWriter* Writer, const FUniformBuffer& Value)
+{
+    Writer->WriteRaw(Value.Set);
+    Writer->WriteRaw(Value.Binding);
+    Writer->WriteObject(Value.Parameter);
+}
+
 void RVulkanShader::FReflectionData::Serialize(Serialization::FStreamWriter* Writer, const FReflectionData& Value)
 {
     Writer->WriteArray<ShaderResource::FStageIO>(Value.StageInput);
@@ -60,6 +67,13 @@ void ShaderResource::FPushConstantRange::Deserialize(Serialization::FStreamReade
 
 void ShaderResource::FStorageBuffer::Deserialize(Serialization::FStreamReader* Reader,
                                                  ShaderResource::FStorageBuffer& OutValue)
+{
+    Reader->ReadRaw(OutValue.Set);
+    Reader->ReadRaw(OutValue.Binding);
+    Reader->ReadObject(OutValue.Parameter);
+}
+
+void ShaderResource::FUniformBuffer::Deserialize(Serialization::FStreamReader* Reader, FUniformBuffer& OutValue)
 {
     Reader->ReadRaw(OutValue.Set);
     Reader->ReadRaw(OutValue.Binding);
@@ -151,6 +165,27 @@ bool RVulkanShader::GetDescriptorSetLayoutBindings(TArray<TArray<VkDescriptorSet
         VkDescriptorSetLayoutBinding Binding{
             .binding = Buffer.Binding,
             .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+            .descriptorCount = 1,
+            .stageFlags = ConvertToVulkanType(GetShaderType()),
+            .pImmutableSamplers = nullptr,
+        };
+        OutBindings[Buffer.Set].Add(Binding);
+    }
+
+    for (const ShaderResource::FUniformBuffer& Buffer: m_ReflectionData.UniformBuffers) {
+        if (Buffer.Set >= OutBindings.Size()) {
+            OutBindings.Resize(Buffer.Set + 1);
+        }
+        VkDescriptorSetLayoutBinding* FoundBinding = OutBindings[Buffer.Set].FindByLambda(
+            [Buffer](const VkDescriptorSetLayoutBinding& Binding) { return Binding.binding == Buffer.Binding; });
+        if (FoundBinding) {
+            FoundBinding->stageFlags |= ConvertToVulkanType(GetShaderType());
+            continue;
+        }
+
+        VkDescriptorSetLayoutBinding Binding{
+            .binding = Buffer.Binding,
+            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             .descriptorCount = 1,
             .stageFlags = ConvertToVulkanType(GetShaderType()),
             .pImmutableSamplers = nullptr,

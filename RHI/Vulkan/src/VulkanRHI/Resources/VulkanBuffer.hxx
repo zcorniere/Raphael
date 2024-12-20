@@ -22,6 +22,10 @@ public:
     {
         return BufferHandle;
     }
+    inline RVulkanMemoryAllocation* GetMemory()
+    {
+        return Memory.Raw();
+    }
 
     /// Remaining size from the current offset
     inline uint32 GetCurrentSize() const

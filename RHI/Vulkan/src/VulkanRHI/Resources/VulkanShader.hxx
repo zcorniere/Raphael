@@ -50,6 +50,17 @@ namespace ShaderResource
         static void Deserialize(Serialization::FStreamReader* Reader, FStorageBuffer& OutValue);
     };
 
+    struct FUniformBuffer {
+        uint32 Set = 0;
+        uint32 Binding = 0;
+        FShaderParameter Parameter;
+
+        bool operator==(const FUniformBuffer&) const = default;
+
+        static void Serialize(Serialization::FStreamWriter* Writer, const FUniformBuffer& Value);
+        static void Deserialize(Serialization::FStreamReader* Reader, FUniformBuffer& OutValue);
+    };
+
 }    // namespace ShaderResource
 
 class RVulkanShader : public RRHIShader
@@ -64,6 +75,7 @@ public:
         std::optional<ShaderResource::FPushConstantRange> PushConstants;
 
         TArray<ShaderResource::FStorageBuffer> StorageBuffers;
+        TArray<ShaderResource::FUniformBuffer> UniformBuffers;
 
         std::unordered_map<std::string, VkWriteDescriptorSet> WriteDescriptorSet;
 
@@ -122,6 +134,9 @@ DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::FStageIO,
 
 DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::FStorageBuffer,
                       "StorageBuffer {{ Set: {0}, Binding: {1}, Parameter: {2:#} }}", Value.Set, Value.Binding,
+                      Value.Parameter)
+DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::FUniformBuffer,
+                      "Uniform Buffer{{Set: {0}, Binding: {1}, Parameter: {2:#} }}", Value.Set, Value.Binding,
                       Value.Parameter)
 
 DEFINE_PRINTABLE_TYPE(

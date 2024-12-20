@@ -81,6 +81,12 @@ void FFRHICommandList::CopyBufferToBuffer(const Ref<RRHIBuffer>& Source, Ref<RRH
     Enqueue(new RHICopyBufferToBuffer(Source, Destination, SourceOffset, DestinationOffset, Size));
 }
 
+void FFRHICommandList::CopyRessourceArrayToBuffer(IResourceArrayInterface* Source, Ref<RRHIBuffer>& Destination,
+                                                  uint64 SourceOffset, uint64 DestinationOffset, uint64 Size)
+{
+    Enqueue(new RHICopyRessourceArrayToBuffer(Source, Destination, SourceOffset, DestinationOffset, Size));
+}
+
 void FFRHICommandList::Enqueue(FRHIRenderCommandBase* RenderCommand)
 {
     // If we are executing the command list, we need to execute the command immediately
