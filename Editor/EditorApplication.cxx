@@ -130,7 +130,7 @@ void EditorApplication::Tick(const float DeltaTime)
     MainWindow->SetText(std::to_string(1.0f / DeltaTime));
 
     ENQUEUE_RENDER_COMMAND(FEmptyRender)
-    ([this](FFRHICommandList& CommandList) {
+    ([this, DeltaTime](FFRHICommandList& CommandList) {
         RHIRenderPassDescription Description{
             .RenderAreaLocation = {0, 0},
             .RenderAreaSize = MainViewport->GetSize(),
@@ -148,8 +148,9 @@ void EditorApplication::Tick(const float DeltaTime)
         CommandList.BeginRenderingViewport(MainViewport.Raw());
         CommandList.BeginRendering(Description);
 
-        FVector4 Value{static_cast<float>(rand() % 1000) / 1000.f, static_cast<float>(rand() % 1000) / 1000.f,
-                       static_cast<float>(rand() % 1000) / 1000.f, 1};
+        static float AccumulatedTime = 0.0f;
+        AccumulatedTime += DeltaTime;
+        FVector4 Value{std::cos(AccumulatedTime), std::sin(AccumulatedTime), 0.0f, 1.0f};
         TResourceArray<FVector4> Data;
         Data.Emplace(Value);
         CommandList.CopyRessourceArrayToBuffer(&Data, StorageBuffer, 0, 0, Data.GetByteSize());
