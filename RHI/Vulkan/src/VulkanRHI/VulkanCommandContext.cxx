@@ -48,13 +48,13 @@ void FVulkanCommandContext::EndFrame()
 
 void FVulkanCommandContext::RHIBeginDrawingViewport(RRHIViewport* const Viewport)
 {
-    VulkanViewport* const VKViewport = Viewport->Cast<VulkanViewport>();
+    RVulkanViewport* const VKViewport = Viewport->Cast<RVulkanViewport>();
     GetVulkanDynamicRHI()->DrawingViewport = VKViewport;
 }
 
 void FVulkanCommandContext::RHIEndDrawningViewport(RRHIViewport* const Viewport)
 {
-    VulkanViewport* const VKViewport = Viewport->Cast<VulkanViewport>();
+    RVulkanViewport* const VKViewport = Viewport->Cast<RVulkanViewport>();
     VKViewport->Present(this, CommandManager->GetActiveCmdBuffer(), GfxQueue, PresentQueue);
 
     check(GetVulkanDynamicRHI()->DrawingViewport == Viewport);
@@ -64,7 +64,7 @@ void FVulkanCommandContext::RHIEndDrawningViewport(RRHIViewport* const Viewport)
 void FVulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Description)
 {
     auto RenderTargetToAttachmentInfo = [](const RHIRenderTarget& Target) -> VkRenderingAttachmentInfo {
-        Ref<VulkanTexture> const Texture = Target.Texture.As<VulkanTexture>();
+        Ref<RVulkanTexture> const Texture = Target.Texture.As<RVulkanTexture>();
 
         VkClearColorValue ClearColor;
         std::memset(&ClearColor, 0, sizeof(VkClearColorValue));
@@ -85,7 +85,7 @@ void FVulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& De
         };
     };
     auto TransitionToCorrectLayout = [this](const RHIRenderTarget& Target) -> bool {
-        Ref<VulkanTexture> Texture = Target.Texture.As<VulkanTexture>();
+        Ref<RVulkanTexture> Texture = Target.Texture.As<RVulkanTexture>();
         VkImageLayout ExpectedLayout = Texture->GetDefaultLayout();
         if (ExpectedLayout != VK_IMAGE_LAYOUT_UNDEFINED && ExpectedLayout != Texture->GetLayout()) {
             Texture->SetLayout(CommandManager->GetUploadCmdBuffer(), ExpectedLayout);
@@ -209,7 +209,7 @@ void FVulkanCommandContext::CopyBufferToBuffer(const Ref<RRHIBuffer>& Source, Re
     CommandManager->SubmitUploadCmdBuffer();
 }
 
-void FVulkanCommandContext::SetLayout(VulkanTexture* const Texture, VkImageLayout Layout)
+void FVulkanCommandContext::SetLayout(RVulkanTexture* const Texture, VkImageLayout Layout)
 {
     Texture->SetLayout(CommandManager->GetActiveCmdBuffer(), Layout);
 }

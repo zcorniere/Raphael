@@ -59,12 +59,12 @@ void FVulkanDynamicRHI::WaitUntilIdle()
 
 Ref<RRHIViewport> FVulkanDynamicRHI::CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize)
 {
-    return Ref<VulkanViewport>::Create(GetDevice(), std::move(InWindowHandle), std::move(InSize));
+    return Ref<RVulkanViewport>::Create(GetDevice(), std::move(InWindowHandle), std::move(InSize));
 }
 
 Ref<RRHITexture> FVulkanDynamicRHI::CreateTexture(const FRHITextureSpecification& InDesc)
 {
-    return Ref<VulkanTexture>::CreateNamed(InDesc.Name, GetDevice(), InDesc);
+    return Ref<RVulkanTexture>::CreateNamed(InDesc.Name, GetDevice(), InDesc);
 }
 
 Ref<RRHIBuffer> FVulkanDynamicRHI::CreateBuffer(const FRHIBufferDesc& InDesc)

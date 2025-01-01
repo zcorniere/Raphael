@@ -99,7 +99,7 @@ private:
     TArray<Ref<RSemaphore>> ImageAcquiredSemaphore;
     TArray<Ref<RFence>> ImageInUseFence;
 
-    friend class VulkanViewport;
+    friend class RVulkanViewport;
 };
 
 }    // namespace VulkanRHI

@@ -10,13 +10,13 @@ class FVulkanDevice;
 class FVulkanCmdBuffer;
 class RVulkanMemoryAllocation;
 
-class VulkanTexture : public RRHITexture, public IDeviceChild
+class RVulkanTexture : public RRHITexture, public IDeviceChild
 {
-    RTTI_DECLARE_TYPEINFO(VulkanTexture, RRHITexture);
+    RTTI_DECLARE_TYPEINFO(RVulkanTexture, RRHITexture);
 
 public:
-    VulkanTexture(FVulkanDevice* InDevice, const FRHITextureSpecification& InDesc);
-    virtual ~VulkanTexture();
+    RVulkanTexture(FVulkanDevice* InDevice, const FRHITextureSpecification& InDesc);
+    virtual ~RVulkanTexture();
 
     virtual void SetName(std::string_view InName) override;
 

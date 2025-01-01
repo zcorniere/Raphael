@@ -338,6 +338,22 @@ static bool GetPushConstantReflection(const spirv_cross::Compiler& Compiler,
     return true;
 }
 
+static VkWriteDescriptorSet GetWriteDescriptorSet(VkDescriptorType Type, uint32 Binding, uint32 Count)
+{
+    return {
+        .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+        .pNext = nullptr,
+        .dstSet = VK_NULL_HANDLE,
+        .dstBinding = Binding,
+        .dstArrayElement = 0,
+        .descriptorCount = Count,
+        .descriptorType = Type,
+        .pImageInfo = nullptr,
+        .pBufferInfo = nullptr,
+        .pTexelBufferView = nullptr,
+    };
+}
+
 static bool GetStorageBufferReflection(const spirv_cross::Compiler& Compiler,
                                        const spirv_cross::SmallVector<spirv_cross::Resource>& ShaderStorageBuffers,
                                        TArray<ShaderResource::FStorageBuffer>& OutStorageBuffers,
@@ -362,21 +378,12 @@ static bool GetStorageBufferReflection(const spirv_cross::Compiler& Compiler,
         }
         LOG(LogVulkanShaderCompiler, Info, "  {}", Buffer);
 
-        WriteDescriptorSet[Buffer.Parameter.Name] = {
-            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-            .pNext = nullptr,
-            .dstSet = VK_NULL_HANDLE,
-            .dstBinding = Buffer.Binding,
-            .dstArrayElement = 0,
-            .descriptorCount = 1,
-            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            .pImageInfo = nullptr,
-            .pBufferInfo = nullptr,
-            .pTexelBufferView = nullptr,
-        };
+        WriteDescriptorSet[Buffer.Parameter.Name] =
+            GetWriteDescriptorSet(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, Buffer.Binding, 1);
     }
     return true;
 }
+
 static bool GetUniformBufferReflection(const spirv_cross::Compiler& Compiler,
                                        const spirv_cross::SmallVector<spirv_cross::Resource>& ShaderUniformBuffers,
                                        TArray<ShaderResource::FUniformBuffer>& OutUniformBuffers,
@@ -401,18 +408,8 @@ static bool GetUniformBufferReflection(const spirv_cross::Compiler& Compiler,
         }
         LOG(LogVulkanShaderCompiler, Info, "  {}", Buffer);
 
-        WriteDescriptorSet[Buffer.Parameter.Name] = {
-            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-            .pNext = nullptr,
-            .dstSet = VK_NULL_HANDLE,
-            .dstBinding = Buffer.Binding,
-            .dstArrayElement = 0,
-            .descriptorCount = 1,
-            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            .pImageInfo = nullptr,
-            .pBufferInfo = nullptr,
-            .pTexelBufferView = nullptr,
-        };
+        WriteDescriptorSet[Buffer.Parameter.Name] =
+            GetWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Buffer.Binding, 1);
     }
 
     return true;

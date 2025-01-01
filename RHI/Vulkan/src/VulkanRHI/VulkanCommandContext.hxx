@@ -10,7 +10,7 @@ class FVulkanQueue;
 class FVulkanPendingState;
 class VulkanCommandBufferManager;
 
-class VulkanTexture;
+class RVulkanTexture;
 
 class FVulkanCommandContext : public FRHIContext
 {
@@ -53,7 +53,7 @@ public:
                                     uint64 DestinationOffset, uint64 Size) override;
 
     /// @brief VulkanRHI only, set the layout of the given texture
-    void SetLayout(VulkanTexture* const Texture, VkImageLayout Layout);
+    void SetLayout(RVulkanTexture* const Texture, VkImageLayout Layout);
 
     VulkanCommandBufferManager* GetCommandManager() const
     {

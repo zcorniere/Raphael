@@ -2,6 +2,7 @@
 
 #include "Engine/Core/RHI/RHICommand.hxx"
 
+#include "Engine/Misc/CommandLine.hxx"
 #include "VulkanRHI/VulkanCommandContext.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
@@ -15,7 +16,7 @@
 namespace VulkanRHI
 {
 
-VulkanViewport::VulkanViewport(FVulkanDevice* InDevice, Ref<RWindow> InWindowHandle, UVector2 InSize)
+RVulkanViewport::RVulkanViewport(FVulkanDevice* InDevice, Ref<RWindow> InWindowHandle, UVector2 InSize)
     : IDeviceChild(InDevice),
       WindowHandle(InWindowHandle),
       Size(InSize),
@@ -25,7 +26,7 @@ VulkanViewport::VulkanViewport(FVulkanDevice* InDevice, Ref<RWindow> InWindowHan
     CreateSwapchain(nullptr);
 }
 
-VulkanViewport::~VulkanViewport()
+RVulkanViewport::~RVulkanViewport()
 {
     DeleteSwapchain(nullptr);
 
@@ -36,7 +37,7 @@ VulkanViewport::~VulkanViewport()
     RenderingDoneSemaphores.Clear();
 }
 
-void VulkanViewport::SetName(std::string_view InName)
+void RVulkanViewport::SetName(std::string_view InName)
 {
     RRHIResource::SetName(InName);
 
@@ -58,14 +59,14 @@ void VulkanViewport::SetName(std::string_view InName)
     }
 }
 
-void VulkanViewport::ResizeViewport(uint32_t Width, uint32_t Height)
+void RVulkanViewport::ResizeViewport(uint32_t Width, uint32_t Height)
 {
     Size = {Width, Height};
     // Just recreate the swapchain, the backbuffer will be reset as well
     RecreateSwapchain(WindowHandle);
 }
 
-static void CopyImageToBackBuffer(FVulkanCmdBuffer* CmdBuffer, VulkanTexture* SrcSurface, VkImage DstSurface,
+static void CopyImageToBackBuffer(FVulkanCmdBuffer* CmdBuffer, RVulkanTexture* SrcSurface, VkImage DstSurface,
                                   UVector2 Size, UVector2 WindowSize)
 {
 
@@ -117,8 +118,8 @@ static void CopyImageToBackBuffer(FVulkanCmdBuffer* CmdBuffer, VulkanTexture* Sr
     SrcSurface->SetLayout(CmdBuffer, OldLayout);
 }
 
-bool VulkanViewport::Present(FVulkanCommandContext* Context, FVulkanCmdBuffer* CmdBuffer, FVulkanQueue* Queue,
-                             FVulkanQueue* PresentQueue)
+bool RVulkanViewport::Present(FVulkanCommandContext* Context, FVulkanCmdBuffer* CmdBuffer, FVulkanQueue* Queue,
+                              FVulkanQueue* PresentQueue)
 {
     check(CmdBuffer->IsOutsideRenderPass());
 
@@ -149,7 +150,7 @@ bool VulkanViewport::Present(FVulkanCommandContext* Context, FVulkanCmdBuffer* C
     return bResult;
 }
 
-void VulkanViewport::RecreateSwapchain(Ref<RWindow> NewNativeWindow)
+void RVulkanViewport::RecreateSwapchain(Ref<RWindow> NewNativeWindow)
 {
     RHI::RHIWaitUntilIdle();
 
@@ -164,13 +165,14 @@ void VulkanViewport::RecreateSwapchain(Ref<RWindow> NewNativeWindow)
     });
 }
 
-void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
+void RVulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
 {
     FVulkanDynamicRHI* RHI = GetVulkanDynamicRHI();
 
     RenderingBackbuffer = nullptr;
+    bool bLocktoVSync = FCommandLine::Param("-vsync");
     SwapChain = Ref<RVulkanSwapChain>::Create(RHI->GetInstance(), Device, Size, WindowHandle.Raw(), 3, BackBufferImages,
-                                              true, RecreateInfo);
+                                              bLocktoVSync, RecreateInfo);
 
     RenderingDoneSemaphores.Resize(BackBufferImages.Size());
     for (unsigned i = 0; i < BackBufferImages.Size(); i++) {
@@ -221,7 +223,7 @@ void VulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
     AcquiredImageIndex = -1;
 }
 
-void VulkanViewport::DeleteSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
+void RVulkanViewport::DeleteSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
 {
     RHI::RHIWaitUntilIdle();
 
@@ -236,7 +238,7 @@ void VulkanViewport::DeleteSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
     AcquiredImageIndex = -1;
 }
 
-bool VulkanViewport::TryAcquireImageIndex()
+bool RVulkanViewport::TryAcquireImageIndex()
 {
     if (SwapChain) {
         int32 Result = SwapChain->AcquireImageIndex(AcquiredSemaphore);
@@ -248,7 +250,7 @@ bool VulkanViewport::TryAcquireImageIndex()
     return false;
 }
 
-bool VulkanViewport::TryPresenting(FVulkanQueue* PresentQueue)
+bool RVulkanViewport::TryPresenting(FVulkanQueue* PresentQueue)
 {
     int32 AttemptsPending = 4;
     RVulkanSwapChain::EStatus Status = SwapChain->Present(PresentQueue, RenderingDoneSemaphores[AcquiredImageIndex]);

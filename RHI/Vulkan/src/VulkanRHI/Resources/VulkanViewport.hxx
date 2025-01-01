@@ -18,13 +18,13 @@ struct VulkanSwapChainRecreateInfo;
 
 class FVulkanCommandContext;
 
-class VulkanViewport : public RRHIViewport, public IDeviceChild
+class RVulkanViewport : public RRHIViewport, public IDeviceChild
 {
-    RTTI_DECLARE_TYPEINFO(VulkanViewport, RRHIViewport);
+    RTTI_DECLARE_TYPEINFO(RVulkanViewport, RRHIViewport);
 
 public:
-    VulkanViewport(FVulkanDevice* InDevice, Ref<RWindow> InWindowHandle, UVector2 InSize);
-    ~VulkanViewport();
+    RVulkanViewport(FVulkanDevice* InDevice, Ref<RWindow> InWindowHandle, UVector2 InSize);
+    ~RVulkanViewport();
 
     virtual UVector2 GetSize() const override
     {
@@ -57,7 +57,7 @@ private:
     TArray<VulkanTextureView> TexturesViews;
     TArray<Ref<RSemaphore>> RenderingDoneSemaphores;
 
-    Ref<VulkanTexture> RenderingBackbuffer;
+    Ref<RVulkanTexture> RenderingBackbuffer;
     Ref<RWindow> WindowHandle;
     UVector2 Size;
 

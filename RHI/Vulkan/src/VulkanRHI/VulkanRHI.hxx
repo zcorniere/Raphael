@@ -14,7 +14,7 @@ namespace VulkanRHI
 {
 
 class FVulkanDevice;
-class VulkanViewport;
+class RVulkanViewport;
 class FVulkanCommandContext;
 
 extern VkAllocationCallbacks GAllocationCallbacks;
@@ -95,7 +95,7 @@ private:
     // Used during runtime //
     TArray<FVulkanCommandContext*> CommandContexts;
     TArray<FVulkanCommandContext*> AvailableCommandContexts;
-    VulkanViewport* DrawingViewport = nullptr;
+    RVulkanViewport* DrawingViewport = nullptr;
 
     TArray<std::function<void()>> DeletionQueue;
 };

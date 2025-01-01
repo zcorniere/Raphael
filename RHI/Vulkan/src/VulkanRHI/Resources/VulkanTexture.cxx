@@ -10,7 +10,7 @@
 namespace VulkanRHI
 {
 
-VulkanTexture::VulkanTexture(FVulkanDevice* InDevice, const FRHITextureSpecification& InDesc)
+RVulkanTexture::RVulkanTexture(FVulkanDevice* InDevice, const FRHITextureSpecification& InDesc)
     : RRHITexture(InDesc),
       IDeviceChild(InDevice),
       Allocation(nullptr),
@@ -21,12 +21,12 @@ VulkanTexture::VulkanTexture(FVulkanDevice* InDevice, const FRHITextureSpecifica
     CreateTexture();
 }
 
-VulkanTexture::~VulkanTexture()
+RVulkanTexture::~RVulkanTexture()
 {
     DestroyTexture();
 }
 
-void VulkanTexture::SetName(std::string_view InName)
+void RVulkanTexture::SetName(std::string_view InName)
 {
     RRHIResource::SetName(InName);
     if (Image) {
@@ -40,7 +40,7 @@ void VulkanTexture::SetName(std::string_view InName)
     }
 }
 
-void VulkanTexture::Invalidate()
+void RVulkanTexture::Invalidate()
 {
     ENQUEUE_RENDER_COMMAND(FInvalidateTexture)
     ([instance = WeakRef(this)](FFRHICommandList& CommandList) mutable {
@@ -53,12 +53,12 @@ void VulkanTexture::Invalidate()
     });
 }
 
-VkImage VulkanTexture::GetImage() const
+VkImage RVulkanTexture::GetImage() const
 {
     return Image;
 }
 
-VkImageView VulkanTexture::GetImageView() const
+VkImageView RVulkanTexture::GetImageView() const
 {
     if (View != VK_NULL_HANDLE) {
         return View;
@@ -82,17 +82,17 @@ VkImageView VulkanTexture::GetImageView() const
     return View;
 }
 
-VkImageViewType VulkanTexture::GetViewType() const
+VkImageViewType RVulkanTexture::GetViewType() const
 {
     return TextureDimensionToVkImageViewType(Description.Dimension);
 }
 
-VkImageLayout VulkanTexture::GetLayout() const
+VkImageLayout RVulkanTexture::GetLayout() const
 {
     return Layout;
 }
 
-void VulkanTexture::SetLayout(FVulkanCmdBuffer* CmdBuffer, VkImageLayout NewLayout)
+void RVulkanTexture::SetLayout(FVulkanCmdBuffer* CmdBuffer, VkImageLayout NewLayout)
 {
     VkImageAspectFlags AspectMask = 0;
     switch (Description.Format) {
@@ -110,7 +110,7 @@ void VulkanTexture::SetLayout(FVulkanCmdBuffer* CmdBuffer, VkImageLayout NewLayo
     Layout = NewLayout;
 }
 
-void VulkanTexture::CreateTexture()
+void RVulkanTexture::CreateTexture()
 {
     const VkPhysicalDeviceProperties& DeviceProperties = Device->GetDeviceProperties();
 
@@ -177,7 +177,7 @@ void VulkanTexture::CreateTexture()
     Allocation->BindImage(Image);
 }
 
-void VulkanTexture::DestroyTexture()
+void RVulkanTexture::DestroyTexture()
 {
     RHI::DeferedDeletion(
         [View = this->View, Allocation = this->Allocation, Image = this->Image, Device = this->Device]() mutable {
@@ -193,7 +193,7 @@ void VulkanTexture::DestroyTexture()
     Layout = VK_IMAGE_LAYOUT_UNDEFINED;
 }
 
-VkImageLayout VulkanTexture::GetDefaultLayout() const
+VkImageLayout RVulkanTexture::GetDefaultLayout() const
 {
     switch (Description.Flags) {
         case ETextureUsageFlags::RenderTargetable:
