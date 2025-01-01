@@ -4,6 +4,7 @@
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "Engine/Core/RHI/RHI.hxx"
 #include "Engine/Misc/CommandLine.hxx"
+#include "Engine/Misc/Timer.hxx"
 #include "Engine/Misc/Utils.hxx"
 
 #ifdef PLATFORM_WINDOWS
@@ -14,7 +15,7 @@ DECLARE_LOGGER_CATEGORY(Core, LogEngine, Info)
 
 extern "C" IApplication* GetApplication();
 
-int EngineLoop()
+FORCEINLINE int EngineLoop()
 try {
     GEngine = new FEngine;
 
@@ -36,9 +37,10 @@ try {
 
     int ExitStatus = 0;
     float DeltaTime = 0.0f;
+    FrameLimiter Limiter;
     while (!Utils::HasRequestedExit(ExitStatus) || GEngine->ShouldExit()) {
         RPH_PROFILE_FUNC("Engine Tick")
-        const auto startTime = std::chrono::high_resolution_clock::now();
+        Limiter.BeginFrame();
 
         GEngine->PreTick();
         RHI::BeginFrame();
@@ -54,8 +56,7 @@ try {
         RHI::EndFrame();
         RHI::FlushDeletionQueue();
 
-        const auto stopTime = std::chrono::high_resolution_clock::now();
-        DeltaTime = std::chrono::duration<float>(stopTime - startTime).count();
+        DeltaTime = Limiter.EndFrame();
         // Must be on the last line of the engine loop
         RPH_PROFILE_MARK_FRAME
     }

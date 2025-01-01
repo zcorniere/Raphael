@@ -54,6 +54,7 @@ add_library(
     src/Engine/Serialization/StreamReader.cxx
     src/Engine/Serialization/FileStream.cxx
     src/Engine/Misc/DataLocation.cxx
+    src/Engine/Misc/Timer.cxx
     src/Engine/Misc/Utils.cxx
     src/Engine/Misc/Assertions.cxx
     src/Engine/Misc/CommandLine.cxx
