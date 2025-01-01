@@ -107,6 +107,7 @@ bool EditorApplication::OnEngineInitialization()
                 .StencilFormat = std::nullopt,
             },
     });
+    Pipeline->SetInput("ColorValue", StorageBuffer);
     return true;
 }
 
@@ -155,7 +156,6 @@ void EditorApplication::Tick(const float DeltaTime)
         Data.Emplace(Value);
         CommandList.CopyRessourceArrayToBuffer(&Data, StorageBuffer, 0, 0, Data.GetByteSize());
 
-        Pipeline->SetInput("ColorValue", StorageBuffer);
         CommandList.SetPipeline(Pipeline);
         CommandList.SetVertexBuffer(VertexBuffer);
 
