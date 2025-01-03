@@ -84,9 +84,19 @@ public:
 }    // namespace Raphael
 
 void* operator new(std::size_t n);
+void* operator new(std::size_t n, const std::nothrow_t& tag) noexcept;
+void* operator new(std::size_t n, std::align_val_t alignment);
+void* operator new(std::size_t n, std::align_val_t alignment, const std::nothrow_t& tag) noexcept;
+
 void* operator new[](std::size_t n);
+void* operator new[](std::size_t n, const std::nothrow_t& tag) noexcept;
+void* operator new[](std::size_t n, std::align_val_t alignment);
+void* operator new[](std::size_t n, std::align_val_t alignment, const std::nothrow_t& tag) noexcept;
 
 void operator delete(void* p) noexcept;
 void operator delete(void* p, std::size_t n) noexcept;
+void operator delete(void* p, std::size_t n, std::align_val_t alignment) noexcept;
+
 void operator delete[](void* p) noexcept;
 void operator delete[](void* p, std::size_t n) noexcept;
+void operator delete[](void* p, std::size_t n, std::align_val_t alignment) noexcept;

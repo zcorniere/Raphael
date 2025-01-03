@@ -67,9 +67,43 @@ void* operator new(std::size_t n)
     return Memory::Malloc(n);
 }
 
+void* operator new(std::size_t n, const std::nothrow_t& tag) noexcept
+{
+    (void)tag;
+    return Memory::Malloc(n);
+}
+
+void* operator new(std::size_t n, std::align_val_t a)
+{
+    return Memory::Malloc(n, static_cast<uint32>(a));
+}
+
+void* operator new(std::size_t n, std::align_val_t a, const std::nothrow_t& tag) noexcept
+{
+    (void)tag;
+    return Memory::Malloc(n, static_cast<uint32>(a));
+}
+
 void* operator new[](std::size_t n)
 {
     return Memory::Malloc(n);
+}
+
+void* operator new[](std::size_t n, const std::nothrow_t& tag) noexcept
+{
+    (void)tag;
+    return Memory::Malloc(n);
+}
+
+void* operator new[](std::size_t n, std::align_val_t a)
+{
+    return Memory::Malloc(n, static_cast<uint32>(a));
+}
+
+void* operator new[](std::size_t n, std::align_val_t a, const std::nothrow_t& tag) noexcept
+{
+    (void)tag;
+    return Memory::Malloc(n, static_cast<uint32>(a));
 }
 
 void operator delete(void* p) noexcept
@@ -89,6 +123,16 @@ void operator delete(void* p, std::size_t n) noexcept
     Memory::Free(p);
 }
 
+void operator delete(void* p, std::size_t n, std::align_val_t a) noexcept
+{
+    (void)n;
+    (void)a;
+    if (p == nullptr)
+        return;
+
+    Memory::Free(p);
+}
+
 void operator delete[](void* p) noexcept
 {
     if (p == nullptr)
@@ -100,6 +144,16 @@ void operator delete[](void* p) noexcept
 void operator delete[](void* p, std::size_t n) noexcept
 {
     (void)n;
+    if (p == nullptr)
+        return;
+
+    Memory::Free(p);
+}
+
+void operator delete[](void* p, std::size_t n, std::align_val_t a) noexcept
+{
+    (void)n;
+    (void)a;
     if (p == nullptr)
         return;
 
