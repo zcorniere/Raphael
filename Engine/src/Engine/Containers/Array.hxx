@@ -481,7 +481,7 @@ private:
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const TArray<T>& m)
 {
-    os << std::formatter<decltype(m)>::format(m);
+    os << std::format("{}", m);
     return os;
 }
 
@@ -494,7 +494,10 @@ struct std::formatter<TArray<T>> : std::formatter<T> {
         auto&& out = ctx.out();
         format_to(out, "[");
         for (typename TArray<T>::TSize i = 0; i < Value.Size(); i++) {
-            format_to(out, "{}{}", Value[i], (i + 1 < Value.Size()) ? ", " : "");
+            std::formatter<T>::format(Value[i], ctx);
+            if (i + 1 < Value.Size()) {
+                format_to(out, ", ");
+            }
         }
         format_to(out, "]");
         return out;
