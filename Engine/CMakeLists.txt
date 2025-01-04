@@ -106,9 +106,14 @@ build_tests(
     tests/Containers/Array.cxx
     tests/Containers/ArrayView.cxx
     tests/RHIShaderParametersTest.cxx
+    tests/Math/Quaternion.cxx
+    tests/Math/Vector.cxx
+    tests/Math/Matrix.cxx
+    tests/Math/Transform.cxx
     tests/RTTI.cxx
     tests/CommandLine.cxx
 )
+target_link_libraries(${PROJECT_NAME}_Test PRIVATE glm)
 
 if(RPH_ENABLE_PROFILING)
     target_compile_definitions(${PROJECT_NAME} PUBLIC RPH_ENABLE_PROFILING=1)

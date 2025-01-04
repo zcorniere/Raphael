@@ -4,13 +4,13 @@ namespace Math
 {
 
 template <unsigned Size, typename T>
-struct FVector;
+struct TVector;
 
 template <unsigned Size, typename T>
-constexpr std::strong_ordering IsVectorEqual(const FVector<Size, T>& lhs, const FVector<Size, T>& rhs);
+constexpr std::strong_ordering IsVectorEqual(const TVector<Size, T>& lhs, const TVector<Size, T>& rhs);
 
 template <typename T>
-struct FVector<2, T> {
+struct TVector<2, T> {
     using Type = T;
     static constexpr unsigned Length = 2;
     union {
@@ -20,14 +20,17 @@ struct FVector<2, T> {
         T data[2];
     };
 
-    FVector();
-    FVector(T x, T y);
-    FVector(T scalar);
-    FVector(const FVector<2, T>& other);
+    TVector();
+    TVector(T x, T y);
+    TVector(T scalar);
+    TVector(const TVector<2, T>& other);
+
+    T& operator[](unsigned index);
+    const T& operator[](unsigned index) const;
 };
 
 template <typename T>
-struct FVector<3, T> {
+struct TVector<3, T> {
     using Type = T;
     static constexpr unsigned Length = 3;
     union {
@@ -40,15 +43,18 @@ struct FVector<3, T> {
         T data[3];
     };
 
-    FVector();
-    FVector(T x, T y, T z);
-    FVector(T scalar);
-    FVector(const FVector<3, T>& other);
-    FVector(const FVector<2, T>& other, T z);
+    TVector();
+    TVector(T x, T y, T z);
+    TVector(T scalar);
+    TVector(const TVector<3, T>& other);
+    TVector(const TVector<2, T>& other, T z);
+
+    T& operator[](unsigned index);
+    const T& operator[](unsigned index) const;
 };
 
 template <typename T>
-struct FVector<4, T> {
+struct TVector<4, T> {
     using Type = T;
     static constexpr unsigned Length = 4;
     union {
@@ -61,54 +67,83 @@ struct FVector<4, T> {
         T data[4];
     };
 
-    FVector();
-    FVector(T x, T y, T z, T w);
-    FVector(T scalar);
-    FVector(const FVector<4, T>& other);
-    FVector(const FVector<3, T>& other, T w);
-    FVector(const FVector<2, T>& other, T z, T w);
-    FVector(const FVector<2, T>& other1, const FVector<2, T>& other2);
+    TVector();
+    TVector(T x, T y, T z, T w);
+    TVector(T scalar);
+    TVector(const TVector<4, T>& other);
+    TVector(const TVector<3, T>& other, T w);
+    TVector(const TVector<2, T>& other, T z, T w);
+    TVector(const TVector<2, T>& other1, const TVector<2, T>& other2);
+
+    T& operator[](unsigned index);
+    const T& operator[](unsigned index) const;
 };
 
-// FVector operations
+// TVector operations
 template <unsigned Size, typename T>
-FVector<Size, T> operator+(const FVector<Size, T>& lhs, const FVector<Size, T>& rhs);
+constexpr TVector<Size, T> operator+(const TVector<Size, T>& lhs, const TVector<Size, T>& rhs);
 
 template <unsigned Size, typename T>
-FVector<Size, T> operator-(const FVector<Size, T>& lhs, const FVector<Size, T>& rhs);
+constexpr TVector<Size, T> operator-(const TVector<Size, T>& lhs, const TVector<Size, T>& rhs);
 
 template <unsigned Size, typename T>
-FVector<Size, T> operator*(const FVector<Size, T>& lhs, const FVector<Size, T>& rhs);
+constexpr TVector<Size, T> operator*(const TVector<Size, T>& lhs, const TVector<Size, T>& rhs);
 
 template <unsigned Size, typename T>
-FVector<Size, T> operator/(const FVector<Size, T>& lhs, const FVector<Size, T>& rhs);
+constexpr TVector<Size, T> operator/(const TVector<Size, T>& lhs, const TVector<Size, T>& rhs);
 
 template <unsigned Size, typename T>
-FVector<Size, T> operator*(const FVector<Size, T>& lhs, T scalar);
+constexpr TVector<Size, T> operator*(const TVector<Size, T>& lhs, T scalar);
 template <unsigned Size, typename T>
-FVector<Size, T> operator/(const FVector<Size, T>& lhs, T scalar);
+constexpr TVector<Size, T> operator/(const TVector<Size, T>& lhs, T scalar);
 
 template <unsigned Size, typename T>
-std::strong_ordering operator<=>(const FVector<Size, T>& lhs, const FVector<Size, T>& rhs);
+constexpr std::strong_ordering operator<=>(const TVector<Size, T>& lhs, const TVector<Size, T>& rhs);
 template <unsigned Size, typename T>
-bool operator==(const FVector<Size, T>& lhs, const FVector<Size, T>& rhs);
+constexpr bool operator==(const TVector<Size, T>& lhs, const TVector<Size, T>& rhs);
 
 }    // namespace Math
 
-using FVector2 = Math::FVector<2, float>;
-using FVector3 = Math::FVector<3, float>;
-using FVector4 = Math::FVector<4, float>;
+template <unsigned Size, typename T>
+struct std::formatter<Math::TVector<Size, T>, char> : public std::formatter<T> {
 
-using DVector2 = Math::FVector<2, double>;
-using DVector3 = Math::FVector<3, double>;
-using DVector4 = Math::FVector<4, double>;
+    template <class FormatContext>
+    auto format(const Math::TVector<Size, T>& Value, FormatContext& ctx) const
+    {
+        auto&& out = ctx.out();
+        format_to(out, "[");
+        for (unsigned i = 0; i < Value.Length; i++) {
+            std::formatter<T>::format(Value.data[i], ctx);
+            if (i != Value.Length - 1) {
+                format_to(out, ", ");
+            }
+        }
+        format_to(out, "]");
+        return out;
+    }
+};
 
-using IVector2 = Math::FVector<2, int32>;
-using IVector3 = Math::FVector<3, int32>;
-using IVector4 = Math::FVector<4, int32>;
+template <unsigned Size, typename T>
+std::ostream& operator<<(std::ostream& os, const Math::TVector<Size, T>& m)
+{
+    os << std::format("{}", m);
+    return os;
+}
 
-using UVector2 = Math::FVector<2, uint32>;
-using UVector3 = Math::FVector<3, uint32>;
-using UVector4 = Math::FVector<4, uint32>;
+using FVector2 = Math::TVector<2, float>;
+using FVector3 = Math::TVector<3, float>;
+using FVector4 = Math::TVector<4, float>;
+
+using DVector2 = Math::TVector<2, double>;
+using DVector3 = Math::TVector<3, double>;
+using DVector4 = Math::TVector<4, double>;
+
+using IVector2 = Math::TVector<2, int32>;
+using IVector3 = Math::TVector<3, int32>;
+using IVector4 = Math::TVector<4, int32>;
+
+using UVector2 = Math::TVector<2, uint32>;
+using UVector3 = Math::TVector<3, uint32>;
+using UVector4 = Math::TVector<4, uint32>;
 
 #include "Vector.inl"
