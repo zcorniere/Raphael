@@ -27,8 +27,8 @@ float FrameLimiter::EndFrame()
         const std::chrono::duration<double> SleepDuration = TargetFrameDuration - ElapsedTime;
         std::this_thread::sleep_for(std::chrono::duration_cast<std::chrono::milliseconds>(SleepDuration));
     } else {
-        LOG(LogTimer, Warning, "Frame rate is too low! Frame time was {}, where it is expected to be {}",
-            ElapsedTime.count(), TargetFrameDuration.count());
+        LOG(LogTimer, Warning, "Frame rate is too low! Frame time was {:.3f} ms, where it is expected to be {:.3f} ms",
+            ElapsedTime.count() * 1000, TargetFrameDuration.count() * 1000);
     }
 
     // Recalculate the total time elapsed including sleep time
