@@ -5,7 +5,7 @@
 /// @brief The type of the shader
 enum class ERHIShaderType {
     Vertex = 0,
-    Pixel = 1,
+    Fragment = 1,
 
     Compute,
 };

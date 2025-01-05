@@ -82,7 +82,7 @@ public:
 
 private:
     void Destroy();
-    void CreateDeviceAndQueue(const TArray<const char*>& DeviceLayers,
+    bool CreateDeviceAndQueue(const TArray<const char*>& DeviceLayers,
                               const FVulkanDeviceExtensionArray& DeviceExtensions);
 
 public:

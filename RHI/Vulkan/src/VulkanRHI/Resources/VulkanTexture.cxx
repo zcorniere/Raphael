@@ -42,7 +42,7 @@ void RVulkanTexture::SetName(std::string_view InName)
 
 void RVulkanTexture::Invalidate()
 {
-    ENQUEUE_RENDER_COMMAND(FInvalidateTexture)
+    ENQUEUE_RENDER_COMMAND(InvalidateTexture)
     ([instance = WeakRef(this)](FFRHICommandList& CommandList) mutable {
         const VkImageLayout Layout = instance->GetLayout();
         instance->DestroyTexture();

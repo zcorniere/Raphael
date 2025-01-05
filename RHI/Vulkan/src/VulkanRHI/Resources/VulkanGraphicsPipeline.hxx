@@ -46,7 +46,7 @@ struct FGraphicsPipelineDescription {
     FRHIAttachmentFormats AttachmentFormats;
 
     Ref<RVulkanShader> VertexShader;
-    Ref<RVulkanShader> PixelShader;
+    Ref<RVulkanShader> FragmentShader;
 
     bool Validate() const;
     bool operator==(const FGraphicsPipelineDescription&) const = default;

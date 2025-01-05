@@ -88,7 +88,7 @@ Ref<RRHIGraphicsPipeline>
 VulkanRHI::FVulkanDynamicRHI::CreateGraphicsPipeline(const FRHIGraphicsPipelineSpecification& Config)
 {
     std::future<Ref<RRHIShader>> VertexShader = RHI::CreateShaderAsync(Config.VertexShader, false);
-    std::future<Ref<RRHIShader>> PixelShader = RHI::CreateShaderAsync(Config.PixelShader, false);
+    std::future<Ref<RRHIShader>> FragmentShader = RHI::CreateShaderAsync(Config.FragmentShader, false);
 
     FGraphicsPipelineDescription Desc;
     Desc.Rasterizer.CullMode = ConvertToVulkanType(Config.Rasterizer.CullMode);
@@ -96,7 +96,7 @@ VulkanRHI::FVulkanDynamicRHI::CreateGraphicsPipeline(const FRHIGraphicsPipelineS
     Desc.Rasterizer.PolygonMode = ConvertToVulkanType(Config.Rasterizer.PolygonMode);
     Desc.AttachmentFormats = Config.AttachmentFormats;
     Desc.VertexShader = VertexShader.get();
-    Desc.PixelShader = PixelShader.get();
+    Desc.FragmentShader = FragmentShader.get();
 
     if (Desc.VertexAttributes.IsEmpty()) {
         Desc.VertexAttributes = Desc.VertexShader->GetReflectionData().GetInputVertexAttributes();

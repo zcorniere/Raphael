@@ -154,7 +154,7 @@ void RVulkanViewport::RecreateSwapchain(Ref<RWindow> NewNativeWindow)
 {
     RHI::RHIWaitUntilIdle();
 
-    ENQUEUE_RENDER_COMMAND(FRecreateSwapchainCommand)
+    ENQUEUE_RENDER_COMMAND(RecreateSwapchainCommand)
     ([this, NewNativeWindow](FFRHICommandList&) {
         VulkanSwapChainRecreateInfo RecreateInfo = {VK_NULL_HANDLE, VK_NULL_HANDLE};
         DeleteSwapchain(&RecreateInfo);

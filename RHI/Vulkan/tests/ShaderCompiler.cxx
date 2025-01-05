@@ -146,7 +146,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
     Ref<RVulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
     REQUIRE(ShaderResult);
 
-    CHECK(ShaderResult->GetShaderType() == ERHIShaderType::Pixel);
+    CHECK(ShaderResult->GetShaderType() == ERHIShaderType::Fragment);
 
     const uint32 ExpectedPushConstantOffset = 64;
     const ShaderResource::FPushConstantRange ExpectedPushConstant{

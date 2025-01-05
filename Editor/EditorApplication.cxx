@@ -1,7 +1,10 @@
 #include "EditorApplication.hxx"
-#include "Engine/Math/Vector.hxx"
 
-#include <memory>
+#include "Engine/Math/Matrix.hxx"
+#include "Engine/Math/Quaternion.hxx"
+#include "Engine/Math/Transform.hxx"
+#include "Engine/Math/Vector.hxx"
+#include "Engine/Math/ViewPoint.hxx"
 
 #include <Engine/Core/Log.hxx>
 #include <Engine/Core/RHI/RHICommandList.hxx>
@@ -22,6 +25,8 @@ EditorApplication::EditorApplication()
     s_EditorLogger = new cpplogger::Logger("Editor");
 
     s_EditorLogger->addSink<cpplogger::StdoutSink, Log::ColorFormatter>(stdout);
+
+    Cube = Shapes::CreateBox(10);
 }
 
 EditorApplication::~EditorApplication()
@@ -36,47 +41,26 @@ bool EditorApplication::OnEngineInitialization()
 
     FBaseApplication::OnEngineInitialization();
 
-    struct Vertex {
-        FVector3 Position;
-    };
-    TResourceArray<Vertex> Vertices;
-    Vertices.Resize(4);
-    Vertices[0].Position = {0.5, -0.5, 0};
-    Vertices[1].Position = {0.5, 0.5, 0};
-    Vertices[2].Position = {-0.5, -0.5, 0};
-    Vertices[3].Position = {-0.5, 0.5, 0};
-
-    TResourceArray<uint32> Indices = {0, 1, 2, 2, 1, 3};
-
     Ref<RRHIBuffer> TmpBuffer = RHI::CreateBuffer(FRHIBufferDesc{
-        .Size = Vertices.GetByteSize(),
-        .Stride = sizeof(Vertex),
+        .Size = Cube.Vertices.GetByteSize(),
+        .Stride = sizeof(Shapes::FVertex),
         .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::SourceCopy | EBufferUsageFlags::KeepCPUAccessible,
-        .ResourceArray = &Vertices,
+        .ResourceArray = &Cube.Vertices,
         .DebugName = "Staging Vertex Buffer",
     });
     Ref<RRHIBuffer> TmpIndexBuffer = RHI::CreateBuffer(FRHIBufferDesc{
-        .Size = Indices.GetByteSize(),
+        .Size = Cube.Indices.GetByteSize(),
         .Stride = sizeof(uint32),
         .Usage = EBufferUsageFlags::IndexBuffer | EBufferUsageFlags::SourceCopy | EBufferUsageFlags::KeepCPUAccessible,
-        .ResourceArray = &Indices,
+        .ResourceArray = &Cube.Indices,
         .DebugName = "Staging Index Buffer",
     });
 
-    srand(time(nullptr));
-    StorageBuffer = RHI::CreateBuffer(FRHIBufferDesc{
-        .Size = sizeof(FVector4),
-        .Stride = sizeof(FVector4),
-        .Usage = EBufferUsageFlags::UniformBuffer | EBufferUsageFlags::KeepCPUAccessible,
-        .ResourceArray = nullptr,
-        .DebugName = "Storage Buffer",
-    });
-
-    ENQUEUE_RENDER_COMMAND(FCopyBuffer)
+    ENQUEUE_RENDER_COMMAND(CopyBuffer)
     ([this, TmpBuffer, TmpIndexBuffer](FFRHICommandList& CommandList) {
         VertexBuffer = RHI::CreateBuffer(FRHIBufferDesc{
             .Size = TmpBuffer->GetSize(),
-            .Stride = sizeof(Vertex),
+            .Stride = sizeof(Shapes::FVertex),
             .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::DestinationCopy,
             .ResourceArray = nullptr,
             .DebugName = "Vertex Buffer",
@@ -92,8 +76,8 @@ bool EditorApplication::OnEngineInitialization()
         CommandList.CopyBufferToBuffer(TmpIndexBuffer, IndexBuffer, 0, 0, TmpIndexBuffer->GetSize());
     });
     Pipeline = RHI::CreateGraphicsPipeline(FRHIGraphicsPipelineSpecification{
-        .VertexShader = "DefaultTriangle.vert",
-        .PixelShader = "DefaultTriangle.frag",
+        .VertexShader = "Shapes/ShapeShader.vert",
+        .FragmentShader = "Shapes/ShapeShader.frag",
         .Rasterizer =
             {
                 .PolygonMode = EPolygonMode::Fill,
@@ -107,7 +91,6 @@ bool EditorApplication::OnEngineInitialization()
                 .StencilFormat = std::nullopt,
             },
     });
-    Pipeline->SetInput("ColorValue", StorageBuffer);
     return true;
 }
 
@@ -124,14 +107,14 @@ void EditorApplication::OnEngineDestruction()
 void EditorApplication::Tick(const float DeltaTime)
 {
     RPH_PROFILE_FUNC()
-    ENQUEUE_RENDER_COMMAND(FBeginFrame)([](FFRHICommandList& CommandList) { CommandList.BeginFrame(); });
+    ENQUEUE_RENDER_COMMAND(BeginFrame)([](FFRHICommandList& CommandList) { CommandList.BeginFrame(); });
 
     FBaseApplication::Tick(DeltaTime);
 
     MainWindow->SetText(std::to_string(1.0f / DeltaTime));
 
-    ENQUEUE_RENDER_COMMAND(FEmptyRender)
-    ([this, DeltaTime](FFRHICommandList& CommandList) {
+    ENQUEUE_RENDER_COMMAND(EmptyRender)
+    ([this](FFRHICommandList& CommandList) {
         RHIRenderPassDescription Description{
             .RenderAreaLocation = {0, 0},
             .RenderAreaSize = MainViewport->GetSize(),
@@ -149,13 +132,6 @@ void EditorApplication::Tick(const float DeltaTime)
         CommandList.BeginRenderingViewport(MainViewport.Raw());
         CommandList.BeginRendering(Description);
 
-        static float AccumulatedTime = 0.0f;
-        AccumulatedTime += DeltaTime;
-        FVector4 Value{std::cos(AccumulatedTime), std::sin(AccumulatedTime), 0.0f, 1.0f};
-        TResourceArray<FVector4> Data;
-        Data.Emplace(Value);
-        CommandList.CopyRessourceArrayToBuffer(&Data, StorageBuffer, 0, 0, Data.GetByteSize());
-
         CommandList.SetPipeline(Pipeline);
         CommandList.SetVertexBuffer(VertexBuffer);
 
@@ -163,13 +139,13 @@ void EditorApplication::Tick(const float DeltaTime)
                                             static_cast<float>(MainViewport->GetSize().y), 1.0f});
         CommandList.SetScissor({0, 0}, {MainViewport->GetSize().x, MainViewport->GetSize().y});
 
-        CommandList.DrawIndexed(IndexBuffer, 0, 0, 4, 0, 2, 1);
+        CommandList.DrawIndexed(IndexBuffer, 0, 0, Cube.Vertices.Size(), 0, Cube.Indices.Size() / 3, 1);
 
         CommandList.EndRendering();
         CommandList.EndRenderingViewport(MainViewport.Raw());
     });
 
-    ENQUEUE_RENDER_COMMAND(FEndFrame)([](FFRHICommandList& CommandList) { CommandList.EndFrame(); });
+    ENQUEUE_RENDER_COMMAND(EndFrame)([](FFRHICommandList& CommandList) { CommandList.EndFrame(); });
 }
 
 // Not really extern "C" but I use it to mark that this function will be called by an external unit

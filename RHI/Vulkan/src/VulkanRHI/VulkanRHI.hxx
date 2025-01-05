@@ -27,7 +27,24 @@ static FORCEINLINE const VkAllocationCallbacks* GetMemoryAllocator()
 class FVulkanDynamicRHI : public FGenericRHI
 {
 public:
+    // FGenericRHI implementation
+    virtual void Init() final override;
+    virtual void PostInit() final override;
     virtual void Tick(float fDeltaTime) override;
+    virtual void Shutdown() final override;
+
+    virtual const char* GetName() const final override
+    {
+        return "Vulkan";
+    }
+    virtual ERHIInterfaceType GetInterfaceType() const final override
+    {
+        return ERHIInterfaceType::Vulkan;
+    }
+
+    virtual void DeferedDeletion(std::function<void()>&& InDeletionFunction) final override;
+    virtual void FlushDeletionQueue() final override;
+    virtual void WaitUntilIdle() final override;
 
     // ---------------------- RHI Operations --------------------- //
     virtual void RHISubmitCommandLists(FFRHICommandList* const CommandLists, std::uint32_t NumCommandLists) override;
@@ -48,23 +65,6 @@ public:
     VkDevice RHIGetVkDevice() const;
     /// Return the Vulkan Physical Device of the RHI
     VkPhysicalDevice RHIGetVkPhysicalDevice() const;
-
-    virtual void Init() final override;
-    virtual void PostInit() final override;
-    virtual void Shutdown() final override;
-
-    virtual void DeferedDeletion(std::function<void()>&& InDeletionFunction) final override;
-    virtual void FlushDeletionQueue() final override;
-    virtual void WaitUntilIdle() final override;
-
-    virtual const char* GetName() const final override
-    {
-        return "Vulkan";
-    }
-    ERHIInterfaceType GetInterfaceType() const final override
-    {
-        return ERHIInterfaceType::Vulkan;
-    }
 
     inline VkInstance GetInstance() const
     {

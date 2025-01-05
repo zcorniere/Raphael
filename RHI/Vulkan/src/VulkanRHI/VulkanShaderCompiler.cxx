@@ -63,7 +63,7 @@ namespace Utils
         if (stage == ".vert")
             return ERHIShaderType::Vertex;
         if (stage == ".frag")
-            return ERHIShaderType::Pixel;
+            return ERHIShaderType::Fragment;
         if (stage == ".comp")
             return ERHIShaderType::Compute;
         else
@@ -77,7 +77,7 @@ namespace Utils
                 return shaderc_compute_shader;
             case ERHIShaderType::Vertex:
                 return shaderc_vertex_shader;
-            case ERHIShaderType::Pixel:
+            case ERHIShaderType::Fragment:
                 return shaderc_fragment_shader;
         }
         checkNoEntry();

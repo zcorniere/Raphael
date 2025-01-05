@@ -50,6 +50,9 @@ add_library(
     src/Engine/Core/Memory/Memory.cxx
     src/Engine/Core/Memory/MiMalloc.cxx
     src/Engine/Core/Memory/StdMalloc.cxx
+    src/Engine/Core/ECS/ComponentStorage.cxx
+    src/Engine/Core/ECS/SystemScheduler.cxx
+    src/Engine/Core/ECS/World.cxx
     src/Engine/Serialization/StreamWriter.cxx
     src/Engine/Serialization/StreamReader.cxx
     src/Engine/Serialization/FileStream.cxx

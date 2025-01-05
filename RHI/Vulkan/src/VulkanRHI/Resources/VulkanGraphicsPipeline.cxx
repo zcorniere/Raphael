@@ -41,11 +41,11 @@ bool FGraphicsPipelineDescription::Validate() const
     // Vertex shader is required
     if (!VertexShader.IsValid())
         return false;
-    // Pixel and vertex shader must be different
-    if (VertexShader == PixelShader)
+    // Fragment and vertex shader must be different
+    if (VertexShader == FragmentShader)
         return false;
-    // If there is a pixel shader, it must be valid
-    if (PixelShader != nullptr && !PixelShader.IsValid())
+    // If there is a Fragment shader, it must be valid
+    if (FragmentShader != nullptr && !FragmentShader.IsValid())
         return false;
 
     return true;
@@ -104,7 +104,7 @@ bool RVulkanGraphicsPipeline::Create()
 
     TArray<VkPipelineShaderStageCreateInfo> ShaderStage;
     FillShaderStageInfo(Desc.VertexShader, ShaderStage);
-    FillShaderStageInfo(Desc.PixelShader, ShaderStage);
+    FillShaderStageInfo(Desc.FragmentShader, ShaderStage);
 
     TArray<VkVertexInputBindingDescription> InputBinding(Desc.VertexBindings.Size());
     for (unsigned i = 0; i < Desc.VertexBindings.Size(); i++) {
@@ -232,8 +232,8 @@ RVulkanShader* RVulkanGraphicsPipeline::GetShader(ERHIShaderType Type)
     switch (Type) {
         case ERHIShaderType::Vertex:
             return Desc.VertexShader.AsRaw<RVulkanShader>();
-        case ERHIShaderType::Pixel:
-            return Desc.PixelShader.AsRaw<RVulkanShader>();
+        case ERHIShaderType::Fragment:
+            return Desc.FragmentShader.AsRaw<RVulkanShader>();
         case ERHIShaderType::Compute: {
             checkNoEntry();
             return nullptr;
@@ -273,7 +273,7 @@ bool RVulkanGraphicsPipeline::CreatePipelineLayout()
 {
     TArray<VkPushConstantRange> PushRanges;
     GetConstantRangeFromShader(PushRanges, Desc.VertexShader, VK_SHADER_STAGE_VERTEX_BIT);
-    GetConstantRangeFromShader(PushRanges, Desc.PixelShader, VK_SHADER_STAGE_FRAGMENT_BIT);
+    GetConstantRangeFromShader(PushRanges, Desc.FragmentShader, VK_SHADER_STAGE_FRAGMENT_BIT);
 
     CreateDescriptorSetLayout();
 
@@ -292,7 +292,7 @@ bool RVulkanGraphicsPipeline::CreatePipelineLayout()
 
 bool RVulkanGraphicsPipeline::CreateDescriptorSetLayout()
 {
-    TArray<Ref<RVulkanShader>> Shaders{Desc.VertexShader, Desc.PixelShader};
+    TArray<Ref<RVulkanShader>> Shaders{Desc.VertexShader, Desc.FragmentShader};
     return DescriptorManager.Initialize(Shaders, 1);
 }
 

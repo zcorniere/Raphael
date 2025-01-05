@@ -100,14 +100,17 @@ void FVulkanDevice::InitPhysicalDevice()
 
     // Setup layers and extensions
     FVulkanDeviceExtensionArray DeviceExtensions = FVulkanPlatform::GetDeviceExtensions();
-    CreateDeviceAndQueue({}, DeviceExtensions);
+    if (!CreateDeviceAndQueue({}, DeviceExtensions)) {
+        LOG(LogVulkanRHI, Fatal, "Failed to create Vulkan device and queues! Exiting...");
+        Utils::RequestExit(1, true);
+    }
 
     MemoryAllocator = std::make_unique<FVulkanMemoryManager>(this);
 
     ImmediateContext = static_cast<FVulkanCommandContext*>(RHI::Get()->RHIGetCommandContext());
 }
 
-void FVulkanDevice::CreateDeviceAndQueue(const TArray<const char*>& DeviceLayers,
+bool FVulkanDevice::CreateDeviceAndQueue(const TArray<const char*>& DeviceLayers,
                                          const FVulkanDeviceExtensionArray& Extensions)
 {
     VkPhysicalDeviceFeatures EnabledFeature{
@@ -128,7 +131,19 @@ void FVulkanDevice::CreateDeviceAndQueue(const TArray<const char*>& DeviceLayers
     };
 
     TArray<const char*> DeviceExtensions;
+
+    uint32_t ExtensionCount = 0;
+    TArray<VkExtensionProperties> QueringDeviceExtensions;
+    VulkanAPI::vkEnumerateDeviceExtensionProperties(Gpu, nullptr, &ExtensionCount, nullptr);
+    QueringDeviceExtensions.Resize(ExtensionCount);
+    VulkanAPI::vkEnumerateDeviceExtensionProperties(Gpu, nullptr, &ExtensionCount, QueringDeviceExtensions.Raw());
+
     for (const std::unique_ptr<IDeviceVulkanExtension>& Extension: Extensions) {
+        if (QueringDeviceExtensions.FindByLambda([&Extension](const VkExtensionProperties& Prop) {
+                return strcmp(Extension->GetExtensionName(), Prop.extensionName) == 0;
+            }) == nullptr) {
+            LOG(LogVulkanRHI, Fatal, "Missing Extension: {}", Extension->GetExtensionName());
+        }
         Extension->PreDeviceCreated(DeviceInfo);
         DeviceExtensions.Add(Extension->GetExtensionName());
     }
@@ -206,11 +221,19 @@ void FVulkanDevice::CreateDeviceAndQueue(const TArray<const char*>& DeviceLayers
     DeviceInfo.pQueueCreateInfos = QueueFamilyInfos.Raw();
 
     VkResult Result = VulkanAPI::vkCreateDevice(Gpu, &DeviceInfo, VULKAN_CPU_ALLOCATOR, &Device);
-    if (Result == VK_ERROR_INITIALIZATION_FAILED) {
-        LOG(LogVulkanRHI, Fatal, "Vulkan failed to create device!");
-        Utils::RequestExit(1);
+    switch (Result) {
+        case VK_ERROR_INITIALIZATION_FAILED: {
+            LOG(LogVulkanRHI, Fatal, "Vulkan failed to create device!");
+            return false;
+        }
+        case VK_ERROR_EXTENSION_NOT_PRESENT: {
+            LOG(LogVulkanRHI, Fatal, "Vulkan failed to create device due to missing extensions!");
+            return false;
+        }
+        default:
+            VK_CHECK_RESULT_EXPANDED(Result);
+            break;
     }
-    VK_CHECK_RESULT_EXPANDED(Result);
 
     GraphicsQueue = std::make_unique<FVulkanQueue>(this, GraphicsQueueFamilyIndex);
     GraphicsQueue->SetName("Graphics Queue");
@@ -236,6 +259,7 @@ void FVulkanDevice::CreateDeviceAndQueue(const TArray<const char*>& DeviceLayers
     for (const char* Extension: DeviceExtensions) {
         LOG(LogVulkanRHI, Info, "* {}", Extension);
     }
+    return true;
 }
 
 static bool DoesQueueSupportPresent(VkSurfaceKHR Surface, VkPhysicalDevice PhysicalDevice, FVulkanQueue* Queue)

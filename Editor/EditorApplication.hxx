@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Math/Shapes.hxx"
 #include <Engine/Core/Application.hxx>
 
 class EditorApplication : public FBaseApplication
@@ -14,6 +15,7 @@ public:
     void Tick(const float DeltaTime) override;
 
 private:
+    Shapes::FShape Cube;
     Ref<RRHIGraphicsPipeline> Pipeline;
 
     Ref<RRHIBuffer> StorageBuffer;

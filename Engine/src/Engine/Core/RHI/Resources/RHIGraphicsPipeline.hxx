@@ -13,7 +13,7 @@ struct FRHIAttachmentFormats {
 
 struct FRHIGraphicsPipelineSpecification {
     std::string VertexShader;
-    std::string PixelShader;
+    std::string FragmentShader;
 
     struct FRasterizerDesc {
         EPolygonMode PolygonMode;

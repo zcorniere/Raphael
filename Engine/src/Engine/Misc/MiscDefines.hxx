@@ -15,7 +15,7 @@
     Name& operator=(Name&&) = delete;
 
 #define BIT(x) (1u << x)
-#define NEXT_NEAREST(X, Multiple) ((((X) + (Multiple)-1) / (Multiple)) * (Multiple))
+#define NEXT_NEAREST(X, Multiple) ((((X) + (Multiple) - 1) / (Multiple)) * (Multiple))
 
 #define CONSTEXPR_ELSE_ERROR(Type, Message) static_assert(AlwaysFalse<Type>, Message);
 
@@ -52,9 +52,7 @@ constexpr std::false_type AlwaysFalse{};
 template <typename T>
 /// Only accept hashable type
 concept CHashable = requires(T a) {
-    {
-        std::hash<T>{}(a)
-    } -> std::convertible_to<std::size_t>;
+    { std::hash<T>{}(a) } -> std::convertible_to<std::size_t>;
 };
 
 /// Is the template argument a function pointer ?
