@@ -26,7 +26,7 @@ EditorApplication::EditorApplication()
 
     s_EditorLogger->addSink<cpplogger::StdoutSink, Log::ColorFormatter>(stdout);
 
-    Cube = Shapes::CreateBox(10);
+    Cube = Shapes::CreateBox({1.0f, 1.0f, 1.0f});
 }
 
 EditorApplication::~EditorApplication()
