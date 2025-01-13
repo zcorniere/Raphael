@@ -58,11 +58,11 @@ void* RWindowsExternalModule::GetSymbol_Internal(std::string_view SymbolName) co
     return ::GetProcAddress(HMODULE(ModuleHandle), SymbolName.data());
 }
 
-Malloc* FWindowsMisc::BaseAllocator()
+IMallocInterface* FWindowsMisc::BaseAllocator()
 {
-    void* Ptr = std::malloc(sizeof(MiMalloc));
-    new (Ptr) MiMalloc;
-    return reinterpret_cast<MiMalloc*>(Ptr);
+    void* Ptr = std::malloc(sizeof(FMiMalloc));
+    new (Ptr) FMiMalloc;
+    return reinterpret_cast<FMiMalloc*>(Ptr);
 }
 
 Ref<IExternalModule> FWindowsMisc::LoadExternalModule(const std::string& ModuleName)

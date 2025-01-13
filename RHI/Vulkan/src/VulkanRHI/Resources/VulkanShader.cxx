@@ -166,7 +166,7 @@ bool RVulkanShader::GetDescriptorSetLayoutBindings(TArray<TArray<VkDescriptorSet
             .binding = Buffer.Binding,
             .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
             .descriptorCount = 1,
-            .stageFlags = ConvertToVulkanType(GetShaderType()),
+            .stageFlags = static_cast<VkShaderStageFlags>(ConvertToVulkanType(GetShaderType())),
             .pImmutableSamplers = nullptr,
         };
         OutBindings[Buffer.Set].Add(Binding);
@@ -187,7 +187,7 @@ bool RVulkanShader::GetDescriptorSetLayoutBindings(TArray<TArray<VkDescriptorSet
             .binding = Buffer.Binding,
             .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             .descriptorCount = 1,
-            .stageFlags = ConvertToVulkanType(GetShaderType()),
+            .stageFlags = static_cast<VkShaderStageFlags>(ConvertToVulkanType(GetShaderType())),
             .pImmutableSamplers = nullptr,
         };
         OutBindings[Buffer.Set].Add(Binding);

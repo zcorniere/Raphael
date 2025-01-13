@@ -38,6 +38,6 @@ static_assert(sizeof(void*) == 8);
 
 DECLARE_LOGGER_CATEGORY(Core, LogCore, Trace);
 
-extern IMalloc* GMalloc;
+extern IMallocInterface* GMalloc;
 
 extern uint64 GFrameCounter;

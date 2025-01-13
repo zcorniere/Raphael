@@ -64,7 +64,7 @@ void* RLinuxExternalModule::GetSymbol_Internal(std::string_view SymbolName) cons
     return dlsym(ModuleHandle, SymbolName.data());
 }
 
-IMalloc* FLinuxMisc::BaseAllocator()
+IMallocInterface* FLinuxMisc::BaseAllocator()
 {
     checkNoReentry();
     void* const Ptr = std::malloc(sizeof(FMiMalloc));

@@ -3,7 +3,7 @@
 #include "Engine/Core/Memory/Memory.hxx"
 
 /// Allocator using std::malloc
-class FStdMalloc : public IMalloc
+class FStdMalloc : public IMallocInterface
 {
 public:
     virtual void* Alloc(uint32 Size, uint32 Alignment = 0) override;

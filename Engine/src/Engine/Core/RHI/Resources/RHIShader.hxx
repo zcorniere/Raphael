@@ -3,7 +3,7 @@
 #include "Engine/Core/RHI/RHIResource.hxx"
 
 /// @brief The type of the shader
-enum class ERHIShaderType : uint8 {
+enum class ERHIShaderType {
     Vertex = 0,
     Pixel = 1,
 

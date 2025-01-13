@@ -85,9 +85,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 {
     (void)hInstance;
     (void)hPrevInstance;
-    (void)lpCmdLine;
     (void)nShowCmd;
-    FCommandLine::Set(GetCommandLine());
+    FCommandLine::Set(lpCmdLine);
 #else
 int main(int ac, char** av)
 {

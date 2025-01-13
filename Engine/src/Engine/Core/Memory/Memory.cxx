@@ -4,7 +4,7 @@
 #include "Engine/Misc/Assertions.hxx"
 #include "Engine/Platforms/PlatformMisc.hxx"
 
-IMalloc* GMalloc = 0;
+IMallocInterface* GMalloc = 0;
 
 static void EnsureAllocatorIsSetup()
 {

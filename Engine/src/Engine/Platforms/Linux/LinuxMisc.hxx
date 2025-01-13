@@ -25,7 +25,7 @@ public:
     /// @copydoc GenericMisc::DisplayMessageBox
     static EBoxReturnType DisplayMessageBox(EBoxMessageType MsgType, const std::string Title, const std::string Text);
 
-    static IMalloc* BaseAllocator();
+    static IMallocInterface* BaseAllocator();
 
     /// @copydoc GenericMisc::LoadExternalModule
     static Ref<IExternalModule> LoadExternalModule(const std::string& ModuleName);

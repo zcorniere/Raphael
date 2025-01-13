@@ -1,5 +1,7 @@
 #include "Engine/Platforms/Windows/WindowsStacktrace.hxx"
 
+#include "Engine/Platforms/Windows/WindowsPlatform.hxx"
+
 #include <windows.h>
 
 #include <dbghelp.h>
@@ -37,7 +39,7 @@ bool FWindowsStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, Detaile
 
         pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
         pSymbol->MaxNameLen = MAX_SYM_NAME;
-        if (!SymFromAddr(WindowsPlatform::GetDebugSymbolHandle(), dwAddress, &dwDisplacement, pSymbol)) {
+        if (!SymFromAddr(FWindowsPlatform::GetDebugSymbolHandle(), dwAddress, &dwDisplacement, pSymbol)) {
             DWORD error = GetLastError();
             printf("SymFromAddr returned error : %d\n", error);
             return false;
@@ -49,7 +51,7 @@ bool FWindowsStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, Detaile
         IMAGEHLP_MODULE ModuleInfo;
         ModuleInfo.SizeOfStruct = sizeof(ModuleInfo);
 
-        if (SymGetModuleInfo64(WindowsPlatform::GetDebugSymbolHandle(), dwAddress, &ModuleInfo)) {
+        if (SymGetModuleInfo64(FWindowsPlatform::GetDebugSymbolHandle(), dwAddress, &ModuleInfo)) {
             const char* const ModulePath = ModuleInfo.ImageName;
             const char* ModuleName = std::strrchr(ModulePath, '\\');
             if (ModuleName) {
@@ -66,7 +68,7 @@ bool FWindowsStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, Detaile
         IMAGEHLP_LINE64 line;
         line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 
-        if (SymGetLineFromAddr64(WindowsPlatform::GetDebugSymbolHandle(), dwAddress, &dwDisplacement, &line)) {
+        if (SymGetLineFromAddr64(FWindowsPlatform::GetDebugSymbolHandle(), dwAddress, &dwDisplacement, &line)) {
             const char* const cFilePath = line.FileName;
             const char* cFilenamePath = std::strrchr(cFilePath, '\\');
             if (cFilenamePath) {

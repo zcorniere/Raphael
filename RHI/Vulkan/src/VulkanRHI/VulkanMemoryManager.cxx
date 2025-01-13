@@ -118,9 +118,10 @@ FVulkanMemoryManager::FVulkanMemoryManager(FVulkanDevice* InDevice)
 
 FVulkanMemoryManager::~FVulkanMemoryManager()
 {
-    if (AllocationCount > 0) {
+    const unsigned AllocationCountLocal = AllocationCount.load();
+    if (AllocationCountLocal > 0) {
         LOG(LogVulkanMemoryAllocator, Error, "Some memory allocation ({}) are still in flight !",
-            AllocationCount.load());
+            AllocationCountLocal);
 
         std::unique_lock Lock(MemoryAllocationArrayMutex);
 

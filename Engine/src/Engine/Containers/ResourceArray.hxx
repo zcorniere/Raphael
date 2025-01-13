@@ -40,10 +40,7 @@ public:
     }
     uint32 GetByteSize() const override
     {
-        if (this->Size() > std::numeric_limits<uint32>::max() / sizeof(Type)) [[unlikely]] {
-            checkNoEntry();
-            return 0;
-        }
+        check(this->Size() < std::numeric_limits<uint32>::max() / sizeof(Type));
         return this->ByteSize();
     }
     uint32 GetTypeSize() const override

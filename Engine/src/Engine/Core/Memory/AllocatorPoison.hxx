@@ -3,7 +3,7 @@
 #include "Engine/Core/Memory/Memory.hxx"
 
 /// Allocator using mimalloc
-class FAllocatorPoison : public IMalloc
+class FAllocatorPoison : public IMallocInterface
 {
 public:
     constexpr static int AllocFillNew = 0xbb;
@@ -11,7 +11,7 @@ public:
 
 public:
     FAllocatorPoison() = delete;
-    explicit FAllocatorPoison(IMalloc* InMalloc): TrueMalloc(InMalloc)
+    explicit FAllocatorPoison(IMallocInterface* InMalloc): TrueMalloc(InMalloc)
     {
         check(TrueMalloc);
     }
@@ -72,5 +72,5 @@ public:
     }
 
 private:
-    IMalloc* TrueMalloc;
+    IMallocInterface* TrueMalloc;
 };
