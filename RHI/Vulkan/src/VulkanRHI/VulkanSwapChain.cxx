@@ -260,7 +260,7 @@ RVulkanSwapChain::EStatus RVulkanSwapChain::Present(FVulkanQueue* PresentQueue, 
 
 void RVulkanSwapChain::SetName(std::string_view InName)
 {
-    RObject::SetName(InName);
+    Super::SetName(InName);
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SWAPCHAIN_KHR, SwapChain, "{:s}", InName);
 }
 

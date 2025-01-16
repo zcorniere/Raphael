@@ -11,7 +11,7 @@ namespace VulkanRHI
 {
 
 RVulkanTexture::RVulkanTexture(FVulkanDevice* InDevice, const FRHITextureSpecification& InDesc)
-    : RRHITexture(InDesc),
+    : Super(InDesc),
       IDeviceChild(InDevice),
       Allocation(nullptr),
       Image(VK_NULL_HANDLE),
@@ -28,7 +28,7 @@ RVulkanTexture::~RVulkanTexture()
 
 void RVulkanTexture::SetName(std::string_view InName)
 {
-    RRHIResource::SetName(InName);
+    Super::SetName(InName);
     if (Image) {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, Image, "{:s}.Image", InName);
     }

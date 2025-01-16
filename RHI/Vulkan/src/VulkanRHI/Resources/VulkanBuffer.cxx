@@ -26,7 +26,7 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage)
 }
 
 RVulkanBuffer::RVulkanBuffer(FVulkanDevice* InDevice, const FRHIBufferDesc& InDescription)
-    : RRHIBuffer(InDescription), IDeviceChild(InDevice)
+    : Super(InDescription), IDeviceChild(InDevice)
 {
 
     check(Device);
@@ -76,7 +76,7 @@ RVulkanBuffer::~RVulkanBuffer()
 
 void RVulkanBuffer::SetName(std::string_view InName)
 {
-    RObject::SetName(InName);
+    Super::SetName(InName);
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_BUFFER, BufferHandle, "{:s}", InName);
     Memory->SetName(std::format("{:s}.Memory", InName));
 }

@@ -30,6 +30,8 @@ private:
 
 class RSemaphore : public RObject, public IDeviceChild
 {
+    RTTI_DECLARE_TYPEINFO(RSemaphore, RObject);
+
 public:
     RSemaphore(FVulkanDevice* InDevice);
     virtual ~RSemaphore();
@@ -47,6 +49,8 @@ private:
 
 class RFence : public RObject, public IDeviceChild
 {
+    RTTI_DECLARE_TYPEINFO(RFence, RObject);
+
 protected:
     enum class EState {
         // Initial state

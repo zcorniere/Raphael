@@ -217,6 +217,8 @@ protected:
 
 }    // namespace RTTI
 
+#define __zz_RTTI_SUPER(T, ...) using Super = T;
+
 /// Macro to be called in the body of each type declaration that is to be part of an
 /// open hierarchy RTTI structure. The type itself or one or more parents of the type
 /// need to have been derived from RTTI::Enable.
@@ -244,4 +246,5 @@ protected:                                                                      
         return TypeInfo::Is(typeId) ? TypeInfo::DynamicCast(typeId, this) : nullptr;        \
     }                                                                                       \
                                                                                             \
-private:
+private:                                                                                    \
+    __VA_OPT__(__zz_RTTI_SUPER(__VA_ARGS__))

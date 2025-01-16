@@ -123,7 +123,7 @@ TArray<FGraphicsPipelineDescription::FVertexBinding> RVulkanShader::FReflectionD
 
 RVulkanShader::RVulkanShader(ERHIShaderType Type, const TArray<uint32>& InSPIRVCode,
                              const FReflectionData& InReflectionData)
-    : RRHIShader(Type), SPIRVCode(InSPIRVCode), m_ReflectionData(InReflectionData), Type(Type)
+    : Super(Type), SPIRVCode(InSPIRVCode), m_ReflectionData(InReflectionData), Type(Type)
 {
     ShaderModuleCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,

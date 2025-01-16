@@ -39,7 +39,7 @@ RVulkanViewport::~RVulkanViewport()
 
 void RVulkanViewport::SetName(std::string_view InName)
 {
-    RRHIResource::SetName(InName);
+    Super::SetName(InName);
 
     if (!SwapChain)
         return;

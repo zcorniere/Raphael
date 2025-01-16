@@ -73,7 +73,7 @@ RVulkanGraphicsPipeline::~RVulkanGraphicsPipeline()
 
 void RVulkanGraphicsPipeline::SetName(std::string_view Name)
 {
-    RObject::SetName(Name);
+    Super::SetName(Name);
     if (VulkanPipeline) {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE, VulkanPipeline, "{:s}", Name);
     }

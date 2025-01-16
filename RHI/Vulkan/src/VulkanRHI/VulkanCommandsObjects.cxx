@@ -34,7 +34,7 @@ FVulkanCmdBuffer::~FVulkanCmdBuffer()
 
 void FVulkanCmdBuffer::SetName(std::string_view InName)
 {
-    FNamedClass::SetName(InName);
+    Super::SetName(InName);
     if (m_CommandBufferHandle) {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_COMMAND_BUFFER, m_CommandBufferHandle, "{:s}", InName);
     }
@@ -149,7 +149,7 @@ VulkanCommandBufferPool::~VulkanCommandBufferPool()
 
 void VulkanCommandBufferPool::SetName(std::string_view InName)
 {
-    FNamedClass::SetName(InName);
+    Super::SetName(InName);
     if (m_Handle) {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_COMMAND_POOL, m_Handle, "{:s}", InName);
     }

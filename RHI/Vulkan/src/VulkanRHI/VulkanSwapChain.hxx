@@ -18,6 +18,8 @@ struct VulkanSwapChainRecreateInfo {
 
 class RVulkanSwapChain : public RObject, public IDeviceChild
 {
+    RTTI_DECLARE_TYPEINFO(RVulkanSwapChain, RObject);
+
 public:
     enum class EStatus {
         Healty = 0,

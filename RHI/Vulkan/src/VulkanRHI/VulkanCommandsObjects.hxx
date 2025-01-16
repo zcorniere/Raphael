@@ -15,7 +15,9 @@ class RVulkanGraphicsPipeline;
 class FVulkanCmdBuffer : public FNamedClass, public IDeviceChild
 /// This class encapsulate a Vulkan command buffer
 {
+    RTTI_DECLARE_TYPEINFO(FVulkanCmdBuffer, FNamedClass)
     RPH_NONCOPYABLE(FVulkanCmdBuffer)
+
 public:
     /// The state of the command buffer
     enum class EState : uint8 {
@@ -117,6 +119,7 @@ private:
 /// This class encapsulate a Vulkan command buffer pool
 class VulkanCommandBufferPool : public FNamedClass, public IDeviceChild
 {
+    RTTI_DECLARE_TYPEINFO(VulkanCommandBufferPool, FNamedClass)
     RPH_NONCOPYABLE(VulkanCommandBufferPool)
 public:
     VulkanCommandBufferPool() = delete;

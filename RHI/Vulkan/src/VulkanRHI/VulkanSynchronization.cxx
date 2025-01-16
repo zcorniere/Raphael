@@ -226,7 +226,7 @@ RSemaphore::~RSemaphore()
 
 void RSemaphore::SetName(std::string_view InName)
 {
-    RObject::SetName(InName);
+    Super::SetName(InName);
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SEMAPHORE, SemaphoreHandle, "{:s}.Semaphore", InName);
 }
 
@@ -253,7 +253,7 @@ RFence::~RFence()
 
 void RFence::SetName(std::string_view InName)
 {
-    RObject::SetName(InName);
+    Super::SetName(InName);
     VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_FENCE, Handle, "{:s}.Fence", InName);
 }
 
