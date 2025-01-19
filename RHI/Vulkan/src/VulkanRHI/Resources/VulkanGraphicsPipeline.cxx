@@ -90,15 +90,21 @@ void RVulkanGraphicsPipeline::SetInput(std::string_view Name, const Ref<RRHIBuff
 
 bool RVulkanGraphicsPipeline::Create()
 {
-    auto FillShaderStageInfo = [](Ref<RVulkanShader>& InShader,
-                                  TArray<VkPipelineShaderStageCreateInfo>& OutShaderStage) {
+    auto FillShaderStageInfo = [this](Ref<RVulkanShader>& InShader,
+                                      TArray<VkPipelineShaderStageCreateInfo>& OutShaderStage) {
         OutShaderStage.Add(VkPipelineShaderStageCreateInfo{
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-            .pNext = &InShader->GetShaderModuleCreateInfo(),
             .stage = ConvertToVulkanType(InShader->GetShaderType()),
             .module = VK_NULL_HANDLE,
             .pName = InShader->GetEntryPoint(),
         });
+        if (Device->ExtensionStatus.Maintenance5) {
+            OutShaderStage.Back().pNext = &InShader->GetShaderModuleCreateInfo();
+        } else {
+            Ref<RVulkanShader::RVulkanShaderHandle> ShaderHandle =
+                Ref<RVulkanShader::RVulkanShaderHandle>::Create(Device, InShader->GetShaderModuleCreateInfo());
+            OutShaderStage.Back().module = ShaderHandle->Handle;
+        }
     };
     CreatePipelineLayout();
 

@@ -1,7 +1,9 @@
 #include "VulkanRHI/Resources/VulkanShader.hxx"
 
-#include "Engine/Core/RHI/RHIDefinitions.hxx"
+#include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
+
+#include "Engine/Core/RHI/RHIDefinitions.hxx"
 
 namespace VulkanRHI
 {
@@ -119,6 +121,25 @@ TArray<FGraphicsPipelineDescription::FVertexBinding> RVulkanShader::FReflectionD
         .InputRate = VK_VERTEX_INPUT_RATE_VERTEX,
     });
     return Result;
+}
+
+RVulkanShader::RVulkanShaderHandle::RVulkanShaderHandle(FVulkanDevice* InDevice, const VkShaderModuleCreateInfo& Info)
+    : IDeviceChild(InDevice)
+{
+    VK_CHECK_RESULT(VulkanAPI::vkCreateShaderModule(Device->GetHandle(), &Info, VULKAN_CPU_ALLOCATOR, &Handle));
+}
+
+RVulkanShader::RVulkanShaderHandle::~RVulkanShaderHandle()
+{
+    RHI::DeferedDeletion([Handle = this->Handle, Device = this->Device] {
+        VulkanAPI::vkDestroyShaderModule(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR);
+    });
+}
+
+void RVulkanShader::RVulkanShaderHandle::SetName(std::string_view Name)
+{
+    Super::SetName(Name);
+    VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_SHADER_MODULE, Handle, "{:s}", Name);
 }
 
 RVulkanShader::RVulkanShader(ERHIShaderType Type, const TArray<uint32>& InSPIRVCode,

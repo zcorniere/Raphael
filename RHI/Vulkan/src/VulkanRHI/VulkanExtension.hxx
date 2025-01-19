@@ -3,11 +3,16 @@
 namespace VulkanRHI
 {
 
+struct FOptionalExtensionStatus {
+    bool Maintenance5 = false;
+};
+
 /// Declare a new Vulkan extension
 class IVulkanExtension
 {
 protected:
-    IVulkanExtension(const char* InExtensionName): ExtensionName(InExtensionName)
+    IVulkanExtension(const char* InExtensionName, bool bInRequired)
+        : bRequired(bInRequired), ExtensionName(InExtensionName)
     {
     }
 
@@ -19,7 +24,24 @@ public:
         return ExtensionName;
     }
 
+    bool IsExtensionRequired() const
+    {
+        return bRequired;
+    }
+
+    void SetSupported(bool bInSupported)
+    {
+        bSupported = bInSupported;
+    }
+
+    bool IsSupported() const
+    {
+        return bSupported;
+    }
+
 private:
+    bool bSupported = false;
+    const bool bRequired = true;
     const char* const ExtensionName = nullptr;
 };
 
@@ -27,7 +49,8 @@ private:
 class IDeviceVulkanExtension : public IVulkanExtension
 {
 public:
-    IDeviceVulkanExtension(const char* InExtensionName): IVulkanExtension(InExtensionName)
+    IDeviceVulkanExtension(const char* InExtensionName, bool bInRequired)
+        : IVulkanExtension(InExtensionName, bInRequired)
     {
     }
 
@@ -35,13 +58,19 @@ public:
     {
         (void)Info;
     }
+
+    virtual void PostDeviceCreated(FOptionalExtensionStatus& Status)
+    {
+        Status.Maintenance5 = true;
+    }
 };
 
 /// Interface for Vulkan extensions that require instance-level initialization
 class IInstanceVulkanExtension : public IVulkanExtension
 {
 public:
-    IInstanceVulkanExtension(const char* InExtensionName): IVulkanExtension(InExtensionName)
+    IInstanceVulkanExtension(const char* InExtensionName, bool bInRequired)
+        : IVulkanExtension(InExtensionName, bInRequired)
     {
     }
 

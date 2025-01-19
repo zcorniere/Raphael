@@ -68,6 +68,19 @@ class RVulkanShader : public RRHIShader
     RTTI_DECLARE_TYPEINFO(RVulkanShader, RRHIShader);
 
 public:
+    class RVulkanShaderHandle : public RObject, public IDeviceChild
+    {
+        RTTI_DECLARE_TYPEINFO(RVulkanShaderHandle, RObject);
+
+    public:
+        RVulkanShaderHandle(FVulkanDevice* InDevice, const VkShaderModuleCreateInfo& Info);
+        ~RVulkanShaderHandle();
+        virtual void SetName(std::string_view Name) override;
+
+    public:
+        VkShaderModule Handle;
+    };
+
     struct FReflectionData {
         TArray<ShaderResource::FStageIO> StageInput;
         TArray<ShaderResource::FStageIO> StageOutput;
@@ -116,7 +129,6 @@ private:
     const FReflectionData m_ReflectionData;
 
     ERHIShaderType Type;
-
     VkShaderModuleCreateInfo ShaderModuleCreateInfo;
 
     friend class VulkanShaderCompiler;

@@ -142,10 +142,16 @@ bool FVulkanDevice::CreateDeviceAndQueue(const TArray<const char*>& DeviceLayers
         if (QueringDeviceExtensions.FindByLambda([&Extension](const VkExtensionProperties& Prop) {
                 return strcmp(Extension->GetExtensionName(), Prop.extensionName) == 0;
             }) == nullptr) {
-            LOG(LogVulkanRHI, Fatal, "Missing Extension: {}", Extension->GetExtensionName());
+            if (Extension->IsExtensionRequired()) {
+                LOG(LogVulkanRHI, Error, "Missing Required Extension: {}", Extension->GetExtensionName());
+                return false;
+            } else {
+                LOG(LogVulkanRHI, Warning, "Missing Extension: {}", Extension->GetExtensionName());
+            }
+        } else {
+            Extension->PreDeviceCreated(DeviceInfo);
+            DeviceExtensions.Add(Extension->GetExtensionName());
         }
-        Extension->PreDeviceCreated(DeviceInfo);
-        DeviceExtensions.Add(Extension->GetExtensionName());
     }
     DeviceInfo.enabledExtensionCount = DeviceExtensions.Size();
     DeviceInfo.ppEnabledExtensionNames = DeviceExtensions.Raw();
@@ -233,6 +239,10 @@ bool FVulkanDevice::CreateDeviceAndQueue(const TArray<const char*>& DeviceLayers
         default:
             VK_CHECK_RESULT_EXPANDED(Result);
             break;
+    }
+
+    for (const std::unique_ptr<IDeviceVulkanExtension>& Extension: Extensions) {
+        Extension->PostDeviceCreated(ExtensionStatus);
     }
 
     GraphicsQueue = std::make_unique<FVulkanQueue>(this, GraphicsQueueFamilyIndex);

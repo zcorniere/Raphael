@@ -94,6 +94,8 @@ public:
 
     FVulkanCommandContext* ImmediateContext = nullptr;
 
+    FOptionalExtensionStatus ExtensionStatus;
+
 private:
     std::unique_ptr<FVulkanMemoryManager> MemoryAllocator;
 
