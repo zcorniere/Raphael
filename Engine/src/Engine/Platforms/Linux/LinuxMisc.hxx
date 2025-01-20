@@ -6,6 +6,8 @@
 /// @brief Linux implementation of the IExternalModule interface
 class RLinuxExternalModule : public IExternalModule
 {
+    RTTI_DECLARE_TYPEINFO(RLinuxExternalModule, IExternalModule);
+
 public:
     /// @copydoc IExternalModule::IExternalModule
     explicit RLinuxExternalModule(std::string_view ModulePath);

@@ -21,6 +21,8 @@ enum class EBoxReturnType {
 /// @brief Interface that represent a manually loaded shared library
 class IExternalModule : public RObject
 {
+    RTTI_DECLARE_TYPEINFO(IExternalModule, RObject);
+
 public:
     IExternalModule() = delete;
     /// @brief  Construct a new module, and load the library

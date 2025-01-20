@@ -5,6 +5,8 @@
 
 class RWindowsExternalModule : public IExternalModule
 {
+    RTTI_DECLARE_TYPEINFO(RWindowsExternalModule, IExternalModule);
+
 public:
     RWindowsExternalModule(std::string_view ModulePath);
     virtual ~RWindowsExternalModule();

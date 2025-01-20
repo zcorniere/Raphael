@@ -42,6 +42,8 @@ struct FWindowDefinition {
 /// @brief A class allowing some abstraction over the GLFW library
 class RWindow : public RObject
 {
+    RTTI_DECLARE_TYPEINFO(RWindow, RObject);
+
 public:
     /// Make sure GLFW is initialized or do it if it is not
     static bool EnsureGLFWInit();

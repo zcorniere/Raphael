@@ -11,6 +11,8 @@ class FVulkanMemoryManager;
 
 class RVulkanMemoryAllocation : public RObject
 {
+    RTTI_DECLARE_TYPEINFO(RVulkanMemoryAllocation, RObject);
+
 public:
     RVulkanMemoryAllocation() = delete;
     explicit RVulkanMemoryAllocation(FVulkanMemoryManager& InManager);
