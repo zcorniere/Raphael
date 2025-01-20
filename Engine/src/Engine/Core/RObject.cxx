@@ -35,8 +35,8 @@ bool RObjectUtils::AreThereAnyLiveObject(bool bPrintObjects)
 
     if (bPrintObjects) {
         for (RObject* ObjectPtr: s_LiveReferences) {
-            LOG(LogRObject, Trace, "RObject<{}> ({:p}) have {} references", ObjectPtr->GetName(), (void*)ObjectPtr,
-                ObjectPtr->GetRefCount());
+            LOG(LogRObject, Trace, "{}<{}> ({:p}) have {} references", ObjectPtr->GetBaseTypeName(),
+                ObjectPtr->GetName(), (void*)ObjectPtr, ObjectPtr->GetRefCount());
         }
     }
     return s_LiveReferences.size() > 0;

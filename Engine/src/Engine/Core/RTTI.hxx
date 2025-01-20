@@ -157,6 +157,8 @@ struct TypeInfo {
 struct FEnable {
     virtual ~FEnable() = default;
 
+    [[nodiscard]] virtual std::string_view GetBaseTypeName() const = 0;
+
     /// Returns the type identifier of the object.
     /// @returns Type identifier
     [[nodiscard]] virtual FTypeId TypeId() const noexcept = 0;
@@ -227,6 +229,10 @@ protected:
 #define RTTI_DECLARE_TYPEINFO(T, ...)                                                       \
 public:                                                                                     \
     using TypeInfo = ::RTTI::TypeInfo<T, ##__VA_ARGS__>;                                    \
+    [[nodiscard]] std::string_view GetBaseTypeName() const override                         \
+    {                                                                                       \
+        return ::RTTI::TypeName<T>();                                                       \
+    }                                                                                       \
     [[nodiscard]] virtual RTTI::FTypeId TypeId() const noexcept override                    \
     {                                                                                       \
         return TypeInfo::Id();                                                              \

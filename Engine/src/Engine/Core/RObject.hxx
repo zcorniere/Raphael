@@ -50,7 +50,7 @@ public:
     /// Return a string representing the Object
     virtual std::string ToString() const
     {
-        return std::format("(\"{:s}\" <{:s}> {:p})", GetName(), GetTypeName(), (void*)this);
+        return std::format("(\"{:s}\" <{:s}> {:p})", GetName(), GetBaseTypeName(), (void*)this);
     }
 
 private:
