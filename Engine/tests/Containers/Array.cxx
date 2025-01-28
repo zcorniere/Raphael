@@ -98,43 +98,47 @@ TEST_CASE("Array: Basic Operation")
     }
 }
 
+struct ComplexType {
+    int* Value = nullptr;
+
+    explicit ComplexType(int* const InValue): Value(InValue)
+    {
+        *Value += 1;
+    }
+    ComplexType(const ComplexType& Other): ComplexType(Other.Value)
+    {
+    }
+    ComplexType(ComplexType&& Other) noexcept: Value(Other.Value)
+    {
+        *Value += 1;
+    }
+    ~ComplexType() noexcept
+    {
+        *Value -= 1;
+    }
+
+    ComplexType& operator=(const ComplexType& Other)
+    {
+        Value = Other.Value;
+        *Value += 1;
+        return *this;
+    }
+
+    ComplexType& operator=(ComplexType&& Other) noexcept
+    {
+        Value = Other.Value;
+        Other.Value = nullptr;
+        return *this;
+    }
+};
+bool operator==(const ComplexType& Lhs, const ComplexType& Rhs)
+{
+    return Lhs.Value == Rhs.Value;
+}
+
 TEST_CASE("Array: Test Advanced Type")
 {
     int DtorCounter = 0;
-    struct ComplexType {
-        int* Value = nullptr;
-
-        ComplexType() = default;
-        ComplexType(int* const InValue): Value(InValue)
-        {
-            *Value += 1;
-        }
-        ComplexType(const ComplexType& Other): ComplexType(Other.Value)
-        {
-        }
-        ComplexType(ComplexType&& Other) noexcept: Value(Other.Value)
-        {
-            *Value += 1;
-        }
-        ~ComplexType() noexcept
-        {
-            *Value -= 1;
-        }
-
-        ComplexType& operator=(const ComplexType& Other)
-        {
-            Value = Other.Value;
-            *Value += 1;
-            return *this;
-        }
-
-        ComplexType& operator=(ComplexType&& Other) noexcept
-        {
-            Value = Other.Value;
-            Other.Value = nullptr;
-            return *this;
-        }
-    };
 
     static_assert(std::is_trivially_destructible<ComplexType>::value == false,
                   "ComplexType is trivially destructible and should not be");
@@ -168,9 +172,23 @@ TEST_CASE("Array: Test Advanced Type")
         REQUIRE(DtorCounter == 1 + 2 + 2);
     }
 
+    SECTION("Test Remove")
+    {
+        ComplexType* TestType2 = TestType;
+        Vec2.Remove(*TestType2);
+        REQUIRE(DtorCounter == 1 + 1);    // 1 for TestType, 2 for Vec2
+        CHECK(Vec2.Size() == 1);
+    }
+    SECTION("Test RemoveAt")
+    {
+        Vec2.RemoveAt(0);
+        REQUIRE(DtorCounter == 1 + 1);    // 1 for TestType, 1 for Vec2
+        CHECK(Vec2.Size() == 1);
+    }
+
     Vec2.Clear();
     REQUIRE(Vec2.IsEmpty());
-    REQUIRE(DtorCounter == 1);
+    REQUIRE(DtorCounter == 1);    // 1 for TestType
     delete TestType;
     REQUIRE(DtorCounter == 0);
 }

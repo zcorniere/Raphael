@@ -79,7 +79,8 @@ public:
         if (Other.Size() == 0) {
             return *this;
         }
-        Resize(Other.Size());
+        Reserve(Other.Size());
+        ArraySize = Other.Size();
         CopyItems(Raw(), Other.Raw(), Size());
         return *this;
     }
@@ -210,6 +211,8 @@ public:
             return false;
         }
 
+        DestructItems(Raw() + OptIndex.value(), 1);
+
         // Move element after Index to the left
         TSize Index = OptIndex.value();
         MoveItems(Raw() + Index, Raw() + Index + 1, Size() - Index - 1);
@@ -222,6 +225,9 @@ public:
     {
         if (Index >= Size())
             return false;
+
+        // Destruct the element at Index
+        DestructItems(Raw() + Index, 1);
 
         // Move element after Index to the left
         MoveItems(Raw() + Index, Raw() + Index + 1, Size() - Index - 1);
