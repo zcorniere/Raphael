@@ -99,9 +99,9 @@ public:
     void EndRendering();
 
     /// @brief Set the current pipeline
-    void SetPipeline(Ref<RRHIGraphicsPipeline>& Pipeline);
+    void SetPipeline(const Ref<RRHIGraphicsPipeline>& Pipeline);
     /// @brief Set the vertex buffer
-    void SetVertexBuffer(Ref<RRHIBuffer>& VertexBuffer, uint32 BufferIndex = 0, uint32 Offset = 0);
+    void SetVertexBuffer(const Ref<RRHIBuffer>& VertexBuffer, uint32 BufferIndex = 0, uint32 Offset = 0);
 
     /// @brief Set the viewport used to render
     void SetViewport(FVector3 Min, FVector3 Max);
@@ -125,8 +125,8 @@ public:
     /// @param NumInstances The number of instances to draw
     ///
     /// @note We only support Triangle primitive type, so the num of primitive is the number of triangles to draw
-    void DrawIndexed(Ref<RRHIBuffer>& IndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance, uint32 NumVertices,
-                     uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances);
+    void DrawIndexed(const Ref<RRHIBuffer>& IndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
+                     uint32 NumVertices, uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances);
 
     /// @brief Copy the content of a buffer to another buffer
     ///

@@ -12,7 +12,7 @@ enum class EImageDimension {
 
 /// @brief Format of an RHI Texture
 enum class EImageFormat {
-    D32_SFLOAT,    // <-- Note: may be not add depth format to this enum
+    D32_SFLOAT,
     R8G8B8_SRGB,
     R8G8B8A8_SRGB,
     B8G8R8A8_SRGB,

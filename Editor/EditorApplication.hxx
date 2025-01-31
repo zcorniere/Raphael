@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Engine/Math/Shapes.hxx"
 #include <Engine/Core/Application.hxx>
+#include <Engine/Core/ECS/ECS.hxx>
 
 class EditorApplication : public FBaseApplication
 {
+    RTTI_DECLARE_TYPEINFO(EditorApplication, FBaseApplication)
 public:
     EditorApplication();
     ~EditorApplication();
@@ -15,10 +16,7 @@ public:
     void Tick(const float DeltaTime) override;
 
 private:
-    Shapes::FShape Cube;
-    Ref<RRHIGraphicsPipeline> Pipeline;
-
-    Ref<RRHIBuffer> StorageBuffer;
-    Ref<RRHIBuffer> VertexBuffer;
-    Ref<RRHIBuffer> IndexBuffer;
+    Ref<ecs::RWorld> World = nullptr;
+    ecs::FEntity Entity;
+    ecs::FEntity CameraEntity;
 };

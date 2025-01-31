@@ -1,6 +1,10 @@
 #pragma once
 
+#include "Engine/Core/ECS/Component/CameraComponent.hxx"
+#include "Engine/Core/ECS/Component/MeshComponent.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
+#include <Engine/Core/RHI/RHICommandList.hxx>
+
 #include <future>
 
 class RWindow;
@@ -24,6 +28,11 @@ extern "C" FGenericRHI* RHI_CreateRHI();
 /// Wrapper function around the RHI function
 namespace RHI
 {
+
+struct FRHIRenderRequest {
+    ecs::FTransformComponent Transform;
+    ecs::FMeshComponent Mesh;
+};
 
 /// @brief Return the current RHI
 /// @tparam TRHI The type of the RHI, default is GenericRHI
@@ -50,6 +59,9 @@ void Destroy();
 /// use and cannot be deleted immediately
 void DeferedDeletion(std::function<void()>&& InDeletionFunction);
 void FlushDeletionQueue();
+
+void RenderSystem(ecs::FTransformComponent& Transform, ecs::FMeshComponent& Mesh);
+void CameraSystem(ecs::FCameraComponent& Camera);
 
 /// -------------- RHI Operations --------------
 

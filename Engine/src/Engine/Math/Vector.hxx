@@ -20,13 +20,13 @@ struct TVector<2, T> {
         T data[2];
     };
 
-    TVector();
-    TVector(T x, T y);
-    TVector(T scalar);
-    TVector(const TVector<2, T>& other);
+    constexpr TVector();
+    constexpr TVector(T x, T y);
+    constexpr TVector(T scalar);
+    constexpr TVector(const TVector<2, T>& other);
 
     T& operator[](unsigned index);
-    const T& operator[](unsigned index) const;
+    T operator[](unsigned index) const;
 };
 
 template <typename T>
@@ -43,14 +43,14 @@ struct TVector<3, T> {
         T data[3];
     };
 
-    TVector();
-    TVector(T x, T y, T z);
-    TVector(T scalar);
-    TVector(const TVector<3, T>& other);
-    TVector(const TVector<2, T>& other, T z);
+    constexpr TVector();
+    constexpr TVector(T x, T y, T z);
+    constexpr TVector(T scalar);
+    constexpr TVector(const TVector<3, T>& other);
+    constexpr TVector(const TVector<2, T>& other, T z = 0);
 
     T& operator[](unsigned index);
-    const T& operator[](unsigned index) const;
+    T operator[](unsigned index) const;
 };
 
 template <typename T>
@@ -67,16 +67,16 @@ struct TVector<4, T> {
         T data[4];
     };
 
-    TVector();
-    TVector(T x, T y, T z, T w);
-    TVector(T scalar);
-    TVector(const TVector<4, T>& other);
-    TVector(const TVector<3, T>& other, T w);
-    TVector(const TVector<2, T>& other, T z, T w);
-    TVector(const TVector<2, T>& other1, const TVector<2, T>& other2);
+    constexpr TVector();
+    constexpr TVector(T x, T y, T z, T w);
+    constexpr TVector(T scalar);
+    constexpr TVector(const TVector<4, T>& other);
+    constexpr TVector(const TVector<3, T>& other, T w = 0);
+    constexpr TVector(const TVector<2, T>& other, T z = 0, T w = 0);
+    constexpr TVector(const TVector<2, T>& other1, const TVector<2, T>& other2);
 
     T& operator[](unsigned index);
-    const T& operator[](unsigned index) const;
+    T operator[](unsigned index) const;
 };
 
 // TVector operations
@@ -85,6 +85,9 @@ constexpr TVector<Size, T> operator+(const TVector<Size, T>& lhs, const TVector<
 
 template <unsigned Size, typename T>
 constexpr TVector<Size, T> operator-(const TVector<Size, T>& lhs, const TVector<Size, T>& rhs);
+
+template <unsigned Size, typename T>
+constexpr TVector<Size, T> operator-(const TVector<Size, T>& lhs);
 
 template <unsigned Size, typename T>
 constexpr TVector<Size, T> operator*(const TVector<Size, T>& lhs, const TVector<Size, T>& rhs);
@@ -129,6 +132,13 @@ std::ostream& operator<<(std::ostream& os, const Math::TVector<Size, T>& m)
     os << std::format("{}", m);
     return os;
 }
+
+template <typename T>
+using TVector2 = Math::TVector<2, T>;
+template <typename T>
+using TVector3 = Math::TVector<3, T>;
+template <typename T>
+using TVector4 = Math::TVector<4, T>;
 
 using FVector2 = Math::TVector<2, float>;
 using FVector3 = Math::TVector<3, float>;

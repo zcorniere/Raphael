@@ -56,6 +56,10 @@ void FVulkanPendingState::PrepareForDraw(FVulkanCmdBuffer* CommandBuffer)
     }
 
     CurrentPipeline->Bind(CommandBuffer->GetHandle());
+    if (PushConstantData.Size() > 0) {
+        VulkanAPI::vkCmdPushConstants(CommandBuffer->GetHandle(), CurrentPipeline->GetPipelineLayout(),
+                                      VK_SHADER_STAGE_VERTEX_BIT, 0, PushConstantData.Size(), PushConstantData.Raw());
+    }
 
     TArray<VkBuffer> VertexBuffers;
     VertexBuffers.Reserve(VertexSources.Size());

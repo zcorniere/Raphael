@@ -3,6 +3,7 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 
+#include "Engine/Core/Engine.hxx"
 #include "Engine/Misc/Utils.hxx"
 
 #include "Engine/Platforms/PlatformMisc.hxx"
@@ -12,6 +13,7 @@
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
+#include "VulkanRHI/VulkanPendingState.hxx"
 #include "VulkanRHI/VulkanPlatform.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
@@ -56,6 +58,74 @@ FVulkanDynamicRHI::~FVulkanDynamicRHI()
 void FVulkanDynamicRHI::Tick(float fDeltaTime)
 {
     (void)fDeltaTime;
+
+    ENQUEUE_RENDER_COMMAND(BeginFrame)([](FFRHICommandList& CommandList) { CommandList.BeginFrame(); });
+
+    Ref<RRHIViewport> Viewport(GEngine->GetWorld()->Viewport);
+    ENQUEUE_RENDER_COMMAND(SetViewportSize)
+    ([Viewport](FFRHICommandList& CommandList) {
+        CommandList.SetViewport(
+            {0, 0, 0}, {static_cast<float>(Viewport->GetSize().x), static_cast<float>(Viewport->GetSize().y), 1.0f});
+        CommandList.SetScissor({0, 0}, {Viewport->GetSize().x, Viewport->GetSize().y});
+    });
+
+    ENQUEUE_RENDER_COMMAND(BeginRender)
+    ([Viewport](FFRHICommandList& CommandList) mutable {
+        RHIRenderPassDescription Description{
+            .RenderAreaLocation = {0, 0},
+            .RenderAreaSize = Viewport->GetSize(),
+            .ColorTargets =
+                {
+                    RHIRenderTarget{
+                        .Texture = Viewport->GetBackbuffer(),
+                        .ClearColor = {0.0f, 0.0f, 0.0f, 1.0f},
+                        .LoadAction = ERenderTargetLoadAction::Clear,
+                        .StoreAction = ERenderTargetStoreAction::Store,
+                    },
+                },
+            .DepthTarget = std::nullopt,
+        };
+        CommandList.BeginRenderingViewport(Viewport.Raw());
+        CommandList.BeginRendering(Description);
+    });
+
+    for (auto& [AssetName, RenderRequests]: RenderRequests) {
+
+        ENQUEUE_RENDER_COMMAND(Render)
+        ([this, RenderRequests](FFRHICommandList& CommandList) mutable {
+            for (RHI::FRHIRenderRequest& Request: RenderRequests) {
+                if (!Request.Mesh.Asset->IsLoadedOnGPU()) {
+                    Request.Mesh.Asset->LoadOnGPU();
+                    // Asset is not on the GPU, so we skip this frame
+                    continue;
+                }
+
+                Request.Mesh.Material->Bind();
+
+                struct FCameraData {
+                    FMatrix4 ViewProjMatrix;
+                } CameraData;
+                CameraData.ViewProjMatrix = ActiveCamera.GetViewProjectionMatrix();
+                FVulkanCommandContext* Context = static_cast<FVulkanCommandContext*>(CommandList.GetContext());
+                Context->GetPendingState()->SetPushConstant<FCameraData>(CameraData);
+
+                RAsset::FDrawInfo Cube = Request.Mesh.Asset->GetDrawInfo();
+                CommandList.SetVertexBuffer(Request.Mesh.Asset->GetVertexBuffer(), 0, 0);
+                CommandList.DrawIndexed(Request.Mesh.Asset->GetIndexBuffer(), 0, 0, Cube.NumVertices, 0,
+                                        Cube.NumPrimitives, 1);
+            }
+        });
+    }
+
+    ENQUEUE_RENDER_COMMAND(EndRendering)
+    ([Viewport](FFRHICommandList& CommandList) mutable {
+        CommandList.EndRendering();
+        CommandList.EndRenderingViewport(Viewport.Raw());
+    });
+
+    ENQUEUE_RENDER_COMMAND(EndFrame)([](FFRHICommandList& CommandList) { CommandList.EndFrame(); });
+
+    RenderRequests.clear();
 }
 
 VkDevice FVulkanDynamicRHI::RHIGetVkDevice() const
@@ -117,6 +187,7 @@ void FVulkanDynamicRHI::Shutdown()
     WaitUntilIdle();
 
     ShaderCompiler.reset();
+    RenderRequests.clear();
 
     /// Release the command contexts
     RHIReleaseCommandContext(Device->GetImmediateContext());
@@ -278,6 +349,16 @@ FVulkanDevice* FVulkanDynamicRHI::SelectDevice(VkInstance Instance)
     }
     LOG(LogVulkanRHI, Info, "Chosen device index: {}", DeviceIndex);
     return SelectedDevice;
+}
+
+void FVulkanDynamicRHI::RegisterAssetRender(const RHI::FRHIRenderRequest& Request)
+{
+    RenderRequests[Request.Mesh.Asset->GetName()].Emplace(Request);
+}
+
+void FVulkanDynamicRHI::RegisterActiveCamera(Math::TViewPoint<float>& ViewPoint)
+{
+    ActiveCamera = ViewPoint;
 }
 
 }    // namespace VulkanRHI

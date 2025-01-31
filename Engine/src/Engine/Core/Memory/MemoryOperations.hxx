@@ -16,8 +16,6 @@ FORCEINLINE void ConstructItems(ElementType* Ptr, SizeType Count)
             ++Ptr;
             --Count;
         }
-    } else {
-        CONSTEXPR_ELSE_ERROR(ElementType, "Type must be default constructible");
     }
 }
 
@@ -40,6 +38,7 @@ FORCEINLINE void DestructItems(ElementType* Ptr, SizeType Count)
 }
 
 template <typename ElementType, typename SizeType>
+requires(std::is_move_constructible_v<ElementType>)
 FORCEINLINE void MoveItems(ElementType* Destination, ElementType* Source, SizeType Count)
 {
     checkSlow(Count >= 0);
@@ -47,21 +46,23 @@ FORCEINLINE void MoveItems(ElementType* Destination, ElementType* Source, SizeTy
     checkSlow(Source != nullptr);
 
     // Nothing to do if the type is trivially copyable
-    if constexpr (std::is_trivially_copyable_v<ElementType>) {
+    if constexpr (std::is_trivially_copy_constructible_v<ElementType>) {
         std::memmove(Destination, Source, Count * sizeof(ElementType));
     } else {
         while (Count) {
-            new (Destination) ElementType(std::move(*Source));
+            new (Destination) ElementType((ElementType&&)*Source);
+            (Source)->ElementType::~ElementType();
+
             ++Destination;
-            (Source++)->ElementType::~ElementType();
+            ++Source;
+
             --Count;
         }
     }
 }
 
 template <typename ElementType, typename SizeType>
-/// @brief Move items from Source to Destination
-/// Destination must be preallocated
+requires(std::is_copy_constructible_v<ElementType>)
 FORCEINLINE void CopyItems(ElementType* Destination, const ElementType* Source, SizeType Count)
 {
     checkSlow(Count >= 0);

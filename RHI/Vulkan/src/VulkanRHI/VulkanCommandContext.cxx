@@ -160,7 +160,6 @@ void FVulkanCommandContext::SetScissor(IVector2 Offset, UVector2 Size)
 
 void FVulkanCommandContext::Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances)
 {
-
     FVulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
     PendingState->PrepareForDraw(CmdBuffer);
     VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), NumPrimitives * 3, NumInstances, BaseVertexIndex, 0);
@@ -176,7 +175,7 @@ void FVulkanCommandContext::DrawIndexed(Ref<RRHIBuffer> InIndexBuffer, int32 Bas
 
     RVulkanBuffer* const IndexBuffer = InIndexBuffer.AsRaw<RVulkanBuffer>();
     VulkanAPI::vkCmdBindIndexBuffer(CmdBuffer->GetHandle(), IndexBuffer->GetHandle(), 0, IndexBuffer->GetIndexType());
-    VulkanAPI::vkCmdDrawIndexed(CmdBuffer->GetHandle(), NumPrimitives * 3, NumInstances, StartIndex, BaseVertexIndex,
+    VulkanAPI::vkCmdDrawIndexed(CmdBuffer->GetHandle(), NumPrimitives, NumInstances, StartIndex, BaseVertexIndex,
                                 FirstInstance);
 }
 
@@ -187,11 +186,11 @@ void FVulkanCommandContext::CopyRessourceArrayToBuffer(const IResourceArrayInter
     RVulkanBuffer* const DstBuffer = Destination.AsRaw<RVulkanBuffer>();
     RVulkanMemoryAllocation* const Memory = DstBuffer->GetMemory();
 
-    Memory->FlushMappedMemory(0, Size);
     void* const MappedPtr = Memory->Map(Size, DestinationOffset);
     uint8 const* const SourceData = reinterpret_cast<uint8 const*>(Source->GetData());
     std::memcpy(MappedPtr, SourceData + SourceOffset, Size);
     Memory->Unmap();
+    Memory->FlushMappedMemory(0, Size);
 }
 
 void FVulkanCommandContext::CopyBufferToBuffer(const Ref<RRHIBuffer>& Source, Ref<RRHIBuffer>& Destination,

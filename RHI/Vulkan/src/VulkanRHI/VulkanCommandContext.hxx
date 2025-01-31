@@ -60,6 +60,11 @@ public:
         return CommandManager.get();
     }
 
+    FVulkanPendingState* GetPendingState() const
+    {
+        return PendingState.get();
+    }
+
 private:
     std::unique_ptr<FVulkanPendingState> PendingState;
     std::unique_ptr<VulkanCommandBufferManager> CommandManager;

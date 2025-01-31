@@ -2,19 +2,21 @@
 
 #include "Engine/Core/ECS/World.hxx"
 
-void ecs::System::Call(World* world) const
+#include "Engine/Core/ECS/System.hxx"
+
+void ecs::FSystem::Call(RWorld* world) const
 {
     CallWrapper(world);
 }
 
-void ecs::SystemScheduler::AddSystem(System system)
+void ecs::FSystemScheduler::AddSystem(FSystem system)
 {
-    SystemStorage.Add(system);
+    SystemStorage.Add(std::move(system));
 }
 
-void ecs::SystemScheduler::Update(World* world)
+void ecs::FSystemScheduler::Update(RWorld* world)
 {
-    for (System& system: SystemStorage) {
+    for (FSystem& system: SystemStorage) {
         system.Call(world);
     }
 }

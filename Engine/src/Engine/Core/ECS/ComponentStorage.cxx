@@ -1,11 +1,11 @@
 #include "Engine/Core/ECS/ComponentStorage.hxx"
 
-ecs::EntityBuilder ecs::ComponentStorage::BuildEntity()
+ecs::FEntityBuilder ecs::FComponentStorage::BuildEntity()
 {
-    return EntityBuilder(*this);
+    return FEntityBuilder(*this);
 }
 
-void ecs::ComponentStorage::DestroyEntity(Entity EntityID)
+void ecs::FComponentStorage::DestroyEntity(FEntity EntityID)
 {
     DeadEntities.Add(EntityID);
 

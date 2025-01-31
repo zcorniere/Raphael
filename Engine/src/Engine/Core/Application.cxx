@@ -1,6 +1,7 @@
 #include "Engine/Core/Application.hxx"
 
 #include "Application.hxx"
+#include "Engine/Core/Engine.hxx"
 #include "Engine/Core/RHI/RHI.hxx"
 #include "Engine/Core/RHI/Resources/RHIViewport.hxx"
 #include "Engine/Core/Window.hxx"

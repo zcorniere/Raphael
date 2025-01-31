@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cassert>
+#include <type_traits>
 namespace Math
 {
 
@@ -9,15 +11,35 @@ struct TVector;
 template <unsigned TRows, unsigned TColumns, typename T>
 struct TMatrix {
     using Type = T;
+    using ColumnType = TVector<TColumns, T>;
+
     static constexpr const unsigned Rows = TRows;
     static constexpr const unsigned Columns = TColumns;
 
     static constexpr TMatrix Identity();
 
 public:
-    constexpr TMatrix(const Type& InDefaultValue = 0);
+    constexpr TMatrix();
+    constexpr TMatrix(const Type& InDefaultValue);
 
-    constexpr bool IsSquare() const
+    template <typename... ArgsType>
+    requires((std::is_same_v<T, ArgsType> && ...) && sizeof...(ArgsType) == TRows * TColumns)
+    constexpr TMatrix(ArgsType... Args)
+    {
+        unsigned i = 0;
+        unsigned j = 0;
+        auto AdderLambda = [this, &i, &j](T Type) {
+            Data[i][j++] = Type;
+            if (j / TColumns) {
+                j = 0;
+                i++;
+            }
+        };
+
+        (AdderLambda(Args), ...);
+    }
+
+    static constexpr bool IsSquare()
     {
         return Rows == Columns;
     }
@@ -25,8 +47,17 @@ public:
     constexpr TVector<TColumns, T>& operator[](unsigned Index);
     constexpr const TVector<TColumns, T>& operator[](unsigned Index) const;
 
+    constexpr T& operator[](unsigned Row, unsigned Column)
+    {
+        return Data[Row][Column];
+    }
+    constexpr T operator[](unsigned Row, unsigned Column) const
+    {
+        return Data[Row][Column];
+    }
+
 private:
-    TVector<Columns, T> Data[Rows];
+    ColumnType Data[Rows];
 };
 
 template <unsigned TRows, unsigned TColumns, typename T>
@@ -38,8 +69,14 @@ constexpr TMatrix<TRows, TColumns, T> operator-(const TMatrix<TRows, TColumns, T
                                                 const TMatrix<TRows, TColumns, T>& rhs);
 
 template <unsigned TRows, unsigned TColumns, typename T>
+constexpr TMatrix<TRows, TColumns, T> operator-(const TMatrix<TRows, TColumns, T>& lhs);
+
+template <unsigned TRows, unsigned TColumns, typename T>
 constexpr TMatrix<TRows, TColumns, T> operator*(const TMatrix<TRows, TColumns, T>& lhs,
                                                 const TMatrix<TRows, TColumns, T>& rhs);
+
+template <unsigned TRows, unsigned TColumns, typename T>
+constexpr TVector<TColumns, T> operator*(const TMatrix<TRows, TColumns, T>& lhs, const TVector<TColumns, T>& rhs);
 
 template <unsigned TRows, unsigned TColumns, typename T>
 constexpr TMatrix<TRows, TColumns, T> operator/(const TMatrix<TRows, TColumns, T>& lhs,
@@ -56,12 +93,19 @@ struct std::formatter<Math::TMatrix<TRows, TColumns, T>, char>;
 template <unsigned TRows, unsigned TColumns, typename T>
 std::ostream& operator<<(std::ostream& os, const Math::TMatrix<TRows, TColumns, T>& m);
 
-using FMatrix2 = Math::TMatrix<2, 2, float>;
-using FMatrix3 = Math::TMatrix<3, 3, float>;
-using FMatrix4 = Math::TMatrix<4, 4, float>;
+template <typename T>
+using TMatrix2 = Math::TMatrix<2, 2, T>;
+template <typename T>
+using TMatrix3 = Math::TMatrix<3, 3, T>;
+template <typename T>
+using TMatrix4 = Math::TMatrix<4, 4, T>;
 
-using DMatrix2 = Math::TMatrix<2, 2, double>;
-using DMatrix3 = Math::TMatrix<3, 3, double>;
-using DMatrix4 = Math::TMatrix<4, 4, double>;
+using FMatrix2 = TMatrix2<float>;
+using FMatrix3 = TMatrix3<float>;
+using FMatrix4 = TMatrix4<float>;
+
+using DMatrix2 = TMatrix2<double>;
+using DMatrix3 = TMatrix3<double>;
+using DMatrix4 = TMatrix4<double>;
 
 #include "Matrix.inl"

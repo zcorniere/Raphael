@@ -37,7 +37,7 @@ TEST_CASE("ShaderParameterStruct")
     REQUIRE(Members[1].Columns == 1);
     REQUIRE(Members[1].Rows == 1);
 
-    // The odd aligned vec3 is automatically padded to vec4
+    // The odd aligned vec3 should be automatically padded to vec4
     REQUIRE(Members[2].Name == "TestVec3");
     REQUIRE(Members[2].Offset == offsetof(FShaderStruct, TestVec3));
     REQUIRE(Members[2].Size == sizeof(FVector4));    // <-- hence the sizeof vec4

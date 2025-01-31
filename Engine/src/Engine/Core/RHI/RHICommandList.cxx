@@ -43,12 +43,12 @@ void FFRHICommandList::EndRendering()
     Enqueue(new FRHIEndRendering());
 }
 
-void FFRHICommandList::SetPipeline(Ref<RRHIGraphicsPipeline>& Pipeline)
+void FFRHICommandList::SetPipeline(const Ref<RRHIGraphicsPipeline>& Pipeline)
 {
     Enqueue(new FRHISetPipeline(Pipeline));
 }
 
-void FFRHICommandList::SetVertexBuffer(Ref<RRHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset)
+void FFRHICommandList::SetVertexBuffer(const Ref<RRHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset)
 {
     Enqueue(new FRHISetVertexBuffer(VertexBuffer, BufferIndex, Offset));
 }
@@ -68,7 +68,7 @@ void FFRHICommandList::Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32
     Enqueue(new FRHIDraw(BaseVertexIndex, NumPrimitives, NumInstances));
 }
 
-void FFRHICommandList::DrawIndexed(Ref<RRHIBuffer>& IndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
+void FFRHICommandList::DrawIndexed(const Ref<RRHIBuffer>& IndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,
                                    uint32 NumVertices, uint32 StartIndex, uint32 NumPrimitives, uint32 NumInstances)
 {
     Enqueue(new RHIDrawIndexed(IndexBuffer, BaseVertexIndex, FirstInstance, NumVertices, StartIndex, NumPrimitives,

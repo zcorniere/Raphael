@@ -42,6 +42,9 @@ public:
 
     virtual void WaitUntilIdle() = 0;
 
+    virtual void RegisterAssetRender(const RHI::FRHIRenderRequest& Request) = 0;
+    virtual void RegisterActiveCamera(Math::TViewPoint<float>& ViewPoint) = 0;
+
     // ---------------------- RHI Operations --------------------- //
 
     /// @brief Submit a list of command lists to the RHI

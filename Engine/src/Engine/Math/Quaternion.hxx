@@ -18,8 +18,9 @@ struct TQuaternion {
     constexpr TQuaternion();
     constexpr TQuaternion(T w, T x, T y, T z);
 
-    constexpr TMatrix<4, 4, T> GetRotationMatrix() const;
+    constexpr TMatrix4<T> GetRotationMatrix() const;
 
+    constexpr T Length() const;
     constexpr T Dot(const TQuaternion& Other) const;
 
     constexpr TQuaternion Inverse() const;

@@ -1,54 +1,65 @@
 #pragma once
 
+#include "Engine/Math/Math.hxx"
+#include "Engine/Math/Transform.hxx"
+
 namespace Math
 {
 
-class FViewPoint
+template <typename T>
+class TViewPoint
 {
 public:
-    FViewPoint(float FOV, float AspectRatio, float Near, float Far)
-        : m_FOV(FOV), m_AspectRatio(AspectRatio), m_Near(Near), m_Far(Far), bProjectionMatrixDirty(true)
+    TViewPoint() = default;
+
+    /// @brief Construct a new ViewPoint object
+    /// @param FOV The field of view in degrees
+    /// @param AspectRatio The aspect ratio of the screen
+    /// @param Near The near plane
+    /// @param Far The far plane
+    TViewPoint(T FOV, T AspectRatio, T Near, T Far)
+        : m_FOV(DegreeToRadian(FOV)), m_AspectRatio(AspectRatio), m_Near(Near), m_Far(Far), bProjectionMatrixDirty(true)
     {
     }
 
-    void SetFOV(float FOV)
+    void SetFOV(T FOV)
     {
-        m_FOV = FOV;
+        m_FOV = DegreeToRadian(FOV);
         bProjectionMatrixDirty = true;
     }
-    float GetFOV() const
+    T GetFOV() const
     {
         return m_FOV;
     }
-    void SetAspectRatio(float AspectRatio)
+    void SetAspectRatio(T AspectRatio)
     {
         m_AspectRatio = AspectRatio;
         bProjectionMatrixDirty = true;
     }
-    float GetAspectRatio() const
+    T GetAspectRatio() const
     {
         return m_AspectRatio;
     }
-    void SetNear(float Near)
+    void SetNear(T Near)
     {
         m_Near = Near;
         bProjectionMatrixDirty = true;
     }
-    float GetNear() const
+    T GetNear() const
     {
         return m_Near;
     }
-    void SetFar(float Far)
+    void SetFar(T Far)
     {
         m_Far = Far;
         bProjectionMatrixDirty = true;
     }
-    float GetFar() const
+    T GetFar() const
     {
         return m_Far;
     }
 
-    FMatrix4 GetProjectionMatrix()
+    TMatrix4<T> GetProjectionMatrix()
     {
         if (bProjectionMatrixDirty) {
             ComputeProjectionMatrix();
@@ -57,14 +68,28 @@ public:
         return m_ProjectionMatrix;
     }
 
-    void SetLocation(const FVector3& InLocation)
+    TMatrix4<T> GetViewMatrix()
     {
-        Location = InLocation;
+        if (bViewMatrixDirty) {
+            ComputeViewMatrix();
+            bViewMatrixDirty = false;
+        }
+        return m_ViewMatrix;
+    }
+
+    TMatrix4<T> GetViewProjectionMatrix()
+    {
+        return GetProjectionMatrix() * GetViewMatrix();
+    }
+
+    void SetLocation(const TVector3<T>& InLocation)
+    {
+        Transform.SetLocation(InLocation);
         bViewMatrixDirty = true;
     }
-    const FVector3& GetLocation() const
+    const TVector3<T>& GetLocation() const
     {
-        return Location;
+        return Transform.GetLocation();
     }
 
 private:
@@ -72,20 +97,25 @@ private:
     void ComputeViewMatrix();
 
 private:
-    float m_FOV = 0;
-    float m_AspectRatio = 0;
-    float m_Near = 0;
-    float m_Far = 0;
+    /// @brief The field of view in radians
+    T m_FOV = 0;
+
+    T m_AspectRatio = 0;
+    T m_Near = 0;
+    T m_Far = 0;
 
     bool bProjectionMatrixDirty = true;
-    FMatrix4 m_ProjectionMatrix;
+    TMatrix4<T> m_ProjectionMatrix;
 
-    FVector3 Location = {0, 0, 0};
-    FVector3 Rotation = {0, 0, 0};
     bool bViewMatrixDirty = true;
-    FMatrix4 m_ViewMatrix;
+    TMatrix4<T> m_ViewMatrix;
+
+    TTransform<T> Transform;
 };
 
 }    // namespace Math
+
+using FViewPoint = Math::TViewPoint<float>;
+using DViewPoint = Math::TViewPoint<double>;
 
 #include "ViewPoint.inl"

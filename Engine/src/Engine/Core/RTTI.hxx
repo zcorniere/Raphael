@@ -94,12 +94,20 @@ struct FEnable;
 /// Type identifier used to identify types in the RTTI system
 using FTypeId = std::uint32_t;
 
-template <typename TThis, typename... TParents>
-concept IsRTTIValidEnabled =
-    ((... && std::derived_from<TThis, TParents>)) && ((... && std::derived_from<FEnable, TParents>));
+template <typename TThis>
+concept IsRTTIApiAvailable = requires {
+    { TThis::TypeInfo::Name() } -> std::convertible_to<std::string_view>;
+    { TThis::TypeInfo::Id() } -> std::convertible_to<FTypeId>;
+    { TThis::TypeInfo::Is(FTypeId{}) } -> std::convertible_to<bool>;
+    { TThis::TypeInfo::DynamicCast(TThis::TypeInfo::Id(), (TThis*)(nullptr)) } -> std::convertible_to<const void*>;
+    requires requires(TThis& a) { a.GetBaseTypeName(); };
+};
 
 template <typename TThis>
-concept IsRTTIEnabled = std::derived_from<TThis, FEnable>;
+concept IsRTTIEnabled = std::derived_from<TThis, FEnable> && IsRTTIApiAvailable<TThis>;
+
+template <typename TThis, typename... TParents>
+concept IsRTTIValidEnabled = ((... && std::derived_from<TThis, TParents>)) && ((... && IsRTTIEnabled<TParents>));
 
 template <typename TThis, typename... TParents>
 /// Static typeinfo structure for registering types and accessing their information.
@@ -135,7 +143,7 @@ struct TypeInfo {
     /// direct descendance of the type identified by the passed type id. Otherwise
     /// the value returned is a nullptr.
     template <typename T>
-    [[nodiscard]] static const void* DynamicCast(FTypeId typeId, const T* ptr) noexcept
+    [[nodiscard]] constexpr static const void* DynamicCast(FTypeId typeId, const T* ptr) noexcept
     {
         // Check whether the current type matches the requested type.
         if (Id() == typeId) {
@@ -219,6 +227,12 @@ protected:
 
 }    // namespace RTTI
 
+#define __zz_RTTI_EMPTY_FUNCTION(FunctionPrefix, FunctionSuffix)
+#define __zz_RTTI_CAST_FUNCTION(FunctionPrefix, FunctionSuffix)                                          \
+    [[nodiscard]] FunctionPrefix const void* _cast(::RTTI::FTypeId typeId) const noexcept FunctionSuffix \
+    {                                                                                                    \
+        return TypeInfo::Is(typeId) ? TypeInfo::DynamicCast(typeId, this) : nullptr;                     \
+    }
 #define __zz_RTTI_SUPER(T, ...) using Super = T;
 
 /// Macro to be called in the body of each type declaration that is to be part of an
@@ -226,31 +240,36 @@ protected:
 /// need to have been derived from RTTI::Enable.
 /// @param T The type it self.
 /// @param Parents Variadic number of direct parent types of the type
-#define RTTI_DECLARE_TYPEINFO(T, ...)                                                       \
-public:                                                                                     \
-    using TypeInfo = ::RTTI::TypeInfo<T, ##__VA_ARGS__>;                                    \
-    [[nodiscard]] std::string_view GetBaseTypeName() const override                         \
-    {                                                                                       \
-        return ::RTTI::TypeName<T>();                                                       \
-    }                                                                                       \
-    [[nodiscard]] virtual RTTI::FTypeId TypeId() const noexcept override                    \
-    {                                                                                       \
-        return TypeInfo::Id();                                                              \
-    }                                                                                       \
-    [[nodiscard]] virtual bool IsById(::RTTI::FTypeId typeId) const noexcept override       \
-    {                                                                                       \
-        return TypeInfo::Is(typeId);                                                        \
-    }                                                                                       \
-    [[nodiscard]] std::string_view GetTypeName() const                                      \
-    {                                                                                       \
-        return TypeInfo::Name();                                                            \
-    }                                                                                       \
-                                                                                            \
-protected:                                                                                  \
-    [[nodiscard]] virtual const void* _cast(::RTTI::FTypeId typeId) const noexcept override \
-    {                                                                                       \
-        return TypeInfo::Is(typeId) ? TypeInfo::DynamicCast(typeId, this) : nullptr;        \
-    }                                                                                       \
-                                                                                            \
-private:                                                                                    \
+#define RTTI_DECLARE_TYPEINFO_INTERNAL(T, FunctionPrefix, FunctionSuffix, ExtraFonctions, ...)     \
+public:                                                                                            \
+    using TypeInfo = ::RTTI::TypeInfo<T __VA_OPT__(, ##__VA_ARGS__)>;                              \
+    [[nodiscard]] std::string_view GetBaseTypeName() const FunctionSuffix                          \
+    {                                                                                              \
+        return ::RTTI::TypeName<T>();                                                              \
+    }                                                                                              \
+    [[nodiscard]] FunctionPrefix RTTI::FTypeId TypeId() const noexcept FunctionSuffix              \
+    {                                                                                              \
+        return TypeInfo::Id();                                                                     \
+    }                                                                                              \
+    [[nodiscard]] FunctionPrefix bool IsById(::RTTI::FTypeId typeId) const noexcept FunctionSuffix \
+    {                                                                                              \
+        return TypeInfo::Is(typeId);                                                               \
+    }                                                                                              \
+    [[nodiscard]] std::string_view GetTypeName() const                                             \
+    {                                                                                              \
+        return TypeInfo::Name();                                                                   \
+    }                                                                                              \
+                                                                                                   \
+protected:                                                                                         \
+    ExtraFonctions(FunctionPrefix, FunctionSuffix);                                                \
+                                                                                                   \
+private:                                                                                           \
     __VA_OPT__(__zz_RTTI_SUPER(__VA_ARGS__))
+
+// Declare the typeinfo structure for the type, with all the necessary functions
+#define RTTI_DECLARE_TYPEINFO(T, ...) \
+    RTTI_DECLARE_TYPEINFO_INTERNAL(T, virtual, override, __zz_RTTI_CAST_FUNCTION, __VA_ARGS__)
+
+// Declare the typeinfo structure for the type, with the bare necessities, no virtual functions, no cast, only the type
+// infos
+#define RTTI_DECLARE_TYPEINFO_MINIMAL(T) RTTI_DECLARE_TYPEINFO_INTERNAL(T, , , __zz_RTTI_EMPTY_FUNCTION, )

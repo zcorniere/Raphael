@@ -33,6 +33,10 @@ class FNamedClass : public RTTI::FEnable
     RTTI_DECLARE_TYPEINFO(FNamedClass);
 
 public:
+    FNamedClass() = default;
+    FNamedClass(const std::string_view& InName): m_Name(InName)
+    {
+    }
     virtual ~FNamedClass() = default;
 
     /// Give the object a debug name

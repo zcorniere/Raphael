@@ -25,8 +25,7 @@ public:
 
     struct FRenderPassInput {
         FRenderPassInput() = default;
-        FRenderPassInput(Ref<RVulkanBuffer> StorageBuffer)
-            : Type(ERenderPassInputType::StorageBuffer)
+        FRenderPassInput(Ref<RVulkanBuffer> StorageBuffer): Type(ERenderPassInputType::StorageBuffer)
         {
             Input.Add(StorageBuffer);
         }

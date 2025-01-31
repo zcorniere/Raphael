@@ -53,6 +53,11 @@ add_library(
     src/Engine/Core/ECS/ComponentStorage.cxx
     src/Engine/Core/ECS/SystemScheduler.cxx
     src/Engine/Core/ECS/World.cxx
+    src/Engine/Core/ECS/ECS.cxx
+    src/Engine/AssetRegistry/AssetRegistry.cxx
+    src/Engine/AssetRegistry/Asset.cxx
+    src/Engine/AssetRegistry/Material.cxx
+    src/Engine/AssetRegistry/MeshFactory.cxx
     src/Engine/Serialization/StreamWriter.cxx
     src/Engine/Serialization/StreamReader.cxx
     src/Engine/Serialization/FileStream.cxx
@@ -113,6 +118,7 @@ build_tests(
     tests/Math/Vector.cxx
     tests/Math/Matrix.cxx
     tests/Math/Transform.cxx
+    tests/Math/ViewPoint.cxx
     tests/RTTI.cxx
     tests/CommandLine.cxx
 )

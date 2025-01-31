@@ -9,7 +9,7 @@ DECLARE_LOGGER_CATEGORY(Core, LogComponentStorage, Info)
 namespace ecs
 {
 
-class ComponentStorage;
+class FComponentStorage;
 
 // This Type is used to hide the template
 class IComponentEntityMap
@@ -17,17 +17,17 @@ class IComponentEntityMap
 public:
     virtual ~IComponentEntityMap() = default;
 
-    virtual void Remove(Entity EntityID) = 0;
+    virtual void Remove(FEntity EntityID) = 0;
 };
 
 /// This class is used to store the component data in relation of the entity id that uses it
-template <typename T>
-class ComponentEntityMap : public IComponentEntityMap
+template <RTTI::IsRTTIApiAvailable T>
+class TComponentEntityMap : public IComponentEntityMap
 {
 public:
-    virtual ~ComponentEntityMap() = default;
+    virtual ~TComponentEntityMap() = default;
 
-    virtual void Remove(Entity EntityID) override final
+    virtual void Remove(FEntity EntityID) override final
     {
         auto it = Map.find(EntityID);
         if (it == Map.end()) {
@@ -38,27 +38,23 @@ public:
         Map.erase(it);
     }
 
-    void Add(Entity EntityID, T Component)
+    void Add(FEntity EntityID, T Component)
     {
         ComponentsArray.Emplace(std::move(Component));
         Map[EntityID] = ComponentsArray.Size() - 1;
     }
 
-    T* Get(Entity EntityID)
+    T& Get(FEntity EntityID)
     {
         auto it = Map.find(EntityID);
-        if (it == Map.end()) {
-            return nullptr;
-        }
-        return &ComponentsArray[it->second];
+        check(it != Map.end());
+        return ComponentsArray[it->second];
     }
-    const T* Get(Entity EntityID) const
+    const T& Get(FEntity EntityID) const
     {
         auto it = Map.find(EntityID);
-        if (it == Map.end()) {
-            return nullptr;
-        }
-        return &ComponentsArray[it->second];
+        check(it != Map.end());
+        return ComponentsArray[it->second];
     }
 
     const TArray<T>& GetArray() const
@@ -70,114 +66,113 @@ public:
         return ComponentsArray;
     }
 
-    std::unordered_map<Entity, T&> GetMap()
+    std::unordered_map<FEntity, T*> GetMap()
     {
-        std::unordered_map<Entity, T&> result;
-        for (auto& [EntityID, Index]: Map) {
-            result[EntityID] = ComponentsArray[Index];
+        std::unordered_map<FEntity, T*> result;
+        for (const auto& [EntityID, Index]: Map) {
+            result[EntityID] = &ComponentsArray[Index];
         }
         return result;
     }
 
 private:
     TArray<T> ComponentsArray;
-    std::unordered_map<Entity, typename decltype(ComponentsArray)::TSize> Map;
+    std::unordered_map<FEntity, typename decltype(ComponentsArray)::TSize> Map;
 };
 
-class EntityBuilder;
-class ComponentStorage
+class FEntityBuilder;
+class FComponentStorage
 {
 public:
-    ComponentStorage() = default;
+    FComponentStorage() = default;
 
-    template <typename T>
-    requires RTTI::IsRTTIEnabled<T>
+    template <RTTI::IsRTTIApiAvailable T>
     void RegisterComponent()
     {
-        ComponentArrays[typeid(T)] = std::make_unique<ComponentEntityMap<T>>();
+        ComponentArrays[T::TypeInfo::Id()] = std::make_unique<TComponentEntityMap<T>>();
     }
 
-    template <typename T>
-    requires RTTI::IsRTTIEnabled<T>
-    void StoreComponent(Entity EntityID, T Component)
+    template <RTTI::IsRTTIApiAvailable T>
+    void StoreComponent(FEntity EntityID, T Component)
     {
-        ComponentEntityMap<T>* Array = GetComponentArray<T>();
+        TComponentEntityMap<T>* Array = GetComponentArray<T>();
         if (Array == nullptr) {
             return;
         }
         Array->Add(EntityID, std::move(Component));
     }
 
-    template <typename T>
-    requires RTTI::IsRTTIEnabled<T>
-    ComponentEntityMap<T>* GetComponentArray()
+    template <RTTI::IsRTTIApiAvailable T>
+    TComponentEntityMap<T>* GetComponentArray()
     {
-        std::unordered_map<std::type_index, std::unique_ptr<IComponentEntityMap>>::iterator it =
-            ComponentArrays.find(typeid(T));
+        decltype(ComponentArrays)::iterator it = ComponentArrays.find(T::TypeInfo::Id());
+
         if (it == ComponentArrays.end()) {
-            LOG(LogComponentStorage, Error, "Component not registered before use");
-            return nullptr;
+            LOG(LogComponentStorage, Error, "Component type {} not registered before use!", T::TypeInfo::Name());
+            RegisterComponent<T>();
+            return GetComponentArray<T>();
         }
-        return static_cast<ComponentEntityMap<T>*>(it->second.get());
+        return static_cast<TComponentEntityMap<T>*>(it->second.get());
     }
 
-    template <typename FirstType, typename... RestTypes>
-    std::unordered_map<unsigned int, std::tuple<FirstType&, RestTypes&...>>
-    JoinComponents(ComponentEntityMap<FirstType>* FirstComponents, ComponentEntityMap<RestTypes>*... RestOfComponents)
+    template <RTTI::IsRTTIApiAvailable FirstType, RTTI::IsRTTIApiAvailable... RestTypes>
+    TArray<std::pair<unsigned int, std::tuple<FirstType&, RestTypes&...>>> JoinComponents()
     {
-        std::unordered_map<unsigned int, std::tuple<FirstType&, RestTypes&...>> result;
+        TArray<std::pair<unsigned int, std::tuple<FirstType&, RestTypes&...>>> Result;
 
+        TComponentEntityMap<FirstType>* const FirstComponents = GetComponentArray<FirstType>();
         if (FirstComponents == nullptr) {
-            return result;
+            return Result;
         }
+
+        Result.Reserve(FirstComponents->GetArray().Size());
         for (const auto& [EntityID, Component]: FirstComponents->GetMap()) {
-            std::tuple<FirstType&, RestTypes&...> Tuple{Component, RestOfComponents->Get(EntityID)...};
-            result[EntityID] = Tuple;
+            std::tuple<FirstType&, RestTypes&...> Tuple{*Component, GetComponentArray<RestTypes>()->Get(EntityID)...};
+            Result.Add(std::make_pair(EntityID, Tuple));
         }
-        return result;
+        return Result;
     }
 
-    EntityBuilder BuildEntity();
-    void DestroyEntity(Entity EntityID);
+    FEntityBuilder BuildEntity();
+    void DestroyEntity(FEntity EntityID);
 
 private:
-    Entity GetNewEntityID()
+    FEntity GetNewEntityID()
     {
         return DeadEntities.IsEmpty() ? NextEntityID++ : DeadEntities.Pop();
     }
 
 private:
     uint64_t NextEntityID = 0;
-    TArray<Entity> DeadEntities;
-    std::unordered_map<std::type_index, std::unique_ptr<IComponentEntityMap>> ComponentArrays;
+    TArray<FEntity> DeadEntities;
+    std::unordered_map<RTTI::FTypeId, std::unique_ptr<IComponentEntityMap>> ComponentArrays;
 
-    friend class EntityBuilder;
+    friend class FEntityBuilder;
 };
 
-class EntityBuilder
+class FEntityBuilder
 {
 public:
-    EntityBuilder(ComponentStorage& InStorage): Storage(InStorage)
+    FEntityBuilder(FComponentStorage& InStorage): Storage(InStorage)
     {
         EntityID = Storage.GetNewEntityID();
     }
 
-    Entity Build() const
+    FEntity Build() const
     {
         return EntityID;
     }
 
     template <typename T>
-    requires RTTI::IsRTTIEnabled<T>
-    EntityBuilder& WithComponent(T Component)
+    FEntityBuilder& WithComponent(T Component)
     {
         Storage.StoreComponent<T>(EntityID, Component);
         return *this;
     }
 
 private:
-    Entity EntityID;
-    ComponentStorage& Storage;
+    FEntity EntityID;
+    FComponentStorage& Storage;
 };
 
 }    // namespace ecs

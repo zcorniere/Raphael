@@ -77,6 +77,10 @@ public:
     {
         return VulkanPipeline;
     }
+    VkPipelineLayout GetPipelineLayout() const
+    {
+        return PipelineLayout;
+    }
 
 private:
     bool CreatePipelineLayout();

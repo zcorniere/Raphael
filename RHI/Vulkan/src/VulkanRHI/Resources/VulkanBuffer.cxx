@@ -57,11 +57,11 @@ RVulkanBuffer::RVulkanBuffer(FVulkanDevice* InDevice, const FRHIBufferDesc& InDe
             return;
         }
 
-        Memory->FlushMappedMemory(0, Description.ResourceArray->GetByteSize());
         void* const MappedPtr = Memory->Map(Description.ResourceArray->GetByteSize());
         std::memset(MappedPtr, 0, Description.Size);
         std::memcpy(MappedPtr, Description.ResourceArray->GetData(), Description.ResourceArray->GetByteSize());
         Memory->Unmap();
+        Memory->FlushMappedMemory(0, InDescription.ResourceArray->GetByteSize());
     }
 }
 

@@ -17,9 +17,9 @@ constexpr TQuaternion<T>::TQuaternion(T w, T x, T y, T z): x(x), y(y), z(z), w(w
 }
 
 template <typename T>
-constexpr TMatrix<4, 4, T> TQuaternion<T>::GetRotationMatrix() const
+constexpr TMatrix4<T> TQuaternion<T>::GetRotationMatrix() const
 {
-    TMatrix<4, 4, T> Result(0);
+    TMatrix4<T> Result;
 
     T xx(x * x);
     T yy(y * y);
@@ -31,22 +31,25 @@ constexpr TMatrix<4, 4, T> TQuaternion<T>::GetRotationMatrix() const
     T wy(w * y);
     T wz(w * z);
 
-    Result[0][0] = T(1) - T(2) * (yy + zz);
-    Result[0][1] = T(2) * (xy + wz);
-    Result[0][2] = T(2) * (xz - wy);
+    Result[0, 0] = T(1) - T(2) * (yy + zz);
+    Result[0, 1] = T(2) * (xy + wz);
+    Result[0, 2] = T(2) * (xz - wy);
+    Result[0, 3] = T(0);
 
-    Result[1][0] = T(2) * (xy - wz);
-    Result[1][1] = T(1) - T(2) * (xx + zz);
-    Result[1][2] = T(2) * (yz + wx);
+    Result[1, 0] = T(2) * (xy - wz);
+    Result[1, 1] = T(1) - T(2) * (xx + zz);
+    Result[1, 2] = T(2) * (yz + wx);
+    Result[1, 3] = T(0);
 
-    Result[2][0] = T(2) * (xz + wy);
-    Result[2][1] = T(2) * (yz - wx);
-    Result[2][2] = T(1) - T(2) * (xx + yy);
+    Result[2, 0] = T(2) * (xz + wy);
+    Result[2, 1] = T(2) * (yz - wx);
+    Result[2, 2] = T(1) - T(2) * (xx + yy);
+    Result[2, 3] = T(0);
 
-    Result[3][0] = 0;
-    Result[3][1] = 0;
-    Result[3][2] = 0;
-    Result[3][3] = 1;
+    Result[3, 0] = T(0);
+    Result[3, 1] = T(0);
+    Result[3, 2] = T(0);
+    Result[3, 3] = T(1);
 
     return Result;
 }
@@ -69,9 +72,7 @@ template <typename T>
 constexpr void TQuaternion<T>::Inverse()
 {
     const T Norm = Dot(*this);
-    if (Norm == 0) {
-        return;
-    }
+    assert(Norm != 0);
 
     x = -x / Norm;
     y = -y / Norm;
@@ -88,9 +89,18 @@ constexpr TQuaternion<T> TQuaternion<T>::Normalize() const
 }
 
 template <typename T>
+constexpr T TQuaternion<T>::Length() const
+{
+    return std::sqrt(Dot(*this));
+}
+
+template <typename T>
 constexpr void TQuaternion<T>::Normalize()
 {
-    const T Norm = 1 / std::sqrt(Dot(*this));
+    const T Length = this->Length();
+    assert(Length != 0);
+
+    const T Norm = T(1) / Length;
 
     x *= Norm;
     y *= Norm;

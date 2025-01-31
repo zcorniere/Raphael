@@ -38,16 +38,27 @@ public:
     }
 
     void SetVertexBuffer(Ref<RVulkanBuffer>& Buffer, uint32 BufferIndex = 0, uint32 Offset = 0);
+    void SetPipeline(Ref<RRHIGraphicsPipeline>& Pipeline);
 
     void Bind(VkCommandBuffer CmdBuffer)
     {
         CurrentPipeline->Bind(CmdBuffer);
     }
 
+    template <typename T>
+    requires std::is_standard_layout_v<T>
+    void SetPushConstant(const T& Data)
+    {
+        PushConstantData.Resize(sizeof(T));
+        std::memcpy(PushConstantData.Raw(), &Data, sizeof(T));
+    }
+
     void PrepareForDraw(FVulkanCmdBuffer* CommandBuffer);
     bool SetGraphicsPipeline(Ref<RVulkanGraphicsPipeline>& InPipeline, bool bForceReset = false);
 
 private:
+    TArray<uint8> PushConstantData;
+
     TArray<VkViewport> Viewports;
     TArray<VkRect2D> Scissors;
 

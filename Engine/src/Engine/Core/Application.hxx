@@ -4,8 +4,9 @@
 #include "Engine/Core/RHI/Resources/RHIViewport.hxx"
 #include "Engine/Core/Window.hxx"
 
-class IApplication
+class IApplication : public RTTI::FEnable
 {
+    RTTI_DECLARE_TYPEINFO(IApplication)
 public:
     virtual ~IApplication()
     {
@@ -23,6 +24,7 @@ public:
 
 class FBaseApplication : public IApplication
 {
+    RTTI_DECLARE_TYPEINFO(FBaseApplication, IApplication)
 public:
     virtual ~FBaseApplication()
     {

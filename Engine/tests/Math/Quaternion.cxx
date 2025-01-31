@@ -18,14 +18,21 @@ TEST_CASE("Quaternion operations")
     Catch::StringMaker<float>::precision = 25;
     Catch::StringMaker<double>::precision = 25;
 
+    const glm::quat _q1{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
+                        GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f)))};
+    const glm::quat _q2{
+        GENERATE(take(1, random(-50.0f, 50.0f))),
+        GENERATE(take(1, random(-50.0f, 50.0f))),
+        GENERATE(take(1, random(-50.0f, 50.0f))),
+        GENERATE(take(1, random(-50.0f, 50.0f))),
+    };
+
+    const FQuaternion q1(_q1.w, _q1.x, _q1.y, _q1.z);
+    const FQuaternion q2(_q2.w, _q2.x, _q2.y, _q2.z);
+
     SECTION("Quaternion multiplication")
     {
-        const glm::quat _q1{1.0f, 2.0f, 3.0f, 4.0f};
-        const glm::quat _q2{5.0f, 6.0f, 7.0f, 8.0f};
         const glm::quat ExpectedResult = _q1 * _q2;
-
-        const FQuaternion q1(1.0f, 2.0f, 3.0f, 4.0f);
-        const FQuaternion q2(5.0f, 6.0f, 7.0f, 8.0f);
         const FQuaternion Result = q1 * q2;
 
         CHECK_THAT(Result.w, Catch::Matchers::WithinRel(ExpectedResult.w));
@@ -36,11 +43,9 @@ TEST_CASE("Quaternion operations")
 
     SECTION("Quaternion inverse")
     {
-        const glm::quat _q{1.0f, 2.0f, 3.0f, 4.0f};
-        const glm::quat ExpectedResult = glm::inverse(_q);
+        const glm::quat ExpectedResult = glm::inverse(_q1);
 
-        const FQuaternion q{1.0f, 2.0f, 3.0f, 4.0f};
-        const FQuaternion result = q.Inverse();
+        const FQuaternion result = q1.Inverse();
 
         CHECK_THAT(result.w, Catch::Matchers::WithinRel(ExpectedResult.w));
         CHECK_THAT(result.x, Catch::Matchers::WithinRel(ExpectedResult.x));
@@ -50,11 +55,9 @@ TEST_CASE("Quaternion operations")
 
     SECTION("Quaternion normalization")
     {
-        const glm::quat _q{1.0f, 2.0f, 3.0f, 4.0f};
-        const glm::quat ExpectedResult = glm::normalize(_q);
+        const glm::quat ExpectedResult = glm::normalize(_q1);
 
-        const FQuaternion q{1.0f, 2.0f, 3.0f, 4.0f};
-        const FQuaternion result = q.Normalize();
+        const FQuaternion result = q1.Normalize();
 
         CHECK_THAT(result.w, Catch::Matchers::WithinRel(ExpectedResult.w));
         CHECK_THAT(result.x, Catch::Matchers::WithinRel(ExpectedResult.x));
@@ -64,12 +67,7 @@ TEST_CASE("Quaternion operations")
 
     SECTION("Quaternion dot product")
     {
-        const glm::quat _q1{1.0f, 2.0f, 3.0f, 4.0f};
-        const glm::quat _q2{5.0f, 6.0f, 7.0f, 8.0f};
         const float ExpectedResult = glm::dot(_q1, _q2);
-
-        const FQuaternion q1{1.0f, 2.0f, 3.0f, 4.0f};
-        const FQuaternion q2{5.0f, 6.0f, 7.0f, 8.0f};
         const float Result = q1.Dot(q2);
 
         CHECK_THAT(Result, Catch::Matchers::WithinRel(ExpectedResult));
@@ -77,27 +75,26 @@ TEST_CASE("Quaternion operations")
 
     SECTION("Quaternion equality")
     {
-        const glm::quat _q1{1.0f, 2.0f, 3.0f, 4.0f};
-        const glm::quat _q2{1.0f, 2.0f, 3.0f, 4.0f};
+        const glm::quat _q3 = _q2;
 
-        const FQuaternion q1{1.0f, 2.0f, 3.0f, 4.0f};
-        const FQuaternion q2{1.0f, 2.0f, 3.0f, 4.0f};
+        const FQuaternion q3 = q2;
 
-        REQUIRE(q1 == q2);
+        REQUIRE(q3.w == _q3.w);
+        REQUIRE(q3.x == _q3.x);
+        REQUIRE(q3.y == _q3.y);
+        REQUIRE(q3.z == _q3.z);
     }
 
     SECTION("Quaternion rotation matrix")
     {
-        const glm::quat _q{1.0f, 2.0f, 3.0f, 4.0f};
-        const glm::mat4 ExpectedResult = glm::toMat4(_q);
+        const glm::mat4 ExpectedResult = glm::toMat4(_q1);
 
-        const FQuaternion q{1.0f, 2.0f, 3.0f, 4.0f};
-        const FMatrix4 Result = q.GetRotationMatrix();
+        const FMatrix4 Result = q1.GetRotationMatrix();
 
-        INFO("Quaternion: " << glm::to_string(_q));
+        INFO("Quaternion: " << glm::to_string(_q1));
         INFO("Expected: " << glm::to_string(ExpectedResult));
 
-        INFO("Quaternion: " << q);
+        INFO("Quaternion: " << q1);
         INFO("Result: " << Result);
         for (unsigned i = 0; i < 4; i++) {
             for (unsigned j = 0; j < 4; j++) {
