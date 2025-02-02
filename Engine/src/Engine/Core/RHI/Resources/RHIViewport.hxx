@@ -21,4 +21,8 @@ public:
     virtual Ref<RRHITexture> GetBackbuffer() const = 0;
 
     virtual UVector2 GetSize() const = 0;
+    virtual float GetAspectRatio() const
+    {
+        return static_cast<float>(GetSize().x) / static_cast<float>(GetSize().y);
+    }
 };

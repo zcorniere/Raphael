@@ -77,7 +77,7 @@ bool EditorApplication::OnEngineInitialization()
     CameraEntity = World->CreateEntity()
                        .WithComponent(ecs::TCameraComponent<float>({
                            .bIsActive = true,
-                           .ViewPoint = {80.f, 16.f / 9.f, 0.01, 1000000.f},
+                           .ViewPoint = {80.f, 0.01, 1000000.f},
                        }))
                        .Build();
 
@@ -85,11 +85,7 @@ bool EditorApplication::OnEngineInitialization()
         Transform.GetRotation().y += 3.f;
         Transform.SetLocation({0.0f, 3.0f, 0.0f});
     });
-    World->RegisterSystem([](ecs::FCameraComponent& Cam) {
-        Cam.ViewPoint.SetLocation({0.0f, -3.0f, 0.f});
-
-        LOG(LogApplication, Info, "Camera Location: {}", Cam.ViewPoint.GetLocation());
-    });
+    World->RegisterSystem([](ecs::FCameraComponent& Cam) { Cam.ViewPoint.SetLocation({0.0f, -3.0f, 0.f}); });
     World->RegisterSystem(RHI::RenderSystem);
     World->RegisterSystem(RHI::CameraSystem);
 

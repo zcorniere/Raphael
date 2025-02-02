@@ -4,6 +4,9 @@ namespace Math
 template <typename T>
 void TViewPoint<T>::ComputeProjectionMatrix()
 {
+    if (m_AspectRatio == 0.0f) {
+        LOG(LogMath, Error, "Aspect ratio is 0");
+    }
     const T tanHalfFOV = std::tan(m_FOV / T(2));
 
     TMatrix4<T> NewProjectionMatrix;

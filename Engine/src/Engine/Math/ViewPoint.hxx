@@ -14,11 +14,16 @@ public:
 
     /// @brief Construct a new ViewPoint object
     /// @param FOV The field of view in degrees
-    /// @param AspectRatio The aspect ratio of the screen
     /// @param Near The near plane
     /// @param Far The far plane
-    TViewPoint(T FOV, T AspectRatio, T Near, T Far)
-        : m_FOV(DegreeToRadian(FOV)), m_AspectRatio(AspectRatio), m_Near(Near), m_Far(Far), bProjectionMatrixDirty(true)
+    /// @param AspectRatio The aspect ratio of the screen
+    TViewPoint(T FOV, T Near, T Far, T AspectRatio = 0.0f, TTransform<T> InTransform = TTransform<T>())
+        : m_FOV(DegreeToRadian(FOV)),
+          m_AspectRatio(AspectRatio),
+          m_Near(Near),
+          m_Far(Far),
+          bProjectionMatrixDirty(true),
+          Transform(InTransform)
     {
     }
 

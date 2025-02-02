@@ -62,6 +62,8 @@ void FVulkanDynamicRHI::Tick(float fDeltaTime)
     ENQUEUE_RENDER_COMMAND(BeginFrame)([](FFRHICommandList& CommandList) { CommandList.BeginFrame(); });
 
     Ref<RRHIViewport> Viewport(GEngine->GetWorld()->Viewport);
+    ActiveCamera.SetAspectRatio(Viewport->GetAspectRatio());
+
     ENQUEUE_RENDER_COMMAND(SetViewportSize)
     ([Viewport](FFRHICommandList& CommandList) {
         CommandList.SetViewport(
@@ -90,7 +92,6 @@ void FVulkanDynamicRHI::Tick(float fDeltaTime)
     });
 
     for (auto& [AssetName, RenderRequests]: RenderRequests) {
-
         ENQUEUE_RENDER_COMMAND(Render)
         ([this, RenderRequests](FFRHICommandList& CommandList) mutable {
             for (RHI::FRHIRenderRequest& Request: RenderRequests) {
