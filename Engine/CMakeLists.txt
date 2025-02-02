@@ -116,6 +116,7 @@ build_tests(
     tests/RHIShaderParametersTest.cxx
     tests/Math/Quaternion.cxx
     tests/Math/Vector.cxx
+    tests/Math/Math.cxx
     tests/Math/Matrix.cxx
     tests/Math/Transform.cxx
     tests/Math/ViewPoint.cxx
