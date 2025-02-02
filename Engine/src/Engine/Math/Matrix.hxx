@@ -1,7 +1,9 @@
 #pragma once
 
-#include <cassert>
-#include <type_traits>
+#if RPH_NAN_CHECKS
+    #include <cmath>
+#endif    // RPH_NAN_CHECKS
+
 namespace Math
 {
 
@@ -47,14 +49,8 @@ public:
     constexpr TVector<TColumns, T>& operator[](unsigned Index);
     constexpr const TVector<TColumns, T>& operator[](unsigned Index) const;
 
-    constexpr T& operator[](unsigned Row, unsigned Column)
-    {
-        return Data[Row][Column];
-    }
-    constexpr T operator[](unsigned Row, unsigned Column) const
-    {
-        return Data[Row][Column];
-    }
+    constexpr T& operator[](unsigned Row, unsigned Column);
+    constexpr T operator[](unsigned Row, unsigned Column) const;
 
 private:
     ColumnType Data[Rows];
@@ -84,6 +80,10 @@ constexpr TMatrix<TRows, TColumns, T> operator/(const TMatrix<TRows, TColumns, T
 
 template <unsigned TRows, unsigned TColumns, typename T>
 constexpr bool operator==(const TMatrix<TRows, TColumns, T>& lhs, const TMatrix<TRows, TColumns, T>& rhs);
+
+template <unsigned TRows, unsigned TColumns, typename T>
+requires std::is_floating_point_v<T>
+void CheckNaN(const TMatrix<TRows, TColumns, T>& m);
 
 }    // namespace Math
 

@@ -118,6 +118,10 @@ private:
     TTransform<T> Transform;
 };
 
+template <typename T>
+requires std::is_floating_point_v<T>
+void CheckNan(const TViewPoint<T>& Value);
+
 }    // namespace Math
 
 using FViewPoint = Math::TViewPoint<float>;

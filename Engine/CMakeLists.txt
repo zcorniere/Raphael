@@ -14,6 +14,7 @@ else()
     message(FATAL_ERROR "${SELECTED_RHI} is not supported !")
 endif()
 
+
 add_subdirectory(External/)
 
 if(WIN32)
@@ -132,3 +133,12 @@ if(RPH_ENABLE_PROFILING)
     endif(RPH_ENABLE_MEMORY_PROFILING)
     target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
 endif(RPH_ENABLE_PROFILING)
+
+option(RPH_NAN_CHECKS "Enable NaN checks in the engine" ON)
+if(RPH_NAN_CHECKS)
+    message(STATUS "RPH - NaN checks enabled")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC RPH_NAN_CHECKS=1)
+else()
+    message(STATUS "RPH - NaN checks disabled")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC RPH_NAN_CHECKS=0)
+endif(RPH_NAN_CHECKS)

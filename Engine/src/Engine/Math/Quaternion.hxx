@@ -6,6 +6,7 @@ namespace Math
 {
 
 template <typename T>
+requires std::is_floating_point_v<T>
 struct TQuaternion {
     using Type = T;
     union {
@@ -35,6 +36,9 @@ constexpr TQuaternion<T> operator*(const TQuaternion<T>& lhs, const TQuaternion<
 
 template <typename T>
 constexpr bool operator==(const TQuaternion<T>& lhs, const TQuaternion<T>& rhs);
+
+template <typename T>
+void CheckNaN(const TQuaternion<T>& q);
 
 }    // namespace Math
 

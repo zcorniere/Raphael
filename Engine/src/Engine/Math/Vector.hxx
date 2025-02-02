@@ -1,5 +1,9 @@
 #pragma once
 
+#if RPH_NAN_CHECKS
+    #include <cmath>
+#endif    // RPH_NAN_CHECKS
+
 namespace Math
 {
 
@@ -104,6 +108,10 @@ template <unsigned Size, typename T>
 constexpr std::strong_ordering operator<=>(const TVector<Size, T>& lhs, const TVector<Size, T>& rhs);
 template <unsigned Size, typename T>
 constexpr bool operator==(const TVector<Size, T>& lhs, const TVector<Size, T>& rhs);
+
+template <unsigned Size, typename T>
+requires std::is_floating_point_v<T>
+void CheckNaN(const TVector<Size, T>& v);
 
 }    // namespace Math
 

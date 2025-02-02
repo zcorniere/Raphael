@@ -15,9 +15,6 @@
 #include <Engine/Core/RTTI.hxx>
 #include <Engine/Misc/MiscDefines.hxx>
 
-#include <Engine/Math/Matrix.hxx>
-#include <Engine/Math/Vector.hxx>
-
 #include <Engine/Core/Memory/Memory.hxx>
 #include <Engine/Core/RObject.hxx>
 
@@ -29,6 +26,11 @@
 #include <Engine/Misc/Hash.hxx>
 
 #include <Engine/Platforms/Platform.hxx>
+
+#include <Engine/Math/Matrix.hxx>
+#include <Engine/Math/Vector.hxx>
+
+#include <Engine/Math/Math.hxx>
 
 #include <Engine/Containers/Array.hxx>
 #include <Engine/Containers/ArrayView.hxx>

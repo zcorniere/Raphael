@@ -45,6 +45,18 @@ constexpr const TVector<TColumns, T>& TMatrix<TRows, TColumns, T>::operator[](un
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
+constexpr T& TMatrix<TRows, TColumns, T>::operator[](unsigned Row, unsigned Column)
+{
+    return Data[Row][Column];
+}
+
+template <unsigned TRows, unsigned TColumns, typename T>
+constexpr T TMatrix<TRows, TColumns, T>::operator[](unsigned Row, unsigned Column) const
+{
+    return Data[Row][Column];
+}
+
+template <unsigned TRows, unsigned TColumns, typename T>
 constexpr TMatrix<TRows, TColumns, T> operator+(const TMatrix<TRows, TColumns, T>& lhs,
                                                 const TMatrix<TRows, TColumns, T>& rhs)
 {
@@ -143,6 +155,22 @@ constexpr bool operator==(const TMatrix<TRows, TColumns, T>& lhs, const TMatrix<
         }
     }
     return true;
+}
+
+template <unsigned TRows, unsigned TColumns, typename T>
+requires std::is_floating_point_v<T>
+void CheckNaN(const TMatrix<TRows, TColumns, T>& m)
+{
+#if RPH_NAN_CHECKS
+    for (unsigned i = 0; i < TRows; i++) {
+        for (unsigned j = 0; j < TColumns; j++) {
+            ensureAlwaysMsg(!std::isnan(m[i, j]), "NaN detected in Matrix<{}, {}, {}> at index {}", TRows, TColumns,
+                            RTTI::TypeName<T>(), i);
+        }
+    }
+#else
+    (void)m;
+#endif    // RPH_NAN_CHECKS
 }
 
 }    // namespace Math

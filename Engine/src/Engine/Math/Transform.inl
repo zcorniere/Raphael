@@ -10,6 +10,7 @@ TTransform<T>::TTransform(const TVector3<T>& InLocation, const TQuaternion<T>& I
 template <typename T>
 void TTransform<T>::SetLocation(const TVector3<T>& InLocation)
 {
+    Math::CheckNaN(InLocation);
     Location = InLocation;
     bModelMatrixDirty = true;
 }
@@ -17,6 +18,7 @@ void TTransform<T>::SetLocation(const TVector3<T>& InLocation)
 template <typename T>
 void TTransform<T>::SetRotation(const TQuaternion<T>& InRotation)
 {
+    Math::CheckNaN(InRotation);
     Rotation = InRotation;
     bModelMatrixDirty = true;
 }
@@ -24,6 +26,7 @@ void TTransform<T>::SetRotation(const TQuaternion<T>& InRotation)
 template <typename T>
 void TTransform<T>::SetScale(const TVector3<T>& InScale)
 {
+    Math::CheckNaN(InScale);
     Scale = InScale;
     bModelMatrixDirty = true;
 }
@@ -69,6 +72,7 @@ FMatrix4 TTransform<T>::GetModelMatrix()
 {
     if (bModelMatrixDirty) {
         ModelMatrix = GetTranslationMatrix() * Rotation.GetRotationMatrix() * GetScaleMatrix();
+        Math::CheckNaN(ModelMatrix);
         bModelMatrixDirty = false;
     }
     return ModelMatrix;

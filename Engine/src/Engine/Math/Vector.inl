@@ -226,4 +226,18 @@ constexpr bool operator==(const TVector<Size, T>& lhs, const TVector<Size, T>& r
     return (lhs <=> rhs) == std::strong_ordering::equal;
 }
 
+template <unsigned Size, typename T>
+requires std::is_floating_point_v<T>
+void CheckNaN(const TVector<Size, T>& v)
+{
+#if RPH_NAN_CHECKS
+    for (unsigned i = 0; i < Size; i++) {
+        ensureAlwaysMsg(!std::isnan(v.data[i]), "NaN detected in Vector<{}, {}> at index {}", Size, RTTI::TypeName<T>(),
+                        i);
+    }
+#else
+    (void)v;
+#endif    // RPH_NAN_CHECKS
+}
+
 }    // namespace Math

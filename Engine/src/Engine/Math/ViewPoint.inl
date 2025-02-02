@@ -4,9 +4,7 @@ namespace Math
 template <typename T>
 void TViewPoint<T>::ComputeProjectionMatrix()
 {
-    if (m_AspectRatio == 0.0f) {
-        LOG(LogMath, Error, "Aspect ratio is 0");
-    }
+    ensureAlways(m_AspectRatio != 0.0f);
     const T tanHalfFOV = std::tan(m_FOV / T(2));
 
     TMatrix4<T> NewProjectionMatrix;
@@ -43,6 +41,19 @@ void TViewPoint<T>::ComputeViewMatrix()
     FinalMatrix[3][3] = 1.0;
 
     m_ViewMatrix = FinalMatrix;
+}
+
+template <typename T>
+void CheckNan(const TViewPoint<T>& Value)
+{
+    ensureAlwaysMsg(!std::isnan(Value.m_FOV), "NaN detected in ViewPoint<{}> FOV", RTTI::TypeName<T>());
+    ensureAlwaysMsg(!std::isnan(Value.m_AspectRatio), "NaN detected in ViewPoint<{}> AspectRatio", RTTI::TypeName<T>());
+    ensureAlwaysMsg(!std::isnan(Value.m_Near), "NaN detected in ViewPoint<{}> Near", RTTI::TypeName<T>());
+    ensureAlwaysMsg(!std::isnan(Value.m_Far), "NaN detected in ViewPoint<{}> Far", RTTI::TypeName<T>());
+
+    CheckNaN(Value.Transform);
+    CheckNaN(Value.m_ProjectionMatrix);
+    CheckNaN(Value.m_ViewMatrix);
 }
 
 }    // namespace Math

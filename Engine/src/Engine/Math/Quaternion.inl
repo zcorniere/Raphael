@@ -4,6 +4,7 @@ namespace Math
 {
 
 template <typename T>
+requires std::is_floating_point_v<T>
 constexpr TQuaternion<T>::TQuaternion()
 {
     x = y = z = 0;
@@ -12,11 +13,13 @@ constexpr TQuaternion<T>::TQuaternion()
 }
 
 template <typename T>
+requires std::is_floating_point_v<T>
 constexpr TQuaternion<T>::TQuaternion(T w, T x, T y, T z): x(x), y(y), z(z), w(w)
 {
 }
 
 template <typename T>
+requires std::is_floating_point_v<T>
 constexpr TMatrix4<T> TQuaternion<T>::GetRotationMatrix() const
 {
     TMatrix4<T> Result;
@@ -55,12 +58,14 @@ constexpr TMatrix4<T> TQuaternion<T>::GetRotationMatrix() const
 }
 
 template <typename T>
+requires std::is_floating_point_v<T>
 constexpr T TQuaternion<T>::Dot(const TQuaternion& Other) const
 {
     return x * Other.x + y * Other.y + z * Other.z + w * Other.w;
 }
 
 template <typename T>
+requires std::is_floating_point_v<T>
 constexpr TQuaternion<T> TQuaternion<T>::Inverse() const
 {
     TQuaternion<T> Result = *this;
@@ -69,6 +74,7 @@ constexpr TQuaternion<T> TQuaternion<T>::Inverse() const
 }
 
 template <typename T>
+requires std::is_floating_point_v<T>
 constexpr void TQuaternion<T>::Inverse()
 {
     const T Norm = Dot(*this);
@@ -81,6 +87,7 @@ constexpr void TQuaternion<T>::Inverse()
 }
 
 template <typename T>
+requires std::is_floating_point_v<T>
 constexpr TQuaternion<T> TQuaternion<T>::Normalize() const
 {
     TQuaternion<T> Result = *this;
@@ -89,12 +96,14 @@ constexpr TQuaternion<T> TQuaternion<T>::Normalize() const
 }
 
 template <typename T>
+requires std::is_floating_point_v<T>
 constexpr T TQuaternion<T>::Length() const
 {
     return std::sqrt(Dot(*this));
 }
 
 template <typename T>
+requires std::is_floating_point_v<T>
 constexpr void TQuaternion<T>::Normalize()
 {
     const T Length = this->Length();
@@ -109,12 +118,14 @@ constexpr void TQuaternion<T>::Normalize()
 }
 
 template <typename T>
+requires std::is_floating_point_v<T>
 constexpr bool operator==(const TQuaternion<T>& lhs, const TQuaternion<T>& rhs)
 {
     return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.w == rhs.w;
 }
 
 template <typename T>
+requires std::is_floating_point_v<T>
 constexpr TQuaternion<T> operator*(const TQuaternion<T>& lhs, const TQuaternion<T>& rhs)
 {
     TQuaternion<T> Result;
@@ -124,6 +135,17 @@ constexpr TQuaternion<T> operator*(const TQuaternion<T>& lhs, const TQuaternion<
     Result.y = lhs.w * rhs.y + lhs.y * rhs.w + lhs.z * rhs.x - lhs.x * rhs.z;
     Result.z = lhs.w * rhs.z + lhs.z * rhs.w + lhs.x * rhs.y - lhs.y * rhs.x;
     return Result;
+}
+
+template <typename T>
+void CheckNaN(const TQuaternion<T>& q)
+{
+#if RPH_NAN_CHECKS
+    ensureAlwaysMsg(!std::isnan(q.x) && !std::isnan(q.y) && !std::isnan(q.z) && !std::isnan(q.w),
+                    "NaN detected in Quaternion");
+#else
+    (void)q;
+#endif    // RPH_NAN_CHECKS
 }
 
 }    // namespace Math
