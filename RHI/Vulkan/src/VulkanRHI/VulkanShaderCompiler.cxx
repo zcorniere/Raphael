@@ -1,10 +1,12 @@
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 
+#include "Engine/Misc/DataLocation.hxx"
 #include "Engine/Misc/Utils.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 
 #include "VulkanShaderCompiler.hxx"
+
 #include <shaderc/shaderc.hpp>
 #include <spirv_cross.hpp>
 
@@ -31,6 +33,50 @@ namespace VulkanRHI
 
 namespace Utils
 {
+    class ShaderIncluder : public shaderc::CompileOptions::IncluderInterface
+    {
+        shaderc_include_result* GetInclude(const char* requestedSource, shaderc_include_type type,
+                                           const char* requestingSource, size_t includeDepth) override final
+        {
+            (void)includeDepth;
+
+            std::filesystem::path FileName;
+            switch (type) {
+                case shaderc_include_type_relative: {
+                    const std::filesystem::path msg(requestingSource);
+                    FileName = msg.parent_path() / requestedSource;
+                } break;
+                case shaderc_include_type_standard: {
+                    FileName = DataLocationFinder::GetShaderPath() / requestedSource;
+                } break;
+            }
+
+            std::string* Container = new std::string[2];
+            Container[0] = FileName.string();
+            Container[1] = ::Utils::ReadFile(FileName);
+
+            if (Container[1].empty()) {
+                LOG(LogVulkanShaderCompiler, Error, "Failed to read include file: {}", FileName.string());
+                delete[] Container;
+                return nullptr;
+            }
+
+            shaderc_include_result* const Result = new shaderc_include_result;
+            Result->user_data = Container;
+            Result->source_name = Container[0].data();
+            Result->source_name_length = Container[0].size();
+            Result->content = Container[1].data();
+            Result->content_length = Container[1].size();
+            return Result;
+        }
+        void ReleaseInclude(shaderc_include_result* data) override final
+        {
+            std::string* const Container = static_cast<std::string*>(data->user_data);
+            delete[] Container;
+
+            delete data;
+        }
+    };
 
     static shaderc::CompileOptions GetCompileOption(FVulkanShaderCompiler::EOptimizationLevel Level)
     {
@@ -216,8 +262,9 @@ bool FVulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
 
     LOG(LogVulkanShaderCompiler, Trace, "Optimization Level: {}", magic_enum::enum_name(Level));
 
-    shaderc::CompileOptions Options = Utils::GetCompileOption(Level);
     shaderc_shader_kind ShaderKind = Utils::ShaderTypeToShaderc(Result.ShaderType);
+    shaderc::CompileOptions Options = Utils::GetCompileOption(Level);
+    Options.SetIncluder(std::make_unique<Utils::ShaderIncluder>());
 
     Result.Status = ECompilationStatus::PreProcess;
     shaderc::PreprocessedSourceCompilationResult PreProcessResult =
