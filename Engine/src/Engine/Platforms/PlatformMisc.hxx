@@ -66,8 +66,12 @@ public:
         return EBoxReturnType::Ok;
     }
 
-    static IMallocInterface* BaseAllocator()
+    /// @brief Platform independent function to allocate memory
+    /// @param TargetMemory The location reserved for the allocator (it is exaclty the size of IMallocInterface)
+    /// @return if the allocator is ready to be used. If false, the program will exit immediately
+    static bool BaseAllocator(void* TargetMemory)
     {
+        (void)TargetMemory;
         checkNoEntry();
     }
 

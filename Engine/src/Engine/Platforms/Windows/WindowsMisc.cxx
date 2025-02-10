@@ -1,6 +1,9 @@
 #include "Engine/Platforms/Windows/WindowsMisc.hxx"
 
 #include "Engine/Core/Memory/MiMalloc.hxx"
+#include "Engine/Core/Memory/StdMalloc.hxx"
+#include "Engine/Misc/Assertions.hxx"
+#include "Engine/Misc/CommandLine.hxx"
 
 #include <windows.h>
 
@@ -58,11 +61,16 @@ void* RWindowsExternalModule::GetSymbol_Internal(std::string_view SymbolName) co
     return ::GetProcAddress(HMODULE(ModuleHandle), SymbolName.data());
 }
 
-IMallocInterface* FWindowsMisc::BaseAllocator()
+bool FWindowsMisc::BaseAllocator(void* TargetMemory)
 {
-    void* Ptr = std::malloc(sizeof(FMiMalloc));
-    new (Ptr) FMiMalloc;
-    return reinterpret_cast<FMiMalloc*>(Ptr);
+    checkNoReentry();
+
+    if (FCommandLine::Param("usemimalloc")) {
+        new (TargetMemory) FMiMalloc;
+    } else {
+        new (TargetMemory) FStdMalloc;
+    }
+    return true;
 }
 
 Ref<IExternalModule> FWindowsMisc::LoadExternalModule(const std::string& ModuleName)

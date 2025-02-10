@@ -11,12 +11,19 @@ static void EnsureAllocatorIsSetup()
     // Note: must manually allocate the memory
     if (!GMalloc) [[unlikely]] {
         checkNoReentry();
-        GMalloc = FPlatformMisc::BaseAllocator();
+
+        static char AllocatorMemory[sizeof(IMallocInterface)];
+        std::memset(AllocatorMemory, 0, sizeof(IMallocInterface));
+        if (!FPlatformMisc::BaseAllocator(AllocatorMemory)) {
+            checkNoEntry();
+        }
+        GMalloc = reinterpret_cast<IMallocInterface*>(AllocatorMemory);
 
 #if RPH_POISON_ALLOCATION
         if (GMalloc->SupportPoison()) {
-            void* const AllocPoisonMemory = std::malloc(sizeof(FAllocatorPoison));
-            GMalloc = new (AllocPoisonMemory) FAllocatorPoison(GMalloc);
+            static char PoisonAllocatorMemory[sizeof(FAllocatorPoison)];
+            new (PoisonAllocatorMemory) FAllocatorPoison(GMalloc);
+            GMalloc = reinterpret_cast<IMallocInterface*>(PoisonAllocatorMemory);
         }
 #endif
     }

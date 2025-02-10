@@ -3,7 +3,9 @@
 #include "Engine/Core/Window.hxx"
 
 #include "Engine/Core/Memory/MiMalloc.hxx"
+#include "Engine/Core/Memory/StdMalloc.hxx"
 #include "Engine/Misc/Assertions.hxx"
+#include "Engine/Misc/CommandLine.hxx"
 
 #include <ModernDialogs.h>
 #include <dlfcn.h>
@@ -64,12 +66,16 @@ void* RLinuxExternalModule::GetSymbol_Internal(std::string_view SymbolName) cons
     return dlsym(ModuleHandle, SymbolName.data());
 }
 
-IMallocInterface* FLinuxMisc::BaseAllocator()
+bool FLinuxMisc::BaseAllocator(void* TargetMemory)
 {
     checkNoReentry();
-    void* const Ptr = std::malloc(sizeof(FMiMalloc));
-    new (Ptr) FMiMalloc;
-    return reinterpret_cast<FMiMalloc*>(Ptr);
+
+    if (FCommandLine::Param("usemimalloc")) {
+        new (TargetMemory) FMiMalloc;
+    } else {
+        new (TargetMemory) FStdMalloc;
+    }
+    return true;
 }
 
 Ref<IExternalModule> FLinuxMisc::LoadExternalModule(const std::string& ModuleName)

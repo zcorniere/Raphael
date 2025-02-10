@@ -22,3 +22,5 @@ public:
         return true;
     }
 };
+
+static_assert(sizeof(FMiMalloc) == sizeof(IMallocInterface), "FMiMalloc should not have any data member");

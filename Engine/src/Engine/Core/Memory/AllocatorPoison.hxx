@@ -9,15 +9,19 @@ public:
     constexpr static int AllocFillNew = 0xbb;
     constexpr static int AllocFillFree = 0xcc;
 
+private:
+    static inline IMallocInterface* TrueMalloc = nullptr;
+
 public:
     FAllocatorPoison() = delete;
-    explicit FAllocatorPoison(IMallocInterface* InMalloc): TrueMalloc(InMalloc)
+    explicit FAllocatorPoison(IMallocInterface* InMalloc)
     {
+        TrueMalloc = InMalloc;
         check(TrueMalloc);
     }
     ~FAllocatorPoison()
     {
-        std::free(TrueMalloc);
+        TrueMalloc = nullptr;
     }
 
     virtual void* Alloc(uint32 Size, uint32 Alignment = 0) override
@@ -70,7 +74,6 @@ public:
     {
         return true;
     }
-
-private:
-    IMallocInterface* TrueMalloc;
 };
+
+static_assert(sizeof(FAllocatorPoison) == sizeof(IMallocInterface), "FMiMalloc should not have any data member");
