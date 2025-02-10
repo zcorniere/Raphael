@@ -53,6 +53,7 @@ public:
         : IVulkanExtension(InExtensionName, bInRequired)
     {
     }
+    virtual ~IDeviceVulkanExtension() = default;
 
     virtual void PreDeviceCreated(VkDeviceCreateInfo& Info)
     {
@@ -73,6 +74,7 @@ public:
         : IVulkanExtension(InExtensionName, bInRequired)
     {
     }
+    virtual ~IInstanceVulkanExtension() = default;
 
     virtual void PreInstanceCreated(VkInstanceCreateInfo& Info)
     {

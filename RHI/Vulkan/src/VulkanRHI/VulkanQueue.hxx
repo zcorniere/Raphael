@@ -10,7 +10,7 @@ class FVulkanQueue : public FNamedClass, public IDeviceChild
 {
 public:
     FVulkanQueue(FVulkanDevice* InDevice, std::uint32_t InFamilyIndex);
-    ~FVulkanQueue();
+    virtual ~FVulkanQueue();
 
     inline std::uint32_t GetFamilyIndex() const
     {

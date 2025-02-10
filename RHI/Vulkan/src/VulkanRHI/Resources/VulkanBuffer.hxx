@@ -14,7 +14,7 @@ class RVulkanBuffer : public RRHIBuffer, public IDeviceChild
 
 public:
     RVulkanBuffer(FVulkanDevice* InDevice, const FRHIBufferDesc& InDescription);
-    ~RVulkanBuffer();
+    virtual ~RVulkanBuffer();
 
     void SetName(std::string_view InName) override;
 

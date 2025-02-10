@@ -62,7 +62,7 @@ protected:
 
 public:
     RFence(FVulkanDevice* InDevice, bool bCreateSignaled);
-    ~RFence();
+    virtual ~RFence();
 
     virtual void SetName(std::string_view InName) override final;
 

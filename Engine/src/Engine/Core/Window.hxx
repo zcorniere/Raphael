@@ -52,7 +52,7 @@ public:
     /// Default ctor
     RWindow();
     /// Default dtor
-    ~RWindow();
+    virtual ~RWindow();
 
     /// @brief Open the window
     /// @param InDefinition The definition of the window

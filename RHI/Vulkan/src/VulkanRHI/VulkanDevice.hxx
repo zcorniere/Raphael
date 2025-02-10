@@ -24,7 +24,7 @@ class FVulkanDevice : public FNamedClass
 {
 public:
     explicit FVulkanDevice(VkPhysicalDevice Gpu);
-    ~FVulkanDevice();
+    virtual ~FVulkanDevice();
 
     virtual void SetName(std::string_view InName) override final;
 

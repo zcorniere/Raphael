@@ -18,7 +18,7 @@ class FVulkanCommandContext : public FRHIContext
 
 public:
     FVulkanCommandContext(FVulkanDevice* InDevice, FVulkanQueue* InGraphicsQueue, FVulkanQueue* InPresentQueue);
-    ~FVulkanCommandContext();
+    virtual ~FVulkanCommandContext();
 
     void Reset() override;
 

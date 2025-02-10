@@ -24,7 +24,7 @@ class RVulkanViewport : public RRHIViewport, public IDeviceChild
 
 public:
     RVulkanViewport(FVulkanDevice* InDevice, Ref<RWindow> InWindowHandle, UVector2 InSize);
-    ~RVulkanViewport();
+    virtual ~RVulkanViewport();
 
     virtual UVector2 GetSize() const override
     {

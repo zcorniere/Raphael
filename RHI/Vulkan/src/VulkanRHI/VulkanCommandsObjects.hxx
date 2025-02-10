@@ -33,7 +33,7 @@ public:
 public:
     FVulkanCmdBuffer() = delete;
     FVulkanCmdBuffer(FVulkanDevice* InDevice, VulkanCommandBufferPool* InCommandPool);
-    ~FVulkanCmdBuffer();
+    virtual ~FVulkanCmdBuffer();
 
     virtual void SetName(std::string_view InName) override;
 
@@ -160,7 +160,7 @@ public:
     /// Construct a command buffer manager for the given queue
     VulkanCommandBufferManager(FVulkanDevice* InDevice, FVulkanQueue* InQueue);
     /// Destruct the command buffer manager, and all its command buffers as well
-    ~VulkanCommandBufferManager();
+    virtual ~VulkanCommandBufferManager();
 
     /// Update the fences of all cmd buffers except the one givent as argument
     /// @arg SkipCmdBuffer the command buffer to skip

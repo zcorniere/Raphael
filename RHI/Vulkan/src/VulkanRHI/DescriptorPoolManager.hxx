@@ -42,7 +42,7 @@ public:
 
 public:
     FDescriptorSetManager(FVulkanDevice* InDevice);
-    ~FDescriptorSetManager();
+    virtual ~FDescriptorSetManager();
 
     bool Initialize(const TArrayView<Ref<RVulkanShader>>& InShader, unsigned InMaxSets);
     void Destroy();

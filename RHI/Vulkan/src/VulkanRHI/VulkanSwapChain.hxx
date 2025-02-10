@@ -56,6 +56,8 @@ public:
     RVulkanSwapChain(VkInstance InInstance, FVulkanDevice* InDevice, const UVector2& InSize, RWindow* WindowHandle,
                      uint32 InOutDesiredNumBackBuffers, TArray<VkImage>& OutImages, bool LockToVSync,
                      VulkanSwapChainRecreateInfo* RecreateInfo);
+    virtual ~RVulkanSwapChain() = default;
+
     void SetName(std::string_view InName) override;
 
     void Destroy(VulkanSwapChainRecreateInfo* RecreateInfo);

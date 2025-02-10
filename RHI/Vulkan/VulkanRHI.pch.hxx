@@ -22,6 +22,7 @@ public:
     IDeviceChild(FVulkanDevice* InDevice): Device(InDevice)
     {
     }
+    virtual ~IDeviceChild() = default;
 
 protected:
     FVulkanDevice* const Device;

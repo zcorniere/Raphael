@@ -67,9 +67,7 @@ class RObject : public FNamedClass
     RTTI_DECLARE_TYPEINFO(RObject, FNamedClass);
 
 public:
-    virtual ~RObject()
-    {
-    }
+    virtual ~RObject() = default;
 
     /// Override this function to be able to override the behaviour of Ref::IsValid;
     virtual bool IsValid() const
