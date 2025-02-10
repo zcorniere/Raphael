@@ -56,19 +56,6 @@ void RHI::RHIWaitUntilIdle()
     RHI::Get()->WaitUntilIdle();
 }
 
-void RHI::RenderSystem(ecs::FTransformComponent& Transform, ecs::FMeshComponent& Mesh)
-{
-    RHI::Get()->RegisterAssetRender({.Transform = Transform, .Mesh = Mesh});
-}
-
-void RHI::CameraSystem(ecs::FCameraComponent& Camera)
-{
-    if (!Camera.bIsActive) {
-        return;
-    }
-    RHI::Get()->RegisterActiveCamera(Camera.ViewPoint);
-}
-
 //
 //  -------------------- RHI Create resources --------------------
 //

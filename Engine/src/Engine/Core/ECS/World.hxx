@@ -4,7 +4,7 @@
 
 #include "Engine/Core/ECS/ComponentStorage.hxx"
 #include "Engine/Core/ECS/SystemScheduler.hxx"
-#include "Engine/Core/RHI/Resources/RHIViewport.hxx"
+#include "Engine/Core/RHI/RHIScene.hxx"
 
 namespace ecs
 {
@@ -16,6 +16,11 @@ class RWorld : public RObject
 public:
     RWorld();
     ~RWorld();
+
+    RHIScene* GetScene()
+    {
+        return Scene.Raw();
+    }
 
     void Update(float DeltaTime);
 
@@ -40,10 +45,9 @@ public:
         return Storage;
     }
 
-public:
-    WeakRef<RRHIViewport> Viewport;
-
 private:
+    Ref<RHIScene> Scene;
+
     FSystemScheduler Scheduler;
     FComponentStorage Storage;
 };

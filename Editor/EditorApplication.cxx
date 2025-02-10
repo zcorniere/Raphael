@@ -41,7 +41,7 @@ bool EditorApplication::OnEngineInitialization()
 
     World = ecs::CreateWorld();
     GEngine->SetWorld(World);
-    World->Viewport = MainViewport;
+    World->GetScene()->SetViewport(MainViewport);
 
     World->RegisterComponent<ecs::TTransformComponent<float>>();
     World->RegisterComponent<ecs::FMeshComponent>();
@@ -86,8 +86,6 @@ bool EditorApplication::OnEngineInitialization()
         Transform.SetLocation({0.0f, 3.0f, 0.0f});
     });
     World->RegisterSystem([](ecs::FCameraComponent& Cam) { Cam.ViewPoint.SetLocation({0.0f, -3.0f, 0.f}); });
-    World->RegisterSystem(RHI::RenderSystem);
-    World->RegisterSystem(RHI::CameraSystem);
 
     return true;
 }
@@ -95,7 +93,7 @@ bool EditorApplication::OnEngineInitialization()
 void EditorApplication::OnEngineDestruction()
 {
     World->DestroyEntity(Entity);
-    World = nullptr;
+    ecs::DestroyWorld(World);
 
     Super::OnEngineDestruction();
 }

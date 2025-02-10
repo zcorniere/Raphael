@@ -28,6 +28,17 @@ namespace details
                     std::apply(system, components);
             };
         }
+
+        template <typename TClass>
+        static constexpr auto wrap_system(TClass* InContext, auto system)
+        {
+            return [InContext, system](ecs::RWorld* World) {
+                auto components_map = World->GetComponentStorage().JoinComponents<cleaned_component<Components>...>();
+
+                for (auto& [_, components]: components_map)
+                    std::apply(std::bind_front(system, InContext), components);
+            };
+        }
     };
 
 }    // namespace details
@@ -44,6 +55,15 @@ public:
     template <typename Fn>
     requires(!std::is_same_v<FSystem, std::decay_t<Fn>> && SystemFunction<Fn>)
     FSystem(Fn system): CallWrapper(details::wrapper<decltype(system)>::wrap_system(system))
+    {
+    }
+
+    template <typename TClass, typename Fn>
+    requires(!std::is_same_v<FSystem, std::decay_t<Fn>> && SystemFunction<Fn> &&
+             std::is_same_v<typename function_traits<Fn>::Class, TClass>)
+    /// Call context for the system (basically the this pointer for member functions systems)
+    FSystem(TClass* InContext, Fn system)
+        : CallWrapper(details::wrapper<decltype(system)>::template wrap_system<TClass>(InContext, system))
     {
     }
 

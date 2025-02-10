@@ -248,6 +248,7 @@ RVulkanShader* RVulkanGraphicsPipeline::GetShader(ERHIShaderType Type)
     checkNoEntry();
     return nullptr;
 }
+
 RVulkanShader* RVulkanGraphicsPipeline::GetShader(ERHIShaderType Type) const
 {
     return const_cast<RVulkanGraphicsPipeline*>(this)->GetShader(Type);
@@ -283,11 +284,12 @@ bool RVulkanGraphicsPipeline::CreatePipelineLayout()
 
     CreateDescriptorSetLayout();
 
+    const TArray<VkDescriptorSetLayout>& DescriptorSetLayouts = DescriptorManager.GetDescriptorSetLayout();
     VkPipelineLayoutCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
         .pNext = nullptr,
-        .setLayoutCount = DescriptorManager.GetDescriptorSetLayout().Size(),
-        .pSetLayouts = DescriptorManager.GetDescriptorSetLayout().Raw(),
+        .setLayoutCount = DescriptorSetLayouts.Size(),
+        .pSetLayouts = DescriptorSetLayouts.Raw(),
         .pushConstantRangeCount = PushRanges.Size(),
         .pPushConstantRanges = PushRanges.Raw(),
     };

@@ -29,11 +29,6 @@ extern "C" FGenericRHI* RHI_CreateRHI();
 namespace RHI
 {
 
-struct FRHIRenderRequest {
-    ecs::FTransformComponent Transform;
-    ecs::FMeshComponent Mesh;
-};
-
 /// @brief Return the current RHI
 /// @tparam TRHI The type of the RHI, default is GenericRHI
 template <typename TRHI = FGenericRHI>
@@ -59,9 +54,6 @@ void Destroy();
 /// use and cannot be deleted immediately
 void DeferedDeletion(std::function<void()>&& InDeletionFunction);
 void FlushDeletionQueue();
-
-void RenderSystem(ecs::FTransformComponent& Transform, ecs::FMeshComponent& Mesh);
-void CameraSystem(ecs::FCameraComponent& Camera);
 
 /// -------------- RHI Operations --------------
 

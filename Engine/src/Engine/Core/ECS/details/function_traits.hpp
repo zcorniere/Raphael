@@ -10,12 +10,17 @@ template <typename>
 struct function_traits;
 
 template <typename T>
-struct function_traits : public function_traits<decltype(&T::operator())> {
+struct function_traits : function_traits<decltype(&std::remove_reference<T>::type::operator())> {
 };
 
 // Specialization for pointers to member function or lambdas
 template <typename ClassType, typename ReturnType, typename... Args>
-struct function_traits<ReturnType (ClassType::*)(Args...) const> : public function_traits<ReturnType (*)(Args...)> {
+struct function_traits<ReturnType (ClassType::*)(Args...) const> : function_traits<ReturnType (*)(Args...)> {
+    using Class = ClassType;
+};
+template <typename ClassType, typename ReturnType, typename... Args>
+struct function_traits<ReturnType (ClassType::*)(Args...)> : function_traits<ReturnType (*)(Args...)> {
+    using Class = ClassType;
 };
 
 // Specialization for function pointers

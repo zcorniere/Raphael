@@ -11,6 +11,8 @@ public:
 
     void SetName(std::string_view Name) override;
 
+    void SetInput(std::string_view Name, const Ref<RRHIBuffer>& Buffer);
+
     void Bind();
     void Unbind();
 

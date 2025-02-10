@@ -44,10 +44,10 @@ public:
 
     virtual void DeferedDeletion(std::function<void()>&& InDeletionFunction) final override;
     virtual void FlushDeletionQueue() final override;
-    virtual void WaitUntilIdle() final override;
 
-    virtual void RegisterAssetRender(const RHI::FRHIRenderRequest& Request) final override;
-    virtual void RegisterActiveCamera(Math::TViewPoint<float>& ViewPoint) final override;
+    virtual void RegisterScene(WeakRef<RHIScene> Scene) final override;
+
+    virtual void WaitUntilIdle() final override;
 
     // ---------------------- RHI Operations --------------------- //
     virtual void RHISubmitCommandLists(FFRHICommandList* const CommandLists, std::uint32_t NumCommandLists) override;
@@ -100,8 +100,7 @@ private:
     TArray<FVulkanCommandContext*> AvailableCommandContexts;
     RVulkanViewport* DrawingViewport = nullptr;
 
-    Math::TViewPoint<float> ActiveCamera;
-    std::unordered_map<std::string, TArray<RHI::FRHIRenderRequest>> RenderRequests;
+    TArray<WeakRef<RHIScene>> ScenesContainers;
 
     TArray<std::function<void()>> DeletionQueue;
 };

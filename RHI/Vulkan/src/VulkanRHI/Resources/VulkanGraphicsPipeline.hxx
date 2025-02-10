@@ -10,9 +10,9 @@ class RVulkanShader;
 
 struct FGraphicsPipelineDescription {
     struct FVertexBinding {
-        uint32 Stride;
-        uint16 Binding;
-        uint16 InputRate;
+        uint32 Stride = 0;
+        uint16 Binding = 0;
+        VkVertexInputRate InputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
         void WriteInto(VkVertexInputBindingDescription& OutState) const;
 
@@ -21,10 +21,10 @@ struct FGraphicsPipelineDescription {
     TArray<FVertexBinding> VertexBindings;
 
     struct FVertexAttribute {
-        uint32 Location;
-        uint32 Binding;
-        EVertexElementType Format;
-        uint32 Offset;
+        uint32 Location = 0;
+        uint32 Binding = 0;
+        EVertexElementType Format = EVertexElementType::Float3;
+        uint32 Offset = 0;
 
         void WriteInto(VkVertexInputAttributeDescription& OutState) const;
 

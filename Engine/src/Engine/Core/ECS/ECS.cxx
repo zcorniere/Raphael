@@ -9,6 +9,14 @@ namespace ecs
 Ref<RWorld> CreateWorld()
 {
     Ref<RWorld> NewWorld = Ref<RWorld>::Create();
+
+    // Register the basic systems
+    FSystem CollectRenderablesSystem(NewWorld->GetScene(), &RHIScene::CollectRenderablesSystem);
+    NewWorld->RegisterSystem(std::move(CollectRenderablesSystem));
+
+    FSystem CameraSystem(NewWorld->GetScene(), &RHIScene::CameraSystem);
+    NewWorld->RegisterSystem(std::move(CameraSystem));
+
     return NewWorld;
 }
 

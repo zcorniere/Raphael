@@ -4,6 +4,7 @@
 #include "Engine/Core/RHI/RHIResource.hxx"
 
 #include "Engine/Core/RHI/RHI.hxx"
+#include "Engine/Core/RHI/RHIScene.hxx"
 
 DECLARE_LOGGER_CATEGORY(Core, LogRHI, Info);
 
@@ -40,10 +41,9 @@ public:
     virtual void DeferedDeletion(std::function<void()>&& InDeletionFunction) = 0;
     virtual void FlushDeletionQueue() = 0;
 
-    virtual void WaitUntilIdle() = 0;
+    virtual void RegisterScene(WeakRef<RHIScene> Scene) = 0;
 
-    virtual void RegisterAssetRender(const RHI::FRHIRenderRequest& Request) = 0;
-    virtual void RegisterActiveCamera(Math::TViewPoint<float>& ViewPoint) = 0;
+    virtual void WaitUntilIdle() = 0;
 
     // ---------------------- RHI Operations --------------------- //
 

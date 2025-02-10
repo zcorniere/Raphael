@@ -1,12 +1,15 @@
 #include "Engine/Core/ECS/World.hxx"
 
 #include "Engine/Core/ECS/System.hxx"
+#include "Engine/Core/RHI/GenericRHI.hxx"
 
 namespace ecs
 {
 
 RWorld::RWorld()
 {
+    Scene = Ref<RHIScene>::Create();
+    RHI::Get()->RegisterScene(Scene);
 }
 
 RWorld::~RWorld()
@@ -15,6 +18,7 @@ RWorld::~RWorld()
 
 void RWorld::Update(float DeltaTime)
 {
+    Scene->Tick(DeltaTime);
     Scheduler.Update(this);
 }
 

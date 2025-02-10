@@ -18,6 +18,11 @@ void RMaterial::SetName(std::string_view Name)
     GraphicsPipeline->SetName(Name);
 }
 
+void RMaterial::SetInput(std::string_view Name, const Ref<RRHIBuffer>& Buffer)
+{
+    GraphicsPipeline->SetInput(Name, Buffer);
+}
+
 void RMaterial::Bind()
 {
     ENQUEUE_RENDER_COMMAND(MaterialBind)
