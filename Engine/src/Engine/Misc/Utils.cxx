@@ -4,9 +4,12 @@
 
 std::string Utils::ReadFile(const std::filesystem::path& filename)
 {
+    if (!std::filesystem::exists(filename))
+        return "";
+
     /// Must be opened in binary mode, so Windows won't mess with the newlines
     std::string fileContent;
-    std::ifstream file(filename, std::ios::binary);
+    std::ifstream file(filename, std::ios::in | std::ios::binary);
     size_t fileSize = std::filesystem::file_size(filename);
 
     if (!file.is_open())
