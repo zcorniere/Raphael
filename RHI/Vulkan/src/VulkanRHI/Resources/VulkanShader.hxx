@@ -19,7 +19,7 @@ namespace ShaderResource
         uint32 Offset = 0;
         uint32 Size = 0;
 
-        FShaderParameter Parameter;
+        FParameter Parameter;
 
         bool operator==(const FPushConstantRange&) const = default;
 
@@ -42,7 +42,7 @@ namespace ShaderResource
     struct FStorageBuffer {
         uint32 Set = 0;
         uint32 Binding = 0;
-        FShaderParameter Parameter;
+        FParameter Parameter;
 
         bool operator==(const FStorageBuffer&) const = default;
 
@@ -53,7 +53,7 @@ namespace ShaderResource
     struct FUniformBuffer {
         uint32 Set = 0;
         uint32 Binding = 0;
-        FShaderParameter Parameter;
+        FParameter Parameter;
 
         bool operator==(const FUniformBuffer&) const = default;
 
@@ -74,7 +74,8 @@ public:
 
     public:
         RVulkanShaderHandle(FVulkanDevice* InDevice, const VkShaderModuleCreateInfo& Info);
-        ~RVulkanShaderHandle();
+        virtual ~RVulkanShaderHandle();
+
         virtual void SetName(std::string_view Name) override;
 
     public:

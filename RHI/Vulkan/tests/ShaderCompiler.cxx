@@ -89,50 +89,50 @@ TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
     ::Log::Shutdown();
 }
 
-BEGIN_SHADER_PARAMETER_STRUCT(PointLightStruct)
-SHADER_PARAMETER(FVector4, position)
-SHADER_PARAMETER(FVector4, color)
-SHADER_PARAMETER(float, intensity)
-SHADER_PARAMETER(float, falloff)
-END_SHADER_PARAMETER_STRUCT();
+BEGIN_PARAMETER_STRUCT(PointLightStruct)
+PARAMETER(FVector4, position)
+PARAMETER(FVector4, color)
+PARAMETER(float, intensity)
+PARAMETER(float, falloff)
+END_PARAMETER_STRUCT();
 
-BEGIN_SHADER_PARAMETER_STRUCT(DirectionalLight)
-SHADER_PARAMETER(FVector4, orientation)
-SHADER_PARAMETER(FVector4, color)
-SHADER_PARAMETER(float, intensity)
-END_SHADER_PARAMETER_STRUCT();
+BEGIN_PARAMETER_STRUCT(DirectionalLight)
+PARAMETER(FVector4, orientation)
+PARAMETER(FVector4, color)
+PARAMETER(float, intensity)
+END_PARAMETER_STRUCT();
 
-BEGIN_SHADER_PARAMETER_STRUCT(SpotLight)
-SHADER_PARAMETER(FVector4, position)
-SHADER_PARAMETER(FVector4, direction)
-SHADER_PARAMETER(FVector4, color)
-SHADER_PARAMETER(float, cutOff)
-SHADER_PARAMETER(float, outerCutOff)
-SHADER_PARAMETER(float, intensity)
-END_SHADER_PARAMETER_STRUCT();
+BEGIN_PARAMETER_STRUCT(SpotLight)
+PARAMETER(FVector4, position)
+PARAMETER(FVector4, direction)
+PARAMETER(FVector4, color)
+PARAMETER(float, cutOff)
+PARAMETER(float, outerCutOff)
+PARAMETER(float, intensity)
+END_PARAMETER_STRUCT();
 
-BEGIN_SHADER_PARAMETER_STRUCT(MaterialStruct)
-SHADER_PARAMETER(float, alphaCutOff)
-SHADER_PARAMETER(float, metallic)
-SHADER_PARAMETER(float, roughness)
-SHADER_PARAMETER(FVector4, baseColor)
-SHADER_PARAMETER(FVector4, baseColorFactor)
-SHADER_PARAMETER(FVector4, emissiveFactor)
-SHADER_PARAMETER(int, baseColorTexture)
-SHADER_PARAMETER(int, metallicRoughnessTexture)
-SHADER_PARAMETER(int, normalTexture)
-SHADER_PARAMETER(int, occlusionTexture)
-SHADER_PARAMETER(int, emissiveTexture)
-SHADER_PARAMETER(int, specularGlossinessTexture)
-SHADER_PARAMETER(int, diffuseTexture)
-END_SHADER_PARAMETER_STRUCT();
+BEGIN_PARAMETER_STRUCT(MaterialStruct)
+PARAMETER(float, alphaCutOff)
+PARAMETER(float, metallic)
+PARAMETER(float, roughness)
+PARAMETER(FVector4, baseColor)
+PARAMETER(FVector4, baseColorFactor)
+PARAMETER(FVector4, emissiveFactor)
+PARAMETER(int, baseColorTexture)
+PARAMETER(int, metallicRoughnessTexture)
+PARAMETER(int, normalTexture)
+PARAMETER(int, occlusionTexture)
+PARAMETER(int, emissiveTexture)
+PARAMETER(int, specularGlossinessTexture)
+PARAMETER(int, diffuseTexture)
+END_PARAMETER_STRUCT();
 
-BEGIN_SHADER_PARAMETER_STRUCT(PushConstantStruct)
-SHADER_PARAMETER(int, pointLightCount)
-SHADER_PARAMETER(int, directLightCount)
-SHADER_PARAMETER(int, spotLightCount)
-SHADER_PARAMETER(FVector3, position)
-END_SHADER_PARAMETER_STRUCT();
+BEGIN_PARAMETER_STRUCT(PushConstantStruct)
+PARAMETER(int, pointLightCount)
+PARAMETER(int, directLightCount)
+PARAMETER(int, spotLightCount)
+PARAMETER(FVector3, position)
+END_PARAMETER_STRUCT();
 
 TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
 {
@@ -263,7 +263,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                         .Binding = 1,
                         .Parameter =
                             {
-                                FShaderParameter{
+                                FParameter{
                                     .Name = "ObjectMaterials",
                                     .Type = EShaderBufferType::Struct,
                                     .Size = 0,
@@ -407,7 +407,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                         .Set = 1,
                         .Binding = 0,
                         .Parameter =
-                            FShaderParameter{
+                            FParameter{
                                 .Name = "DirectLight",
                                 .Type = EShaderBufferType::Struct,
                                 .Size = 0,
@@ -462,7 +462,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                         .Binding = 1,
                         .Parameter =
                             {
-                                FShaderParameter{
+                                FParameter{
                                     .Name = "SpoLight",
                                     .Type = EShaderBufferType::Struct,
                                     .Size = 0,
@@ -545,7 +545,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                         .Binding = 2,
                         .Parameter =
                             {
-                                FShaderParameter{
+                                FParameter{
                                     .Name = "LightBuffer",
                                     .Type = EShaderBufferType::Struct,
                                     .Size = 0,

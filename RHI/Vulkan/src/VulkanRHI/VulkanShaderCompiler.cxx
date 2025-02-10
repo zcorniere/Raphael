@@ -316,10 +316,10 @@ static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resou
     return true;
 }
 
-static FShaderParameter RecursiveTypeDescription(const spirv_cross::Compiler& Compiler, spirv_cross::TypeID BaseTypeID,
-                                                 spirv_cross::TypeID ID, uint32 Index)
+static FParameter RecursiveTypeDescription(const spirv_cross::Compiler& Compiler, spirv_cross::TypeID BaseTypeID,
+                                           spirv_cross::TypeID ID, uint32 Index)
 {
-    FShaderParameter Parameter;
+    FParameter Parameter;
 
     const spirv_cross::SPIRType& Type = Compiler.get_type(ID);
     const spirv_cross::SPIRType& BaseType = Compiler.get_type(BaseTypeID);
