@@ -73,9 +73,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
     LOG_V(LogVulkanRHI, VulkanMessageSeverityToLogLevel(MsgSeverity), "{:s} [ {:s} ]\n\t{:s}\n{:s}",
           VulkanMessageType(messageType), pCallbackData->pMessageIdName, InterestingPart.data() + Size, Objects);
 
-    if (FPlatform::isDebuggerPresent()) {
-        PLATFORM_BREAK();
-    }
+    check(false);
     return VK_FALSE;
 }
 
