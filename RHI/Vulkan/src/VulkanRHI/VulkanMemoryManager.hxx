@@ -6,7 +6,6 @@ namespace VulkanRHI
 {
 
 class FVulkanDevice;
-
 class FVulkanMemoryManager;
 
 class RVulkanMemoryAllocation : public RObject
@@ -16,6 +15,8 @@ class RVulkanMemoryAllocation : public RObject
 public:
     RVulkanMemoryAllocation() = delete;
     explicit RVulkanMemoryAllocation(FVulkanMemoryManager& InManager);
+
+    virtual ~RVulkanMemoryAllocation() = default;
 
     void SetName(std::string_view InName) override;
 
@@ -75,7 +76,7 @@ class FVulkanMemoryManager : public IDeviceChild
 {
 public:
     explicit FVulkanMemoryManager(FVulkanDevice* InDevice);
-    ~FVulkanMemoryManager();
+    virtual ~FVulkanMemoryManager();
 
     [[nodiscard]] Ref<RVulkanMemoryAllocation> Alloc(const VkMemoryRequirements& MemoryRequirement,
                                                      VmaMemoryUsage MemUsage, bool Mappable);
@@ -87,10 +88,7 @@ public:
     uint64 GetTotalMemory(bool bGPUOnly) const;
     void PrintMemInfo() const;
 
-    VmaAllocator GetAllocator() const
-    {
-        return Allocator;
-    }
+    std::string GetVMADumpString() const;
 
 private:
     VmaAllocationCreateInfo GetCreateInfo(VmaMemoryUsage MemUsage, bool Mappable);

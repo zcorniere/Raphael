@@ -24,14 +24,12 @@ void VulkanCheckResult(VkResult Result, const char* VulkanFunction, const std::s
     }
 
     if (bDumpMemory) {
-        char* String = nullptr;
-        vmaBuildStatsString(GetVulkanDynamicRHI()->GetDevice()->GetMemoryManager()->GetAllocator(), &String, VK_TRUE);
-        LOG(LogVulkanRHI, Fatal, "VMA DUMP : \n{}", String);
-        vmaFreeStatsString(GetVulkanDynamicRHI()->GetDevice()->GetMemoryManager()->GetAllocator(), String);
+        LOG(LogVulkanRHI, Fatal, "VMA DUMP : \n{}",
+            GetVulkanDynamicRHI()->GetDevice()->GetMemoryManager()->GetVMADumpString());
     }
 
     LOG(LogVulkanRHI, Fatal, "{} failed, VkResult={:s}\n\tat {}:{} with error {}", VulkanFunction,
-        magic_enum::enum_name(Result), location.file_name(), location.line(), ErrorString);
+        string_VkResult(Result), location.file_name(), location.line(), ErrorString);
     check(false);
 }
 

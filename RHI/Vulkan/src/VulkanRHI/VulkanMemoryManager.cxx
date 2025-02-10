@@ -24,10 +24,10 @@ RVulkanMemoryAllocation::RVulkanMemoryAllocation(FVulkanMemoryManager& InManager
 
 void RVulkanMemoryAllocation::SetName(std::string_view InName)
 {
-    RObject::SetName(InName);
+    Super::SetName(InName);
     if (!InName.empty()) {
         if (Allocation) {
-            vmaSetAllocationName(ManagerHandle.GetAllocator(), Allocation, InName.data());
+            vmaSetAllocationName(ManagerHandle.Allocator, Allocation, InName.data());
         }
         if (AllocationInfo.deviceMemory) {
             VULKAN_SET_DEBUG_NAME(ManagerHandle.Device, VK_OBJECT_TYPE_DEVICE_MEMORY, AllocationInfo.deviceMemory,
@@ -45,7 +45,7 @@ void* RVulkanMemoryAllocation::Map(VkDeviceSize InSize, VkDeviceSize Offset)
     if (!MappedPointer) {
         check(!MappedPointer);
         checkMsg(InSize + Offset <= Size, "Can't to Map {} bytes, Offset {}, AllocSize {} bytes", InSize, Offset, Size);
-        VK_CHECK_RESULT(vmaMapMemory(ManagerHandle.GetAllocator(), Allocation, &MappedPointer));
+        VK_CHECK_RESULT(vmaMapMemory(ManagerHandle.Allocator, Allocation, &MappedPointer));
     }
     return MappedPointer;
 }
@@ -53,7 +53,7 @@ void* RVulkanMemoryAllocation::Map(VkDeviceSize InSize, VkDeviceSize Offset)
 void RVulkanMemoryAllocation::Unmap()
 {
     if (MappedPointer) {
-        vmaUnmapMemory(ManagerHandle.GetAllocator(), Allocation);
+        vmaUnmapMemory(ManagerHandle.Allocator, Allocation);
         MappedPointer = nullptr;
     }
 }
@@ -63,7 +63,7 @@ void RVulkanMemoryAllocation::FlushMappedMemory(VkDeviceSize InOffset, VkDeviceS
     if (!IsCoherent()) {
         check(IsMapped());
         check(InOffset + InSize <= Size);
-        VK_CHECK_RESULT(vmaFlushAllocation(ManagerHandle.GetAllocator(), Allocation, InOffset, InSize));
+        VK_CHECK_RESULT(vmaFlushAllocation(ManagerHandle.Allocator, Allocation, InOffset, InSize));
     }
 }
 void RVulkanMemoryAllocation::InvalidateMappedMemory(VkDeviceSize InOffset, VkDeviceSize InSize)
@@ -72,18 +72,18 @@ void RVulkanMemoryAllocation::InvalidateMappedMemory(VkDeviceSize InOffset, VkDe
         check(IsMapped());
         check(InOffset + InSize <= Size);
 
-        VK_CHECK_RESULT(vmaInvalidateAllocation(ManagerHandle.GetAllocator(), Allocation, InOffset, InSize));
+        VK_CHECK_RESULT(vmaInvalidateAllocation(ManagerHandle.Allocator, Allocation, InOffset, InSize));
     }
 }
 
 void RVulkanMemoryAllocation::BindBuffer(VkBuffer Buffer)
 {
-    VK_CHECK_RESULT(vmaBindBufferMemory(ManagerHandle.GetAllocator(), Allocation, Buffer));
+    VK_CHECK_RESULT(vmaBindBufferMemory(ManagerHandle.Allocator, Allocation, Buffer));
 }
 
 void RVulkanMemoryAllocation::BindImage(VkImage Image)
 {
-    VK_CHECK_RESULT(vmaBindImageMemory(ManagerHandle.GetAllocator(), Allocation, Image));
+    VK_CHECK_RESULT(vmaBindImageMemory(ManagerHandle.Allocator, Allocation, Image));
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -103,6 +103,21 @@ FVulkanMemoryManager::FVulkanMemoryManager(FVulkanDevice* InDevice)
     std::memset(&Functions, 0, sizeof(VmaVulkanFunctions));
     Functions.vkGetDeviceProcAddr = VulkanAPI::vkGetDeviceProcAddr;
     Functions.vkGetInstanceProcAddr = VulkanAPI::vkGetInstanceProcAddr;
+    Functions.vkAllocateMemory = VulkanAPI::vkAllocateMemory;
+    Functions.vkBindBufferMemory = VulkanAPI::vkBindBufferMemory;
+    Functions.vkBindImageMemory = VulkanAPI::vkBindImageMemory;
+    Functions.vkCreateBuffer = VulkanAPI::vkCreateBuffer;
+    Functions.vkCreateImage = VulkanAPI::vkCreateImage;
+    Functions.vkDestroyBuffer = VulkanAPI::vkDestroyBuffer;
+    Functions.vkDestroyImage = VulkanAPI::vkDestroyImage;
+    Functions.vkFlushMappedMemoryRanges = VulkanAPI::vkFlushMappedMemoryRanges;
+    Functions.vkFreeMemory = VulkanAPI::vkFreeMemory;
+    Functions.vkGetBufferMemoryRequirements = VulkanAPI::vkGetBufferMemoryRequirements;
+    Functions.vkGetImageMemoryRequirements = VulkanAPI::vkGetImageMemoryRequirements;
+    Functions.vkGetPhysicalDeviceMemoryProperties = VulkanAPI::vkGetPhysicalDeviceMemoryProperties;
+    Functions.vkGetPhysicalDeviceProperties = VulkanAPI::vkGetPhysicalDeviceProperties;
+    Functions.vkMapMemory = VulkanAPI::vkMapMemory;
+    Functions.vkUnmapMemory = VulkanAPI::vkUnmapMemory;
 
     VmaAllocatorCreateInfo CreateInfo{
         .physicalDevice = RHI->RHIGetVkPhysicalDevice(),
@@ -120,8 +135,7 @@ FVulkanMemoryManager::~FVulkanMemoryManager()
 {
     const unsigned AllocationCountLocal = AllocationCount.load();
     if (AllocationCountLocal > 0) {
-        LOG(LogVulkanMemoryAllocator, Error, "Some memory allocation ({}) are still in flight !",
-            AllocationCountLocal);
+        LOG(LogVulkanMemoryAllocator, Error, "Some memory allocation ({}) are still in flight !", AllocationCountLocal);
 
         std::unique_lock Lock(MemoryAllocationArrayMutex);
 
@@ -263,6 +277,15 @@ VmaAllocationCreateInfo FVulkanMemoryManager::GetCreateInfo(VmaMemoryUsage MemUs
         .flags = flags,
         .usage = MemUsage,
     };
+}
+
+std::string FVulkanMemoryManager::GetVMADumpString() const
+{
+    char* String = nullptr;
+    vmaBuildStatsString(Allocator, &String, VK_TRUE);
+    std::string Result(String);
+    vmaFreeStatsString(Allocator, String);
+    return Result;
 }
 
 }    // namespace VulkanRHI
