@@ -24,6 +24,7 @@ float FrameLimiter::EndFrame()
     const std::chrono::duration<double> TargetFrameDuration(1.0 / FrameRate);
 
     if (ElapsedTime < TargetFrameDuration) {
+        RPH_PROFILE_FUNC()
         const std::chrono::duration<double> SleepDuration = TargetFrameDuration - ElapsedTime;
         std::this_thread::sleep_for(std::chrono::duration_cast<std::chrono::milliseconds>(SleepDuration));
     } else {
