@@ -80,7 +80,6 @@ Ref<RRHIShader> FVulkanDynamicRHI::CreateShader(const std::filesystem::path Path
 {
     std::filesystem::path RefPath = DataLocationFinder::GetShaderPath();
     Ref<RVulkanShader> Shader = ShaderCompiler->Get(RefPath / Path, bForceCompile);
-    check(Shader);
     return Shader;
 }
 
@@ -98,14 +97,15 @@ VulkanRHI::FVulkanDynamicRHI::CreateGraphicsPipeline(const FRHIGraphicsPipelineS
     Desc.VertexShader = VertexShader.get();
     Desc.FragmentShader = FragmentShader.get();
 
+    if (!Desc.Validate()) {
+        return nullptr;
+    }
     if (Desc.VertexAttributes.IsEmpty()) {
         Desc.VertexAttributes = Desc.VertexShader->GetReflectionData().GetInputVertexAttributes();
     }
     if (Desc.VertexBindings.IsEmpty()) {
         Desc.VertexBindings = Desc.VertexShader->GetReflectionData().GetInputVertexBindings();
     }
-
-    check(Desc.Validate());
 
     return Ref<RVulkanGraphicsPipeline>::Create(Device.get(), Desc);
 }
