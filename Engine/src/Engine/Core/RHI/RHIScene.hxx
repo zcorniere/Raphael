@@ -2,7 +2,6 @@
 
 #include "Engine/Core/RHI/RHICommandList.hxx"
 #include "Engine/Core/RHI/RHIContext.hxx"
-#include "Engine/Core/RHI/RHIShaderParameters.hxx"
 
 class RHIScene : public RObject
 {

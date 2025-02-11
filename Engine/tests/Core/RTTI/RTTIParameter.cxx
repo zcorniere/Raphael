@@ -1,6 +1,6 @@
 #include "Engine/Raphael.hxx"
 
-#include "Engine/Core/RHI/RHIShaderParameters.hxx"
+#include "Engine/Core/RTTI/RTTIParameter.hxx"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators_all.hpp>
@@ -14,6 +14,8 @@ END_PARAMETER_STRUCT();
 
 TEST_CASE("ShaderParameterStruct")
 {
+    using namespace RTTI;
+
     FShaderStruct TestStruct;
     TestStruct.TestValue = 42;
     TestStruct.TestFloat = 69.0f;
@@ -26,14 +28,14 @@ TEST_CASE("ShaderParameterStruct")
     CHECK(Members[0].Name == "TestValue");
     CHECK(Members[0].Offset == 0);
     CHECK(Members[0].Size == sizeof(int));
-    CHECK(Members[0].Type == EShaderBufferType::Int32);
+    CHECK(Members[0].Type == EParameterType::Int32);
     CHECK(Members[0].Columns == 1);
     CHECK(Members[0].Rows == 1);
 
     CHECK(Members[1].Name == "TestFloat");
     CHECK(Members[1].Offset == sizeof(int));
     CHECK(Members[1].Size == sizeof(float));
-    CHECK(Members[1].Type == EShaderBufferType::Float);
+    CHECK(Members[1].Type == EParameterType::Float);
     CHECK(Members[1].Columns == 1);
     CHECK(Members[1].Rows == 1);
 
@@ -41,14 +43,14 @@ TEST_CASE("ShaderParameterStruct")
     CHECK(Members[2].Name == "TestVec3");
     CHECK(Members[2].Offset == offsetof(FShaderStruct, TestVec3));
     CHECK(Members[2].Size == sizeof(FVector4));    // <-- hence the sizeof vec4
-    CHECK(Members[2].Type == EShaderBufferType::Float);
+    CHECK(Members[2].Type == EParameterType::Float);
     CHECK(Members[2].Columns == 1);
     CHECK(Members[2].Rows == 3);
 
     CHECK(Members[3].Name == "TestMat4");
     CHECK(Members[3].Offset == offsetof(FShaderStruct, TestMat4));
     CHECK(Members[3].Size == sizeof(FMatrix4));
-    CHECK(Members[3].Type == EShaderBufferType::Float);
+    CHECK(Members[3].Type == EParameterType::Float);
     CHECK(Members[3].Columns == 4);
     CHECK(Members[3].Rows == 4);
 

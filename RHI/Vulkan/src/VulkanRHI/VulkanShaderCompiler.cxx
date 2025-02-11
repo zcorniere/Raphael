@@ -306,6 +306,7 @@ static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resou
         OutResource.Type = ElementType.value();
         OutResource.Binding = Compiler.get_decoration(resource.id, spv::DecorationBinding);
         OutResource.Location = Compiler.get_decoration(resource.id, spv::DecorationLocation);
+        OutResource.Offset = Compiler.get_decoration(resource.id, spv::DecorationOffset);
     }
     std::sort(StageIO.begin(), StageIO.end(), [](const ShaderResource::FStageIO& A, const ShaderResource::FStageIO& B) {
         return A.Location < B.Location;
@@ -316,10 +317,10 @@ static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resou
     return true;
 }
 
-static FParameter RecursiveTypeDescription(const spirv_cross::Compiler& Compiler, spirv_cross::TypeID BaseTypeID,
-                                           spirv_cross::TypeID ID, uint32 Index)
+static ::RTTI::FParameter RecursiveTypeDescription(const spirv_cross::Compiler& Compiler,
+                                                   spirv_cross::TypeID BaseTypeID, spirv_cross::TypeID ID, uint32 Index)
 {
-    FParameter Parameter;
+    ::RTTI::FParameter Parameter;
 
     const spirv_cross::SPIRType& Type = Compiler.get_type(ID);
     const spirv_cross::SPIRType& BaseType = Compiler.get_type(BaseTypeID);
@@ -327,19 +328,19 @@ static FParameter RecursiveTypeDescription(const spirv_cross::Compiler& Compiler
 
     switch (Type.basetype) {
         case spirv_cross::SPIRType::Struct:
-            Parameter.Type = EShaderBufferType::Struct;
+            Parameter.Type = ::RTTI::EParameterType::Struct;
             break;
         case spirv_cross::SPIRType::Int:
-            Parameter.Type = EShaderBufferType::Int32;
+            Parameter.Type = ::RTTI::EParameterType::Int32;
             break;
         case spirv_cross::SPIRType::UInt:
-            Parameter.Type = EShaderBufferType::Uint32;
+            Parameter.Type = ::RTTI::EParameterType::Uint32;
             break;
         case spirv_cross::SPIRType::Float:
-            Parameter.Type = EShaderBufferType::Float;
+            Parameter.Type = ::RTTI::EParameterType::Float;
             break;
         default:
-            Parameter.Type = EShaderBufferType::Invalid;
+            Parameter.Type = ::RTTI::EParameterType::Invalid;
             break;
     }
     if (Type.member_types.size()) {
@@ -414,7 +415,7 @@ static bool GetStorageBufferReflection(const spirv_cross::Compiler& Compiler,
         Buffer.Binding = Compiler.get_decoration(resource.id, spv::DecorationBinding);
         Buffer.Parameter.Name = resource.name;
         Buffer.Parameter.Size = Compiler.get_declared_struct_size(Type);
-        Buffer.Parameter.Type = EShaderBufferType::Struct;
+        Buffer.Parameter.Type = RTTI::EParameterType::Struct;
         Buffer.Parameter.Offset = 0;
         Buffer.Parameter.Rows = Type.vecsize;
         Buffer.Parameter.Columns = Type.columns;
@@ -444,7 +445,7 @@ static bool GetUniformBufferReflection(const spirv_cross::Compiler& Compiler,
         Buffer.Binding = Compiler.get_decoration(resource.id, spv::DecorationBinding);
         Buffer.Parameter.Name = resource.name;
         Buffer.Parameter.Size = Compiler.get_declared_struct_size(Type);
-        Buffer.Parameter.Type = EShaderBufferType::Struct;
+        Buffer.Parameter.Type = RTTI::EParameterType::Struct;
         Buffer.Parameter.Offset = 0;
         Buffer.Parameter.Rows = Type.vecsize;
         Buffer.Parameter.Columns = Type.columns;

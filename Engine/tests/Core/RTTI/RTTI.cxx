@@ -1,6 +1,6 @@
 #include "Engine/Raphael.hxx"
 
-#include "Engine/Core/RTTI.hxx"
+#include "Engine/Core/RTTI/RTTI.hxx"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators_all.hpp>

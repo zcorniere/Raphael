@@ -155,7 +155,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
         .Parameter =
             {
                 .Name = "push",
-                .Type = EShaderBufferType::Struct,
+                .Type = ::RTTI::EParameterType::Struct,
                 .Size = ExpectedPushConstantOffset + sizeof(PushConstantStruct),
                 .Offset = ExpectedPushConstantOffset,
                 .Columns = 1,
@@ -164,7 +164,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                     {
                         {
                             .Name = "push",
-                            .Type = EShaderBufferType::Struct,
+                            .Type = ::RTTI::EParameterType::Struct,
                             .Size = sizeof(PushConstantStruct),
                             .Offset = ExpectedPushConstantOffset,
                             .Columns = 1,
@@ -173,7 +173,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                 {
                                     {
                                         .Name = "pointLightCount",
-                                        .Type = EShaderBufferType::Uint32,
+                                        .Type = ::RTTI::EParameterType::Uint32,
                                         .Size = 4,
                                         .Offset = 0,
                                         .Columns = 1,
@@ -181,7 +181,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                     },
                                     {
                                         .Name = "directLightCount",
-                                        .Type = EShaderBufferType::Uint32,
+                                        .Type = ::RTTI::EParameterType::Uint32,
                                         .Size = 4,
                                         .Offset = 4,
                                         .Columns = 1,
@@ -189,7 +189,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                     },
                                     {
                                         .Name = "spotLightCount",
-                                        .Type = EShaderBufferType::Uint32,
+                                        .Type = ::RTTI::EParameterType::Uint32,
                                         .Size = 4,
                                         .Offset = 8,
                                         .Columns = 1,
@@ -197,7 +197,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                     },
                                     {
                                         .Name = "position",
-                                        .Type = EShaderBufferType::Float,
+                                        .Type = ::RTTI::EParameterType::Float,
                                         .Size = 4,
                                         .Offset = 16,
                                         .Columns = 1,
@@ -263,9 +263,9 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                         .Binding = 1,
                         .Parameter =
                             {
-                                FParameter{
+                                ::RTTI::FParameter{
                                     .Name = "ObjectMaterials",
-                                    .Type = EShaderBufferType::Struct,
+                                    .Type = ::RTTI::EParameterType::Struct,
                                     .Size = 0,
                                     .Offset = 0,
                                     .Columns = 1,
@@ -274,7 +274,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                         {
                                             {
                                                 .Name = "materials",
-                                                .Type = EShaderBufferType::Struct,
+                                                .Type = ::RTTI::EParameterType::Struct,
                                                 .Size = 92,
                                                 .Offset = 0,
                                                 .Columns = 1,
@@ -283,7 +283,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                     {
                                                         {
                                                             .Name = "alphaCutOff",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 0,
                                                             .Columns = 1,
@@ -292,7 +292,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "metallic",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 4,
                                                             .Columns = 1,
@@ -301,7 +301,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "roughness",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 8,
                                                             .Columns = 1,
@@ -310,7 +310,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "baseColor",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 16,
                                                             .Columns = 1,
@@ -319,7 +319,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "baseColorFactor",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 32,
                                                             .Columns = 1,
@@ -328,7 +328,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "emissiveFactor",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 48,
                                                             .Columns = 1,
@@ -337,7 +337,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "baseColorTexture",
-                                                            .Type = EShaderBufferType::Int32,
+                                                            .Type = ::RTTI::EParameterType::Int32,
                                                             .Size = 4,
                                                             .Offset = 64,
                                                             .Columns = 1,
@@ -346,7 +346,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "metallicRoughnessTexture",
-                                                            .Type = EShaderBufferType::Int32,
+                                                            .Type = ::RTTI::EParameterType::Int32,
                                                             .Size = 4,
                                                             .Offset = 68,
                                                             .Columns = 1,
@@ -355,7 +355,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "normalTexture",
-                                                            .Type = EShaderBufferType::Int32,
+                                                            .Type = ::RTTI::EParameterType::Int32,
                                                             .Size = 4,
                                                             .Offset = 72,
                                                             .Columns = 1,
@@ -364,7 +364,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "occlusionTexture",
-                                                            .Type = EShaderBufferType::Int32,
+                                                            .Type = ::RTTI::EParameterType::Int32,
                                                             .Size = 4,
                                                             .Offset = 76,
                                                             .Columns = 1,
@@ -373,7 +373,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "emissiveTexture",
-                                                            .Type = EShaderBufferType::Int32,
+                                                            .Type = ::RTTI::EParameterType::Int32,
                                                             .Size = 4,
                                                             .Offset = 80,
                                                             .Columns = 1,
@@ -382,7 +382,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "specularGlossinessTexture",
-                                                            .Type = EShaderBufferType::Int32,
+                                                            .Type = ::RTTI::EParameterType::Int32,
                                                             .Size = 4,
                                                             .Offset = 84,
                                                             .Columns = 1,
@@ -391,7 +391,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "diffuseTexture",
-                                                            .Type = EShaderBufferType::Int32,
+                                                            .Type = ::RTTI::EParameterType::Int32,
                                                             .Size = 4,
                                                             .Offset = 88,
                                                             .Columns = 1,
@@ -407,9 +407,9 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                         .Set = 1,
                         .Binding = 0,
                         .Parameter =
-                            FParameter{
+                            ::RTTI::FParameter{
                                 .Name = "DirectLight",
-                                .Type = EShaderBufferType::Struct,
+                                .Type = ::RTTI::EParameterType::Struct,
                                 .Size = 0,
                                 .Offset = 0,
                                 .Columns = 1,
@@ -418,7 +418,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                     {
                                         {
                                             .Name = "directionalLightArray",
-                                            .Type = EShaderBufferType::Struct,
+                                            .Type = ::RTTI::EParameterType::Struct,
                                             .Size = 36,
                                             .Offset = 0,
                                             .Columns = 1,
@@ -427,7 +427,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                 {
                                                     {
                                                         .Name = "orientation",
-                                                        .Type = EShaderBufferType::Float,
+                                                        .Type = ::RTTI::EParameterType::Float,
                                                         .Size = 4,
                                                         .Offset = 0,
                                                         .Columns = 1,
@@ -436,7 +436,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                     },
                                                     {
                                                         .Name = "color",
-                                                        .Type = EShaderBufferType::Float,
+                                                        .Type = ::RTTI::EParameterType::Float,
                                                         .Size = 4,
                                                         .Offset = 16,
                                                         .Columns = 1,
@@ -445,7 +445,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                     },
                                                     {
                                                         .Name = "intensity",
-                                                        .Type = EShaderBufferType::Float,
+                                                        .Type = ::RTTI::EParameterType::Float,
                                                         .Size = 4,
                                                         .Offset = 32,
                                                         .Columns = 1,
@@ -462,9 +462,9 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                         .Binding = 1,
                         .Parameter =
                             {
-                                FParameter{
+                                ::RTTI::FParameter{
                                     .Name = "SpoLight",
-                                    .Type = EShaderBufferType::Struct,
+                                    .Type = ::RTTI::EParameterType::Struct,
                                     .Size = 0,
                                     .Offset = 0,
                                     .Columns = 1,
@@ -473,7 +473,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                         {
                                             {
                                                 .Name = "spotLightArray",
-                                                .Type = EShaderBufferType::Struct,
+                                                .Type = ::RTTI::EParameterType::Struct,
                                                 .Size = 60,
                                                 .Offset = 0,
                                                 .Columns = 1,
@@ -483,7 +483,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
 
                                                         {
                                                             .Name = "position",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 0,
                                                             .Columns = 1,
@@ -492,7 +492,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "direction",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 16,
                                                             .Columns = 1,
@@ -501,7 +501,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "color",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 32,
                                                             .Columns = 1,
@@ -510,7 +510,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "cutOff",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 48,
                                                             .Columns = 1,
@@ -519,7 +519,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "outerCutOff",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 52,
                                                             .Columns = 1,
@@ -528,7 +528,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "intensity",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 56,
                                                             .Columns = 1,
@@ -545,9 +545,9 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                         .Binding = 2,
                         .Parameter =
                             {
-                                FParameter{
+                                ::RTTI::FParameter{
                                     .Name = "LightBuffer",
-                                    .Type = EShaderBufferType::Struct,
+                                    .Type = ::RTTI::EParameterType::Struct,
                                     .Size = 0,
                                     .Offset = 0,
                                     .Columns = 1,
@@ -556,7 +556,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                         {
                                             {
                                                 .Name = "pointLightArray",
-                                                .Type = EShaderBufferType::Struct,
+                                                .Type = ::RTTI::EParameterType::Struct,
                                                 .Size = 40,
                                                 .Offset = 0,
                                                 .Columns = 1,
@@ -566,7 +566,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
 
                                                         {
                                                             .Name = "position",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 0,
                                                             .Columns = 1,
@@ -575,7 +575,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "color",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 16,
                                                             .Columns = 1,
@@ -584,7 +584,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "intensity",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 32,
                                                             .Columns = 1,
@@ -593,7 +593,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                                                         },
                                                         {
                                                             .Name = "falloff",
-                                                            .Type = EShaderBufferType::Float,
+                                                            .Type = ::RTTI::EParameterType::Float,
                                                             .Size = 4,
                                                             .Offset = 36,
                                                             .Columns = 1,

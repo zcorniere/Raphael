@@ -3,7 +3,6 @@
 #include "Engine/Serialization/StreamReader.hxx"
 #include "Engine/Serialization/StreamWriter.hxx"
 
-#include "Engine/Core/RHI/RHIShaderParameters.hxx"
 #include "Engine/Core/RHI/Resources/RHIShader.hxx"
 
 #include "VulkanRHI/Resources/VulkanGraphicsPipeline.hxx"
@@ -19,7 +18,7 @@ namespace ShaderResource
         uint32 Offset = 0;
         uint32 Size = 0;
 
-        FParameter Parameter;
+        ::RTTI::FParameter Parameter;
 
         bool operator==(const FPushConstantRange&) const = default;
 
@@ -30,8 +29,9 @@ namespace ShaderResource
     struct FStageIO {
         std::string Name;
         EVertexElementType Type;
-        uint32 Binding;
-        uint32 Location;
+        uint32 Binding = 0;
+        uint32 Location = 0;
+        uint32 Offset = 0;
 
         bool operator==(const FStageIO&) const = default;
 
@@ -42,7 +42,7 @@ namespace ShaderResource
     struct FStorageBuffer {
         uint32 Set = 0;
         uint32 Binding = 0;
-        FParameter Parameter;
+        ::RTTI::FParameter Parameter;
 
         bool operator==(const FStorageBuffer&) const = default;
 
@@ -53,7 +53,7 @@ namespace ShaderResource
     struct FUniformBuffer {
         uint32 Set = 0;
         uint32 Binding = 0;
-        FParameter Parameter;
+        ::RTTI::FParameter Parameter;
 
         bool operator==(const FUniformBuffer&) const = default;
 

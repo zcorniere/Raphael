@@ -115,14 +115,14 @@ build_tests(
     ${PROJECT_NAME}
     tests/Containers/Array.cxx
     tests/Containers/ArrayView.cxx
-    tests/RHIShaderParametersTest.cxx
     tests/Math/Quaternion.cxx
     tests/Math/Vector.cxx
     tests/Math/Math.cxx
     tests/Math/Matrix.cxx
     tests/Math/Transform.cxx
     tests/Math/ViewPoint.cxx
-    tests/RTTI.cxx
+    tests/Core/RTTI/RTTI.cxx
+    tests/Core/RTTI/RTTIParameter.cxx
     tests/CommandLine.cxx
 )
 target_link_libraries(${PROJECT_NAME}_Test PRIVATE glm)

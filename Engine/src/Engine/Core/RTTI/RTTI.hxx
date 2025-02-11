@@ -71,6 +71,11 @@ namespace details
     }    // namespace Hash
 }    // namespace details
 
+struct FEnable;
+
+/// Type identifier used to identify types in the RTTI system
+using FTypeId = uint32_t;
+
 /// @brief Return the name of the type given as template arguments
 template <typename T>
 consteval std::string_view TypeName()
@@ -88,11 +93,6 @@ inline std::string FilePosition(const std::source_location& location = std::sour
 {
     return std::format("{:s}:{}", std::filesystem::path(location.file_name()).filename().string(), location.line());
 }
-
-struct FEnable;
-
-/// Type identifier used to identify types in the RTTI system
-using FTypeId = std::uint32_t;
 
 template <typename TThis>
 concept IsRTTIApiAvailable = requires {
