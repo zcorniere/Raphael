@@ -2,37 +2,53 @@
 
 #include "Engine/Containers/Array.hxx"
 
+#include "Engine/Misc/EnumFlags.hxx"
 #include "Engine/Serialization/StreamReader.hxx"
 #include "Engine/Serialization/StreamWriter.hxx"
 
-#define BEGIN_PARAMETER_STRUCT(StructureName)                                              \
-    struct alignas(16) StructureName {                                                     \
-        RTTI_DECLARE_TYPEINFO_MINIMAL(StructureName);                                      \
-                                                                                           \
-    public:                                                                                \
-        static constexpr std::source_location Location = std::source_location::current();  \
-        StructureName()                                                                    \
-        {                                                                                  \
-            static_assert(std::is_standard_layout<StructureName>::value,                   \
-                          #StructureName " must be trivially constructible");              \
-            std::memset(this, 0, sizeof(*this));                                           \
-        }                                                                                  \
-                                                                                           \
-    private:                                                                               \
-        typedef StructureName zzTThisStruct;                                               \
-                                                                                           \
-        struct zzFirstMemberId {                                                           \
-        };                                                                                 \
-        typedef void* zzFuncPtr;                                                           \
-        typedef zzFuncPtr (*zzMemberFunc)(zzFirstMemberId, TArray<::RTTI::FParameter>*);   \
-        static zzFuncPtr zzGetPreviousMember(zzFirstMemberId, TArray<::RTTI::FParameter>*) \
-        {                                                                                  \
-            return nullptr;                                                                \
-        }                                                                                  \
+enum class EParameterStructOption {
+    None = 0,
+    NoAlignmentType = BIT(1),
+};
+ENUM_CLASS_FLAGS(EParameterStructOption)
+
+#define BEGIN_PARAMETER_STRUCT(StructureName) \
+    BEGIN_PARAMETER_STRUCT_INTERNAL(StructureName, EParameterStructOption::None)
+
+#define BEGIN_PARAMETER_STRUCT_WITH_OPTION(StructureName, StructOptionFlag) \
+    BEGIN_PARAMETER_STRUCT_INTERNAL(StructureName, StructOptionFlag)
+
+#define BEGIN_PARAMETER_STRUCT_INTERNAL(StructureName, StructOptionFlag)                                             \
+    struct alignas(16) StructureName {                                                                               \
+        RTTI_DECLARE_TYPEINFO_MINIMAL(StructureName);                                                                \
+                                                                                                                     \
+    public:                                                                                                          \
+        static constexpr EParameterStructOption StructOption = StructOptionFlag;                                     \
+                                                                                                                     \
+    public:                                                                                                          \
+        static constexpr std::source_location Location = std::source_location::current();                            \
+        StructureName()                                                                                              \
+        {                                                                                                            \
+            static_assert(std::is_standard_layout<StructureName>::value, #StructureName " must be standard layout"); \
+            std::memset(this, 0, sizeof(*this));                                                                     \
+        }                                                                                                            \
+                                                                                                                     \
+    private:                                                                                                         \
+        typedef StructureName zzTThisStruct;                                                                         \
+                                                                                                                     \
+        struct zzFirstMemberId {                                                                                     \
+        };                                                                                                           \
+        typedef void* zzFuncPtr;                                                                                     \
+        typedef zzFuncPtr (*zzMemberFunc)(zzFirstMemberId, TArray<::RTTI::FParameter>*);                             \
+        static zzFuncPtr zzGetPreviousMember(zzFirstMemberId, TArray<::RTTI::FParameter>*)                           \
+        {                                                                                                            \
+            return nullptr;                                                                                          \
+        }                                                                                                            \
         typedef zzFirstMemberId
 
-#define PARAMETER(ParameterType, ParameterName) \
-    SHADER_PARAMETER_INTERNAL(ParameterType, ParameterName, ::RTTI::TSupportedParameterType<ParameterType>)
+#define PARAMETER(ParameterType, ParameterName)             \
+    SHADER_PARAMETER_INTERNAL(ParameterType, ParameterName, \
+                              ::RTTI::TSupportedParameterType<MACRO_EXPENDER_ARGS(ParameterType, StructOption)>)
 
 #define SHADER_PARAMETER_INTERNAL(ParameterType, ParameterName, TypeInfo)                                         \
     zzMemberId##ParameterName;                                                                                    \
@@ -139,16 +155,11 @@ struct FParameter {
     }
 };
 
-struct FClass {
-    std::string_view Name;
-    TArray<FParameter> Members;
-};
-
-template <typename T>
+template <typename T, EParameterStructOption Option>
 struct TSupportedParameterType;
 
-template <>
-struct TSupportedParameterType<int32> {
+template <EParameterStructOption Option>
+struct TSupportedParameterType<int32, Option> {
     static constexpr EParameterType Type = EParameterType::Int32;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 1;
@@ -156,8 +167,8 @@ struct TSupportedParameterType<int32> {
     using AlignedType = int32;
 };
 
-template <>
-struct TSupportedParameterType<uint64> {
+template <EParameterStructOption Option>
+struct TSupportedParameterType<uint64, Option> {
     static constexpr EParameterType Type = EParameterType::Uint32;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 1;
@@ -165,8 +176,8 @@ struct TSupportedParameterType<uint64> {
     using AlignedType = uint64;
 };
 
-template <>
-struct TSupportedParameterType<float> {
+template <EParameterStructOption Option>
+struct TSupportedParameterType<float, Option> {
     static constexpr EParameterType Type = EParameterType::Float;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 1;
@@ -174,8 +185,26 @@ struct TSupportedParameterType<float> {
     using AlignedType = float;
 };
 
+template <EParameterStructOption Option>
+struct TSupportedParameterType<FVector2, Option> {
+    static constexpr EParameterType Type = EParameterType::Float;
+    static constexpr uint64 NumColumns = 1;
+    static constexpr uint64 NumRows = 2;
+    static constexpr uint64 Alignment = 16;
+    using AlignedType = FVector2;
+};
+
 template <>
-struct TSupportedParameterType<FVector3> {
+struct TSupportedParameterType<FVector3, EParameterStructOption::NoAlignmentType> {
+    static constexpr EParameterType Type = EParameterType::Float;
+    static constexpr uint64 NumColumns = 1;
+    static constexpr uint64 NumRows = 3;
+    static constexpr uint64 Alignment = 16;
+    using AlignedType = FVector3;
+};
+
+template <EParameterStructOption Option>
+struct TSupportedParameterType<FVector3, Option> {
     static constexpr EParameterType Type = EParameterType::Float;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 3;
@@ -183,8 +212,8 @@ struct TSupportedParameterType<FVector3> {
     using AlignedType = FVector4;
 };
 
-template <>
-struct TSupportedParameterType<FVector4> {
+template <EParameterStructOption Option>
+struct TSupportedParameterType<FVector4, Option> {
     static constexpr EParameterType Type = EParameterType::Float;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 4;
@@ -192,8 +221,8 @@ struct TSupportedParameterType<FVector4> {
     using AlignedType = FVector4;
 };
 
-template <>
-struct TSupportedParameterType<UVector2> {
+template <EParameterStructOption Option>
+struct TSupportedParameterType<UVector2, Option> {
     static constexpr EParameterType Type = EParameterType::Uint32;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 2;
@@ -201,8 +230,8 @@ struct TSupportedParameterType<UVector2> {
     using AlignedType = UVector2;
 };
 
-template <>
-struct TSupportedParameterType<IVector2> {
+template <EParameterStructOption Option>
+struct TSupportedParameterType<IVector2, Option> {
     static constexpr EParameterType Type = EParameterType::Int32;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 2;
@@ -210,8 +239,8 @@ struct TSupportedParameterType<IVector2> {
     using AlignedType = IVector2;
 };
 
-template <>
-struct TSupportedParameterType<FMatrix4> {
+template <EParameterStructOption Option>
+struct TSupportedParameterType<FMatrix4, Option> {
     static constexpr EParameterType Type = EParameterType::Float;
     static constexpr uint64 NumColumns = 4;
     static constexpr uint64 NumRows = 4;
