@@ -4,6 +4,7 @@
 #include "Engine/Core/Events/KeyEvent.hxx"
 #include "Engine/Core/Events/MouseEvent.hxx"
 #include "Engine/Core/RHI/RHI.hxx"
+#include "Engine/Misc/CommandLine.hxx"
 #include "Engine/Misc/MiscDefines.hxx"
 #include "Engine/Misc/Utils.hxx"
 
@@ -59,6 +60,7 @@ void RWindow::Initialize(const FWindowDefinition& InDefinition)
 
     glfwWindowHint(GLFW_RESIZABLE, InDefinition.HasSizingFrame);
     glfwWindowHint(GLFW_DECORATED, InDefinition.HasOsWindowBorder);
+
     p_Handle = glfwCreateWindow(Width, Height, Definition.Title.c_str(), nullptr, nullptr);
     if (!p_Handle) {
         LOG(LogWindow, Fatal, "Failed To create the GLFW Window");
@@ -195,7 +197,18 @@ bool RWindow::InitializeGLFW()
     if (bGLFWInitialized) {
         return true;
     }
+
+#if defined(PLATFORM_LINUX)
+    if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND) && !FCommandLine::Param("-forceX11")) {
+        glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WAYLAND);
+        LOG(LogWindow, Info, "Initializing GLFW - using Wayland");
+    } else {
+        glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+        LOG(LogWindow, Info, "Initializing GLFW - using X11");
+    }
+#elif define(PLATFORM_WINDOWS)
     LOG(LogWindow, Info, "Initializing GLFW.");
+#endif
 
     if (glfwInit() == GLFW_FALSE) {
         const char* ErrorMessage = nullptr;
