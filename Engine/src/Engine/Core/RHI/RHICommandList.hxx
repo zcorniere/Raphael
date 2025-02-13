@@ -55,24 +55,34 @@ public:
     virtual void Execute(FFRHICommandList&) = 0;
 };
 
-template <typename TTypeString, typename TLambda>
+template <typename TTypeString, typename TLambda, typename... ArgsType>
 class TLambdaRenderCommandType : public FRHIRenderCommandBase
 {
 public:
-    TLambdaRenderCommandType(TLambda&& InLambda): Lambda(std::forward<TLambda>(InLambda))
+    TLambdaRenderCommandType(TLambda&& InLambda, ArgsType&&... Args)
+        : Lambda(std::forward<TLambda>(InLambda)), Args(std::make_tuple(std::forward<ArgsType>(Args)...))
     {
     }
+    TLambdaRenderCommandType(const TLambdaRenderCommandType&) = delete;
+
     virtual ~TLambdaRenderCommandType() = default;
 
     virtual void DoTask(FFRHICommandList& CommandList) override final
     {
         RPH_PROFILE_SCOPE_DYNAMIC(TTypeString::Str());
         LOG(LogRenderCommand, Trace, "Running task: {:s}", TTypeString::Str());
-        Lambda(CommandList);
+        DoTaskImpl(CommandList, std::index_sequence_for<ArgsType...>{});
     }
 
 private:
+    template <std::size_t... Is>
+    void DoTaskImpl(FFRHICommandList& CommandList, std::index_sequence<Is...>)
+    {
+        Lambda(CommandList, std::get<Is>(Args)...);
+    }
+
     TLambda Lambda;
+    std::tuple<std::decay_t<ArgsType>...> Args;
 };
 
 class FFRHICommandList : public FNamedClass
@@ -149,11 +159,12 @@ public:
                                     uint64 DestinationOffset, uint64 Size);
 
     /// @brief Add a command to the back of the queue
-    template <typename TSTR, typename TFunction>
-    requires std::is_invocable_v<TFunction, FFRHICommandList&>
-    void EnqueueLambda(TFunction&& Function)
+    template <typename TSTR, typename TFunction, typename... ArgsType>
+    requires std::is_invocable_v<TFunction, FFRHICommandList&, ArgsType...>
+    void EnqueueLambda(TFunction&& Function, ArgsType&&... Args)
     {
-        return Enqueue(new TLambdaRenderCommandType<TSTR, TFunction>(std::forward<TFunction>(Function)));
+        return Enqueue(new TLambdaRenderCommandType<TSTR, TFunction, ArgsType...>(std::forward<TFunction>(Function),
+                                                                                  std::forward<ArgsType>(Args)...));
     }
 
     /// @brief Execute the command in the given context
