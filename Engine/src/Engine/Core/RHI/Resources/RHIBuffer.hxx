@@ -32,8 +32,6 @@ struct FRHIBufferDesc {
     EBufferUsageFlags Usage = EBufferUsageFlags::None;
     IResourceArrayInterface* ResourceArray = nullptr;
     std::string DebugName;
-
-    RTTI::FClass* ResourceType = nullptr;
 };
 
 /// @brief Represent a Buffer used by the RHI

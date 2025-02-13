@@ -2,7 +2,7 @@
 
 Ref<RAsset> MeshFactory::CreateBox(const FVector3& size)
 {
-    TResourceArray<RAsset::FVertex> vertices;
+    TResourceArray<FVertex> vertices;
     vertices.Resize(8);
     vertices[0].Position = {-size.x / 2, -size.y / 2, size.z / 2};
     vertices[1].Position = {size.x / 2, -size.y / 2, size.z / 2};

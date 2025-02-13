@@ -5,6 +5,7 @@
 
 #define __MACRO_EXPENDER_INTERNAL(X, Y) X##Y
 #define MACRO_EXPENDER(X, Y) __MACRO_EXPENDER_INTERNAL(X, Y)
+#define MACRO_EXPENDER_ARGS(...) __VA_ARGS__
 
 #define STR(x) #x
 

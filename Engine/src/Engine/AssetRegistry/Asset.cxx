@@ -33,7 +33,7 @@ bool RAsset::LoadOnGPU()
     }
     Ref<RRHIBuffer> TmpBuffer = RHI::CreateBuffer(FRHIBufferDesc{
         .Size = VertexData.GetByteSize(),
-        .Stride = sizeof(RAsset::FVertex),
+        .Stride = sizeof(FVertex),
         .Usage = EBufferUsageFlags::SourceCopy | EBufferUsageFlags::KeepCPUAccessible,
         .ResourceArray = &VertexData,
         .DebugName = std::format("{:s}.StagingVertexBuffer", GetName()),

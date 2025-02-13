@@ -5,6 +5,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators_all.hpp>
 
+namespace TestTypes
+{
 BEGIN_PARAMETER_STRUCT(FShaderStruct)
 PARAMETER(int32, TestValue)
 PARAMETER(float, TestFloat)
@@ -12,9 +14,17 @@ PARAMETER(FVector3, TestVec3)
 PARAMETER(FMatrix4, TestMat4)
 END_PARAMETER_STRUCT();
 
-TEST_CASE("ShaderParameterStruct")
+BEGIN_UNALIGNED_PARAMETER_STRUCT(FVertex)
+PARAMETER(FVector3, Position)
+PARAMETER(FVector3, Normal)
+END_PARAMETER_STRUCT();
+
+}    // namespace TestTypes
+
+TEST_CASE("Test Parametter struct")
 {
     using namespace RTTI;
+    using namespace TestTypes;
 
     FShaderStruct TestStruct;
     TestStruct.TestValue = 42;
@@ -55,18 +65,52 @@ TEST_CASE("ShaderParameterStruct")
     CHECK(Members[3].Rows == 4);
 
     // Check if the struct is the same size as the sum of its members
-    unsigned offsetA = offsetof(FShaderStruct, TestValue);
-    unsigned offsetB = offsetof(FShaderStruct, TestFloat);
-    unsigned offsetC = offsetof(FShaderStruct, TestVec3);
-    unsigned offsetD = offsetof(FShaderStruct, TestMat4);
+    int offsetA = offsetof(FShaderStruct, TestValue);
+    int offsetB = offsetof(FShaderStruct, TestFloat);
+    int offsetC = offsetof(FShaderStruct, TestVec3);
+    int offsetD = offsetof(FShaderStruct, TestMat4);
 
     // Calculate padding between members
-    unsigned paddingAB = offsetB - (offsetA + sizeof(int));
-    unsigned paddingBC = offsetC - (offsetB + sizeof(float));
-    unsigned paddingCD = offsetD - (offsetC + sizeof(FVector4));
-    unsigned paddingEnd = sizeof(FShaderStruct) - (offsetC + sizeof(FMatrix4));
+    int paddingAB = offsetB - (offsetA + sizeof(int));
+    int paddingBC = offsetC - (offsetB + sizeof(float));
+    int paddingCD = offsetD - (offsetC + sizeof(FVector4));
+    int paddingEnd = sizeof(FShaderStruct) - (offsetC + sizeof(FMatrix4));
 
     INFO("Padding between members: " << paddingAB << ", " << paddingBC << ", " << paddingCD << ",  " << paddingEnd);
     CHECK(sizeof(FShaderStruct) ==
           Members[0].Size + paddingAB + Members[1].Size + paddingBC + Members[2].Size + paddingCD + Members[3].Size);
+}
+
+TEST_CASE("Test Parametter info with no align option")
+{
+    using namespace RTTI;
+    using namespace TestTypes;
+
+    struct FExpectedVertexMemLayout {
+        FVector3 Position;
+        FVector3 Normal;
+    };
+
+    TArray<FParameter> Members = FVertex::GetMembers();
+
+    CHECK(Members.Size() == 2);
+
+    CHECK(Members[0].Name == "Position");
+    CHECK(Members[0].Offset == 0);
+    CHECK(Members[0].Size == sizeof(FVector3));
+    CHECK(Members[0].Type == EParameterType::Float);
+    CHECK(Members[0].Columns == 1);
+    CHECK(Members[0].Rows == 3);
+
+    CHECK(Members[1].Name == "Normal");
+    CHECK(Members[1].Offset == sizeof(FVector3));
+    CHECK(Members[1].Size == sizeof(FVector3));
+    CHECK(Members[1].Type == EParameterType::Float);
+    CHECK(Members[1].Columns == 1);
+    CHECK(Members[1].Rows == 3);
+
+    CHECK(alignof(FVertex) == alignof(FExpectedVertexMemLayout));
+    CHECK(sizeof(FVertex) == sizeof(FExpectedVertexMemLayout));
+    check(offsetof(FVertex, Position) == offsetof(FExpectedVertexMemLayout, Position));
+    check(offsetof(FVertex, Normal) == offsetof(FExpectedVertexMemLayout, Normal));
 }

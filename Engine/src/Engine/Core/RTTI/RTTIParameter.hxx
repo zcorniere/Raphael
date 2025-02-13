@@ -2,7 +2,6 @@
 
 #include "Engine/Containers/Array.hxx"
 
-#include "Engine/Misc/EnumFlags.hxx"
 #include "Engine/Serialization/StreamReader.hxx"
 #include "Engine/Serialization/StreamWriter.hxx"
 
@@ -10,16 +9,10 @@ enum class EParameterStructOption {
     None = 0,
     NoAlignmentType = BIT(1),
 };
-ENUM_CLASS_FLAGS(EParameterStructOption)
 
-#define BEGIN_PARAMETER_STRUCT(StructureName) \
-    BEGIN_PARAMETER_STRUCT_INTERNAL(StructureName, EParameterStructOption::None)
-
-#define BEGIN_PARAMETER_STRUCT_WITH_OPTION(StructureName, StructOptionFlag) \
-    BEGIN_PARAMETER_STRUCT_INTERNAL(StructureName, StructOptionFlag)
-
-#define BEGIN_PARAMETER_STRUCT_INTERNAL(StructureName, StructOptionFlag)                                             \
-    struct alignas(16) StructureName {                                                                               \
+#define BEGIN_PARAMETER_STRUCT_INTERNAL(StructureName, StructOptionFlag, StructDeclaration)                          \
+    StructDeclaration(StructureName)                                                                                 \
+    {                                                                                                                \
         RTTI_DECLARE_TYPEINFO_MINIMAL(StructureName);                                                                \
                                                                                                                      \
     public:                                                                                                          \
@@ -46,15 +39,22 @@ ENUM_CLASS_FLAGS(EParameterStructOption)
         }                                                                                                            \
         typedef zzFirstMemberId
 
-#define PARAMETER(ParameterType, ParameterName)             \
-    SHADER_PARAMETER_INTERNAL(ParameterType, ParameterName, \
-                              ::RTTI::TSupportedParameterType<MACRO_EXPENDER_ARGS(ParameterType, StructOption)>)
+#define __zzALIGNED_STRUCT(Name) struct alignas(16) Name
+#define __zzUNALIGNED_STRUCT(Name) struct Name
 
-#define SHADER_PARAMETER_INTERNAL(ParameterType, ParameterName, TypeInfo)                                         \
+#define BEGIN_PARAMETER_STRUCT(StructureName) \
+    BEGIN_PARAMETER_STRUCT_INTERNAL(StructureName, EParameterStructOption::None, __zzALIGNED_STRUCT)
+
+#define BEGIN_UNALIGNED_PARAMETER_STRUCT(StructureName) \
+    BEGIN_PARAMETER_STRUCT_INTERNAL(StructureName, EParameterStructOption::NoAlignmentType, __zzUNALIGNED_STRUCT)
+
+#define __zzALIGNED_PARAMETER(ParameterName, TypeInfo) alignas(TypeInfo::Alignment) TypeInfo::AlignedType ParameterName;
+#define __zzUNALIGNED_PARAMETER(ParameterName, TypeInfo) TypeInfo::AlignedType ParameterName;
+#define SHADER_PARAMETER_INTERNAL(ParameterDeclaration, ParameterType, ParameterName, TypeInfo)                   \
     zzMemberId##ParameterName;                                                                                    \
                                                                                                                   \
 public:                                                                                                           \
-    alignas(TypeInfo::Alignment) TypeInfo::AlignedType ParameterName;                                             \
+    ParameterDeclaration(ParameterName, MACRO_EXPENDER_ARGS(TypeInfo));                                           \
                                                                                                                   \
 private:                                                                                                          \
     struct zzNextMemberId##ParameterName {                                                                        \
@@ -74,6 +74,14 @@ private:                                                                        
         return (zzFuncPtr)PrevFunc;                                                                               \
     }                                                                                                             \
     typedef zzNextMemberId##ParameterName
+
+#define PARAMETER_UNALIGNED(ParameterType, ParameterName)                            \
+    SHADER_PARAMETER_INTERNAL(__zzUNALIGNED_PARAMETER, ParameterType, ParameterName, \
+                              ::RTTI::TSupportedParameterType<MACRO_EXPENDER_ARGS(ParameterType, StructOption)>)
+
+#define PARAMETER(ParameterType, ParameterName)                                    \
+    SHADER_PARAMETER_INTERNAL(__zzALIGNED_PARAMETER, ParameterType, ParameterName, \
+                              ::RTTI::TSupportedParameterType<MACRO_EXPENDER_ARGS(ParameterType, StructOption)>)
 
 #define END_PARAMETER_STRUCT()                                                      \
     zzLastMemberId;                                                                 \
@@ -160,92 +168,102 @@ struct TSupportedParameterType;
 
 template <EParameterStructOption Option>
 struct TSupportedParameterType<int32, Option> {
+    using OriginalType = int32;
+    using AlignedType = int32;
     static constexpr EParameterType Type = EParameterType::Int32;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 1;
-    static constexpr uint64 Alignment = 4;
-    using AlignedType = int32;
+    static constexpr uint64 Alignment = alignof(AlignedType);
 };
 
 template <EParameterStructOption Option>
-struct TSupportedParameterType<uint64, Option> {
+struct TSupportedParameterType<uint32, Option> {
+    using OriginalType = uint32;
+    using AlignedType = uint32;
     static constexpr EParameterType Type = EParameterType::Uint32;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 1;
-    static constexpr uint64 Alignment = 4;
-    using AlignedType = uint64;
+    static constexpr uint64 Alignment = alignof(AlignedType);
 };
 
 template <EParameterStructOption Option>
 struct TSupportedParameterType<float, Option> {
+    using OriginalType = float;
+    using AlignedType = float;
     static constexpr EParameterType Type = EParameterType::Float;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 1;
-    static constexpr uint64 Alignment = 4;
-    using AlignedType = float;
+    static constexpr uint64 Alignment = alignof(AlignedType);
 };
 
 template <EParameterStructOption Option>
 struct TSupportedParameterType<FVector2, Option> {
+    using OriginalType = FVector2;
+    using AlignedType = FVector2;
     static constexpr EParameterType Type = EParameterType::Float;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 2;
-    static constexpr uint64 Alignment = 16;
-    using AlignedType = FVector2;
+    static constexpr uint64 Alignment = alignof(AlignedType);
 };
 
 template <>
 struct TSupportedParameterType<FVector3, EParameterStructOption::NoAlignmentType> {
+    using OriginalType = FVector3;
+    using AlignedType = FVector3;
     static constexpr EParameterType Type = EParameterType::Float;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 3;
-    static constexpr uint64 Alignment = 16;
-    using AlignedType = FVector3;
+    static constexpr uint64 Alignment = alignof(OriginalType);
 };
 
 template <EParameterStructOption Option>
 struct TSupportedParameterType<FVector3, Option> {
+    using OriginalType = FVector3;
+    using AlignedType = FVector4;
     static constexpr EParameterType Type = EParameterType::Float;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 3;
-    static constexpr uint64 Alignment = 16;
-    using AlignedType = FVector4;
+    static constexpr uint64 Alignment = alignof(AlignedType);
 };
 
 template <EParameterStructOption Option>
 struct TSupportedParameterType<FVector4, Option> {
+    using OriginalType = FVector4;
+    using AlignedType = FVector4;
     static constexpr EParameterType Type = EParameterType::Float;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 4;
-    static constexpr uint64 Alignment = 16;
-    using AlignedType = FVector4;
+    static constexpr uint64 Alignment = alignof(AlignedType);
 };
 
 template <EParameterStructOption Option>
 struct TSupportedParameterType<UVector2, Option> {
+    using OriginalType = UVector2;
+    using AlignedType = UVector2;
     static constexpr EParameterType Type = EParameterType::Uint32;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 2;
-    static constexpr uint64 Alignment = 16;
-    using AlignedType = UVector2;
+    static constexpr uint64 Alignment = alignof(AlignedType);
 };
 
 template <EParameterStructOption Option>
 struct TSupportedParameterType<IVector2, Option> {
+    using OriginalType = IVector2;
+    using AlignedType = IVector2;
     static constexpr EParameterType Type = EParameterType::Int32;
     static constexpr uint64 NumColumns = 1;
     static constexpr uint64 NumRows = 2;
-    static constexpr uint64 Alignment = 16;
-    using AlignedType = IVector2;
+    static constexpr uint64 Alignment = alignof(AlignedType);
 };
 
 template <EParameterStructOption Option>
 struct TSupportedParameterType<FMatrix4, Option> {
+    using OriginalType = FMatrix4;
+    using AlignedType = FMatrix4;
     static constexpr EParameterType Type = EParameterType::Float;
     static constexpr uint64 NumColumns = 4;
     static constexpr uint64 NumRows = 4;
-    static constexpr uint64 Alignment = 16;
-    using AlignedType = FMatrix4;
+    static constexpr uint64 Alignment = alignof(AlignedType);
 };
 
 inline std::string PrintShaderParameter(const FParameter& Param, unsigned Indent, bool bSimple)
