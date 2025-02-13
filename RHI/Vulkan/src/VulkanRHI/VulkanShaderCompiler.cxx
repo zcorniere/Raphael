@@ -269,6 +269,10 @@ bool FVulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
     Result.Status = ECompilationStatus::PreProcess;
     shaderc::PreprocessedSourceCompilationResult PreProcessResult =
         ShaderCompiler.PreprocessGlsl(Result.SourceCode, ShaderKind, Result.Path.string().c_str(), Options);
+
+    if (PreProcessResult.GetNumWarnings() > 0 || PreProcessResult.GetNumErrors() > 0) {
+        LOG(LogVulkanShaderCompiler, Warning, "{}", PreProcessResult.GetErrorMessage());
+    }
     if (PreProcessResult.GetCompilationStatus() != shaderc_compilation_status_success) {
         LOG(LogVulkanShaderCompiler, Error, "Failed to pre-process: {}", PreProcessResult.GetErrorMessage());
         return false;
@@ -293,6 +297,7 @@ static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resou
                                const spirv_cross::Compiler& Compiler, TArray<ShaderResource::FStageIO>& StageIO)
 {
     StageIO.Reserve(ResourceStage.size());
+    unsigned AccumulatedOffset = 0;
     for (const spirv_cross::Resource& resource: ResourceStage) {
         ShaderResource::FStageIO& OutResource = StageIO.Emplace();
 
@@ -306,7 +311,9 @@ static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resou
         OutResource.Type = ElementType.value();
         OutResource.Binding = Compiler.get_decoration(resource.id, spv::DecorationBinding);
         OutResource.Location = Compiler.get_decoration(resource.id, spv::DecorationLocation);
-        OutResource.Offset = Compiler.get_decoration(resource.id, spv::DecorationOffset);
+        OutResource.Offset = AccumulatedOffset;
+
+        AccumulatedOffset += GetSizeOfElementType(OutResource.Type);
     }
     std::sort(StageIO.begin(), StageIO.end(), [](const ShaderResource::FStageIO& A, const ShaderResource::FStageIO& B) {
         return A.Location < B.Location;
@@ -416,7 +423,7 @@ static bool GetStorageBufferReflection(const spirv_cross::Compiler& Compiler,
         Buffer.Parameter.Name = resource.name;
         Buffer.Parameter.Size = Compiler.get_declared_struct_size(Type);
         Buffer.Parameter.Type = RTTI::EParameterType::Struct;
-        Buffer.Parameter.Offset = 0;
+        Buffer.Parameter.Offset = Compiler.get_decoration(resource.id, spv::DecorationOffset);
         Buffer.Parameter.Rows = Type.vecsize;
         Buffer.Parameter.Columns = Type.columns;
 
@@ -446,7 +453,7 @@ static bool GetUniformBufferReflection(const spirv_cross::Compiler& Compiler,
         Buffer.Parameter.Name = resource.name;
         Buffer.Parameter.Size = Compiler.get_declared_struct_size(Type);
         Buffer.Parameter.Type = RTTI::EParameterType::Struct;
-        Buffer.Parameter.Offset = 0;
+        Buffer.Parameter.Offset = Compiler.get_decoration(resource.id, spv::DecorationOffset);
         Buffer.Parameter.Rows = Type.vecsize;
         Buffer.Parameter.Columns = Type.columns;
 

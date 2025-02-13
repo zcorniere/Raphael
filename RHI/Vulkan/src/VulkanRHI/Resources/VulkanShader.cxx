@@ -90,39 +90,6 @@ void RVulkanShader::FReflectionData::Deserialize(Serialization::FStreamReader* R
     Reader->ReadArray<ShaderResource::FStorageBuffer>(OutValue.StorageBuffers);
 }
 
-TArray<FGraphicsPipelineDescription::FVertexAttribute> RVulkanShader::FReflectionData::GetInputVertexAttributes() const
-{
-    TArray<FGraphicsPipelineDescription::FVertexAttribute> Result;
-    Result.Reserve(StageInput.Size());
-
-    uint32 Offset = 0;
-    for (const ShaderResource::FStageIO& Input: StageInput) {
-        Result.Add(FGraphicsPipelineDescription::FVertexAttribute{
-            .Location = Input.Location,
-            .Binding = Input.Binding,
-            .Format = Input.Type,
-            .Offset = Offset,
-        });
-        Offset += GetSizeOfElementType(Input.Type);
-    }
-    return Result;
-}
-
-TArray<FGraphicsPipelineDescription::FVertexBinding> RVulkanShader::FReflectionData::GetInputVertexBindings() const
-{
-    TArray<FGraphicsPipelineDescription::FVertexBinding> Result;
-    uint32 Stride = 0;
-    for (const ShaderResource::FStageIO& Input: StageInput) {
-        Stride += GetSizeOfElementType(Input.Type);
-    }
-    Result.Add(FGraphicsPipelineDescription::FVertexBinding{
-        .Stride = Stride,
-        .Binding = 0,
-        .InputRate = VK_VERTEX_INPUT_RATE_VERTEX,
-    });
-    return Result;
-}
-
 RVulkanShader::RVulkanShaderHandle::RVulkanShaderHandle(FVulkanDevice* InDevice, const VkShaderModuleCreateInfo& Info)
     : IDeviceChild(InDevice)
 {

@@ -184,6 +184,17 @@ FORCEINLINE VkImageType TextureDimensionToVkImageType(EImageDimension Dimension)
     checkNoEntry();
 }
 
+FORCEINLINE VkVertexInputRate ConvertToVulkanType(EVertexInputMode Mode)
+{
+    switch (Mode) {
+        case EVertexInputMode::PerVertex:
+            return VK_VERTEX_INPUT_RATE_VERTEX;
+        case EVertexInputMode::PerInstance:
+            return VK_VERTEX_INPUT_RATE_INSTANCE;
+    }
+    checkNoEntry();
+}
+
 /// Convert the PolygonMode to VK_POLYGON_*
 FORCEINLINE VkPolygonMode ConvertToVulkanType(EPolygonMode Mode)
 {

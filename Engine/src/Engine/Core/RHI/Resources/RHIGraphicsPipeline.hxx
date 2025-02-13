@@ -15,6 +15,17 @@ struct FRHIGraphicsPipelineSpecification {
     std::string VertexShader;
     std::string FragmentShader;
 
+    struct FVertexBufferLayout {
+        struct FElement {
+            std::string Name;
+            EVertexElementType Type;
+        };
+
+        EVertexInputMode InputMode;
+        TArray<FElement> Parameter;
+    };
+    TArray<FVertexBufferLayout> VertexBufferLayouts;
+
     struct FRasterizerDesc {
         EPolygonMode PolygonMode;
         ECullMode CullMode;

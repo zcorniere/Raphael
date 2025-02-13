@@ -93,9 +93,6 @@ public:
 
         std::unordered_map<std::string, VkWriteDescriptorSet> WriteDescriptorSet;
 
-        TArray<FGraphicsPipelineDescription::FVertexBinding> GetInputVertexBindings() const;
-        TArray<FGraphicsPipelineDescription::FVertexAttribute> GetInputVertexAttributes() const;
-
         bool operator==(const FReflectionData& Other) const
         {
             return StageInput == Other.StageInput && StageOutput == Other.StageOutput &&

@@ -8,7 +8,6 @@
 #include <Engine/Core/ECS/World.hxx>
 #include <Engine/Core/Log.hxx>
 #include <Engine/Core/RHI/RHICommandList.hxx>
-#include <Engine/Core/RHI/RHIShaderParameters.hxx>
 #include <Engine/Core/RHI/Resources/RHIViewport.hxx>
 #include <Engine/Platforms/PlatformMisc.hxx>
 
@@ -43,7 +42,7 @@ bool EditorApplication::OnEngineInitialization()
     GEngine->SetWorld(World);
     World->GetScene()->SetViewport(MainViewport);
 
-    World->RegisterComponent<ecs::TTransformComponent<float>>();
+    World->RegisterComponent<ecs::FTransformComponent>();
     World->RegisterComponent<ecs::FMeshComponent>();
     World->RegisterComponent<ecs::FCameraComponent>();
 
@@ -52,6 +51,30 @@ bool EditorApplication::OnEngineInitialization()
     FRHIGraphicsPipelineSpecification Spec{
         .VertexShader = "Shapes/ShapeShader.vert",
         .FragmentShader = "Shapes/ShapeShader.frag",
+        .VertexBufferLayouts =
+            {
+                {
+                    .InputMode = EVertexInputMode::PerVertex,
+                    .Parameter =
+                        {
+                            {.Name = "Position", .Type = EVertexElementType::Float3},
+                            {.Name = "Normal", .Type = EVertexElementType::Float3},
+                            {.Name = "Tangent", .Type = EVertexElementType::Float3},
+                            {.Name = "Binormal", .Type = EVertexElementType::Float3},
+                            {.Name = "Texcoord", .Type = EVertexElementType::Float2},
+                        },
+                },
+                {
+                    .InputMode = EVertexInputMode::PerInstance,
+                    .Parameter =
+                        {
+                            {.Name = "MatrixRow_a", .Type = EVertexElementType::Float4},
+                            {.Name = "MatrixRow_b", .Type = EVertexElementType::Float4},
+                            {.Name = "MatrixRow_c", .Type = EVertexElementType::Float4},
+                            {.Name = "MatrixRow_d", .Type = EVertexElementType::Float4},
+                        },
+                },
+            },
         .Rasterizer =
             {
                 .PolygonMode = EPolygonMode::Fill,
@@ -67,23 +90,31 @@ bool EditorApplication::OnEngineInitialization()
     };
 
     Ref<RMaterial> Material = GEngine->AssetRegistry.LoadMaterial("Default", Spec);
-    Entity = World->CreateEntity()
-                 .WithComponent(ecs::FMeshComponent{
-                     CubeAsset,
-                     Material,
-                 })
-                 .WithComponent(ecs::TTransformComponent<float>{})
-                 .Build();
+    Entity =
+        World->CreateEntity()
+            .WithComponent(ecs::FMeshComponent{
+                CubeAsset,
+                Material,
+            })
+            .WithComponent(ecs::FTransformComponent({0.0f, -3.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}))
+            .Build();
     CameraEntity = World->CreateEntity()
-                       .WithComponent(ecs::TCameraComponent<float>({
+                       .WithComponent(ecs::FCameraComponent({
                            .bIsActive = true,
                            .ViewPoint = {80.f, 0.01, 1000000.f},
                        }))
                        .Build();
 
-    World->RegisterSystem([](ecs::TTransformComponent<float>& Transform) {
-        Transform.GetRotation().y += 3.f;
-        Transform.SetLocation({0.0f, 3.0f, 0.0f});
+    World->RegisterSystem([](ecs::FTransformComponent& Transform) {
+        //        Transform.GetRotation().y += 30.f;
+        float TransformX = Transform.GetLocation().x + (10 * GEngine->GetWorld()->GetDeltaTime());
+        if (TransformX > 6.0f) {
+            TransformX = -6.0f;
+        }
+
+        FVector3 NewLocation = Transform.GetLocation();
+        NewLocation.x = TransformX;
+        Transform.SetLocation(NewLocation);
     });
     World->RegisterSystem([](ecs::FCameraComponent& Cam) { Cam.ViewPoint.SetLocation({0.0f, -3.0f, 0.f}); });
 

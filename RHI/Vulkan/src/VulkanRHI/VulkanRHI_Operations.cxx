@@ -94,19 +94,40 @@ VulkanRHI::FVulkanDynamicRHI::CreateGraphicsPipeline(const FRHIGraphicsPipelineS
     Desc.Rasterizer.FrontFaceCulling = ConvertToVulkanType(Config.Rasterizer.FrontFaceCulling);
     Desc.Rasterizer.PolygonMode = ConvertToVulkanType(Config.Rasterizer.PolygonMode);
     Desc.AttachmentFormats = Config.AttachmentFormats;
+
+    unsigned NextLocation = 0;
+    for (unsigned BufferLayoutIndex = 0; BufferLayoutIndex < Config.VertexBufferLayouts.Size(); BufferLayoutIndex++) {
+        const FRHIGraphicsPipelineSpecification::FVertexBufferLayout& Layout =
+            Config.VertexBufferLayouts[BufferLayoutIndex];
+
+        // Compute the stride and offsets of the provided layout and
+        // Set the vertex attributes with the components in the layout
+        unsigned Stride = 0;
+        for (unsigned ElementIndex = 0; ElementIndex < Layout.Parameter.Size(); ElementIndex++) {
+            const FRHIGraphicsPipelineSpecification::FVertexBufferLayout::FElement& Element =
+                Layout.Parameter[ElementIndex];
+
+            FGraphicsPipelineDescription::FVertexAttribute& Attribute = Desc.VertexAttributes.Emplace();
+            Attribute.Binding = BufferLayoutIndex;
+            Attribute.Format = Element.Type;
+            Attribute.Location = NextLocation++;
+            Attribute.Offset = Stride;
+
+            Stride += GetSizeOfElementType(Layout.Parameter[ElementIndex].Type);
+        }
+
+        // Set the vertex binding with the new info
+        FGraphicsPipelineDescription::FVertexBinding& Binding = Desc.VertexBindings.Emplace();
+        Binding.InputRate = ConvertToVulkanType(Layout.InputMode);
+        Binding.Stride = Stride;
+        Binding.Binding = BufferLayoutIndex;
+    }
+
     Desc.VertexShader = VertexShader.get();
     Desc.FragmentShader = FragmentShader.get();
-
     if (!Desc.Validate()) {
         return nullptr;
     }
-    if (Desc.VertexAttributes.IsEmpty()) {
-        Desc.VertexAttributes = Desc.VertexShader->GetReflectionData().GetInputVertexAttributes();
-    }
-    if (Desc.VertexBindings.IsEmpty()) {
-        Desc.VertexBindings = Desc.VertexShader->GetReflectionData().GetInputVertexBindings();
-    }
-
     return Ref<RVulkanGraphicsPipeline>::Create(Device.get(), Desc);
 }
 }    // namespace VulkanRHI
