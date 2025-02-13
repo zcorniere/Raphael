@@ -18,8 +18,10 @@ RWorld::~RWorld()
 
 void RWorld::Update(float DeltaTime)
 {
-    Scene->Tick(DeltaTime);
+    fDeltaTime = DeltaTime;
+
     Scheduler.Update(this);
+    Scene->Tick(DeltaTime);
 }
 
 FEntityBuilder RWorld::CreateEntity()

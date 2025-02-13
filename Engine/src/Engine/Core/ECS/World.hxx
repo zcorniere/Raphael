@@ -45,7 +45,13 @@ public:
         return Storage;
     }
 
+    float GetDeltaTime() const
+    {
+        return fDeltaTime;
+    }
+
 private:
+    float fDeltaTime;
     Ref<RHIScene> Scene;
 
     FSystemScheduler Scheduler;
