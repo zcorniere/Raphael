@@ -73,7 +73,11 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugUtilsMessengerCallback(
     LOG_V(LogVulkanRHI, VulkanMessageSeverityToLogLevel(MsgSeverity), "{:s} [ {:s} ]\n\t{:s}\n{:s}",
           VulkanMessageType(messageType), pCallbackData->pMessageIdName, InterestingPart.data() + Size, Objects);
 
-    check(false);
+    if (MsgSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+        check(false);
+    } else if (FPlatform::isDebuggerPresent()) {
+        PLATFORM_BREAK();
+    }
     return VK_FALSE;
 }
 

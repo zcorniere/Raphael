@@ -34,6 +34,12 @@ enum class EVertexElementType {
     Int4,
 };
 
+/// @brief The input mode of the vertex
+enum class EVertexInputMode {
+    PerVertex,
+    PerInstance,
+};
+
 /// @brief How the polygon should be rendered
 enum class EPolygonMode {
     Fill,

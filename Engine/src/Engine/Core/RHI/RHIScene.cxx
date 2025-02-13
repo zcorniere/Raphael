@@ -15,6 +15,14 @@ RHIScene::RHIScene(): Context(RHI::Get()->RHIGetCommandContext())
     CameraData.View = FMatrix4::Identity();
     CameraData.Projection = FMatrix4::Identity();
     CameraData.ViewProjection = FMatrix4::Identity();
+
+    TransformBuffer = RHI::CreateBuffer(FRHIBufferDesc{
+        .Size = sizeof(FMatrix4),
+        .Stride = sizeof(FMatrix4),
+        .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::KeepCPUAccessible,
+        .ResourceArray = nullptr,
+        .DebugName = "Transform Buffer",
+    });
 }
 
 RHIScene::~RHIScene()
@@ -49,6 +57,32 @@ void RHIScene::Tick(float DeltaTime)
         });
 
         bCameraDataDirty = false;
+    }
+
+    if (TransformBuffer->GetSize() < RenderRequests.size() * sizeof(FMatrix4))
+        TransformBuffer = RHI::CreateBuffer(FRHIBufferDesc{
+            .Size = static_cast<uint32>(std::max(RenderRequests.size() * sizeof(FMatrix4),
+                                                 sizeof(FMatrix4))),    // @TODO: not that
+            .Stride = sizeof(FMatrix4),
+            .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::KeepCPUAccessible,
+            .ResourceArray = nullptr,
+            .DebugName = "Transform Buffer",
+        });
+
+    check(RenderRequests.size() <= 1);    // calm down buddy, where not there yet
+    for (auto& [AssetName, RenderRequests]: RenderRequests) {
+        TResourceArray<FMatrix4> TransformMatrices;
+        for (FRenderRequest& Request: RenderRequests) {
+            TransformMatrices.Add(Request.Transform.GetModelMatrix());
+        }
+        ENQUEUE_RENDER_COMMAND(UpdateTransformBuffer)(
+            [this](FFRHICommandList& CommandList, TResourceArray<FMatrix4> TransformMatrices) {
+                IResourceArrayInterface* RessourceArray = &TransformMatrices;
+
+                CommandList.CopyRessourceArrayToBuffer(RessourceArray, TransformBuffer, 0, 0,
+                                                       TransformMatrices.GetByteSize());
+            },
+            TransformMatrices);
     }
 }
 
@@ -87,6 +121,7 @@ void RHIScene::TickRenderer(FFRHICommandList& CommandList)
 
             RAsset::FDrawInfo Cube = Request.Mesh.Asset->GetDrawInfo();
             CommandList.SetVertexBuffer(Request.Mesh.Asset->GetVertexBuffer(), 0, 0);
+            CommandList.SetVertexBuffer(TransformBuffer, 1, 0);
             CommandList.DrawIndexed(Request.Mesh.Asset->GetIndexBuffer(), 0, 0, Cube.NumVertices, 0, Cube.NumPrimitives,
                                     1);
         }
