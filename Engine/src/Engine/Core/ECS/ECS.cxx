@@ -25,6 +25,7 @@ void DestroyWorld(Ref<RWorld>& World)
     if (GEngine->GetWorld() == World) {
         GEngine->SetWorld(nullptr);
     }
+    check(World->GetRefCount() == 1);
     World = nullptr;
 }
 
