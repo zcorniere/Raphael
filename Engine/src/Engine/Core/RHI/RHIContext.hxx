@@ -1,6 +1,12 @@
 #pragma once
 
-#include "Engine/Core/RHI/Resources/RHIViewport.hxx"
+#include "Engine/Containers/ResourceArray.hxx"
+
+class RRHIGraphicsPipeline;
+class RRHIMaterial;
+class RRHIBuffer;
+class RRHIViewport;
+struct RHIRenderPassDescription;
 
 class FRHIContext : public RTTI::FEnable
 {
@@ -28,6 +34,7 @@ public:
 
     /// @brief Set the pipeline to use for the next draw calls
     virtual void SetPipeline(Ref<RRHIGraphicsPipeline>& Pipeline) = 0;
+    virtual void SetMaterial(Ref<RRHIMaterial>& Material) = 0;
 
     virtual void SetVertexBuffer(Ref<RRHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset) = 0;
 

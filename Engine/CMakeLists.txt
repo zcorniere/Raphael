@@ -58,7 +58,6 @@ add_library(
     src/Engine/Core/ECS/ECS.cxx
     src/Engine/AssetRegistry/AssetRegistry.cxx
     src/Engine/AssetRegistry/Asset.cxx
-    src/Engine/AssetRegistry/Material.cxx
     src/Engine/AssetRegistry/MeshFactory.cxx
     src/Engine/Serialization/StreamWriter.cxx
     src/Engine/Serialization/StreamReader.cxx

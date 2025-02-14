@@ -12,17 +12,10 @@ RHIScene::RHIScene(): Context(RHI::Get()->RHIGetCommandContext())
         .ResourceArray = nullptr,
         .DebugName = "Camera Buffer",
     });
+
     CameraData.View = FMatrix4::Identity();
     CameraData.Projection = FMatrix4::Identity();
     CameraData.ViewProjection = FMatrix4::Identity();
-
-    TransformBuffer = RHI::CreateBuffer(FRHIBufferDesc{
-        .Size = sizeof(FMatrix4),
-        .Stride = sizeof(FMatrix4),
-        .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::KeepCPUAccessible,
-        .ResourceArray = nullptr,
-        .DebugName = "Transform Buffer",
-    });
 }
 
 RHIScene::~RHIScene()
@@ -32,7 +25,7 @@ RHIScene::~RHIScene()
 
 void RHIScene::CollectRenderablesSystem(ecs::FTransformComponent& Transform, ecs::FMeshComponent& Mesh)
 {
-    RenderRequests[Mesh.Asset->GetName()].Emplace(FRenderRequest{Transform, Mesh});
+    RenderRequestMap[Mesh.Asset->GetName()].Emplace(FRenderRequest{Transform, Mesh});
 }
 
 void RHIScene::CameraSystem(ecs::FCameraComponent& Camera)
@@ -49,6 +42,8 @@ void RHIScene::CameraSystem(ecs::FCameraComponent& Camera)
 
 void RHIScene::Tick(float DeltaTime)
 {
+    RPH_PROFILE_FUNC()
+
     (void)DeltaTime;
     if (bCameraDataDirty) {
         ENQUEUE_RENDER_COMMAND(UpdateCameraBuffer)([this](FFRHICommandList& CommandList) {
@@ -59,35 +54,67 @@ void RHIScene::Tick(float DeltaTime)
         bCameraDataDirty = false;
     }
 
-    if (TransformBuffer->GetSize() < RenderRequests.size() * sizeof(FMatrix4))
-        TransformBuffer = RHI::CreateBuffer(FRHIBufferDesc{
-            .Size = static_cast<uint32>(std::max(RenderRequests.size() * sizeof(FMatrix4),
-                                                 sizeof(FMatrix4))),    // @TODO: not that
-            .Stride = sizeof(FMatrix4),
-            .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::KeepCPUAccessible,
-            .ResourceArray = nullptr,
-            .DebugName = "Transform Buffer",
-        });
+    check(RenderRequestMap.size() <= 1);    // calm down buddy, where not there yet
+    for (auto& [AssetName, RenderRequest]: RenderRequestMap) {
 
-    check(RenderRequests.size() <= 1);    // calm down buddy, where not there yet
-    for (auto& [AssetName, RenderRequests]: RenderRequests) {
         TResourceArray<FMatrix4> TransformMatrices;
-        for (FRenderRequest& Request: RenderRequests) {
+        TransformMatrices.Reserve(RenderRequest.Size());
+        for (FRenderRequest& Request: RenderRequest) {
             TransformMatrices.Add(Request.Transform.GetModelMatrix());
-        }
-        ENQUEUE_RENDER_COMMAND(UpdateTransformBuffer)(
-            [this](FFRHICommandList& CommandList, TResourceArray<FMatrix4> TransformMatrices) {
-                IResourceArrayInterface* RessourceArray = &TransformMatrices;
 
-                CommandList.CopyRessourceArrayToBuffer(RessourceArray, TransformBuffer, 0, 0,
-                                                       TransformMatrices.GetByteSize());
-            },
-            TransformMatrices);
+            Request.Mesh.Material->SetInput("Camera", u_CameraBuffer);
+            Request.Mesh.Material->Bake();
+        }
+
+        Ref<RRHIBuffer>& TransformBuffer = TransformBuffers[AssetName];
+        if (TransformBuffer == nullptr || TransformBuffer->GetSize() < RenderRequest.Size()) {
+            TransformBuffer = RHI::CreateBuffer(FRHIBufferDesc{
+                .Size = static_cast<uint32>(std::max(RenderRequest.Size() * sizeof(FMatrix4),
+                                                     sizeof(FMatrix4))),    // @TODO: not that
+                .Stride = sizeof(FMatrix4),
+                .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::KeepCPUAccessible,
+                .ResourceArray = &TransformMatrices,
+                .DebugName = "Transform Buffer",
+            });
+        } else {
+            ENQUEUE_RENDER_COMMAND(UpdateTransformBuffer)(
+                [TransformBuffer = TransformBuffer](FFRHICommandList& CommandList,
+                                                    TResourceArray<FMatrix4> TransformMatrices) mutable {
+                    IResourceArrayInterface* RessourceArray = &TransformMatrices;
+
+                    CommandList.CopyRessourceArrayToBuffer(RessourceArray, TransformBuffer, 0, 0,
+                                                           TransformMatrices.GetByteSize());
+                },
+                TransformMatrices);
+        }
     }
 }
 
+struct FRenderRequestKey {
+    RRHIMaterial* Material = nullptr;
+    RAsset* Asset = nullptr;
+
+    bool operator==(const FRenderRequestKey& Other) const = default;
+};
+
+namespace std
+{
+
+// std::hash specialization for FRenderRequestKey
+template <>
+struct hash<FRenderRequestKey> {
+    std::size_t operator()(const FRenderRequestKey& Key) const
+    {
+        return std::hash<RAsset*>{}(Key.Asset) ^ std::hash<RRHIMaterial*>{}(Key.Material);
+    }
+};
+
+}    // namespace std
+
 void RHIScene::TickRenderer(FFRHICommandList& CommandList)
 {
+    RPH_PROFILE_FUNC()
+
     CommandList.SetViewport(
         {0, 0, 0}, {static_cast<float>(Viewport->GetSize().x), static_cast<float>(Viewport->GetSize().y), 1.0f});
     CommandList.SetScissor({0, 0}, {Viewport->GetSize().x, Viewport->GetSize().y});
@@ -109,25 +136,29 @@ void RHIScene::TickRenderer(FFRHICommandList& CommandList)
     CommandList.BeginRenderingViewport(Viewport.Raw());
     CommandList.BeginRendering(Description);
 
-    for (auto& [AssetName, RenderRequests]: RenderRequests) {
+    for (auto& [AssetName, RenderRequests]: RenderRequestMap) {
+        std::unordered_map<FRenderRequestKey, TArray<FRenderRequest*>> SortedRequests;
+
         for (FRenderRequest& Request: RenderRequests) {
             if (!Request.Mesh.Asset->IsLoadedOnGPU()) {
                 Request.Mesh.Asset->LoadOnGPU();
                 continue;
             }
+            SortedRequests[{Request.Mesh.Material.Raw(), Request.Mesh.Asset.Raw()}].Emplace(&Request);
+        }
 
-            Request.Mesh.Material->SetInput("Camera", u_CameraBuffer);
-            Request.Mesh.Material->Bind();
+        for (auto& [Key, Requests]: SortedRequests) {
+            CommandList.SetMaterial(Key.Material);
 
-            RAsset::FDrawInfo Cube = Request.Mesh.Asset->GetDrawInfo();
-            CommandList.SetVertexBuffer(Request.Mesh.Asset->GetVertexBuffer(), 0, 0);
-            CommandList.SetVertexBuffer(TransformBuffer, 1, 0);
-            CommandList.DrawIndexed(Request.Mesh.Asset->GetIndexBuffer(), 0, 0, Cube.NumVertices, 0, Cube.NumPrimitives,
-                                    1);
+            RAsset::FDrawInfo Cube = Key.Asset->GetDrawInfo();
+            CommandList.SetVertexBuffer(Key.Asset->GetVertexBuffer(), 0, 0);
+            CommandList.SetVertexBuffer(TransformBuffers[AssetName], 1, 0);
+            CommandList.DrawIndexed(Key.Asset->GetIndexBuffer(), 0, 0, Cube.NumVertices, 0, Cube.NumPrimitives,
+                                    Requests.Size());
         }
     }
     CommandList.EndRendering();
     CommandList.EndRenderingViewport(Viewport.Raw());
 
-    RenderRequests.clear();
+    RenderRequestMap.clear();
 }

@@ -41,9 +41,8 @@ private:
     UCameraData CameraData;
     Ref<RRHIBuffer> u_CameraBuffer = nullptr;
 
-    Ref<RRHIBuffer> TransformBuffer = nullptr;
-
-    std::unordered_map<std::string, TArray<FRenderRequest>> RenderRequests;
+    std::unordered_map<std::string, Ref<RRHIBuffer>> TransformBuffers;
+    std::unordered_map<std::string, TArray<FRenderRequest>> RenderRequestMap;
 
     WeakRef<RRHIViewport> Viewport = nullptr;
     FRHIContext* const Context = nullptr;

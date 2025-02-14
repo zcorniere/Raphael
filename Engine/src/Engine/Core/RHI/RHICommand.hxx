@@ -76,16 +76,16 @@ public:
     virtual void Execute(FFRHICommandList & CommandList) override final;
 };
 
-RHICOMMAND_MACRO(FRHISetPipeline)
+RHICOMMAND_MACRO(FRHISetMaterial)
 {
 public:
-    FRHISetPipeline(Ref<RRHIGraphicsPipeline> InPipeline);
-    virtual ~FRHISetPipeline() = default;
+    FRHISetMaterial(Ref<RRHIMaterial> InMaterial);
+    virtual ~FRHISetMaterial() = default;
 
     virtual void Execute(FFRHICommandList & CommandList) override final;
 
 private:
-    Ref<RRHIGraphicsPipeline> Pipeline = nullptr;
+    Ref<RRHIMaterial> Material = nullptr;
 };
 
 RHICOMMAND_MACRO(FRHISetVertexBuffer)

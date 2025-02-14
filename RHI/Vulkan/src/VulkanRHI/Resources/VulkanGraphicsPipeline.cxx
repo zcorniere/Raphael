@@ -53,7 +53,7 @@ bool FGraphicsPipelineDescription::Validate() const
 
 RVulkanGraphicsPipeline::RVulkanGraphicsPipeline(FVulkanDevice* InDevice,
                                                  const FGraphicsPipelineDescription& Description)
-    : IDeviceChild(InDevice), Desc(Description), DescriptorManager(InDevice)
+    : IDeviceChild(InDevice), Desc(Description)
 {
     Create();
 }
@@ -61,7 +61,6 @@ RVulkanGraphicsPipeline::RVulkanGraphicsPipeline(FVulkanDevice* InDevice,
 RVulkanGraphicsPipeline::~RVulkanGraphicsPipeline()
 {
     RHI::RHIWaitUntilIdle();
-    DescriptorManager.Destroy();
 
     if (VulkanPipeline) {
         VulkanAPI::vkDestroyPipeline(Device->GetHandle(), VulkanPipeline, VULKAN_CPU_ALLOCATOR);
@@ -80,12 +79,6 @@ void RVulkanGraphicsPipeline::SetName(std::string_view Name)
     if (PipelineLayout) {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE_LAYOUT, PipelineLayout, "{:s}.PipelineLayout", Name);
     }
-}
-
-void RVulkanGraphicsPipeline::SetInput(std::string_view Name, const Ref<RRHIBuffer>& Buffer)
-{
-    Ref<RVulkanBuffer> VulkanBuffer = Buffer.As<RVulkanBuffer>();
-    DescriptorManager.SetInput(Name, VulkanBuffer);
 }
 
 bool RVulkanGraphicsPipeline::Create()
@@ -230,7 +223,6 @@ bool RVulkanGraphicsPipeline::Create()
 void RVulkanGraphicsPipeline::Bind(VkCommandBuffer CmdBuffer)
 {
     VulkanAPI::vkCmdBindPipeline(CmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VulkanPipeline);
-    DescriptorManager.Bind(CmdBuffer, PipelineLayout, VK_PIPELINE_BIND_POINT_GRAPHICS);
 }
 
 RVulkanShader* RVulkanGraphicsPipeline::GetShader(ERHIShaderType Type)
@@ -252,6 +244,11 @@ RVulkanShader* RVulkanGraphicsPipeline::GetShader(ERHIShaderType Type)
 RVulkanShader* RVulkanGraphicsPipeline::GetShader(ERHIShaderType Type) const
 {
     return const_cast<RVulkanGraphicsPipeline*>(this)->GetShader(Type);
+}
+
+TArray<WeakRef<RVulkanShader>> RVulkanGraphicsPipeline::GetShaders() const
+{
+    return {GetShader(ERHIShaderType::Vertex), GetShader(ERHIShaderType::Fragment)};
 }
 
 static bool GetConstantRangeFromShader(TArray<VkPushConstantRange>& OutPushRanges, Ref<RVulkanShader>& InShader,
@@ -282,9 +279,11 @@ bool RVulkanGraphicsPipeline::CreatePipelineLayout()
     GetConstantRangeFromShader(PushRanges, Desc.VertexShader, VK_SHADER_STAGE_VERTEX_BIT);
     GetConstantRangeFromShader(PushRanges, Desc.FragmentShader, VK_SHADER_STAGE_FRAGMENT_BIT);
 
-    CreateDescriptorSetLayout();
+    TArray<VkDescriptorSetLayout> DescriptorSetLayouts;
+    for (const WeakRef<RVulkanShader>& Shader: GetShaders()) {
+        DescriptorSetLayouts.Append(Shader->GetDescriptorSetLayout());
+    }
 
-    const TArray<VkDescriptorSetLayout>& DescriptorSetLayouts = DescriptorManager.GetDescriptorSetLayout();
     VkPipelineLayoutCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
         .pNext = nullptr,
@@ -296,12 +295,6 @@ bool RVulkanGraphicsPipeline::CreatePipelineLayout()
     VK_CHECK_RESULT(
         VulkanAPI::vkCreatePipelineLayout(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR, &PipelineLayout));
     return true;
-}
-
-bool RVulkanGraphicsPipeline::CreateDescriptorSetLayout()
-{
-    TArray<Ref<RVulkanShader>> Shaders{Desc.VertexShader, Desc.FragmentShader};
-    return DescriptorManager.Initialize(Shaders, 1);
 }
 
 }    // namespace VulkanRHI

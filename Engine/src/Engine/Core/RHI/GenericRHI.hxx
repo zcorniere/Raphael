@@ -62,4 +62,6 @@ public:
     virtual Ref<RRHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) = 0;
     /// @copydoc RHI::CreateGraphicsPipeline
     virtual Ref<RRHIGraphicsPipeline> CreateGraphicsPipeline(const FRHIGraphicsPipelineSpecification& Config) = 0;
+    /// @copydoc RHI::CreateMaterial
+    virtual Ref<RRHIMaterial> CreateMaterial(const WeakRef<RRHIGraphicsPipeline>& Pipeline) = 0;
 };

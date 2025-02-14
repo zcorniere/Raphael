@@ -3,7 +3,6 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 
-#include "Engine/Core/Engine.hxx"
 #include "Engine/Misc/Utils.hxx"
 
 #include "Engine/Platforms/PlatformMisc.hxx"
@@ -13,7 +12,6 @@
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 #include "VulkanRHI/VulkanLoader.hxx"
-#include "VulkanRHI/VulkanPendingState.hxx"
 #include "VulkanRHI/VulkanPlatform.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"

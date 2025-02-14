@@ -20,16 +20,6 @@ Ref<RAsset> FAssetRegistry::LoadAsset(const std::filesystem::path& Path)
     return nullptr;
 }
 
-Ref<RMaterial> FAssetRegistry::LoadMaterial(const std::string Name, const FRHIGraphicsPipelineSpecification& Pipeline)
-{
-    Ref<RMaterial> Material = Ref<RMaterial>::CreateNamed(Name, Pipeline);
-    if (Material) {
-        MaterialRegistry[Name] = Material;
-        return Material;
-    }
-    return nullptr;
-}
-
 Ref<RAsset> FAssetRegistry::RegisterMemoryOnlyAsset(Ref<RAsset>& Asset)
 {
     if (AssetRegistry.find(Asset->GetName()) == AssetRegistry.end()) {
@@ -65,5 +55,4 @@ void FAssetRegistry::Purge()
         Asset.second->Unload();
     }
     AssetRegistry.clear();
-    MaterialRegistry.clear();
 }

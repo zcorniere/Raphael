@@ -38,7 +38,12 @@ public:
     }
 
     void SetVertexBuffer(Ref<RVulkanBuffer>& Buffer, uint32 BufferIndex = 0, uint32 Offset = 0);
-    void SetPipeline(Ref<RRHIGraphicsPipeline>& Pipeline);
+    bool SetGraphicsPipeline(Ref<RVulkanGraphicsPipeline>& InPipeline, bool bForceReset = false);
+    bool SetPendingDescriptorSets(TArray<VkDescriptorSet> InDescriptorSet)
+    {
+        DescriptorSets = InDescriptorSet;
+        return true;
+    }
 
     void Bind(VkCommandBuffer CmdBuffer)
     {
@@ -54,7 +59,6 @@ public:
     }
 
     void PrepareForDraw(FVulkanCmdBuffer* CommandBuffer);
-    bool SetGraphicsPipeline(Ref<RVulkanGraphicsPipeline>& InPipeline, bool bForceReset = false);
 
 private:
     TArray<uint8> PushConstantData;
@@ -68,6 +72,7 @@ private:
     };
     TArray<FVertexSource> VertexSources;
 
+    TArray<VkDescriptorSet> DescriptorSets;
     Ref<RVulkanGraphicsPipeline> CurrentPipeline = nullptr;
     FVulkanCommandContext& CmdContext;
 };

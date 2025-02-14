@@ -53,6 +53,4 @@ public:
     }
 
     virtual ~RRHIGraphicsPipeline() = default;
-
-    virtual void SetInput(std::string_view Name, const Ref<RRHIBuffer>& Buffer) = 0;
 };

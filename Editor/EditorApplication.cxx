@@ -89,15 +89,22 @@ bool EditorApplication::OnEngineInitialization()
             },
     };
 
-    Ref<RMaterial> Material = GEngine->AssetRegistry.LoadMaterial("Default", Spec);
-    Entity =
-        World->CreateEntity()
-            .WithComponent(ecs::FMeshComponent{
-                CubeAsset,
-                Material,
-            })
-            .WithComponent(ecs::FTransformComponent({0.0f, -3.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}))
-            .Build();
+    Ref<RRHIGraphicsPipeline> Pipeline = RHI::CreateGraphicsPipeline(Spec);
+    Ref<RRHIMaterial> Material = RHI::CreateMaterial(Pipeline);
+    World->CreateEntity()
+        .WithComponent(ecs::FMeshComponent{
+            .Asset = CubeAsset,
+            .Material = Material,
+        })
+        .WithComponent(ecs::FTransformComponent({0.0f, -3.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}))
+        .Build();
+    World->CreateEntity()
+        .WithComponent(ecs::FMeshComponent{
+            .Asset = CubeAsset,
+            .Material = Material,
+        })
+        .WithComponent(ecs::FTransformComponent({0.0f, -3.0f, 5.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}))
+        .Build();
     CameraEntity = World->CreateEntity()
                        .WithComponent(ecs::FCameraComponent({
                            .bIsActive = true,
@@ -123,7 +130,6 @@ bool EditorApplication::OnEngineInitialization()
 
 void EditorApplication::OnEngineDestruction()
 {
-    World->DestroyEntity(Entity);
     ecs::DestroyWorld(World);
 
     Super::OnEngineDestruction();

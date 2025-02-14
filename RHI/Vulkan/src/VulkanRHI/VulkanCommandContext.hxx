@@ -37,6 +37,7 @@ public:
     virtual void RHIEndRendering() override;
 
     virtual void SetPipeline(Ref<RRHIGraphicsPipeline>& Pipeline) override;
+    virtual void SetMaterial(Ref<RRHIMaterial>& Material) override;
 
     virtual void SetVertexBuffer(Ref<RRHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset) override;
 

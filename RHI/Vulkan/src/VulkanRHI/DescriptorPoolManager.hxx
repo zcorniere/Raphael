@@ -41,12 +41,12 @@ public:
     };
 
 public:
-    FDescriptorSetManager(FVulkanDevice* InDevice);
+    FDescriptorSetManager(FVulkanDevice* InDevice, const TArray<WeakRef<RVulkanShader>>& Shaders);
     virtual ~FDescriptorSetManager();
 
-    bool Initialize(const TArrayView<Ref<RVulkanShader>>& InShader, unsigned InMaxSets);
     void Destroy();
 
+    void Bake();
     void Bind(VkCommandBuffer Cmd, VkPipelineLayout PipelineLayout, VkPipelineBindPoint BindPoint);
 
     void SetInput(std::string_view Name, const Ref<RVulkanBuffer>& Buffer);
@@ -56,22 +56,21 @@ public:
         return DescriptorPoolHandle;
     }
     VkDescriptorSet GetDescriptorSet(unsigned Set) const;
-    const TArray<VkDescriptorSetLayout>& GetDescriptorSetLayout() const
+    TArray<VkDescriptorSet> GetDescriptorSets() const
     {
-        return DescriptorSetLayout;
+        return DescriptorSets;
     }
 
     const FRenderPassInputDeclaration* GetInputDeclaration(std::string_view name) const;
 
 private:
-    void CreateDescriptorSetLayout(const TArray<TArray<VkDescriptorSetLayoutBinding>>& InLayoutBindings);
-    void CreateDescriptorPool(const TArray<TArray<VkDescriptorSetLayoutBinding>>& InLayoutBindings, unsigned InMaxSets);
-    void CreateDescriptorSets();
+    void CreateDescriptorPool(const TArray<VkDescriptorPoolSize>& PoolSize, unsigned InMaxSets);
+    void CreateDescriptorSets(const TArray<VkDescriptorSetLayout>& DescriptorSetLayouts);
 
 private:
     VkDescriptorPool DescriptorPoolHandle = VK_NULL_HANDLE;
+    TArray<WeakRef<RVulkanShader>> Shaders = {};
 
-    TArray<VkDescriptorSetLayout> DescriptorSetLayout = {};
     TArray<VkDescriptorSet> DescriptorSets = {};
 
     std::unordered_map<std::string, FRenderPassInputDeclaration> InputDeclaration = {};

@@ -120,10 +120,15 @@ RVulkanShader::RVulkanShader(ERHIShaderType Type, const TArray<uint32>& InSPIRVC
         .codeSize = SPIRVCode.Size() * sizeof(uint32),
         .pCode = SPIRVCode.Raw(),
     };
+    CreateDescriptorSetLayout();
 }
 
 RVulkanShader::~RVulkanShader()
 {
+    for (VkDescriptorSetLayout& Layout: DescriptorSetLayouts) {
+        VulkanAPI::vkDestroyDescriptorSetLayout(GetVulkanDynamicRHI()->GetDevice()->GetHandle(), Layout,
+                                                VULKAN_CPU_ALLOCATOR);
+    }
 }
 
 const VkShaderModuleCreateInfo& RVulkanShader::GetShaderModuleCreateInfo() const
@@ -136,14 +141,15 @@ const char* RVulkanShader::GetEntryPoint() const
     return "main";
 }
 
-bool RVulkanShader::GetDescriptorSetLayoutBindings(TArray<TArray<VkDescriptorSetLayoutBinding>>& OutBindings) const
+void RVulkanShader::CreateDescriptorSetLayout()
 {
+    TArray<TArray<VkDescriptorSetLayoutBinding>> DescriptorSetBindings;
     // Not the most efficient, but this will do for now
     for (const ShaderResource::FStorageBuffer& Buffer: m_ReflectionData.StorageBuffers) {
-        if (Buffer.Set >= OutBindings.Size()) {
-            OutBindings.Resize(Buffer.Set + 1);
+        if (Buffer.Set >= DescriptorSetBindings.Size()) {
+            DescriptorSetBindings.Resize(Buffer.Set + 1);
         }
-        VkDescriptorSetLayoutBinding* FoundBinding = OutBindings[Buffer.Set].FindByLambda(
+        VkDescriptorSetLayoutBinding* FoundBinding = DescriptorSetBindings[Buffer.Set].FindByLambda(
             [Buffer](const VkDescriptorSetLayoutBinding& Binding) { return Binding.binding == Buffer.Binding; });
         if (FoundBinding) {
             FoundBinding->stageFlags |= ConvertToVulkanType(GetShaderType());
@@ -157,14 +163,18 @@ bool RVulkanShader::GetDescriptorSetLayoutBindings(TArray<TArray<VkDescriptorSet
             .stageFlags = static_cast<VkShaderStageFlags>(ConvertToVulkanType(GetShaderType())),
             .pImmutableSamplers = nullptr,
         };
-        OutBindings[Buffer.Set].Add(Binding);
+        DescriptorSetBindings[Buffer.Set].Add(Binding);
+    }
+    if (m_ReflectionData.StorageBuffers.Size() > 0) {
+        DescriptorPoolSizes.Add(
+            {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, .descriptorCount = m_ReflectionData.StorageBuffers.Size()});
     }
 
     for (const ShaderResource::FUniformBuffer& Buffer: m_ReflectionData.UniformBuffers) {
-        if (Buffer.Set >= OutBindings.Size()) {
-            OutBindings.Resize(Buffer.Set + 1);
+        if (Buffer.Set >= DescriptorSetBindings.Size()) {
+            DescriptorSetBindings.Resize(Buffer.Set + 1);
         }
-        VkDescriptorSetLayoutBinding* FoundBinding = OutBindings[Buffer.Set].FindByLambda(
+        VkDescriptorSetLayoutBinding* FoundBinding = DescriptorSetBindings[Buffer.Set].FindByLambda(
             [Buffer](const VkDescriptorSetLayoutBinding& Binding) { return Binding.binding == Buffer.Binding; });
         if (FoundBinding) {
             FoundBinding->stageFlags |= ConvertToVulkanType(GetShaderType());
@@ -178,10 +188,26 @@ bool RVulkanShader::GetDescriptorSetLayoutBindings(TArray<TArray<VkDescriptorSet
             .stageFlags = static_cast<VkShaderStageFlags>(ConvertToVulkanType(GetShaderType())),
             .pImmutableSamplers = nullptr,
         };
-        OutBindings[Buffer.Set].Add(Binding);
+        DescriptorSetBindings[Buffer.Set].Add(Binding);
+    }
+    if (m_ReflectionData.UniformBuffers.Size() > 0) {
+        DescriptorPoolSizes.Add(
+            {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, .descriptorCount = m_ReflectionData.UniformBuffers.Size()});
     }
 
-    return true;
+    DescriptorSetLayouts.Resize(DescriptorSetBindings.Size());
+    for (unsigned Set = 0; Set < DescriptorSetBindings.Size(); Set++) {
+        const VkDescriptorSetLayoutCreateInfo CreateInfo{
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .bindingCount = DescriptorSetBindings[Set].Size(),
+            .pBindings = DescriptorSetBindings[Set].Raw(),
+        };
+        VK_CHECK_RESULT(VulkanAPI::vkCreateDescriptorSetLayout(GetVulkanDynamicRHI()->GetDevice()->GetHandle(),
+                                                               &CreateInfo, VULKAN_CPU_ALLOCATOR,
+                                                               &DescriptorSetLayouts[Set]));
+    }
 }
 
 }    // namespace VulkanRHI

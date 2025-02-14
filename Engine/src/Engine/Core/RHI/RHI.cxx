@@ -16,6 +16,7 @@ void RHI::Destroy()
 {
     GEngine->AssetRegistry.Purge();
 
+    RHI::FlushDeletionQueue();
     GDynamicRHI->Shutdown();
 
     delete GDynamicRHI;
@@ -89,4 +90,9 @@ std::future<Ref<RRHIShader>> RHI::CreateShaderAsync(const std::filesystem::path 
 Ref<RRHIGraphicsPipeline> RHI::CreateGraphicsPipeline(const FRHIGraphicsPipelineSpecification& Config)
 {
     return RHI::Get()->CreateGraphicsPipeline(Config);
+}
+
+Ref<RRHIMaterial> RHI::CreateMaterial(const WeakRef<RRHIGraphicsPipeline>& Pipeline)
+{
+    return RHI::Get()->CreateMaterial(Pipeline);
 }

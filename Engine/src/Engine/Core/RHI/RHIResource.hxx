@@ -8,6 +8,7 @@ enum class ERHIResourceType {
     Buffer,
     Shader,
     Viewport,
+    Material,
     GraphicsPipeline,
 
     MAX_VALUE,

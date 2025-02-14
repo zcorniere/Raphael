@@ -3,32 +3,22 @@
 #include "VulkanRHI/Resources/VulkanShader.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
 
-DECLARE_LOGGER_CATEGORY(Core, LogDrescriptorSetManager, Warning)
+DECLARE_LOGGER_CATEGORY(Core, LogDescriptorSetManager, Warning)
 
 namespace VulkanRHI
 {
 
-FDescriptorSetManager::FDescriptorSetManager(FVulkanDevice* InDevice)
-
-    : IDeviceChild(InDevice)
+FDescriptorSetManager::FDescriptorSetManager(FVulkanDevice* InDevice, const TArray<WeakRef<RVulkanShader>>& InShaders)
+    : IDeviceChild(InDevice), Shaders(InShaders)
 {
-}
-
-FDescriptorSetManager::~FDescriptorSetManager()
-{
-    Destroy();
-}
-
-bool FDescriptorSetManager::Initialize(const TArrayView<Ref<RVulkanShader>>& InShader, unsigned InMaxSets)
-{
-    TArray<TArray<VkDescriptorSetLayoutBinding>> DescriptorSetBindings;
-    for (const Ref<RVulkanShader>& Shader: InShader) {
-        if (!Shader->GetDescriptorSetLayoutBindings(DescriptorSetBindings))
-            return false;
+    unsigned MaxSets = 0;
+    for (const WeakRef<RVulkanShader>& Shader: Shaders) {
+        const TArray<VkDescriptorSetLayout>& DescriptorSetLayouts = Shader->GetDescriptorSetLayout();
+        MaxSets = std::max(MaxSets, DescriptorSetLayouts.Size());
     }
 
-    for (unsigned Set = 0; Set < DescriptorSetBindings.Size(); Set++) {
-        for (const Ref<RVulkanShader>& Shader: InShader) {
+    for (unsigned Set = 0; Set < MaxSets; Set++) {
+        for (const WeakRef<RVulkanShader>& Shader: Shaders) {
             for (auto&& [Name, WriteDescriptor]: Shader->GetReflectionData().WriteDescriptorSet) {
                 InputDeclaration[Name] = FRenderPassInputDeclaration{
                     .Type = ERenderPassInputType::StorageBuffer,
@@ -45,40 +35,33 @@ bool FDescriptorSetManager::Initialize(const TArrayView<Ref<RVulkanShader>>& InS
             }
         }
     }
+}
 
-    CreateDescriptorSetLayout(DescriptorSetBindings);
-    if (DescriptorSetBindings.IsEmpty()) {
-        return true;    // No descriptor set bindings, can happen so not an error
-    }
-
-    CreateDescriptorPool(DescriptorSetBindings, InMaxSets);
-    CreateDescriptorSets();
-
-    return true;
+FDescriptorSetManager::~FDescriptorSetManager()
+{
 }
 
 void FDescriptorSetManager::Destroy()
 {
-    for (VkDescriptorSet DescriptorSet: DescriptorSets) {
-        VulkanAPI::vkFreeDescriptorSets(Device->GetHandle(), DescriptorPoolHandle, 1, &DescriptorSet);
-    }
+    VulkanAPI::vkFreeDescriptorSets(Device->GetHandle(), DescriptorPoolHandle, DescriptorSets.Size(),
+                                    DescriptorSets.Raw());
     DescriptorSets.Clear();
 
     VulkanAPI::vkDestroyDescriptorPool(Device->GetHandle(), DescriptorPoolHandle, VULKAN_CPU_ALLOCATOR);
     DescriptorPoolHandle = VK_NULL_HANDLE;
-
-    for (VkDescriptorSetLayout Layout: DescriptorSetLayout) {
-        VulkanAPI::vkDestroyDescriptorSetLayout(Device->GetHandle(), Layout, VULKAN_CPU_ALLOCATOR);
-    }
-    DescriptorSetLayout.Clear();
 }
 
-void FDescriptorSetManager::Bind(VkCommandBuffer CmdBuffer, VkPipelineLayout PipelineLayout,
-                                 VkPipelineBindPoint BindPoint)
+void FDescriptorSetManager::Bake()
 {
-    if (DescriptorSets.IsEmpty()) {
-        return;
+    TArray<VkDescriptorSetLayout> DescriptorSetLayouts;
+    TArray<VkDescriptorPoolSize> PoolSizes;
+    for (const WeakRef<RVulkanShader>& Shader: Shaders) {
+        DescriptorSetLayouts.Append(Shader->GetDescriptorSetLayout());
+        PoolSizes.Append(Shader->GetDescriptorPoolSizes());
     }
+
+    CreateDescriptorPool(PoolSizes, 1);
+    CreateDescriptorSets(DescriptorSetLayouts);
 
     TArray<VkWriteDescriptorSet> WriteDescriptorSetsArray;
     for (const auto& [Set, Bindings]: WriteDescriptorSet) {
@@ -99,7 +82,11 @@ void FDescriptorSetManager::Bind(VkCommandBuffer CmdBuffer, VkPipelineLayout Pip
         VulkanAPI::vkUpdateDescriptorSets(Device->GetHandle(), WriteDescriptorSetsArray.Size(),
                                           WriteDescriptorSetsArray.Raw(), 0, nullptr);
     }
+}
 
+void FDescriptorSetManager::Bind(VkCommandBuffer CmdBuffer, VkPipelineLayout PipelineLayout,
+                                 VkPipelineBindPoint BindPoint)
+{
     VulkanAPI::vkCmdBindDescriptorSets(CmdBuffer, BindPoint, PipelineLayout, 0, DescriptorSets.Size(),
                                        DescriptorSets.Raw(), 0, nullptr);
 }
@@ -110,7 +97,7 @@ void FDescriptorSetManager::SetInput(std::string_view Name, const Ref<RVulkanBuf
     if (Declaration) {
         InputResource.at(Declaration->Set).at(Declaration->Binding).Set(Buffer);
     } else {
-        LOG(LogDrescriptorSetManager, Warning, "Input declaration not found for {}", Name);
+        LOG(LogDescriptorSetManager, Warning, "Input declaration not found for {}", Name);
     }
 }
 
@@ -124,71 +111,33 @@ FDescriptorSetManager::GetInputDeclaration(std::string_view name) const
     return &it->second;
 }
 
-void FDescriptorSetManager::CreateDescriptorSetLayout(
-    const TArray<TArray<VkDescriptorSetLayoutBinding>>& InLayoutBindings)
+void FDescriptorSetManager::CreateDescriptorPool(const TArray<VkDescriptorPoolSize>& PoolSize, unsigned InMaxSets)
 {
-    DescriptorSetLayout.Resize(InLayoutBindings.Size());
-    for (unsigned Set = 0; Set < InLayoutBindings.Size(); Set++) {
-        const VkDescriptorSetLayoutCreateInfo CreateInfo{
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = 0,
-            .bindingCount = InLayoutBindings[Set].Size(),
-            .pBindings = InLayoutBindings[Set].Raw(),
-        };
-        VK_CHECK_RESULT(VulkanAPI::vkCreateDescriptorSetLayout(GetVulkanDynamicRHI()->GetDevice()->GetHandle(),
-                                                               &CreateInfo, VULKAN_CPU_ALLOCATOR,
-                                                               &DescriptorSetLayout[Set]));
-    }
-}
-
-void FDescriptorSetManager::CreateDescriptorPool(const TArray<TArray<VkDescriptorSetLayoutBinding>>& InLayoutBindings,
-                                                 unsigned InMaxSets)
-{
-    TArray<VkDescriptorPoolSize> PoolSizes;
-    for (const TArray<VkDescriptorSetLayoutBinding>& InBinding: InLayoutBindings) {
-        for (const VkDescriptorSetLayoutBinding& Binding: InBinding) {
-            VkDescriptorPoolSize* const FoundPoolSize = PoolSizes.FindByLambda(
-                [Binding](const VkDescriptorPoolSize& PoolSize) { return PoolSize.type == Binding.descriptorType; });
-            if (FoundPoolSize) {
-                FoundPoolSize->descriptorCount += Binding.descriptorCount;
-                continue;
-            }
-
-            VkDescriptorPoolSize PoolSize{
-                .type = Binding.descriptorType,
-                .descriptorCount = Binding.descriptorCount,
-            };
-            PoolSizes.Emplace(PoolSize);
-        }
-    }
-
     VkDescriptorPoolCreateInfo CreateInfo{
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
         .pNext = nullptr,
         .flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
         .maxSets = InMaxSets,
-        .poolSizeCount = PoolSizes.Size(),
-        .pPoolSizes = PoolSizes.Raw(),
+        .poolSizeCount = PoolSize.Size(),
+        .pPoolSizes = PoolSize.Raw(),
     };
+    ensure(DescriptorPoolHandle == VK_NULL_HANDLE);
     VK_CHECK_RESULT(VulkanAPI::vkCreateDescriptorPool(Device->GetHandle(), &CreateInfo, VULKAN_CPU_ALLOCATOR,
                                                       &DescriptorPoolHandle));
 }
 
-void FDescriptorSetManager::CreateDescriptorSets()
+void FDescriptorSetManager::CreateDescriptorSets(const TArray<VkDescriptorSetLayout>& DescriptorSetLayouts)
 {
-    if (DescriptorSetLayout.IsEmpty()) {
-        return;
-    }
-
     VkDescriptorSetAllocateInfo AllocateInfo{
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
         .pNext = nullptr,
         .descriptorPool = DescriptorPoolHandle,
         .descriptorSetCount = 1,
-        .pSetLayouts = DescriptorSetLayout.Raw(),
+        .pSetLayouts = DescriptorSetLayouts.Raw(),
     };
-    DescriptorSets.Resize(DescriptorSetLayout.Size());
+    ensure(DescriptorSets.IsEmpty());
+
+    DescriptorSets.Resize(1);
     VK_CHECK_RESULT(VulkanAPI::vkAllocateDescriptorSets(Device->GetHandle(), &AllocateInfo, DescriptorSets.Raw()));
 }
 

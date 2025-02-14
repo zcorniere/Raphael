@@ -40,13 +40,13 @@ void FRHIEndRendering::Execute(FFRHICommandList& CommandList)
     CommandList.GetContext()->RHIEndRendering();
 }
 
-FRHISetPipeline::FRHISetPipeline(Ref<RRHIGraphicsPipeline> InPipeline): Pipeline(std::move(InPipeline))
+FRHISetMaterial::FRHISetMaterial(Ref<RRHIMaterial> InMaterial): Material(std::move(InMaterial))
 {
 }
 
-void FRHISetPipeline::Execute(FFRHICommandList& CommandList)
+void FRHISetMaterial::Execute(FFRHICommandList& CommandList)
 {
-    CommandList.GetContext()->SetPipeline(Pipeline);
+    CommandList.GetContext()->SetMaterial(Material);
 }
 
 FRHISetVertexBuffer::FRHISetVertexBuffer(Ref<RRHIBuffer> InVertexBuffer, uint32 BufferIndex, uint32 Offset)

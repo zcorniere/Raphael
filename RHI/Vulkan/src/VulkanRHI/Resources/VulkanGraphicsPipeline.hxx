@@ -65,13 +65,12 @@ public:
 
     virtual void SetName(std::string_view Name) override;
 
-    virtual void SetInput(std::string_view Name, const Ref<RRHIBuffer>& Buffer) override;
-
     bool Create();
     void Bind(VkCommandBuffer CmdBuffer);
 
     RVulkanShader* GetShader(ERHIShaderType Type);
     RVulkanShader* GetShader(ERHIShaderType Type) const;
+    TArray<WeakRef<RVulkanShader>> GetShaders() const;
 
     VkPipeline GetVulkanPipeline() const
     {
@@ -84,12 +83,9 @@ public:
 
 private:
     bool CreatePipelineLayout();
-    bool CreateDescriptorSetLayout();
 
 private:
     FGraphicsPipelineDescription Desc;
-
-    FDescriptorSetManager DescriptorManager;
 
     VkPipelineLayout PipelineLayout = VK_NULL_HANDLE;
     VkPipeline VulkanPipeline = VK_NULL_HANDLE;

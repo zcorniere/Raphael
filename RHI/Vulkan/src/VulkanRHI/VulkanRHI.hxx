@@ -59,6 +59,7 @@ public:
     virtual Ref<RRHIBuffer> CreateBuffer(const FRHIBufferDesc& InDesc) override;
     virtual Ref<RRHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) override;
     virtual Ref<RRHIGraphicsPipeline> CreateGraphicsPipeline(const FRHIGraphicsPipelineSpecification& Config) override;
+    virtual Ref<RRHIMaterial> CreateMaterial(const WeakRef<RRHIGraphicsPipeline>& Pipeline) override;
 
 public:
     FVulkanDynamicRHI();

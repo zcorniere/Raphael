@@ -119,8 +119,17 @@ public:
     {
         return Type;
     }
+    TArray<VkDescriptorSetLayout> GetDescriptorSetLayout() const
+    {
+        return DescriptorSetLayouts;
+    }
+    TArray<VkDescriptorPoolSize> GetDescriptorPoolSizes() const
+    {
+        return DescriptorPoolSizes;
+    }
 
-    bool GetDescriptorSetLayoutBindings(TArray<TArray<VkDescriptorSetLayoutBinding>>& OutBindings) const;
+private:
+    void CreateDescriptorSetLayout();
 
 private:
     const TArray<uint32> SPIRVCode;
@@ -128,6 +137,9 @@ private:
 
     ERHIShaderType Type;
     VkShaderModuleCreateInfo ShaderModuleCreateInfo;
+
+    TArray<VkDescriptorSetLayout> DescriptorSetLayouts;
+    TArray<VkDescriptorPoolSize> DescriptorPoolSizes;
 
     friend class VulkanShaderCompiler;
 };

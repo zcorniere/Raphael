@@ -27,6 +27,11 @@ public:
     {
     }
 
+    template <unsigned MinimalCapacity>
+    constexpr TArrayView(std::initializer_list<T> List): TArrayView(List.begin(), List.size())
+    {
+    }
+
     [[nodiscard]] constexpr T* Raw() const
     {
         return Data;

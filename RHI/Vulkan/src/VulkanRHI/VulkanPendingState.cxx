@@ -56,6 +56,10 @@ void FVulkanPendingState::PrepareForDraw(FVulkanCmdBuffer* CommandBuffer)
     }
 
     CurrentPipeline->Bind(CommandBuffer->GetHandle());
+    for (VkDescriptorSet Set: DescriptorSets) {
+        VulkanAPI::vkCmdBindDescriptorSets(CommandBuffer->GetHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                           CurrentPipeline->GetPipelineLayout(), 0, 1, &Set, 0, nullptr);
+    }
     if (PushConstantData.Size() > 0) {
         VulkanAPI::vkCmdPushConstants(CommandBuffer->GetHandle(), CurrentPipeline->GetPipelineLayout(),
                                       VK_SHADER_STAGE_VERTEX_BIT, 0, PushConstantData.Size(), PushConstantData.Raw());
@@ -72,9 +76,5 @@ void FVulkanPendingState::PrepareForDraw(FVulkanCmdBuffer* CommandBuffer)
     }
     VulkanAPI::vkCmdBindVertexBuffers(CommandBuffer->GetHandle(), 0, VertexBuffers.Size(), VertexBuffers.Raw(),
                                       Offsets.Raw());
-
-    // TODO: bind descriptor sets
-    // TODO: bind pipeline layout
 }
-
 }    // namespace VulkanRHI

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/AssetRegistry/Asset.hxx"
-#include "Engine/AssetRegistry/Material.hxx"
+#include "Engine/Core/RHI/Resources/RHIMaterial.hxx"
 #include "Engine/Math/Transform.hxx"
 
 namespace ecs
@@ -12,9 +12,7 @@ struct FMeshComponent {
 
 public:
     Ref<RAsset> Asset;
-    Ref<RMaterial> Material;
-
-    FRHIGraphicsPipelineSpecification Pipeline;
+    Ref<RRHIMaterial> Material;
 };
 
 template <typename T>

@@ -1,4 +1,5 @@
 #include "VulkanRHI/Resources/VulkanBuffer.hxx"
+#include "VulkanRHI/Resources/VulkanMaterial.hxx"
 #include "VulkanRHI/VulkanCommandContext.hxx"
 #include "VulkanRHI/VulkanRHI.hxx"
 
@@ -130,4 +131,16 @@ VulkanRHI::FVulkanDynamicRHI::CreateGraphicsPipeline(const FRHIGraphicsPipelineS
     }
     return Ref<RVulkanGraphicsPipeline>::Create(Device.get(), Desc);
 }
+
+Ref<RRHIMaterial> FVulkanDynamicRHI::CreateMaterial(const WeakRef<RRHIGraphicsPipeline>& Pipeline)
+{
+    if (!Pipeline->IsValid()) {
+        return nullptr;
+    }
+    Ref<RVulkanGraphicsPipeline> PipelineRef = Pipeline.Pin();
+
+    Ref<RVulkanMaterial> Material = Ref<RVulkanMaterial>::Create(Device.get(), PipelineRef);
+    return Material;
+}
+
 }    // namespace VulkanRHI

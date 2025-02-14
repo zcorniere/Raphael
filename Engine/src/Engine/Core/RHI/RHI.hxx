@@ -76,5 +76,7 @@ Ref<RRHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompil
 std::future<Ref<RRHIShader>> CreateShaderAsync(const std::filesystem::path Path, bool bForceCompile);
 /// Create a new RHI Pipeline - through the current RHI
 Ref<RRHIGraphicsPipeline> CreateGraphicsPipeline(const FRHIGraphicsPipelineSpecification& Config);
+/// Create a new RHI Material - through the current RHI
+Ref<RRHIMaterial> CreateMaterial(const WeakRef<RRHIGraphicsPipeline>& Pipeline);
 
 };    // namespace RHI

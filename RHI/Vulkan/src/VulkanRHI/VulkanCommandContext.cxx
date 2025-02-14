@@ -2,6 +2,7 @@
 
 #include "VulkanRHI/Resources/VulkanBuffer.hxx"
 #include "VulkanRHI/Resources/VulkanGraphicsPipeline.hxx"
+#include "VulkanRHI/Resources/VulkanMaterial.hxx"
 #include "VulkanRHI/Resources/VulkanViewport.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
@@ -136,10 +137,18 @@ void FVulkanCommandContext::RHIEndRendering()
     CmdBuffer->EndRendering();
 }
 
-void FVulkanCommandContext::SetPipeline(Ref<RRHIGraphicsPipeline>& Pipeline)
+void FVulkanCommandContext::SetPipeline(Ref<RRHIGraphicsPipeline>& PipelineState)
 {
-    Ref<RVulkanGraphicsPipeline> VulkanPipeline = Pipeline.As<RVulkanGraphicsPipeline>();
+    Ref<RVulkanGraphicsPipeline> VulkanPipeline = PipelineState.As<RVulkanGraphicsPipeline>();
     PendingState->SetGraphicsPipeline(VulkanPipeline);
+}
+
+void FVulkanCommandContext::SetMaterial(Ref<RRHIMaterial>& Material)
+{
+    Ref<RVulkanMaterial> VulkanMaterial = Material.As<RVulkanMaterial>();
+    Ref<RVulkanGraphicsPipeline> VulkanPipeline = VulkanMaterial->GetPipeline().As<RVulkanGraphicsPipeline>();
+    PendingState->SetGraphicsPipeline(VulkanPipeline);
+    PendingState->SetPendingDescriptorSets(VulkanMaterial->GetDescriptorSet());
 }
 
 void FVulkanCommandContext::SetVertexBuffer(Ref<RRHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset)
