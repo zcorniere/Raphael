@@ -16,6 +16,7 @@ void ShaderResource::FStageIO::Serialize(Serialization::FStreamWriter* Writer, c
     Writer->WriteRaw(Value.Type);
     Writer->WriteRaw(Value.Binding);
     Writer->WriteRaw(Value.Location);
+    Writer->WriteRaw(Value.Offset);
 }
 
 void ShaderResource::FPushConstantRange::Serialize(Serialization::FStreamWriter* Writer,
@@ -57,6 +58,7 @@ void ShaderResource::FStageIO::Deserialize(Serialization::FStreamReader* Reader,
     Reader->ReadRaw(OutValue.Type);
     Reader->ReadRaw(OutValue.Binding);
     Reader->ReadRaw(OutValue.Location);
+    Reader->ReadRaw(OutValue.Offset);
 }
 
 void ShaderResource::FPushConstantRange::Deserialize(Serialization::FStreamReader* Reader,
@@ -110,7 +112,7 @@ void RVulkanShader::RVulkanShaderHandle::SetName(std::string_view Name)
 }
 
 RVulkanShader::RVulkanShader(ERHIShaderType Type, const TArray<uint32>& InSPIRVCode,
-                             const FReflectionData& InReflectionData)
+                             const FReflectionData& InReflectionData, bool bCreateDescriptorSetLayout)
     : Super(Type), SPIRVCode(InSPIRVCode), m_ReflectionData(InReflectionData), Type(Type)
 {
     ShaderModuleCreateInfo = {
@@ -120,7 +122,9 @@ RVulkanShader::RVulkanShader(ERHIShaderType Type, const TArray<uint32>& InSPIRVC
         .codeSize = SPIRVCode.Size() * sizeof(uint32),
         .pCode = SPIRVCode.Raw(),
     };
-    CreateDescriptorSetLayout();
+    if (bCreateDescriptorSetLayout) {
+        CreateDescriptorSetLayout();
+    }
 }
 
 RVulkanShader::~RVulkanShader()

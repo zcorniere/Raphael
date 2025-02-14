@@ -54,7 +54,7 @@ public:
     /// @brief Return a shader handle
     /// @param Path The path (internally used as ID) of the shader
     /// @param bForceCompile Should the shader be recompiled regardless of its cached status ?
-    Ref<RVulkanShader> Get(std::filesystem::path Path, bool bForceCompile = false);
+    Ref<RVulkanShader> Get(std::filesystem::path Path, bool bForceCompile = false, bool bUnitTesting = false);
 
 private:
     Ref<RVulkanShader> CheckCache(ShaderCompileResult& Result);

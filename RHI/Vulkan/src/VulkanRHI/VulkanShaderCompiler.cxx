@@ -176,7 +176,7 @@ void FVulkanShaderCompiler::SetOptimizationLevel(EOptimizationLevel InLevel)
     Level = InLevel;
 }
 
-Ref<RVulkanShader> FVulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile)
+Ref<RVulkanShader> FVulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile, bool bUnitTesting)
 try {
     RPH_PROFILE_FUNC()
 
@@ -210,7 +210,7 @@ try {
     }
 
     ShaderUnit = Ref<RVulkanShader>::CreateNamed(Path.filename().string(), Result.ShaderType, Result.CompiledCode,
-                                                 Result.Reflection);
+                                                 Result.Reflection, !bUnitTesting);
     Result.Status = ECompilationStatus::Done;
     {
         std::unique_lock Lock(m_ShaderCacheMutex);

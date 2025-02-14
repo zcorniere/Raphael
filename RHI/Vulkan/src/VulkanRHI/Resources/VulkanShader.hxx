@@ -104,7 +104,8 @@ public:
     };
 
 public:
-    RVulkanShader(ERHIShaderType Type, const TArray<uint32>& InSPRIVCode, const FReflectionData& InReflectionData);
+    RVulkanShader(ERHIShaderType Type, const TArray<uint32>& InSPRIVCode, const FReflectionData& InReflectionData,
+                  bool bCreateDescriptorSetLayout = true);
     virtual ~RVulkanShader();
 
     const FReflectionData& GetReflectionData() const
@@ -151,8 +152,8 @@ DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::FPushConstantRange,
                       Value.Parameter)
 
 DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::FStageIO,
-                      "StageIO {{ Name: \"{0}\", Type: {1}, Binding: {2}, Location: {3} }}", Value.Name,
-                      magic_enum::enum_name(Value.Type), Value.Binding, Value.Location)
+                      "StageIO {{ Name: \"{0}\", Type: {1}, Binding: {2}, Location: {3}, Offset: {4} }}", Value.Name,
+                      magic_enum::enum_name(Value.Type), Value.Binding, Value.Location, Value.Offset)
 
 DEFINE_PRINTABLE_TYPE(VulkanRHI::ShaderResource::FStorageBuffer,
                       "StorageBuffer {{ Set: {0}, Binding: {1}, Parameter: {2:#} }}", Value.Set, Value.Binding,

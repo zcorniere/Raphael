@@ -2,6 +2,8 @@
 
 #include "Engine/Core/Log.hxx"
 
+#include <magic_enum.hpp>
+
 #include "Engine/Serialization/FileStream.hxx"
 #include "VulkanRHI/Resources/VulkanShader.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
@@ -17,23 +19,81 @@ std::filesystem::path GetCurrentFilePath()
     return File.parent_path();
 }
 
+#define INFO_N_CHECK(Name, Member, Got, Expected)                            \
+    INFO(Name " " #Member " : " << Got.Member << " == " << Expected.Member); \
+    CHECK(Got.Member == Expected.Member);
+
+static void CheckParameter(const RTTI::FParameter& Expected, const RTTI::FParameter& Got)
+{
+    INFO_N_CHECK("Parameter", Name, Got, Expected)
+
+    INFO("Type: " << magic_enum::enum_name(Got.Type) << " == " << magic_enum::enum_name(Expected.Type));
+    CHECK(Got.Type == Expected.Type);
+
+    INFO_N_CHECK("Parameter", Size, Got, Expected)
+    INFO_N_CHECK("Parameter", Offset, Got, Expected)
+    INFO_N_CHECK("Parameter", Columns, Got, Expected)
+    INFO_N_CHECK("Parameter", Rows, Got, Expected)
+
+    REQUIRE(Got.Members.Size() == Expected.Members.Size());
+    for (unsigned i = 0; i < Got.Members.Size(); i++) {
+        CheckParameter(Expected.Members[i], Got.Members[i]);
+    }
+}
+
 static void CheckReflection(const VulkanRHI::RVulkanShader::FReflectionData& ExpectedReflection,
                             const VulkanRHI::RVulkanShader::FReflectionData& GotReflection)
 {
     REQUIRE(GotReflection.PushConstants.has_value() == ExpectedReflection.PushConstants.has_value());
     if (GotReflection.PushConstants.has_value() && ExpectedReflection.PushConstants.has_value()) {
-        CHECK(GotReflection.PushConstants.value() == ExpectedReflection.PushConstants.value());
+        INFO_N_CHECK("Push Constants:", Offset, GotReflection.PushConstants.value(),
+                     ExpectedReflection.PushConstants.value());
+        INFO_N_CHECK("Push Constants:", Size, GotReflection.PushConstants.value(),
+                     ExpectedReflection.PushConstants.value());
+        CheckParameter(ExpectedReflection.PushConstants.value().Parameter,
+                       GotReflection.PushConstants.value().Parameter);
     }
 
     REQUIRE(GotReflection.StageInput.Size() == ExpectedReflection.StageInput.Size());
     for (unsigned i = 0; i < GotReflection.StageInput.Size(); i++) {
-        CHECK(GotReflection.StageInput[i] == ExpectedReflection.StageInput[i]);
+        INFO_N_CHECK("Stage Input", Name, GotReflection.StageInput[i], GotReflection.StageInput[i])
+
+        INFO("Type: " << magic_enum::enum_name(GotReflection.StageInput[i].Type)
+                      << " == " << magic_enum::enum_name(ExpectedReflection.StageInput[i].Type));
+        CHECK(GotReflection.StageInput[i].Type == ExpectedReflection.StageInput[i].Type);
+
+        INFO_N_CHECK("Stage Input", Binding, GotReflection.StageInput[i], GotReflection.StageInput[i])
+        INFO_N_CHECK("Stage Input", Location, GotReflection.StageInput[i], GotReflection.StageInput[i])
+        INFO_N_CHECK("Stage Input", Offset, GotReflection.StageInput[i], GotReflection.StageInput[i])
     }
 
     REQUIRE(GotReflection.StageOutput.Size() == ExpectedReflection.StageOutput.Size());
     for (unsigned i = 0; i < GotReflection.StageOutput.Size(); i++) {
-        CHECK(GotReflection.StageOutput[i] == ExpectedReflection.StageOutput[i]);
+        INFO_N_CHECK("Stage Output", Name, GotReflection.StageOutput[i], GotReflection.StageOutput[i])
+
+        INFO("Type: " << magic_enum::enum_name(GotReflection.StageOutput[i].Type)
+                      << " == " << magic_enum::enum_name(ExpectedReflection.StageOutput[i].Type));
+        CHECK(GotReflection.StageOutput[i].Type == ExpectedReflection.StageOutput[i].Type);
+
+        INFO_N_CHECK("Stage Output", Binding, GotReflection.StageOutput[i], GotReflection.StageOutput[i])
+        INFO_N_CHECK("Stage Output", Location, GotReflection.StageOutput[i], GotReflection.StageOutput[i])
+        INFO_N_CHECK("Stage Output", Offset, GotReflection.StageOutput[i], GotReflection.StageOutput[i])
     }
+
+    REQUIRE(GotReflection.StorageBuffers.Size() == ExpectedReflection.StorageBuffers.Size());
+    for (unsigned i = 0; i < GotReflection.StorageBuffers.Size(); i++) {
+        INFO_N_CHECK("Storage Buffer", Set, GotReflection.StorageBuffers[i], GotReflection.StorageBuffers[i])
+        INFO_N_CHECK("Storage Buffer", Binding, GotReflection.StorageBuffers[i], GotReflection.StorageBuffers[i])
+        CheckParameter(ExpectedReflection.StorageBuffers[i].Parameter, GotReflection.StorageBuffers[i].Parameter);
+    }
+
+    REQUIRE(GotReflection.UniformBuffers.Size() == ExpectedReflection.UniformBuffers.Size());
+    for (unsigned i = 0; i < GotReflection.UniformBuffers.Size(); i++) {
+        INFO_N_CHECK("Uniform Buffer", Set, GotReflection.UniformBuffers[i], GotReflection.UniformBuffers[i])
+        INFO_N_CHECK("Uniform Buffer", Binding, GotReflection.UniformBuffers[i], GotReflection.UniformBuffers[i])
+        CheckParameter(ExpectedReflection.UniformBuffers[i].Parameter, GotReflection.UniformBuffers[i].Parameter);
+    }
+
     CHECK(GotReflection == ExpectedReflection);
 }
 
@@ -46,12 +106,12 @@ TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
     FVulkanShaderCompiler Compiler;
     Compiler.SetOptimizationLevel(FVulkanShaderCompiler::EOptimizationLevel::None);
 
-    Ref<RVulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
+    Ref<RVulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath, false, true);
     REQUIRE(ShaderResult);
 
     SECTION("Test shader Cache")
     {
-        Ref<RVulkanShader> CachedResult = Compiler.Get(SimpleShaderPath);
+        Ref<RVulkanShader> CachedResult = Compiler.Get(SimpleShaderPath, false, true);
 
         CHECK(ShaderResult == CachedResult);
     }
@@ -73,11 +133,13 @@ TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
                     .Name = "outVertexPos",
                     .Type = EVertexElementType::Float4,
                     .Location = 0,
+                    .Offset = 0,
                 },
                 {
                     .Name = "outUV",
                     .Type = EVertexElementType::Uint2,
                     .Location = 1,
+                    .Offset = 16,
                 },
             },
         .PushConstants = {},
@@ -143,7 +205,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
     FVulkanShaderCompiler Compiler;
     Compiler.SetOptimizationLevel(VulkanRHI::FVulkanShaderCompiler::EOptimizationLevel::None);
 
-    Ref<RVulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath);
+    Ref<RVulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath, false, true);
     REQUIRE(ShaderResult);
 
     CHECK(ShaderResult->GetShaderType() == ERHIShaderType::Fragment);
@@ -217,31 +279,37 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
                         .Name = "fragPosition",
                         .Type = EVertexElementType::Float3,
                         .Location = 0,
+                        .Offset = 8,
                     },
                     {
                         .Name = "fragNormal",
                         .Type = EVertexElementType::Float3,
                         .Location = 1,
+                        .Offset = 20,
                     },
                     {
                         .Name = "fragTextCoords",
                         .Type = EVertexElementType::Float2,
                         .Location = 2,
+                        .Offset = 0,
                     },
                     {
                         .Name = "fragColor",
                         .Type = EVertexElementType::Float3,
                         .Location = 3,
+                        .Offset = 36,
                     },
                     {
                         .Name = "fragTangent",
                         .Type = EVertexElementType::Float4,
                         .Location = 4,
+                        .Offset = 48,
                     },
                     {
                         .Name = "materialIndex",
                         .Type = EVertexElementType::Uint1,
                         .Location = 5,
+                        .Offset = 32,
                     },
                 },
             .StageOutput =

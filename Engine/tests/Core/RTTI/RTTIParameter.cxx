@@ -74,11 +74,11 @@ TEST_CASE("Test Parametter struct")
     int paddingAB = offsetB - (offsetA + sizeof(int));
     int paddingBC = offsetC - (offsetB + sizeof(float));
     int paddingCD = offsetD - (offsetC + sizeof(FVector4));
-    int paddingEnd = sizeof(FShaderStruct) - (offsetC + sizeof(FMatrix4));
+    int paddingEnd = sizeof(FShaderStruct) - (offsetD + sizeof(FMatrix4));
 
     INFO("Padding between members: " << paddingAB << ", " << paddingBC << ", " << paddingCD << ",  " << paddingEnd);
-    CHECK(sizeof(FShaderStruct) ==
-          Members[0].Size + paddingAB + Members[1].Size + paddingBC + Members[2].Size + paddingCD + Members[3].Size);
+    CHECK(sizeof(FShaderStruct) == Members[0].Size + paddingAB + Members[1].Size + paddingBC + Members[2].Size +
+                                       paddingCD + Members[3].Size + paddingEnd);
 }
 
 TEST_CASE("Test Parametter info with no align option")
