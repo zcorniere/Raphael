@@ -13,8 +13,9 @@ file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VulkanRHI/RenderPass/*.cxx
 )
 
+
 add_library(
-    ${PROJECT_NAME} STATIC
+    ${PROJECT_NAME} STATIC EXCLUDE_FROM_ALL
     ${VULKAN_RENDERER_FILES}
     # Compile the imgui vulkan backend
     ${CMAKE_SOURCE_DIR}/External/imgui/backends/imgui_impl_vulkan.cpp
@@ -50,6 +51,7 @@ target_compile_options(
             /wd4702>
 )
 
+target_compile_definitions(${PROJECT_NAME} PUBLIC IMGUI_IMPL_VULKAN_NO_PROTOTYPES=1)
 if(ENABLE_VULKAN_DEBUGGING)
     target_compile_definitions(${PROJECT_NAME} PUBLIC VULKAN_DEBUGGING_ENABLED=1)
 endif()

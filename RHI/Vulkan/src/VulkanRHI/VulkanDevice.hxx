@@ -80,6 +80,11 @@ public:
         return ImmediateContext;
     }
 
+    FVulkanQueue* GetGraphicsQueue() const
+    {
+        return GraphicsQueue.get();
+    }
+
 private:
     void Destroy();
     bool CreateDeviceAndQueue(const TArray<const char*>& DeviceLayers,

@@ -5,6 +5,7 @@ DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Trace);
 #include "Engine/Core/RHI/GenericRHI.hxx"
 
 #include "VulkanRHI/VulkanRHI_Debug.hxx"
+#include "VulkanRHI/VulkanRHI_ImGui.hxx"
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 
 // Raphael classes
@@ -85,12 +86,18 @@ private:
     static FVulkanDevice* SelectDevice(VkInstance Instance);
 
 private:
+    void InitializeImGui();
+    void ShutdownImGui();
+
+private:
     friend class FVulkanCommandContext;
 
 private:
 #if VULKAN_DEBUGGING_ENABLED
     VulkanRHI_Debug DebugLayer;
 #endif
+    VulkanRHI_ImGui ImGuiStuff;
+
     VkInstance m_Instance = VK_NULL_HANDLE;
     std::unique_ptr<FVulkanDevice> Device;
 
