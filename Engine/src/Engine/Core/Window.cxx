@@ -192,11 +192,45 @@ void RWindow::ProcessEvents()
     glfwPollEvents();
 }
 
+namespace GLFWMemAllocator
+{
+void* Allocate(size_t Size, void* UserData)
+{
+    (void)UserData;
+    return Memory::Malloc(Size, alignof(std::max_align_t));
+}
+
+void* Reallocate(void* Pointer, size_t Size, void* User)
+{
+    (void)User;
+    return Memory::Realloc(Pointer, Size, alignof(std::max_align_t));
+}
+
+void Deallocate(void* Pointer, void* User)
+{
+    (void)User;
+    Memory::Free(Pointer);
+}
+
+}    // namespace GLFWMemAllocator
+
 bool RWindow::InitializeGLFW()
 {
     if (bGLFWInitialized) {
         return true;
     }
+
+    glfwSetErrorCallback([](int ErrorCode, const char* ErrorMessage) {
+        LOG(LogWindow, Error, "GLFW Error ({}) \"{:s}\"", ErrorCode, ErrorMessage);
+    });
+
+    GLFWallocator allocator = {
+        .allocate = GLFWMemAllocator::Allocate,
+        .reallocate = GLFWMemAllocator::Reallocate,
+        .deallocate = GLFWMemAllocator::Deallocate,
+        .user = nullptr,
+    };
+    glfwInitAllocator(&allocator);
 
 #if defined(PLATFORM_LINUX)
     if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND) && !FCommandLine::Param("-forceX11")) {
@@ -218,10 +252,6 @@ bool RWindow::InitializeGLFW()
         }
         return false;
     }
-
-    glfwSetErrorCallback([](int ErrorCode, const char* ErrorMessage) {
-        LOG(LogWindow, Error, "GLFW Error ({}) \"{:s}\"", ErrorCode, ErrorMessage);
-    });
 
     int Major = 0;
     int Minor = 0;
