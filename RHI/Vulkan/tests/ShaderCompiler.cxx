@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Log.hxx"
 
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 #include "Engine/Serialization/FileStream.hxx"
 #include "VulkanRHI/Resources/VulkanShader.hxx"

@@ -4,7 +4,7 @@
 #include "VulkanRHI/VulkanMemoryManager.hxx"
 #include "VulkanRHI/VulkanRHI.hxx"
 
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 namespace VulkanRHI
 {

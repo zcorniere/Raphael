@@ -2,7 +2,7 @@
 
 #include "Engine/Misc/MiscDefines.hxx"
 
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 /// Enumerates supported message dialog button types.
 enum EBoxMessageType {
