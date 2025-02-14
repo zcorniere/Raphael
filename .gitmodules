@@ -40,9 +40,6 @@
 [submodule "Engine/External/ModernDialogs"]
 	path = Engine/External/ModernDialogs
 	url = https://github.com/GamesTrap/ModernDialogs.git
-[submodule "Engine/External/simpleini"]
-	path = Engine/External/simpleini
-	url = https://github.com/brofield/simpleini.git
 [submodule "External/imgui"]
 	path = External/imgui
 	url = https://github.com/ocornut/imgui.git
