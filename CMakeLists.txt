@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.31)
 project(Raphael)
 
 option(BUILD_TESTING "Build the unit tests" ON)
