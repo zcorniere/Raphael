@@ -28,20 +28,6 @@ target_include_directories(VulkanMemoryAllocator PUBLIC ${VMA_PATH}/include)
 set_target_properties(VulkanMemoryAllocator PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(VulkanMemoryAllocator PUBLIC Vulkan::Headers)
 
-# glslang
-set(ENABLE_CTEST
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(BUILD_EXTERNAL
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(ENABLE_GLSLANG_BINARIES
-    OFF
-    CACHE BOOL "" FORCE
-)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glslang/ EXCLUDE_FROM_ALL)
 
 # SPIRV-Headers
 set(SPIRV_HEADERS_SKIP_EXAMPLES
@@ -101,6 +87,22 @@ set(SPIRV_WERROR
 )
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SPIRV-Tools EXCLUDE_FROM_ALL)
 
+# glslang
+set(ENABLE_CTEST
+    OFF
+    CACHE BOOL "" FORCE
+)
+set(BUILD_EXTERNAL
+    OFF
+    CACHE BOOL "" FORCE
+)
+set(ENABLE_GLSLANG_BINARIES
+    OFF
+    CACHE BOOL "" FORCE
+)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glslang/ EXCLUDE_FROM_ALL)
+
+
 # shaderc
 set(SHADERC_SKIP_TESTS
     ON
@@ -158,3 +160,4 @@ set(SPIRV_CROSS_ENABLE_UTIL
     CACHE BOOL "" FORCE
 )
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SPIRV-Cross EXCLUDE_FROM_ALL)
+
