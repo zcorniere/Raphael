@@ -8,6 +8,9 @@ FAssetRegistry::FAssetRegistry()
 {
     Ref<RAsset> CubeAsset = MeshFactory::CreateBox({1.0f, 1.0f, 1.0f});
     RegisterMemoryOnlyAsset(CubeAsset);
+
+    Ref<RAsset> CapsuleAsset = MeshFactory::CreateCapsule(1.0f, 2.0f);
+    RegisterMemoryOnlyAsset(CapsuleAsset);
 }
 
 Ref<RAsset> FAssetRegistry::LoadAsset(const std::filesystem::path& Path)
