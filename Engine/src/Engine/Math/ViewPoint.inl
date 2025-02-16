@@ -14,6 +14,8 @@ void TViewPoint<T>::ComputeProjectionMatrix()
     NewProjectionMatrix[2, 3] = T(-1);
     NewProjectionMatrix[3, 2] = (T(2) * m_Far * m_Near) / (m_Near - m_Far);
 
+    NewProjectionMatrix[1, 1] *= -1;
+
     m_ProjectionMatrix = NewProjectionMatrix;
 }
 
@@ -29,18 +31,18 @@ void TViewPoint<T>::ComputeViewMatrix()
     Forward = -Forward;
 
     // Create the final view matrix
-    TMatrix4<T> FinalMatrix(1.0);
-    FinalMatrix[0] = Right;
-    FinalMatrix[1] = Up;
-    FinalMatrix[2] = Forward;
+    TMatrix4<T> NewViewMatrix(1.0);
+    NewViewMatrix[0] = Right;
+    NewViewMatrix[1] = Up;
+    NewViewMatrix[2] = Forward;
 
     TVector4<T> Location = Transform.GetLocation();
-    FinalMatrix[3][0] = -Math::Dot(Right, Location);
-    FinalMatrix[3][1] = -Math::Dot(Up, Location);
-    FinalMatrix[3][2] = Math::Dot(Forward, Location);
-    FinalMatrix[3][3] = 1.0;
+    NewViewMatrix[3, 0] = -Math::Dot(Right, Location);
+    NewViewMatrix[3, 1] = -Math::Dot(Up, Location);
+    NewViewMatrix[3, 2] = Math::Dot(Forward, Location);
+    NewViewMatrix[3, 3] = 1.0;
 
-    m_ViewMatrix = FinalMatrix;
+    m_ViewMatrix = NewViewMatrix;
 }
 
 template <typename T>

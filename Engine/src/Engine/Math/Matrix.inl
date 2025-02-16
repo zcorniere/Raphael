@@ -95,14 +95,14 @@ constexpr TMatrix<TRows, TColumns, T> operator-(const TMatrix<TRows, TColumns, T
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
-constexpr TMatrix<TRows, TColumns, T> operator*(const TMatrix<TRows, TColumns, T>& m1,
-                                                const TMatrix<TRows, TColumns, T>& m2)
+constexpr TMatrix<TRows, TColumns, T> operator*(const TMatrix<TRows, TColumns, T>& lhs,
+                                                const TMatrix<TRows, TColumns, T>& rhs)
 {
     TMatrix<TRows, TColumns, T> Result;
     for (unsigned i = 0; i < TRows; i++) {
         for (unsigned j = 0; j < TColumns; j++) {
             for (unsigned k = 0; k < TRows; k++) {
-                Result[i][k] += m1[j][k] * m2[i][j];
+                Result[i][k] += lhs[j][k] * rhs[i][j];
             }
         }
     }
@@ -119,27 +119,6 @@ constexpr TVector<TColumns, T> operator*(const TMatrix<TRows, TColumns, T>& lhs,
             Sum += lhs[i][j] * rhs[j];
         }
         Result[i] = Sum;
-    }
-    return Result;
-}
-
-template <unsigned TRows, unsigned TColumns, typename T>
-constexpr TMatrix<TRows, TColumns, T> operator/(const TMatrix<TRows, TColumns, T>& lhs,
-                                                const TMatrix<TRows, TColumns, T>& rhs)
-{
-    TMatrix<TRows, TColumns, T> Result;
-    for (size_t i = 0; i < TRows; ++i) {
-        for (size_t j = 0; j < TColumns; ++j) {
-            T Sum = T{};
-            for (size_t k = 0; k < TColumns; ++k) {
-                if (rhs[k][j] == T{}) {
-                    Sum = std::numeric_limits<T>::Nan();
-                    break;
-                }
-                Sum += lhs[i][k] / rhs[k][j];
-            }
-            Result[i][j] = Sum;
-        }
     }
     return Result;
 }

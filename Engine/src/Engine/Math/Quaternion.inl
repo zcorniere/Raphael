@@ -24,16 +24,17 @@ constexpr TMatrix4<T> TQuaternion<T>::GetRotationMatrix() const
 {
     TMatrix4<T> Result;
 
-    T xx(x * x);
-    T yy(y * y);
-    T zz(z * z);
-    T xz(x * z);
-    T xy(x * y);
-    T yz(y * z);
-    T wx(w * x);
-    T wy(w * y);
-    T wz(w * z);
+    const T xx = x * x;
+    const T yy = y * y;
+    const T zz = z * z;
+    const T xy = x * y;
+    const T xz = x * z;
+    const T yz = y * z;
+    const T wx = w * x;
+    const T wy = w * y;
+    const T wz = w * z;
 
+    // Construct the matrix for right-handed (+X = front, +Y = right, +Z = up)
     Result[0, 0] = T(1) - T(2) * (yy + zz);
     Result[0, 1] = T(2) * (xy + wz);
     Result[0, 2] = T(2) * (xz - wy);
