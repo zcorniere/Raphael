@@ -53,7 +53,7 @@ public:
     virtual void RHIReleaseCommandContext(FRHIContext*) = 0;
 
     /// @copydoc RHI::CreateViewport
-    virtual Ref<RRHIViewport> CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize) = 0;
+    virtual Ref<RRHIViewport> CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize, bool bCreateDepthBuffer) = 0;
     /// @copydoc RHI::CreateTexture
     virtual Ref<RRHITexture> CreateTexture(const FRHITextureSpecification& InDesc) = 0;
     /// @copydoc RHI::CreateBuffer

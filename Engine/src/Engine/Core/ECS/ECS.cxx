@@ -17,6 +17,9 @@ Ref<RWorld> CreateWorld()
     FSystem CameraSystem(NewWorld->GetScene(), &RHIScene::CameraSystem);
     NewWorld->RegisterSystem(std::move(CameraSystem));
 
+    FSystem CollectRenderTargets(NewWorld->GetScene(), &RHIScene::CollectRenderTargets);
+    NewWorld->RegisterSystem(std::move(CollectRenderTargets));
+
     return NewWorld;
 }
 

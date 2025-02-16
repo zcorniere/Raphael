@@ -16,8 +16,10 @@
 namespace VulkanRHI
 {
 
-RVulkanViewport::RVulkanViewport(FVulkanDevice* InDevice, Ref<RWindow> InWindowHandle, UVector2 InSize)
+RVulkanViewport::RVulkanViewport(FVulkanDevice* InDevice, Ref<RWindow> InWindowHandle, UVector2 InSize,
+                                 bool bCreateDepthBuffer)
     : IDeviceChild(InDevice),
+      bCreateDepthBuffer(bCreateDepthBuffer),
       WindowHandle(InWindowHandle),
       Size(InSize),
       AcquiredImageIndex(-1),
@@ -211,6 +213,13 @@ void RVulkanViewport::CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo)
             .Name = std::format("{:s}.BackBuffer", GetName()),
         };
         RenderingBackbuffer = RHI::CreateTexture(Description);
+
+        if (bCreateDepthBuffer) {
+            FRHITextureSpecification DepthTexture = Description;
+            DepthTexture.Format = EImageFormat::D32_SFLOAT;
+            DepthTexture.Flags = ETextureUsageFlags::DepthStencilTargetable;
+            DepthBuffer = RHI::CreateTexture(DepthTexture);
+        }
     }
     RenderingBackbuffer->SetLayout(CmdBuffer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     VulkanAPI::vkCmdClearColorImage(CmdBuffer->GetHandle(), RenderingBackbuffer->GetImage(),

@@ -55,7 +55,8 @@ public:
     virtual FRHIContext* RHIGetCommandContext() override;
     virtual void RHIReleaseCommandContext(FRHIContext* Context) override;
 
-    virtual Ref<RRHIViewport> CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize) override;
+    virtual Ref<RRHIViewport> CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize,
+                                             bool bCreateDepthBuffer) override;
     virtual Ref<RRHITexture> CreateTexture(const FRHITextureSpecification& InDesc) override;
     virtual Ref<RRHIBuffer> CreateBuffer(const FRHIBufferDesc& InDesc) override;
     virtual Ref<RRHIShader> CreateShader(const std::filesystem::path Path, bool bForceCompile) override;

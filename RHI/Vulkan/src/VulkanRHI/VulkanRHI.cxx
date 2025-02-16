@@ -327,18 +327,14 @@ FVulkanDevice* FVulkanDynamicRHI::SelectDevice(VkInstance Instance)
 static std::string GetMissingExtensions(TArray<const char*> VulkanExtensions)
 {
     std::string MissingExtensions;
-    uint32_t PropertyCount;
-    VulkanRHI::VulkanAPI::vkEnumerateInstanceExtensionProperties(nullptr, &PropertyCount, nullptr);
-
-    TArray<VkExtensionProperties> Properties;
-    Properties.Resize(PropertyCount);
-    VulkanRHI::VulkanAPI::vkEnumerateInstanceExtensionProperties(nullptr, &PropertyCount, Properties.Raw());
+    TArray<VkExtensionProperties> Properties =
+        VulkanRHI::FVulkanPlatform::GetDriverSupportedInstanceExtensions(nullptr);
 
     for (const char* Extension: VulkanExtensions) {
         bool bExtensionFound = false;
 
-        for (uint32_t PropertyIndex = 0; PropertyIndex < PropertyCount; PropertyIndex++) {
-            const char* PropertyExtensionName = Properties[PropertyIndex].extensionName;
+        for (const VkExtensionProperties& Property: Properties) {
+            const char* PropertyExtensionName = Property.extensionName;
 
             if (!std::strcmp(PropertyExtensionName, Extension)) {
                 bExtensionFound = true;

@@ -3,6 +3,10 @@
 #include "Engine/Core/RHI/RHICommandList.hxx"
 #include "Engine/Core/RHI/RHIContext.hxx"
 
+#include "Engine/Core/ECS/Component/CameraComponent.hxx"
+#include "Engine/Core/ECS/Component/MeshComponent.hxx"
+#include "Engine/Core/ECS/Component/RHIComponent.hxx"
+
 class RHIScene : public RObject
 {
     RTTI_DECLARE_TYPEINFO(RHIScene, RObject);
@@ -26,6 +30,7 @@ public:
 
     void CollectRenderablesSystem(ecs::FTransformComponent& Transform, ecs::FMeshComponent& Mesh);
     void CameraSystem(ecs::FCameraComponent& Camera);
+    void CollectRenderTargets(ecs::FRenderTargetComponent& RenderTarget);
 
     void SetViewport(Ref<RRHIViewport>& InViewport)
     {
@@ -41,6 +46,7 @@ private:
     UCameraData CameraData;
     Ref<RRHIBuffer> u_CameraBuffer = nullptr;
 
+    TArray<ecs::FRenderTargetComponent> RenderTargets;
     std::unordered_map<std::string, Ref<RRHIBuffer>> TransformBuffers;
     std::unordered_map<std::string, TArray<FRenderRequest>> RenderRequestMap;
 

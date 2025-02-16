@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Engine/Core/ECS/Component/CameraComponent.hxx"
-#include "Engine/Core/ECS/Component/MeshComponent.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
 #include <Engine/Core/RHI/RHICommandList.hxx>
 
@@ -65,7 +63,7 @@ void EndFrame();
 void RHIWaitUntilIdle();
 
 /// Create a new RHI viewport - through the current RHI
-Ref<RRHIViewport> CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize);
+Ref<RRHIViewport> CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize, bool bCreateDepthBuffer);
 /// Create a new RHI texture - through the current RHI
 Ref<RRHITexture> CreateTexture(const FRHITextureSpecification& InDesc);
 /// Create a new RHI buffer - through the current RHI

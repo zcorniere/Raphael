@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/AssetRegistry/Asset.hxx"
+#include "Engine/Core/ECS/ECS.hxx"
 #include "Engine/Core/RHI/Resources/RHIMaterial.hxx"
 #include "Engine/Math/Transform.hxx"
 
@@ -13,6 +14,8 @@ struct FMeshComponent {
 public:
     Ref<RAsset> Asset;
     Ref<RRHIMaterial> Material;
+
+    FEntity RenderTarget;
 };
 
 template <typename T>

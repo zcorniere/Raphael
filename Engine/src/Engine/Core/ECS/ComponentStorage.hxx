@@ -20,6 +20,9 @@ public:
     virtual void Remove(FEntity EntityID) = 0;
 };
 
+template <RTTI::IsRTTIApiAvailable FirstType, RTTI::IsRTTIApiAvailable... RestTypes>
+using TComponentArray = TArray<std::pair<FEntity, std::tuple<FirstType&, RestTypes&...>>>;
+
 /// This class is used to store the component data in relation of the entity id that uses it
 template <RTTI::IsRTTIApiAvailable T>
 class TComponentEntityMap : public IComponentEntityMap
@@ -116,9 +119,9 @@ public:
     }
 
     template <RTTI::IsRTTIApiAvailable FirstType, RTTI::IsRTTIApiAvailable... RestTypes>
-    TArray<std::pair<unsigned int, std::tuple<FirstType&, RestTypes&...>>> JoinComponents()
+    TComponentArray<FirstType, RestTypes...> JoinComponents()
     {
-        TArray<std::pair<unsigned int, std::tuple<FirstType&, RestTypes&...>>> Result;
+        TComponentArray<FirstType, RestTypes...> Result;
 
         TComponentEntityMap<FirstType>* const FirstComponents = GetComponentArray<FirstType>();
         if (FirstComponents == nullptr) {

@@ -40,7 +40,7 @@ public:
     }
 
 private:
-    bool bSupported = false;
+    bool bSupported = true;
     const bool bRequired = true;
     const char* const ExtensionName = nullptr;
 };
@@ -60,9 +60,8 @@ public:
         (void)Info;
     }
 
-    virtual void PostDeviceCreated(FOptionalExtensionStatus& Status)
+    virtual void PostDeviceCreated(FOptionalExtensionStatus&)
     {
-        Status.Maintenance5 = true;
     }
 };
 
@@ -76,9 +75,8 @@ public:
     }
     virtual ~IInstanceVulkanExtension() = default;
 
-    virtual void PreInstanceCreated(VkInstanceCreateInfo& Info)
+    virtual void PreInstanceCreated(VkInstanceCreateInfo&)
     {
-        (void)Info;
     }
 };
 

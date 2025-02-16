@@ -17,6 +17,5 @@ public:
 
 private:
     Ref<ecs::RWorld> World = nullptr;
-    ecs::FEntity Entity;
     ecs::FEntity CameraEntity;
 };

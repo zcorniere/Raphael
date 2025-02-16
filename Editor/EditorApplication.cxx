@@ -2,6 +2,7 @@
 
 #include "Engine/Core/ECS/Component/CameraComponent.hxx"
 #include "Engine/Core/ECS/Component/MeshComponent.hxx"
+#include "Engine/Core/ECS/Component/RHIComponent.hxx"
 #include "Engine/Core/Engine.hxx"
 #include "Engine/Math/Vector.hxx"
 
@@ -45,9 +46,13 @@ bool EditorApplication::OnEngineInitialization()
     World->RegisterComponent<ecs::FTransformComponent>();
     World->RegisterComponent<ecs::FMeshComponent>();
     World->RegisterComponent<ecs::FCameraComponent>();
+    World->RegisterComponent<ecs::FRenderTargetComponent>();
 
     Ref<RAsset> CubeAsset = GEngine->AssetRegistry.GetCubeAsset();
     CubeAsset->LoadOnGPU();
+    Ref<RAsset> CapsuleAsset = GEngine->AssetRegistry.GetCapsuleAsset();
+    CapsuleAsset->LoadOnGPU();
+
     FRHIGraphicsPipelineSpecification Spec{
         .VertexShader = "Shapes/ShapeShader.vert",
         .FragmentShader = "Shapes/ShapeShader.frag",
@@ -84,27 +89,38 @@ bool EditorApplication::OnEngineInitialization()
         .AttachmentFormats =
             {
                 .ColorFormats = {MainViewport->GetBackbuffer()->GetDescription().Format},
-                .DepthFormat = std::nullopt,
+                .DepthFormat = EImageFormat::D32_SFLOAT,
                 .StencilFormat = std::nullopt,
             },
     };
 
     Ref<RRHIGraphicsPipeline> Pipeline = RHI::CreateGraphicsPipeline(Spec);
     Ref<RRHIMaterial> Material = RHI::CreateMaterial(Pipeline);
-    World->CreateEntity()
-        .WithComponent(ecs::FMeshComponent{
-            .Asset = CubeAsset,
-            .Material = Material,
-        })
-        .WithComponent(ecs::FTransformComponent({0.0f, -3.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}))
-        .Build();
-    World->CreateEntity()
-        .WithComponent(ecs::FMeshComponent{
-            .Asset = CubeAsset,
-            .Material = Material,
-        })
-        .WithComponent(ecs::FTransformComponent({0.0f, -3.0f, 5.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}))
-        .Build();
+
+    FRHITextureSpecification DepthTexture = MainViewport->GetBackbuffer()->GetDescription();
+    DepthTexture.Format = EImageFormat::D32_SFLOAT;
+    DepthTexture.Flags = ETextureUsageFlags::DepthStencilTargetable;
+
+    ecs::FEntity RenderTarget = World->CreateEntity()
+                                    .WithComponent(ecs::FRenderTargetComponent{
+                                        .Viewport = MainViewport,
+                                    })
+                                    .Build();
+
+    for (float x = -5; x < 5; x++) {
+        for (float y = -5; y < 5; y++) {
+            World->CreateEntity()
+                .WithComponent(ecs::FMeshComponent{
+                    .Asset = CubeAsset,
+                    .Material = Material,
+                    .RenderTarget = RenderTarget,
+                })
+                .WithComponent(
+                    ecs::FTransformComponent({x * 2, (y - 10) * 2, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}))
+                .Build();
+        }
+    }
+
     CameraEntity = World->CreateEntity()
                        .WithComponent(ecs::FCameraComponent({
                            .bIsActive = true,
@@ -113,14 +129,13 @@ bool EditorApplication::OnEngineInitialization()
                        .Build();
 
     World->RegisterSystem([](ecs::FTransformComponent& Transform) {
-        //        Transform.GetRotation().y += 30.f;
-        float TransformX = Transform.GetLocation().x + (10 * GEngine->GetWorld()->GetDeltaTime());
-        if (TransformX > 6.0f) {
-            TransformX = -6.0f;
+        float TransformZ = Transform.GetLocation().z + (10 * GEngine->GetWorld()->GetDeltaTime());
+        if (TransformZ > 6.0f) {
+            TransformZ = -6.0f;
         }
 
         FVector3 NewLocation = Transform.GetLocation();
-        NewLocation.x = TransformX;
+        NewLocation.z = TransformZ;
         Transform.SetLocation(NewLocation);
     });
     World->RegisterSystem([](ecs::FCameraComponent& Cam) { Cam.ViewPoint.SetLocation({0.0f, -3.0f, 0.f}); });

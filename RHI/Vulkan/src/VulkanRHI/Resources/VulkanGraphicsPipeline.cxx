@@ -158,6 +158,20 @@ bool RVulkanGraphicsPipeline::Create()
         .pAttachments = &ColorBlendAttachment,
     };
 
+    VkPipelineDepthStencilStateCreateInfo DepthStencilState{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+        .pNext = nullptr,
+        .depthTestEnable = VK_TRUE,
+        .depthWriteEnable = VK_TRUE,
+        .depthCompareOp = VK_COMPARE_OP_LESS,
+        .depthBoundsTestEnable = VK_FALSE,
+        .stencilTestEnable = VK_FALSE,
+        .front = {},
+        .back = {},
+        .minDepthBounds = 0.0f,
+        .maxDepthBounds = 1.0f,
+    };
+
     VkPipelineMultisampleStateCreateInfo MultiSampling{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
         .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,    // TODO: Support for Multisample
@@ -209,6 +223,7 @@ bool RVulkanGraphicsPipeline::Create()
         .pViewportState = &viewportState,
         .pRasterizationState = &RasterizerInfo,
         .pMultisampleState = &MultiSampling,
+        .pDepthStencilState = (Desc.AttachmentFormats.DepthFormat.has_value()) ? &DepthStencilState : nullptr,
         .pColorBlendState = &colorBlending,
         .pDynamicState = &DynamicStateCreateInfo,
         .layout = PipelineLayout,

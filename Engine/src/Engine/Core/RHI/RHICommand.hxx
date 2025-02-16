@@ -58,13 +58,13 @@ public:
 RHICOMMAND_MACRO(FRHIBeginRendering)
 {
 public:
-    FRHIBeginRendering(const RHIRenderPassDescription& InDescription);
+    FRHIBeginRendering(const FRHIRenderPassDescription& InDescription);
     virtual ~FRHIBeginRendering() = default;
 
     virtual void Execute(FFRHICommandList & CommandList) override final;
 
 public:
-    const RHIRenderPassDescription Description = {};
+    const FRHIRenderPassDescription Description = {};
 };
 
 RHICOMMAND_MACRO(FRHIEndRendering)

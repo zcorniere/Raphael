@@ -22,9 +22,10 @@ namespace details
         static constexpr auto wrap_system(auto system)
         {
             return [system](ecs::RWorld* World) {
-                auto components_map = World->GetComponentStorage().JoinComponents<cleaned_component<Components>...>();
+                TComponentArray components_map =
+                    World->GetComponentStorage().JoinComponents<cleaned_component<Components>...>();
 
-                for (auto& [_, components]: components_map)
+                for (auto& [Entity, components]: components_map)
                     std::apply(system, components);
             };
         }
@@ -33,10 +34,12 @@ namespace details
         static constexpr auto wrap_system(TClass* InContext, auto system)
         {
             return [InContext, system](ecs::RWorld* World) {
-                auto components_map = World->GetComponentStorage().JoinComponents<cleaned_component<Components>...>();
+                TComponentArray components_map =
+                    World->GetComponentStorage().JoinComponents<cleaned_component<Components>...>();
 
-                for (auto& [_, components]: components_map)
+                for (auto& [Entity, components]: components_map) {
                     std::apply(std::bind_front(system, InContext), components);
+                }
             };
         }
     };

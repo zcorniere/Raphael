@@ -27,7 +27,7 @@ bool FBaseApplication::OnEngineInitialization()
     MainWindow->Show();
     MainWindow->Maximize();
 
-    MainViewport = RHI::CreateViewport(MainWindow, UVector2{500u, 500u});
+    MainViewport = RHI::CreateViewport(MainWindow, UVector2{500u, 500u}, true);
     MainViewport->SetName("MainViewport");
     return true;
 }

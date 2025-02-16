@@ -6,7 +6,7 @@ class RRHIGraphicsPipeline;
 class RRHIMaterial;
 class RRHIBuffer;
 class RRHIViewport;
-struct RHIRenderPassDescription;
+struct FRHIRenderPassDescription;
 
 class FRHIContext : public RTTI::FEnable
 {
@@ -28,7 +28,7 @@ public:
     virtual void RHIEndDrawningViewport(RRHIViewport* const Viewport) = 0;
 
     /// @brief Begin rendering a new render pass
-    virtual void RHIBeginRendering(const RHIRenderPassDescription& Description) = 0;
+    virtual void RHIBeginRendering(const FRHIRenderPassDescription& Description) = 0;
     /// @brief End rendering the current render pass
     virtual void RHIEndRendering() = 0;
 

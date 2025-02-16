@@ -107,4 +107,46 @@ void FVulkanPlatform::CreateSurface(RWindow* WindowHandle, VkInstance Instance, 
     VK_CHECK_RESULT(glfwCreateWindowSurface(Instance, WindowHandle->GetHandle(), VULKAN_CPU_ALLOCATOR, OutSurface));
 }
 
+#define VERIFYVULKANRESULT_INIT(VkFunction)                                                                     \
+    {                                                                                                           \
+        const VkResult ScopedResult = VkFunction;                                                               \
+        if (ScopedResult == VK_ERROR_INITIALIZATION_FAILED) {                                                   \
+            LOG(LogVulkanRHI, Error,                                                                            \
+                "{:s} failed\n at {:s}:{}\nThis typically means Vulkan is not properly set up in your system; " \
+                "try running vulkaninfo from the Vulkan SDK.",                                                  \
+                #VkFunction, __FILE__, __LINE__);                                                               \
+        } else if (ScopedResult < VK_SUCCESS) {                                                                 \
+            VulkanRHI::VulkanCheckResult(ScopedResult, #VkFunction);                                            \
+        }                                                                                                       \
+    }
+
+TArray<VkExtensionProperties> FVulkanPlatform::GetDriverSupportedInstanceExtensions(const char* LayerName)
+{
+    TArray<VkExtensionProperties> OutInstanceExtensions;
+    uint32 Count = 0;
+    VERIFYVULKANRESULT_INIT(VulkanAPI::vkEnumerateInstanceExtensionProperties(LayerName, &Count, nullptr));
+    if (Count > 0) {
+        OutInstanceExtensions.Resize(Count);
+        VERIFYVULKANRESULT_INIT(
+            VulkanAPI::vkEnumerateInstanceExtensionProperties(LayerName, &Count, OutInstanceExtensions.Raw()));
+    }
+
+    return OutInstanceExtensions;
+}
+
+TArray<VkExtensionProperties> FVulkanPlatform::GetDriverSupportedDeviceExtensions(VkPhysicalDevice Gpu,
+                                                                                  const char* LayerName)
+{
+    TArray<VkExtensionProperties> OutDeviceExtensions;
+    uint32 Count = 0;
+    VERIFYVULKANRESULT_INIT(VulkanAPI::vkEnumerateDeviceExtensionProperties(Gpu, LayerName, &Count, nullptr));
+    if (Count > 0) {
+        OutDeviceExtensions.Resize(Count);
+        VERIFYVULKANRESULT_INIT(
+            VulkanAPI::vkEnumerateDeviceExtensionProperties(Gpu, LayerName, &Count, OutDeviceExtensions.Raw()));
+    }
+    return OutDeviceExtensions;
+}
+#undef VERIFYVULKANRESULT_INIT
+
 }    // namespace VulkanRHI

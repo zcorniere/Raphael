@@ -19,6 +19,7 @@ public:
     virtual void ResizeViewport(uint32 Width, uint32 Height) = 0;
 
     virtual Ref<RRHITexture> GetBackbuffer() const = 0;
+    virtual Ref<RRHITexture> GetDepthBuffer() const = 0;
 
     virtual UVector2 GetSize() const = 0;
     virtual float GetAspectRatio() const

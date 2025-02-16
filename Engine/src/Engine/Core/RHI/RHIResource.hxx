@@ -37,4 +37,6 @@ protected:
 #include "Engine/Core/RHI/Resources/RHIShader.hxx"
 #include "Engine/Core/RHI/Resources/RHITexture.hxx"
 #include "Engine/Core/RHI/Resources/RHIViewport.hxx"
+
+#include "Engine/Core/RHI/Resources/RHIMaterial.hxx"
 // IWYU pragma: end_exports

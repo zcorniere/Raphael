@@ -62,9 +62,9 @@ void FVulkanCommandContext::RHIEndDrawningViewport(RRHIViewport* const Viewport)
     GetVulkanDynamicRHI()->DrawingViewport = nullptr;
 }
 
-void FVulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& Description)
+void FVulkanCommandContext::RHIBeginRendering(const FRHIRenderPassDescription& Description)
 {
-    auto RenderTargetToAttachmentInfo = [](const RHIRenderTarget& Target) -> VkRenderingAttachmentInfo {
+    auto RenderTargetToAttachmentInfo = [](const FRHIRenderTarget& Target) -> VkRenderingAttachmentInfo {
         Ref<RVulkanTexture> const Texture = Target.Texture.As<RVulkanTexture>();
 
         VkClearColorValue ClearColor;
@@ -85,7 +85,7 @@ void FVulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& De
             .clearValue = {.color = ClearColor},
         };
     };
-    auto TransitionToCorrectLayout = [this](const RHIRenderTarget& Target) -> bool {
+    auto TransitionToCorrectLayout = [this](const FRHIRenderTarget& Target) -> bool {
         Ref<RVulkanTexture> Texture = Target.Texture.As<RVulkanTexture>();
         VkImageLayout ExpectedLayout = Texture->GetDefaultLayout();
         if (ExpectedLayout != VK_IMAGE_LAYOUT_UNDEFINED && ExpectedLayout != Texture->GetLayout()) {
@@ -98,7 +98,7 @@ void FVulkanCommandContext::RHIBeginRendering(const RHIRenderPassDescription& De
     bool bNeedTransition = false;
     TArray<VkRenderingAttachmentInfo> ColorAttachments;
     ColorAttachments.Reserve(Description.ColorTargets.Size());
-    for (const RHIRenderTarget& ColorTarget: Description.ColorTargets) {
+    for (const FRHIRenderTarget& ColorTarget: Description.ColorTargets) {
         bNeedTransition |= TransitionToCorrectLayout(ColorTarget);
         ColorAttachments.Add(RenderTargetToAttachmentInfo(ColorTarget));
     }

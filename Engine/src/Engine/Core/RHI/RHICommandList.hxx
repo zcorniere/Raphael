@@ -104,7 +104,7 @@ public:
     void EndRenderingViewport(RRHIViewport* Viewport);
 
     /// @brief Begin a new rendering pass
-    void BeginRendering(const RHIRenderPassDescription& Description);
+    void BeginRendering(const FRHIRenderPassDescription& Description);
     /// @brief End the current rendering pass
     void EndRendering();
 

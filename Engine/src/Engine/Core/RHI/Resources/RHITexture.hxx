@@ -57,7 +57,7 @@ protected:
 };
 
 /// @brief Group up information about the textures that is about to be used in a render
-struct RHIRenderTarget {
+struct FRHIRenderTarget {
     /// The texture to render to
     Ref<RRHITexture> Texture;
 
@@ -69,15 +69,15 @@ struct RHIRenderTarget {
     /// How the RHI should handle the texture store operation
     ERenderTargetStoreAction StoreAction = ERenderTargetStoreAction::NoAction;
 
-    bool operator==(const RHIRenderTarget&) const = default;
+    bool operator==(const FRHIRenderTarget&) const = default;
 };
 
-struct RHIRenderPassDescription {
+struct FRHIRenderPassDescription {
     IVector2 RenderAreaLocation = IVector2(0);
     UVector2 RenderAreaSize;
 
-    TArray<RHIRenderTarget> ColorTargets = {};
-    std::optional<RHIRenderTarget> DepthTarget = std::nullopt;
+    TArray<FRHIRenderTarget> ColorTargets = {};
+    std::optional<FRHIRenderTarget> DepthTarget = std::nullopt;
 
-    bool operator==(const RHIRenderPassDescription&) const = default;
+    bool operator==(const FRHIRenderPassDescription&) const = default;
 };

@@ -26,7 +26,7 @@ void FRHIEndDrawningViewport::Execute(FFRHICommandList& CommandList)
     CommandList.GetContext()->RHIEndDrawningViewport(Viewport.Raw());
 }
 
-FRHIBeginRendering::FRHIBeginRendering(const RHIRenderPassDescription& InDescription): Description(InDescription)
+FRHIBeginRendering::FRHIBeginRendering(const FRHIRenderPassDescription& InDescription): Description(InDescription)
 {
 }
 

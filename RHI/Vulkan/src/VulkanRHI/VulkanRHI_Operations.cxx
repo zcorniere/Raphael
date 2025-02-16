@@ -58,9 +58,10 @@ void FVulkanDynamicRHI::WaitUntilIdle()
 //  -------------------- RHI Create resources --------------------
 //
 
-Ref<RRHIViewport> FVulkanDynamicRHI::CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize)
+Ref<RRHIViewport> FVulkanDynamicRHI::CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize,
+                                                    bool bCreateDepthBuffer)
 {
-    return Ref<RVulkanViewport>::Create(GetDevice(), std::move(InWindowHandle), std::move(InSize));
+    return Ref<RVulkanViewport>::Create(GetDevice(), std::move(InWindowHandle), std::move(InSize), bCreateDepthBuffer);
 }
 
 Ref<RRHITexture> FVulkanDynamicRHI::CreateTexture(const FRHITextureSpecification& InDesc)

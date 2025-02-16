@@ -132,21 +132,19 @@ bool FVulkanDevice::CreateDeviceAndQueue(const TArray<const char*>& DeviceLayers
 
     TArray<const char*> DeviceExtensions;
 
-    uint32_t ExtensionCount = 0;
-    TArray<VkExtensionProperties> QueringDeviceExtensions;
-    VulkanAPI::vkEnumerateDeviceExtensionProperties(Gpu, nullptr, &ExtensionCount, nullptr);
-    QueringDeviceExtensions.Resize(ExtensionCount);
-    VulkanAPI::vkEnumerateDeviceExtensionProperties(Gpu, nullptr, &ExtensionCount, QueringDeviceExtensions.Raw());
+    TArray<VkExtensionProperties> QueringDeviceExtensions =
+        FVulkanPlatform::GetDriverSupportedDeviceExtensions(Gpu, nullptr);
 
     for (const std::unique_ptr<IDeviceVulkanExtension>& Extension: Extensions) {
         if (QueringDeviceExtensions.FindByLambda([&Extension](const VkExtensionProperties& Prop) {
-                return strcmp(Extension->GetExtensionName(), Prop.extensionName) == 0;
+                return std::strcmp(Extension->GetExtensionName(), Prop.extensionName) == 0;
             }) == nullptr) {
             if (Extension->IsExtensionRequired()) {
                 LOG(LogVulkanRHI, Error, "Missing Required Extension: {}", Extension->GetExtensionName());
                 return false;
             } else {
                 LOG(LogVulkanRHI, Warning, "Missing Extension: {}", Extension->GetExtensionName());
+                Extension->SetSupported(false);
             }
         } else {
             Extension->PreDeviceCreated(DeviceInfo);

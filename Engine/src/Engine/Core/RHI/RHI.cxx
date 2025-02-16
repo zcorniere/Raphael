@@ -61,9 +61,9 @@ void RHI::RHIWaitUntilIdle()
 //  -------------------- RHI Create resources --------------------
 //
 
-Ref<RRHIViewport> RHI::CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize)
+Ref<RRHIViewport> RHI::CreateViewport(Ref<RWindow> InWindowHandle, UVector2 InSize, bool bCreateDepthBuffer)
 {
-    return RHI::Get()->CreateViewport(std::move(InWindowHandle), std::move(InSize));
+    return RHI::Get()->CreateViewport(std::move(InWindowHandle), std::move(InSize), bCreateDepthBuffer);
 }
 
 Ref<RRHITexture> RHI::CreateTexture(const FRHITextureSpecification& InDesc)

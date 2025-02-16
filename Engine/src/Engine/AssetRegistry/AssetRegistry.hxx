@@ -21,6 +21,10 @@ public:
     {
         return AssetRegistry.at("Box");
     }
+    Ref<RAsset> GetCapsuleAsset() const
+    {
+        return AssetRegistry.at("Capsule");
+    }
 
 private:
     std::unordered_map<std::string, Ref<RAsset>> AssetRegistry;

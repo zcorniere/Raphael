@@ -40,6 +40,11 @@ void RHIScene::CameraSystem(ecs::FCameraComponent& Camera)
     }
 }
 
+void RHIScene::CollectRenderTargets(ecs::FRenderTargetComponent& RenderTarget)
+{
+    RenderTargets.AddUnique(RenderTarget);
+}
+
 void RHIScene::Tick(float DeltaTime)
 {
     RPH_PROFILE_FUNC()
@@ -115,50 +120,74 @@ void RHIScene::TickRenderer(FFRHICommandList& CommandList)
 {
     RPH_PROFILE_FUNC()
 
-    CommandList.SetViewport(
-        {0, 0, 0}, {static_cast<float>(Viewport->GetSize().x), static_cast<float>(Viewport->GetSize().y), 1.0f});
-    CommandList.SetScissor({0, 0}, {Viewport->GetSize().x, Viewport->GetSize().y});
+    for (const ecs::FRenderTargetComponent& TargetComponent: RenderTargets) {
+        UVector2 Size;
+        TArray<FRHIRenderTarget> ColorTargets;
+        std::optional<FRHIRenderTarget> DepthTarget = std::nullopt;
 
-    RHIRenderPassDescription Description{
-        .RenderAreaLocation = {0, 0},
-        .RenderAreaSize = Viewport->GetSize(),
-        .ColorTargets =
-            {
-                RHIRenderTarget{
+        if (TargetComponent.Viewport) {
+            ColorTargets = {
+                {
                     .Texture = Viewport->GetBackbuffer(),
                     .ClearColor = {0.0f, 0.0f, 0.0f, 1.0f},
                     .LoadAction = ERenderTargetLoadAction::Clear,
                     .StoreAction = ERenderTargetStoreAction::Store,
                 },
-            },
-        .DepthTarget = std::nullopt,
-    };
-    CommandList.BeginRenderingViewport(Viewport.Raw());
-    CommandList.BeginRendering(Description);
+            };
+            DepthTarget = {
+                .Texture = Viewport->GetDepthBuffer(),
+                .ClearColor = {1.0f, 0.0f, 0.0f, 1.0f},
+                .LoadAction = ERenderTargetLoadAction::Clear,
+                .StoreAction = ERenderTargetStoreAction::Store,
+            };
+            Size = Viewport->GetSize();
 
-    for (auto& [AssetName, RenderRequests]: RenderRequestMap) {
-        std::unordered_map<FRenderRequestKey, TArray<FRenderRequest*>> SortedRequests;
-
-        for (FRenderRequest& Request: RenderRequests) {
-            if (!Request.Mesh.Asset->IsLoadedOnGPU()) {
-                Request.Mesh.Asset->LoadOnGPU();
-                continue;
-            }
-            SortedRequests[{Request.Mesh.Material.Raw(), Request.Mesh.Asset.Raw()}].Emplace(&Request);
+            CommandList.SetViewport({0, 0, 0}, {static_cast<float>(TargetComponent.Viewport->GetSize().x),
+                                                static_cast<float>(TargetComponent.Viewport->GetSize().y), 1.0f});
+            CommandList.SetScissor({0, 0},
+                                   {TargetComponent.Viewport->GetSize().x, TargetComponent.Viewport->GetSize().y});
+            CommandList.BeginRenderingViewport(Viewport.Raw());
+        } else {
+            Size = TargetComponent.Size;
+            ColorTargets = TargetComponent.ColorTargets;
+            DepthTarget = TargetComponent.DepthTarget;
         }
 
-        for (auto& [Key, Requests]: SortedRequests) {
-            CommandList.SetMaterial(Key.Material);
+        FRHIRenderPassDescription Description{
+            .RenderAreaLocation = {0, 0},
+            .RenderAreaSize = Size,
+            .ColorTargets = ColorTargets,
+            .DepthTarget = DepthTarget,
+        };
+        CommandList.BeginRendering(Description);
 
-            RAsset::FDrawInfo Cube = Key.Asset->GetDrawInfo();
-            CommandList.SetVertexBuffer(Key.Asset->GetVertexBuffer(), 0, 0);
-            CommandList.SetVertexBuffer(TransformBuffers[AssetName], 1, 0);
-            CommandList.DrawIndexed(Key.Asset->GetIndexBuffer(), 0, 0, Cube.NumVertices, 0, Cube.NumPrimitives,
-                                    Requests.Size());
+        for (auto& [AssetName, RenderRequests]: RenderRequestMap) {
+            std::unordered_map<FRenderRequestKey, TArray<FRenderRequest*>> SortedRequests;
+
+            for (FRenderRequest& Request: RenderRequests) {
+                if (!Request.Mesh.Asset->IsLoadedOnGPU()) {
+                    Request.Mesh.Asset->LoadOnGPU();
+                    continue;
+                }
+                SortedRequests[{Request.Mesh.Material.Raw(), Request.Mesh.Asset.Raw()}].Emplace(&Request);
+            }
+
+            for (auto& [Key, Requests]: SortedRequests) {
+                CommandList.SetMaterial(Key.Material);
+
+                RAsset::FDrawInfo Cube = Key.Asset->GetDrawInfo();
+                CommandList.SetVertexBuffer(Key.Asset->GetVertexBuffer(), 0, 0);
+                CommandList.SetVertexBuffer(TransformBuffers[AssetName], 1, 0);
+                CommandList.DrawIndexed(Key.Asset->GetIndexBuffer(), 0, 0, Cube.NumVertices, 0, Cube.NumPrimitives,
+                                        Requests.Size());
+            }
+        }
+        CommandList.EndRendering();
+
+        if (TargetComponent.Viewport) {
+            CommandList.EndRenderingViewport(Viewport.Raw());
         }
     }
-    CommandList.EndRendering();
-    CommandList.EndRenderingViewport(Viewport.Raw());
 
     RenderRequestMap.clear();
 }

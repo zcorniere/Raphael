@@ -33,7 +33,7 @@ public:
     /// @brief Indicate the RHI that we are done drawing in the given viewport
     virtual void RHIEndDrawningViewport(RRHIViewport* const Viewport) override;
 
-    virtual void RHIBeginRendering(const RHIRenderPassDescription& Description) override;
+    virtual void RHIBeginRendering(const FRHIRenderPassDescription& Description) override;
     virtual void RHIEndRendering() override;
 
     virtual void SetPipeline(Ref<RRHIGraphicsPipeline>& Pipeline) override;

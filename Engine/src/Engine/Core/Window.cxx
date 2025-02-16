@@ -194,21 +194,18 @@ void RWindow::ProcessEvents()
 
 namespace GLFWMemAllocator
 {
-void* Allocate(size_t Size, void* UserData)
+void* Allocate(size_t Size, void*)
 {
-    (void)UserData;
     return Memory::Malloc(Size, alignof(std::max_align_t));
 }
 
-void* Reallocate(void* Pointer, size_t Size, void* User)
+void* Reallocate(void* Pointer, size_t Size, void*)
 {
-    (void)User;
     return Memory::Realloc(Pointer, Size, alignof(std::max_align_t));
 }
 
-void Deallocate(void* Pointer, void* User)
+void Deallocate(void* Pointer, void*)
 {
-    (void)User;
     Memory::Free(Pointer);
 }
 
