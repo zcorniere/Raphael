@@ -1,5 +1,6 @@
 #include "EditorApplication.hxx"
 
+#include "Components/Oscillator.hxx"
 #include "Engine/Core/ECS/Component/CameraComponent.hxx"
 #include "Engine/Core/ECS/Component/MeshComponent.hxx"
 #include "Engine/Core/ECS/Component/RHIComponent.hxx"
@@ -43,10 +44,7 @@ bool EditorApplication::OnEngineInitialization()
     GEngine->SetWorld(World);
     World->GetScene()->SetViewport(MainViewport);
 
-    World->RegisterComponent<ecs::FTransformComponent>();
-    World->RegisterComponent<ecs::FMeshComponent>();
-    World->RegisterComponent<ecs::FCameraComponent>();
-    World->RegisterComponent<ecs::FRenderTargetComponent>();
+    World->RegisterComponent<FOscillator>();
 
     Ref<RAsset> CubeAsset = GEngine->AssetRegistry.GetCubeAsset();
     CubeAsset->LoadOnGPU();
@@ -115,30 +113,39 @@ bool EditorApplication::OnEngineInitialization()
                     .Material = Material,
                     .RenderTarget = RenderTarget,
                 })
+                .WithComponent(FOscillator{
+                    .Multiplier = 3.0f,
+                    .Direction = {0, 0, 1},
+                    .Maximum = {0, 0, 6},
+                    .Minimum = {0, 0, -6},
+                })
                 .WithComponent(
                     ecs::FTransformComponent({x * 2, (y - 10) * 2, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}))
                 .Build();
         }
     }
 
-    CameraEntity = World->CreateEntity()
-                       .WithComponent(ecs::FCameraComponent({
-                           .bIsActive = true,
-                           .ViewPoint = {80.f, 0.01, 1000000.f},
-                       }))
-                       .Build();
+    ecs::FCameraComponent Camera{.bIsActive = true, .ViewPoint = {80.f, 0.01, 1000000.f}};
+    Camera.ViewPoint.SetLocation({0.0f, -3.0f, 0.f});
 
-    World->RegisterSystem([](ecs::FTransformComponent& Transform) {
-        float TransformZ = Transform.GetLocation().z + (10 * GEngine->GetWorld()->GetDeltaTime());
-        if (TransformZ > 6.0f) {
-            TransformZ = -6.0f;
+    CameraEntity = World->CreateEntity().WithComponent(Camera).Build();
+
+    World->RegisterSystem([](ecs::FTransformComponent& Transform, FOscillator& Oscillator) {
+        if (Transform.GetLocation().z >= Oscillator.Maximum.z || Transform.GetLocation().z <= Oscillator.Minimum.z) {
+            Oscillator.Direction.z = -Oscillator.Direction.z;
+        }
+        if (Transform.GetLocation().y >= Oscillator.Maximum.y || Transform.GetLocation().y <= Oscillator.Minimum.y) {
+            Oscillator.Direction.y = -Oscillator.Direction.y;
+        }
+        if (Transform.GetLocation().x >= Oscillator.Maximum.x || Transform.GetLocation().x <= Oscillator.Minimum.x) {
+            Oscillator.Direction.x = -Oscillator.Direction.x;
         }
 
-        FVector3 NewLocation = Transform.GetLocation();
-        NewLocation.z = TransformZ;
+        FVector3 Delta = Oscillator.Direction * Oscillator.Multiplier * GEngine->GetWorld()->GetDeltaTime();
+
+        FVector3 NewLocation = Transform.GetLocation() + Delta;
         Transform.SetLocation(NewLocation);
     });
-    World->RegisterSystem([](ecs::FCameraComponent& Cam) { Cam.ViewPoint.SetLocation({0.0f, -3.0f, 0.f}); });
 
     return true;
 }

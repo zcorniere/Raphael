@@ -10,6 +10,11 @@ Ref<RWorld> CreateWorld()
 {
     Ref<RWorld> NewWorld = Ref<RWorld>::Create();
 
+    NewWorld->RegisterComponent<ecs::FTransformComponent>();
+    NewWorld->RegisterComponent<ecs::FMeshComponent>();
+    NewWorld->RegisterComponent<ecs::FCameraComponent>();
+    NewWorld->RegisterComponent<ecs::FRenderTargetComponent>();
+
     // Register the basic systems
     FSystem CollectRenderablesSystem(NewWorld->GetScene(), &RHIScene::CollectRenderablesSystem);
     NewWorld->RegisterSystem(std::move(CollectRenderablesSystem));
