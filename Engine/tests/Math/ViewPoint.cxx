@@ -29,6 +29,7 @@ TEST_CASE("Viewpoint Tests")
         FMatrix4 ProjectionMatrix = Viewpoint.GetProjectionMatrix();
 
         glm::mat4 ExpectedProjectionMatrix = glm::perspective(glm::radians(fFOV), fAspectRatio, fNear, fFar);
+        ExpectedProjectionMatrix[1][1] *= -1;
 
         INFO("ProjectionMatrix: " << ProjectionMatrix);
         INFO("ExpectedProjectionMatrix: " << glm::to_string(ExpectedProjectionMatrix));
