@@ -43,11 +43,18 @@ FDescriptorSetManager::~FDescriptorSetManager()
 
 void FDescriptorSetManager::Destroy()
 {
-    VulkanAPI::vkFreeDescriptorSets(Device->GetHandle(), DescriptorPoolHandle, DescriptorSets.Size(),
-                                    DescriptorSets.Raw());
+    if (DescriptorSets.IsEmpty() && DescriptorPoolHandle != VK_NULL_HANDLE) {
+        RHI::DeferedDeletion([Handle = DescriptorPoolHandle, Device = Device] {
+            VulkanAPI::vkDestroyDescriptorPool(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR);
+        });
+    }
     DescriptorSets.Clear();
 
-    VulkanAPI::vkDestroyDescriptorPool(Device->GetHandle(), DescriptorPoolHandle, VULKAN_CPU_ALLOCATOR);
+    if (DescriptorPoolHandle != VK_NULL_HANDLE) {
+        RHI::DeferedDeletion([Handle = DescriptorPoolHandle, Device = Device] {
+            VulkanAPI::vkDestroyDescriptorPool(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR);
+        });
+    }
     DescriptorPoolHandle = VK_NULL_HANDLE;
 }
 
