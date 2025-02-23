@@ -1,7 +1,5 @@
 #pragma once
 
-#include <typeindex>
-
 #include "Engine/Core/ECS/ECS.hxx"
 
 DECLARE_LOGGER_CATEGORY(Core, LogComponentStorage, Info)
@@ -25,10 +23,10 @@ using TComponentArray = TArray<std::pair<FEntity, std::tuple<FirstType&, RestTyp
 
 /// This class is used to store the component data in relation of the entity id that uses it
 template <RTTI::IsRTTIApiAvailable T>
-class TComponentEntityMap : public IComponentEntityMap
+class TEntityComponentMap : public IComponentEntityMap
 {
 public:
-    virtual ~TComponentEntityMap() = default;
+    virtual ~TEntityComponentMap() = default;
 
     virtual void Remove(FEntity EntityID) override final
     {
@@ -92,21 +90,19 @@ public:
     template <RTTI::IsRTTIApiAvailable T>
     void RegisterComponent()
     {
-        ComponentArrays[T::TypeInfo::Id()] = std::make_unique<TComponentEntityMap<T>>();
+        ComponentArrays[T::TypeInfo::Id()] = std::make_unique<TEntityComponentMap<T>>();
     }
 
     template <RTTI::IsRTTIApiAvailable T>
     void StoreComponent(FEntity EntityID, T Component)
     {
-        TComponentEntityMap<T>* Array = GetComponentArray<T>();
-        if (Array == nullptr) {
-            return;
-        }
+        TEntityComponentMap<T>* Array = GetComponentArray<T>();
+        check(Array);
         Array->Add(EntityID, std::move(Component));
     }
 
     template <RTTI::IsRTTIApiAvailable T>
-    TComponentEntityMap<T>* GetComponentArray()
+    TEntityComponentMap<T>* GetComponentArray()
     {
         decltype(ComponentArrays)::iterator it = ComponentArrays.find(T::TypeInfo::Id());
 
@@ -115,7 +111,7 @@ public:
             RegisterComponent<T>();
             return GetComponentArray<T>();
         }
-        return static_cast<TComponentEntityMap<T>*>(it->second.get());
+        return static_cast<TEntityComponentMap<T>*>(it->second.get());
     }
 
     template <RTTI::IsRTTIApiAvailable FirstType, RTTI::IsRTTIApiAvailable... RestTypes>
@@ -123,10 +119,8 @@ public:
     {
         TComponentArray<FirstType, RestTypes...> Result;
 
-        TComponentEntityMap<FirstType>* const FirstComponents = GetComponentArray<FirstType>();
-        if (FirstComponents == nullptr) {
-            return Result;
-        }
+        TEntityComponentMap<FirstType>* const FirstComponents = GetComponentArray<FirstType>();
+        check(FirstComponents);
 
         Result.Reserve(FirstComponents->GetArray().Size());
         for (const auto& [EntityID, Component]: FirstComponents->GetMap()) {
