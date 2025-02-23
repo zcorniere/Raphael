@@ -15,6 +15,7 @@ public:
     RVulkanMaterial(FVulkanDevice* InDevice, WeakRef<RVulkanGraphicsPipeline> Pipeline);
     virtual ~RVulkanMaterial();
 
+    virtual void Prepare() override;
     virtual void Bake() override;
     virtual bool WasBaked() const override;
 

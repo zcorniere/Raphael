@@ -98,6 +98,50 @@ void FDescriptorSetManager::Bind(VkCommandBuffer CmdBuffer, VkPipelineLayout Pip
                                        DescriptorSets.Raw(), 0, nullptr);
 }
 
+void FDescriptorSetManager::InvalidateAndUpdate()
+{
+    std::unordered_map<uint32, std::unordered_map<uint32, FRenderPassInput>> InvalidatedInput;
+
+    for (auto& [Set, Inputs]: InputResource) {
+        for (auto& [Binding, Input]: Inputs) {
+            switch (Input.Type) {
+                case ERenderPassInputType::StorageBuffer: {
+                    const VkDescriptorBufferInfo& Info = Input.Input[0].As<RVulkanBuffer>()->GetDescriptorBufferInfo();
+                    const VkWriteDescriptorSet& SetWrite = WriteDescriptorSet.at(Set).at(Binding);
+                    if (SetWrite.pBufferInfo && Info.buffer != SetWrite.pBufferInfo->buffer) {
+                        InvalidatedInput[Set][Binding] = Input;
+                    }
+                } break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    if (InvalidatedInput.empty())
+        return;
+
+    for (auto& [Set, Inputs]: InvalidatedInput) {
+
+        TArray<VkWriteDescriptorSet> WriteDescriptorSetsToUpdate;
+        for (auto& [Binding, Input]: Inputs) {
+            VkWriteDescriptorSet& WriteDescriptor = WriteDescriptorSet.at(Set).at(Binding);
+            switch (Input.Type) {
+                case ERenderPassInputType::StorageBuffer: {
+                    const VkDescriptorBufferInfo& Info = Input.Input[0].As<RVulkanBuffer>()->GetDescriptorBufferInfo();
+                    WriteDescriptor.pBufferInfo = &Info;
+                } break;
+                default:
+                    break;
+            }
+            WriteDescriptorSetsToUpdate.Emplace(WriteDescriptor);
+        }
+
+        VulkanAPI::vkUpdateDescriptorSets(Device->GetHandle(), WriteDescriptorSetsToUpdate.Size(),
+                                          WriteDescriptorSetsToUpdate.Raw(), 0, nullptr);
+    }
+}
+
 void FDescriptorSetManager::SetInput(std::string_view Name, const Ref<RVulkanBuffer>& Buffer)
 {
     const FRenderPassInputDeclaration* const Declaration = GetInputDeclaration(Name);

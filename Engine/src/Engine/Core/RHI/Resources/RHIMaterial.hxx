@@ -12,6 +12,7 @@ public:
     }
     virtual ~RRHIMaterial() = default;
 
+    virtual void Prepare() = 0;
     virtual void Bake() = 0;
     virtual bool WasBaked() const = 0;
 

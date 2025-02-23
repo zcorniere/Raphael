@@ -148,6 +148,8 @@ void FVulkanCommandContext::SetMaterial(Ref<RRHIMaterial>& Material)
     Ref<RVulkanMaterial> VulkanMaterial = Material.As<RVulkanMaterial>();
     Ref<RVulkanGraphicsPipeline> VulkanPipeline = VulkanMaterial->GetPipeline().As<RVulkanGraphicsPipeline>();
     PendingState->SetGraphicsPipeline(VulkanPipeline);
+
+    VulkanMaterial->Prepare();
     PendingState->SetPendingDescriptorSets(VulkanMaterial->GetDescriptorSet());
 }
 

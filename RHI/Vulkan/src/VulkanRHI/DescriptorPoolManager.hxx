@@ -48,6 +48,7 @@ public:
 
     void Bake();
     void Bind(VkCommandBuffer Cmd, VkPipelineLayout PipelineLayout, VkPipelineBindPoint BindPoint);
+    void InvalidateAndUpdate();
 
     void SetInput(std::string_view Name, const Ref<RVulkanBuffer>& Buffer);
 

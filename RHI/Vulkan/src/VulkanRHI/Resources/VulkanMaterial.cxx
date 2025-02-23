@@ -17,6 +17,11 @@ RVulkanMaterial::~RVulkanMaterial()
     DescriptorManager.Destroy();
 }
 
+void RVulkanMaterial::Prepare()
+{
+    DescriptorManager.InvalidateAndUpdate();
+}
+
 void RVulkanMaterial::Bake()
 {
     if (WasBaked()) {
