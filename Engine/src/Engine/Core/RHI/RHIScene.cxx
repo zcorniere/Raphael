@@ -3,12 +3,17 @@
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "Engine/Core/RHI/RHI.hxx"
 
-RHIScene::RHIScene(): Context(RHI::Get()->RHIGetCommandContext())
+#include "Engine/GameFramework/Actor.hxx"
+#include "Engine/GameFramework/CameraActor.hxx"
+#include "Engine/GameFramework/Components/MeshComponent.hxx"
+#include "Engine/GameFramework/World.hxx"
+
+RRHIScene::RRHIScene(RWorld* OwnerWorld): Context(RHI::Get()->RHIGetCommandContext())
 {
     u_CameraBuffer = RHI::CreateBuffer(FRHIBufferDesc{
         .Size = sizeof(UCameraData),
         .Stride = sizeof(UCameraData),
-        .Usage = EBufferUsageFlags::UniformBuffer | EBufferUsageFlags::KeepCPUAccessible,    // @TODO: not that
+        .Usage = EBufferUsageFlags::UniformBuffer | EBufferUsageFlags::KeepCPUAccessible,
         .ResourceArray = nullptr,
         .DebugName = "Camera Buffer",
     });
@@ -16,82 +21,115 @@ RHIScene::RHIScene(): Context(RHI::Get()->RHIGetCommandContext())
     CameraData.View = FMatrix4::Identity();
     CameraData.Projection = FMatrix4::Identity();
     CameraData.ViewProjection = FMatrix4::Identity();
+
+    // Register to the world events
+    OwnerWorld->OnActorAddedToWorld.Add(this, [this](AActor* Actor) mutable {
+        TArray<FMeshRepresentation>& Representation = WorldActorRepresentation[Actor->ID()];
+
+        RMeshComponent* const MeshComponent = Actor->GetMesh();
+        if (MeshComponent) {
+            FMeshRepresentation& Mesh = Representation.Emplace();
+            Mesh.Transform = Actor->GetRootComponent()->GetRelativeTransform();
+            Mesh.Mesh = MeshComponent;
+        }
+
+        RCameraComponent<float>* CameraComponent = Actor->GetComponent<RCameraComponent<float>>();
+        if (CameraComponent) {
+            CameraComponents.Add(CameraComponent);
+        }
+    });
+
+    OwnerWorld->OnActorRemovedFromWorld.Add(
+        this, [this](AActor* Actor) mutable { WorldActorRepresentation.erase(Actor->ID()); });
 }
 
-RHIScene::~RHIScene()
+RRHIScene::RRHIScene(RWorld* OwnerWorld, const FRHIRenderPassTarget& InRenderPassTarget): RRHIScene(OwnerWorld)
+{
+    RenderPassTarget = InRenderPassTarget;
+}
+
+RRHIScene::~RRHIScene()
 {
     RHI::Get()->RHIReleaseCommandContext(Context);
 }
 
-void RHIScene::CollectRenderablesSystem(ecs::FTransformComponent& Transform, ecs::FMeshComponent& Mesh)
+void RRHIScene::SetViewport(Ref<RRHIViewport>& InViewport)
 {
-    RenderRequestMap[Mesh.Asset->GetName()].Emplace(FRenderRequest{Transform, Mesh});
+    RenderPassTarget.Viewport = InViewport;
 }
 
-void RHIScene::CameraSystem(ecs::FCameraComponent& Camera)
+void RRHIScene::SetRenderPassTarget(const FRHIRenderPassTarget& InRenderPassTarget)
 {
-    // @TODO: support multiple cameras
-    if (Camera.bIsActive) {
-        Camera.ViewPoint.SetAspectRatio(Viewport->GetAspectRatio());
-        CameraData.View = Camera.ViewPoint.GetViewMatrix();
-        CameraData.Projection = Camera.ViewPoint.GetProjectionMatrix();
-        CameraData.ViewProjection = CameraData.Projection * CameraData.View;
-        bCameraDataDirty = true;
-    }
+    RenderPassTarget = InRenderPassTarget;
 }
 
-void RHIScene::CollectRenderTargets(ecs::FRenderTargetComponent& RenderTarget)
-{
-    RenderTargets.AddUnique(RenderTarget);
-}
-
-void RHIScene::Tick(float DeltaTime)
+void RRHIScene::Tick(double DeltaTime)
 {
     RPH_PROFILE_FUNC()
 
     (void)DeltaTime;
-    if (bCameraDataDirty) {
+    ensure(CameraComponents.Size() == 1);
+    if (CameraComponents.IsEmpty() || !CameraComponents[0]->IsValid()) {
+        return;
+    }
+
+    RCameraComponent<float>* CameraComponent = CameraComponents[0];
+    UpdateCameraAspectRatio();
+    if (CameraComponent->IsTransformDirty() || CameraComponent->IsRenderStateDirty()) {
+        CameraData.View = CameraComponent->GetViewMatrix();
+        CameraData.Projection = CameraComponent->GetProjectionMatrix();
+        CameraData.ViewProjection = CameraData.Projection * CameraData.View;
+        CameraComponent->ClearDirtyTransformFlag();
+        CameraComponent->ClearRenderStateDirtyFlag();
+
         ENQUEUE_RENDER_COMMAND(UpdateCameraBuffer)([this](FFRHICommandList& CommandList) {
             TResourceArray<UCameraData> Array{CameraData};
             CommandList.CopyRessourceArrayToBuffer(&Array, u_CameraBuffer, 0, 0, sizeof(UCameraData));
         });
-
-        bCameraDataDirty = false;
     }
 
-    check(RenderRequestMap.size() <= 1);    // calm down buddy, where not there yet
-    for (auto& [AssetName, RenderRequest]: RenderRequestMap) {
+    std::unordered_map<std::string, TResourceArray<FMatrix4>> RenderRequestMap;
+    for (auto& [ActorID, ActorRepresentation]: WorldActorRepresentation) {
+        for (FMeshRepresentation& Mesh: ActorRepresentation) {
+            if (Mesh.Mesh->Asset == nullptr || Mesh.Mesh->Material == nullptr) {
+                continue;
+            }
+            Mesh.Mesh->Material->SetInput("Camera", u_CameraBuffer);
+            Mesh.Mesh->Material->Bake();
 
-        TResourceArray<FMatrix4> TransformMatrices;
-        TransformMatrices.Reserve(RenderRequest.Size());
-        for (FRenderRequest& Request: RenderRequest) {
-            TransformMatrices.Add(Request.Transform.GetModelMatrix());
-
-            Request.Mesh.Material->SetInput("Camera", u_CameraBuffer);
-            Request.Mesh.Material->Bake();
+            RenderRequestMap[Mesh.Mesh->Asset->GetName()].Add(Mesh.Transform.GetModelMatrix());
         }
+    }
 
-        Ref<RRHIBuffer>& TransformBuffer = TransformBuffers[AssetName];
-        if (TransformBuffer == nullptr || TransformBuffer->GetSize() < RenderRequest.Size()) {
+    for (auto& [AssetName, TransformArrays]: RenderRequestMap) {
+        Ref<RRHIBuffer>& TransformBuffer = TransformBuffersPerAsset[AssetName];
+        if (TransformBuffer == nullptr || TransformBuffer->GetSize() < TransformArrays.Size()) {
             TransformBuffer = RHI::CreateBuffer(FRHIBufferDesc{
-                .Size = static_cast<uint32>(std::max(RenderRequest.Size() * sizeof(FMatrix4),
+                .Size = static_cast<uint32>(std::max(TransformArrays.Size() * sizeof(FMatrix4),
                                                      sizeof(FMatrix4))),    // @TODO: not that
                 .Stride = sizeof(FMatrix4),
                 .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::KeepCPUAccessible,
-                .ResourceArray = &TransformMatrices,
+                .ResourceArray = &TransformArrays,
                 .DebugName = "Transform Buffer",
             });
         } else {
             ENQUEUE_RENDER_COMMAND(UpdateTransformBuffer)(
-                [TransformBuffer = TransformBuffer](FFRHICommandList& CommandList,
-                                                    TResourceArray<FMatrix4> TransformMatrices) mutable {
-                    IResourceArrayInterface* RessourceArray = &TransformMatrices;
-
-                    CommandList.CopyRessourceArrayToBuffer(RessourceArray, TransformBuffer, 0, 0,
+                [TransformBuffer](FFRHICommandList& CommandList, TResourceArray<FMatrix4> TransformMatrices) mutable {
+                    CommandList.CopyRessourceArrayToBuffer(&TransformMatrices, TransformBuffer, 0, 0,
                                                            TransformMatrices.GetByteSize());
                 },
-                TransformMatrices);
+                TransformArrays);
         }
+    }
+}
+
+void RRHIScene::UpdateActorLocation(uint64 Id, const FTransform& NewTransform)
+{
+    auto Iter = WorldActorRepresentation.find(Id);
+    ensure(Iter != WorldActorRepresentation.end());
+
+    for (FMeshRepresentation& Mesh: Iter->second) {
+        Mesh.Transform = NewTransform;
     }
 }
 
@@ -116,78 +154,98 @@ struct hash<FRenderRequestKey> {
 
 }    // namespace std
 
-void RHIScene::TickRenderer(FFRHICommandList& CommandList)
+void RRHIScene::TickRenderer(FFRHICommandList& CommandList)
 {
     RPH_PROFILE_FUNC()
 
-    for (const ecs::FRenderTargetComponent& TargetComponent: RenderTargets) {
-        UVector2 Size;
-        TArray<FRHIRenderTarget> ColorTargets;
-        std::optional<FRHIRenderTarget> DepthTarget = std::nullopt;
+    // for (const ecs::FRenderTargetComponent& TargetComponent: RenderTargets) {
+    UVector2 Size;
+    TArray<FRHIRenderTarget> ColorTargets;
+    std::optional<FRHIRenderTarget> DepthTarget = std::nullopt;
 
-        if (TargetComponent.Viewport) {
-            ColorTargets = {
-                {
-                    .Texture = Viewport->GetBackbuffer(),
-                    .ClearColor = {0.0f, 0.0f, 0.0f, 1.0f},
-                    .LoadAction = ERenderTargetLoadAction::Clear,
-                    .StoreAction = ERenderTargetStoreAction::Store,
-                },
-            };
-            DepthTarget = {
-                .Texture = Viewport->GetDepthBuffer(),
-                .ClearColor = {1.0f, 0.0f, 0.0f, 1.0f},
+    if (RenderPassTarget.Viewport) {
+
+        ColorTargets = {
+            {
+                .Texture = RenderPassTarget.Viewport->GetBackbuffer(),
+                .ClearColor = {0.0f, 0.0f, 0.0f, 1.0f},
                 .LoadAction = ERenderTargetLoadAction::Clear,
                 .StoreAction = ERenderTargetStoreAction::Store,
-            };
-            Size = Viewport->GetSize();
-
-            CommandList.SetViewport({0, 0, 0}, {static_cast<float>(TargetComponent.Viewport->GetSize().x),
-                                                static_cast<float>(TargetComponent.Viewport->GetSize().y), 1.0f});
-            CommandList.SetScissor({0, 0},
-                                   {TargetComponent.Viewport->GetSize().x, TargetComponent.Viewport->GetSize().y});
-            CommandList.BeginRenderingViewport(Viewport.Raw());
-        } else {
-            Size = TargetComponent.Size;
-            ColorTargets = TargetComponent.ColorTargets;
-            DepthTarget = TargetComponent.DepthTarget;
-        }
-
-        FRHIRenderPassDescription Description{
-            .RenderAreaLocation = {0, 0},
-            .RenderAreaSize = Size,
-            .ColorTargets = ColorTargets,
-            .DepthTarget = DepthTarget,
+            },
         };
-        CommandList.BeginRendering(Description);
+        DepthTarget = {
+            .Texture = RenderPassTarget.Viewport->GetDepthBuffer(),
+            .ClearColor = {1.0f, 0.0f, 0.0f, 1.0f},
+            .LoadAction = ERenderTargetLoadAction::Clear,
+            .StoreAction = ERenderTargetStoreAction::Store,
+        };
+        Size = RenderPassTarget.Viewport->GetSize();
 
-        for (auto& [AssetName, RenderRequests]: RenderRequestMap) {
-            std::unordered_map<FRenderRequestKey, TArray<FRenderRequest*>> SortedRequests;
+        CommandList.SetViewport({0, 0, 0}, {static_cast<float>(RenderPassTarget.Viewport->GetSize().x),
+                                            static_cast<float>(RenderPassTarget.Viewport->GetSize().y), 1.0f});
+        CommandList.SetScissor({0, 0},
+                               {RenderPassTarget.Viewport->GetSize().x, RenderPassTarget.Viewport->GetSize().y});
+        CommandList.BeginRenderingViewport(RenderPassTarget.Viewport.Raw());
+    } else {
+        Size = RenderPassTarget.Size;
+        ColorTargets = RenderPassTarget.ColorTargets;
+        DepthTarget = RenderPassTarget.DepthTarget;
+    }
 
-            for (FRenderRequest& Request: RenderRequests) {
-                if (!Request.Mesh.Asset->IsLoadedOnGPU()) {
-                    Request.Mesh.Asset->LoadOnGPU();
-                    continue;
-                }
-                SortedRequests[{Request.Mesh.Material.Raw(), Request.Mesh.Asset.Raw()}].Emplace(&Request);
+    FRHIRenderPassDescription Description{
+        .RenderAreaLocation = {0, 0},
+        .RenderAreaSize = Size,
+        .ColorTargets = ColorTargets,
+        .DepthTarget = DepthTarget,
+    };
+    CommandList.BeginRendering(Description);
+
+    std::unordered_map<FRenderRequestKey, TArray<FMeshRepresentation*>> SortedRequests;
+    for (auto& [id, Actor]: WorldActorRepresentation) {
+
+        for (FMeshRepresentation& Mesh: Actor) {
+            if (!Mesh.Mesh->Asset.IsValid()) {
+                continue;
             }
-
-            for (auto& [Key, Requests]: SortedRequests) {
-                CommandList.SetMaterial(Key.Material);
-
-                RAsset::FDrawInfo Cube = Key.Asset->GetDrawInfo();
-                CommandList.SetVertexBuffer(Key.Asset->GetVertexBuffer(), 0, 0);
-                CommandList.SetVertexBuffer(TransformBuffers[AssetName], 1, 0);
-                CommandList.DrawIndexed(Key.Asset->GetIndexBuffer(), 0, 0, Cube.NumVertices, 0, Cube.NumPrimitives,
-                                        Requests.Size());
+            if (!Mesh.Mesh->Asset->IsLoadedOnGPU()) {
+                Mesh.Mesh->Asset->LoadOnGPU();
+                continue;
             }
-        }
-        CommandList.EndRendering();
-
-        if (TargetComponent.Viewport) {
-            CommandList.EndRenderingViewport(Viewport.Raw());
+            SortedRequests[{Mesh.Mesh->Material.Raw(), Mesh.Mesh->Asset.Raw()}].Emplace(&Mesh);
         }
     }
 
-    RenderRequestMap.clear();
+    for (auto& [Key, Requests]: SortedRequests) {
+        CommandList.SetMaterial(Key.Material);
+
+        Ref<RRHIBuffer> TransformVertexBuffer = TransformBuffersPerAsset[Key.Asset->GetName()];
+        RAsset::FDrawInfo Cube = Key.Asset->GetDrawInfo();
+
+        ensure(Key.Asset->GetVertexBuffer() != nullptr);
+        ensure(TransformVertexBuffer != nullptr);
+
+        CommandList.SetVertexBuffer(Key.Asset->GetVertexBuffer(), 0, 0);
+        CommandList.SetVertexBuffer(TransformVertexBuffer, 1, 0);
+        CommandList.DrawIndexed(Key.Asset->GetIndexBuffer(), 0, 0, Cube.NumVertices, 0, Cube.NumPrimitives,
+                                Requests.Size());
+    }
+
+    CommandList.EndRendering();
+
+    if (RenderPassTarget.Viewport) {
+        CommandList.EndRenderingViewport(RenderPassTarget.Viewport.Raw());
+    }
+}
+
+void RRHIScene::UpdateCameraAspectRatio()
+{
+    ensure(CameraComponents.Size() == 1);
+    if (CameraComponents.IsEmpty() || !CameraComponents[0]->IsValid()) {
+        return;
+    }
+    if (RenderPassTarget.Viewport) {
+        CameraComponents[0]->SetAspectRatio(RenderPassTarget.Viewport->GetAspectRatio());
+    } else {
+        CameraComponents[0]->SetAspectRatio(RenderPassTarget.Size.x / static_cast<float>(RenderPassTarget.Size.y));
+    }
 }

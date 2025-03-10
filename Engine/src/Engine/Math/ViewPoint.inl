@@ -20,9 +20,9 @@ void TViewPoint<T>::ComputeProjectionMatrix()
 }
 
 template <typename T>
-void TViewPoint<T>::ComputeViewMatrix()
+void TViewPoint<T>::ComputeViewMatrix(const TTransform<T>& InTransform)
 {
-    TMatrix4<T> RotationMatrix = Transform.GetRotationMatrix();
+    TMatrix4<T> RotationMatrix = InTransform.GetRotationMatrix();
 
     TVector4<T> Right = Math::Normalize(RotationMatrix[0]);
     TVector4<T> Forward = Math::Normalize(RotationMatrix[1]);
@@ -36,7 +36,7 @@ void TViewPoint<T>::ComputeViewMatrix()
     NewViewMatrix[1] = Up;
     NewViewMatrix[2] = Forward;
 
-    TVector4<T> Location = Transform.GetLocation();
+    TVector4<T> Location = InTransform.GetLocation();
     NewViewMatrix[3, 0] = -Math::Dot(Right, Location);
     NewViewMatrix[3, 1] = -Math::Dot(Up, Location);
     NewViewMatrix[3, 2] = Math::Dot(Forward, Location);

@@ -2,16 +2,13 @@
 
 #include "Engine/Misc/EnumFlags.hxx"
 
-/// @brief The max amount of render target that may used used simultaneously
-constexpr unsigned MaxRenderTargets = 8;
-
 /// @brief Dimension of an RHI Texture
-enum class EImageDimension {
+enum class EImageDimension : uint8 {
     Texture2D,
 };
 
 /// @brief Format of an RHI Texture
-enum class EImageFormat {
+enum class EImageFormat : uint8 {
     D32_SFLOAT,
     R8G8B8_SRGB,
     R8G8B8A8_SRGB,
@@ -19,7 +16,7 @@ enum class EImageFormat {
 };
 
 /// The Type of the Vertex
-enum class EVertexElementType {
+enum class EVertexElementType : uint8 {
     Float1,
     Float2,
     Float3,
@@ -35,20 +32,20 @@ enum class EVertexElementType {
 };
 
 /// @brief The input mode of the vertex
-enum class EVertexInputMode {
+enum class EVertexInputMode : uint8 {
     PerVertex,
     PerInstance,
 };
 
 /// @brief How the polygon should be rendered
-enum class EPolygonMode {
+enum class EPolygonMode : uint8 {
     Fill,
     Line,
     Point,
 };
 
 /// @brief Configure the back-face culling
-enum class ECullMode {
+enum class ECullMode : uint8 {
     None,
     Front,
     Back,
@@ -56,13 +53,13 @@ enum class ECullMode {
 };
 
 /// @brief The unwinding order of the meshes
-enum class EFrontFace {
+enum class EFrontFace : uint8 {
     CounterClockwise,
     Clockwise,
 };
 
 /// @brief What the texture will be used for
-enum class ETextureUsageFlags {
+enum class ETextureUsageFlags : uint32 {
     None = 0,
     RenderTargetable = BIT(0),
     ResolveTargetable = BIT(1),

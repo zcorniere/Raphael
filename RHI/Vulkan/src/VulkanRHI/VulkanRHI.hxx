@@ -31,7 +31,7 @@ public:
     // FGenericRHI implementation
     virtual void Init() final override;
     virtual void PostInit() final override;
-    virtual void Tick(float fDeltaTime) override;
+    virtual void Tick(double fDeltaTime) override;
     virtual void Shutdown() final override;
 
     virtual const char* GetName() const final override
@@ -46,7 +46,8 @@ public:
     virtual void DeferedDeletion(std::function<void()>&& InDeletionFunction) final override;
     virtual void FlushDeletionQueue() final override;
 
-    virtual void RegisterScene(WeakRef<RHIScene> Scene) final override;
+    virtual void RegisterScene(WeakRef<RRHIScene> Scene) final override;
+    virtual void UnregisterScene(WeakRef<RRHIScene> Scene) final override;
 
     virtual void WaitUntilIdle() final override;
 
@@ -109,7 +110,7 @@ private:
     TArray<FVulkanCommandContext*> AvailableCommandContexts;
     RVulkanViewport* DrawingViewport = nullptr;
 
-    TArray<WeakRef<RHIScene>> ScenesContainers;
+    TArray<WeakRef<RRHIScene>> ScenesContainers;
 
     TArray<std::function<void()>> DeletionQueue;
 };

@@ -10,8 +10,10 @@ public:
     Ref<RAsset> LoadAsset(const std::filesystem::path& Path);
 
     Ref<RAsset> RegisterMemoryOnlyAsset(Ref<RAsset>& Asset);
+    Ref<RRHIMaterial> RegisterMemoryOnlyMaterial(Ref<RRHIMaterial>& Material);
 
-    Ref<RAsset> GetAsset(const std::string& Name);
+    Ref<RAsset> GetAsset(const std::string& Name) const;
+    Ref<RRHIMaterial> GetMaterial(const std::string& Name) const;
 
     void UnloadAsset(const std::string& Name);
 
@@ -28,4 +30,5 @@ public:
 
 private:
     std::unordered_map<std::string, Ref<RAsset>> AssetRegistry;
+    std::unordered_map<std::string, Ref<RRHIMaterial>> MaterialRegistry;
 };

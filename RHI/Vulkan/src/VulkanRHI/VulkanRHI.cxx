@@ -54,13 +54,13 @@ FVulkanDynamicRHI::~FVulkanDynamicRHI()
     FVulkanPlatform::FreeVulkanLibrary();
 }
 
-void FVulkanDynamicRHI::Tick(float fDeltaTime)
+void FVulkanDynamicRHI::Tick(double fDeltaTime)
 {
     (void)fDeltaTime;
 
     ENQUEUE_RENDER_COMMAND(BeginFrame)([](FFRHICommandList& CommandList) { CommandList.BeginFrame(); });
 
-    for (WeakRef<RHIScene>& Scene: ScenesContainers) {
+    for (WeakRef<RRHIScene>& Scene: ScenesContainers) {
         if (Scene.IsValid()) {
             ENQUEUE_RENDER_COMMAND(RenderScene)
             ([Scene](FFRHICommandList& CommandList) mutable { Scene->TickRenderer(CommandList); });
@@ -84,7 +84,11 @@ void FVulkanDynamicRHI::Init()
 {
     RPH_PROFILE_FUNC()
 
-    m_Instance = CreateInstance(DebugLayer.GetSupportedInstanceLayers());
+    TArray<const char*> ValidationLayers;
+#if VULKAN_DEBUGGING_ENABLED
+    ValidationLayers = DebugLayer.GetSupportedInstanceLayers();
+#endif    // VULKAN_DEBUGGING_ENABLED
+    m_Instance = CreateInstance(ValidationLayers);
 
 #if VULKAN_DEBUGGING_ENABLED
     LOG(LogVulkanRHI, Warning, "Vulkan Debugging is enabled {}!",
@@ -147,9 +151,14 @@ void FVulkanDynamicRHI::DeferedDeletion(std::function<void()>&& InDeletionFuncti
     DeletionQueue.Emplace(std::move(InDeletionFunction));
 }
 
-void FVulkanDynamicRHI::RegisterScene(WeakRef<RHIScene> Scene)
+void FVulkanDynamicRHI::RegisterScene(WeakRef<RRHIScene> Scene)
 {
     ScenesContainers.Emplace(Scene);
+}
+
+void FVulkanDynamicRHI::UnregisterScene(WeakRef<RRHIScene> Scene)
+{
+    ScenesContainers.Remove(Scene);
 }
 
 void FVulkanDynamicRHI::Shutdown()
@@ -202,7 +211,11 @@ VkInstance FVulkanDynamicRHI::CreateInstance(const TArray<const char*>& Validati
 #if VULKAN_DEBUGGING_ENABLED
     InstInfo.enabledLayerCount = ValidationLayers.Size();
     InstInfo.ppEnabledLayerNames = ValidationLayers.Raw();
-#endif
+#else
+    (void)ValidationLayers;
+    InstInfo.enabledLayerCount = 0;
+    InstInfo.ppEnabledLayerNames = nullptr;
+#endif    // VULKAN_DEBUGGING_ENABLED
 
     VkInstance Instance = VK_NULL_HANDLE;
     VkResult Result = VulkanAPI::vkCreateInstance(&InstInfo, VULKAN_CPU_ALLOCATOR, &Instance);

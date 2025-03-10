@@ -1,17 +1,15 @@
 #include "EditorApplication.hxx"
 
-#include "Components/Oscillator.hxx"
-#include "Engine/Core/ECS/Component/CameraComponent.hxx"
-#include "Engine/Core/ECS/Component/MeshComponent.hxx"
-#include "Engine/Core/ECS/Component/RHIComponent.hxx"
 #include "Engine/Core/Engine.hxx"
-#include "Engine/Math/Vector.hxx"
+#include "Engine/Core/RHI/RHIScene.hxx"
 
-#include <Engine/Core/ECS/World.hxx>
 #include <Engine/Core/Log.hxx>
 #include <Engine/Core/RHI/RHICommandList.hxx>
 #include <Engine/Core/RHI/Resources/RHIViewport.hxx>
 #include <Engine/Platforms/PlatformMisc.hxx>
+
+#include "Actor/Oscillator.hxx"
+#include "Engine/GameFramework/CameraActor.hxx"
 
 #include <cpplogger/sinks/FileSink.hpp>
 #include <cpplogger/sinks/StdoutSink.hpp>
@@ -40,16 +38,8 @@ bool EditorApplication::OnEngineInitialization()
 
     Super::OnEngineInitialization();
 
-    World = ecs::CreateWorld();
-    GEngine->SetWorld(World);
-    World->GetScene()->SetViewport(MainViewport);
-
-    World->RegisterComponent<FOscillator>();
-
     Ref<RAsset> CubeAsset = GEngine->AssetRegistry.GetCubeAsset();
     CubeAsset->LoadOnGPU();
-    Ref<RAsset> CapsuleAsset = GEngine->AssetRegistry.GetCapsuleAsset();
-    CapsuleAsset->LoadOnGPU();
 
     FRHIGraphicsPipelineSpecification Spec{
         .VertexShader = "Shapes/ShapeShader.vert",
@@ -94,77 +84,53 @@ bool EditorApplication::OnEngineInitialization()
 
     Ref<RRHIGraphicsPipeline> Pipeline = RHI::CreateGraphicsPipeline(Spec);
     Ref<RRHIMaterial> Material = RHI::CreateMaterial(Pipeline);
+    Material->SetName("Cube Material");
+    GEngine->AssetRegistry.RegisterMemoryOnlyMaterial(Material);
 
     FRHITextureSpecification DepthTexture = MainViewport->GetBackbuffer()->GetDescription();
     DepthTexture.Format = EImageFormat::D32_SFLOAT;
     DepthTexture.Flags = ETextureUsageFlags::DepthStencilTargetable;
 
-    ecs::FEntity RenderTarget = World->CreateEntity()
-                                    .WithComponent(ecs::FRenderTargetComponent{
-                                        .Viewport = MainViewport,
-                                    })
-                                    .Build();
+    World = GEngine->CreateWorld();
+    World->SetName("Editor World");
+    GEngine->SetWorld(World);
+    World->GetScene()->SetRenderPassTarget({
+        MainViewport,
+    });
+
+    Ref<ACameraActor> Actor = World->CreateActor<ACameraActor>("Main Camera", FTransform({-3, 0, 0}, {}, {1, 1, 1}));
+    RCameraComponent<float>* CameraComponent = Actor->GetComponent<RCameraComponent<float>>();
+    CameraComponent->SetFOV(80.0);
+    CameraComponent->SetNearFar(0.1, 1000.0);
 
     for (float x = -5; x < 5; x++) {
         for (float y = -5; y < 5; y++) {
-            World->CreateEntity()
-                .WithComponent(ecs::FMeshComponent{
-                    .Asset = CubeAsset,
-                    .Material = Material,
-                    .RenderTarget = RenderTarget,
-                })
-                .WithComponent(FOscillator{
-                    .Multiplier = 3.0f,
-                    .Direction = {0, 0, 1},
-                    .Maximum = {0, 0, 6},
-                    .Minimum = {0, 0, -6},
-                })
-                .WithComponent(
-                    ecs::FTransformComponent({x * 2, (y - 10) * 2, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}))
-                .Build();
+            std::string Name = std::format("Oscillator_{:f}_{:f}", x, y);
+            FVector3 Position = {x * 2, (y - 10) * 2, 0};
+            FQuaternion Rotation;
+            FVector3 Scale = {1, 1, 1};
+
+            World->CreateActor<AOscillator>(Name, FTransform(Position, Rotation, Scale));
         }
     }
-
-    ecs::FCameraComponent Camera{.bIsActive = true, .ViewPoint = {80.f, 0.01f, 1000000.f}};
-    Camera.ViewPoint.SetLocation({0.0f, -3.0f, 0.f});
-
-    CameraEntity = World->CreateEntity().WithComponent(Camera).Build();
-
-    World->RegisterSystem([](ecs::FTransformComponent& Transform, FOscillator& Oscillator) {
-        if (Transform.GetLocation().z >= Oscillator.Maximum.z || Transform.GetLocation().z <= Oscillator.Minimum.z) {
-            Oscillator.Direction.z = -Oscillator.Direction.z;
-        }
-        if (Transform.GetLocation().y >= Oscillator.Maximum.y || Transform.GetLocation().y <= Oscillator.Minimum.y) {
-            Oscillator.Direction.y = -Oscillator.Direction.y;
-        }
-        if (Transform.GetLocation().x >= Oscillator.Maximum.x || Transform.GetLocation().x <= Oscillator.Minimum.x) {
-            Oscillator.Direction.x = -Oscillator.Direction.x;
-        }
-
-        FVector3 Delta = Oscillator.Direction * Oscillator.Multiplier * GEngine->GetWorld()->GetDeltaTime();
-
-        FVector3 NewLocation = Transform.GetLocation() + Delta;
-        Transform.SetLocation(NewLocation);
-    });
 
     return true;
 }
 
 void EditorApplication::OnEngineDestruction()
 {
-    ecs::DestroyWorld(World);
-
+    World = nullptr;
+    GEngine->SetWorld(nullptr);
     Super::OnEngineDestruction();
 }
 
-void EditorApplication::Tick(const float DeltaTime)
+void EditorApplication::Tick(const double DeltaTime)
 {
     RPH_PROFILE_FUNC()
 
     Super::Tick(DeltaTime);
 
     MainWindow->SetText(std::to_string(1.0f / DeltaTime));
-    World->Update(DeltaTime);
 }
 
 // Not really extern "C" but I use it to mark that this function will be called by an external unit

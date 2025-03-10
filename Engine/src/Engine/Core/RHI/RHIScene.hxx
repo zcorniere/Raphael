@@ -2,16 +2,25 @@
 
 #include "Engine/Core/RHI/RHICommandList.hxx"
 #include "Engine/Core/RHI/RHIContext.hxx"
+#include "Engine/GameFramework/Components/CameraComponent.hxx"
+#include "Engine/Math/Transform.hxx"
 
-#include "Engine/Core/ECS/Component/CameraComponent.hxx"
-#include "Engine/Core/ECS/Component/MeshComponent.hxx"
-#include "Engine/Core/ECS/Component/RHIComponent.hxx"
+class RMeshComponent;
+class RWorld;
 
-class RHIScene : public RObject
+class RRHIScene : public RObject
 {
-    RTTI_DECLARE_TYPEINFO(RHIScene, RObject);
+    RTTI_DECLARE_TYPEINFO(RRHIScene, RObject);
 
 public:
+    struct FRHIRenderPassTarget {
+        WeakRef<RRHIViewport> Viewport = nullptr;
+
+        TArray<FRHIRenderTarget> ColorTargets = {};
+        std::optional<FRHIRenderTarget> DepthTarget = std::nullopt;
+        UVector2 Size = {0, 0};
+    };
+
     BEGIN_PARAMETER_STRUCT(UCameraData)
     PARAMETER(FMatrix4, ViewProjection)
     PARAMETER(FMatrix4, View)
@@ -19,37 +28,37 @@ public:
     END_PARAMETER_STRUCT();
 
 private:
-    struct FRenderRequest {
-        ecs::FTransformComponent Transform;
-        ecs::FMeshComponent Mesh;
+    struct FMeshRepresentation {
+        FTransform Transform = {};
+        WeakRef<RMeshComponent> Mesh = nullptr;
     };
 
 public:
-    RHIScene();
-    virtual ~RHIScene();
+    RRHIScene() = delete;
+    RRHIScene(RWorld* OuterWorld);
+    RRHIScene(RWorld* OuterWorld, const FRHIRenderPassTarget& InRenderPassTarget);
+    virtual ~RRHIScene();
 
-    void CollectRenderablesSystem(ecs::FTransformComponent& Transform, ecs::FMeshComponent& Mesh);
-    void CameraSystem(ecs::FCameraComponent& Camera);
-    void CollectRenderTargets(ecs::FRenderTargetComponent& RenderTarget);
+    void SetViewport(Ref<RRHIViewport>& InViewport);
+    void SetRenderPassTarget(const FRHIRenderPassTarget& InRenderPassTarget);
 
-    void SetViewport(Ref<RRHIViewport>& InViewport)
-    {
-        Viewport = InViewport;
-    }
-
-    void Tick(float DeltaTime);
+    void Tick(double DeltaTime);
+    void UpdateActorLocation(uint64 Id, const FTransform& NewTransform);
 
     void TickRenderer(FFRHICommandList& CommandList);
 
 private:
-    bool bCameraDataDirty = true;
+    void UpdateCameraAspectRatio();
+
+private:
+    FRHIRenderPassTarget RenderPassTarget;
+
     UCameraData CameraData;
     Ref<RRHIBuffer> u_CameraBuffer = nullptr;
 
-    TArray<ecs::FRenderTargetComponent> RenderTargets;
-    std::unordered_map<std::string, Ref<RRHIBuffer>> TransformBuffers;
-    std::unordered_map<std::string, TArray<FRenderRequest>> RenderRequestMap;
+    std::unordered_map<std::string, Ref<RRHIBuffer>> TransformBuffersPerAsset;
+    std::unordered_map<uint64, TArray<FMeshRepresentation>> WorldActorRepresentation;
+    TArray<WeakRef<RCameraComponent<float>>> CameraComponents;
 
-    WeakRef<RRHIViewport> Viewport = nullptr;
     FRHIContext* const Context = nullptr;
 };

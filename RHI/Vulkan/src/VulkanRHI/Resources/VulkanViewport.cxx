@@ -1,8 +1,7 @@
 #include "VulkanRHI/Resources/VulkanViewport.hxx"
 
-#include "Engine/Core/RHI/RHICommand.hxx"
-
 #include "Engine/Misc/CommandLine.hxx"
+
 #include "VulkanRHI/VulkanCommandContext.hxx"
 #include "VulkanRHI/VulkanCommandsObjects.hxx"
 #include "VulkanRHI/VulkanDevice.hxx"
