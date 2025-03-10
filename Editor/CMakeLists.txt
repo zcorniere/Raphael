@@ -15,7 +15,7 @@ else()
     message(STATUS "RPH - Profiling is disabled")
 endif(RPH_ENABLE_PROFILING)
 
-add_executable(${PROJECT_NAME} EditorApplication.cxx)
+add_executable(${PROJECT_NAME} EditorApplication.cxx Actor/Oscillator.cxx)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelEngine imgui)
 target_precompile_headers(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/Engine/src/Engine/Raphael.hxx)

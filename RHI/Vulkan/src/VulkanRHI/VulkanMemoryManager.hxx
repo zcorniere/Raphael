@@ -99,10 +99,10 @@ private:
     VkPhysicalDeviceMemoryProperties MemoryProperties;
     std::atomic<uint32> AllocationCount;
 
-#if VULKAN_DEBUGGING_ENABLED
+#ifndef NDEBUG
     TArray<WeakRef<RVulkanMemoryAllocation>> MemoryAllocationArray;
     std::mutex MemoryAllocationArrayMutex;
-#endif    // VULKAN_DEBUGGING_ENABLED
+#endif    // !NDEBUG
 
     friend RVulkanMemoryAllocation;
 };

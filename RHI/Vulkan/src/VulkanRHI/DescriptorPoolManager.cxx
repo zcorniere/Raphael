@@ -106,7 +106,12 @@ void FDescriptorSetManager::InvalidateAndUpdate()
         for (auto& [Binding, Input]: Inputs) {
             switch (Input.Type) {
                 case ERenderPassInputType::StorageBuffer: {
-                    const VkDescriptorBufferInfo& Info = Input.Input[0].As<RVulkanBuffer>()->GetDescriptorBufferInfo();
+                    const RVulkanBuffer* const Buffer = Input.Input[0].AsRaw<RVulkanBuffer>();
+                    if (!Buffer) {
+                        continue;
+                    }
+
+                    const VkDescriptorBufferInfo& Info = Buffer->GetDescriptorBufferInfo();
                     const VkWriteDescriptorSet& SetWrite = WriteDescriptorSet.at(Set).at(Binding);
                     if (SetWrite.pBufferInfo && Info.buffer != SetWrite.pBufferInfo->buffer) {
                         InvalidatedInput[Set][Binding] = Input;

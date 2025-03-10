@@ -52,7 +52,7 @@ void FBaseApplication::WindowEventHandler(FEvent& Event)
     }
 }
 
-void FBaseApplication::Tick(const float DeltaTime)
+void FBaseApplication::Tick(const double DeltaTime)
 {
     RPH_PROFILE_FUNC()
 

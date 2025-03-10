@@ -17,7 +17,7 @@ void FrameLimiter::BeginFrame()
     StartTime = std::chrono::high_resolution_clock::now();
 }
 
-float FrameLimiter::EndFrame()
+double FrameLimiter::EndFrame()
 {
     const std::chrono::high_resolution_clock::time_point EndTime = std::chrono::high_resolution_clock::now();
     const std::chrono::duration<double> ElapsedTime = EndTime - StartTime;

@@ -1,17 +1,17 @@
 project(RaphaelEngine)
 set(CMAKE_FOLDER "Raphael/Engine")
 
-set(SELECTED_RHI
+set(RPH_SELECTED_RHI
     "Vulkan"
     CACHE STRING "Select the RHI to use"
 )
 
 add_library(RHI_Selector INTERFACE)
-if(SELECTED_RHI STREQUAL "Vulkan")
+if(RPH_SELECTED_RHI STREQUAL "Vulkan")
     target_link_libraries(RHI_Selector INTERFACE RaphaelRHIVulkan)
     target_compile_definitions(RHI_Selector INTERFACE RAPHAEL_SELECTED_RHI_VULKAN=1)
 else()
-    message(FATAL_ERROR "${SELECTED_RHI} is not supported !")
+    message(FATAL_ERROR "${RPH_SELECTED_RHI} is not supported !")
 endif()
 
 
@@ -52,10 +52,9 @@ add_library(
     src/Engine/Core/Memory/Memory.cxx
     src/Engine/Core/Memory/MiMalloc.cxx
     src/Engine/Core/Memory/StdMalloc.cxx
-    src/Engine/Core/ECS/ComponentStorage.cxx
-    src/Engine/Core/ECS/SystemScheduler.cxx
-    src/Engine/Core/ECS/World.cxx
-    src/Engine/Core/ECS/ECS.cxx
+    src/Engine/GameFramework/Actor.cxx
+    src/Engine/GameFramework/World.cxx
+    src/Engine/GameFramework/CameraActor.cxx
     src/Engine/AssetRegistry/AssetRegistry.cxx
     src/Engine/AssetRegistry/Asset.cxx
     src/Engine/AssetRegistry/MeshFactory.cxx

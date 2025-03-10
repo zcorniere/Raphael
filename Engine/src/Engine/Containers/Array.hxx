@@ -105,10 +105,14 @@ public:
 
     constexpr TArray& operator=(std::initializer_list<T> InitList)
     {
-        // Resize the array to fit the list, destroy everything, and copy the list into the array
+        // destroy everything, resize the array to fit the list, and copy the list into the array
+        if (Raw()) {
+            DestructItems(Raw(), ArraySize);
+        }
         Resize(InitList.size());
-        DestructItems(Raw(), InitList.size());
-        CopyItems(Raw(), InitList.begin(), Size());
+        if (InitList.size() > 0) {
+            CopyItems(Raw(), InitList.begin(), Size());
+        }
         return *this;
     }
 

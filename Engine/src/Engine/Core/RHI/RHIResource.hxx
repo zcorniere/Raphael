@@ -1,7 +1,7 @@
 #pragma once
 
 /// The type of RHI resource
-enum class ERHIResourceType {
+enum class ERHIResourceType : uint8 {
     None = 0,
 
     Texture,

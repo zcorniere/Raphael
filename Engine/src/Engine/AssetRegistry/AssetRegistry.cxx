@@ -33,13 +33,33 @@ Ref<RAsset> FAssetRegistry::RegisterMemoryOnlyAsset(Ref<RAsset>& Asset)
     return nullptr;
 }
 
-Ref<RAsset> FAssetRegistry::GetAsset(const std::string& Name)
+Ref<RRHIMaterial> FAssetRegistry::RegisterMemoryOnlyMaterial(Ref<RRHIMaterial>& Material)
+{
+    if (MaterialRegistry.find(Material->GetName()) == MaterialRegistry.end()) {
+        MaterialRegistry[Material->GetName()] = Material;
+        return Material;
+    }
+    LOG(LogAssetRegistry, Warning, "Material {:s} already registered", Material->GetName());
+    return nullptr;
+}
+
+Ref<RAsset> FAssetRegistry::GetAsset(const std::string& Name) const
 {
     auto Asset = AssetRegistry.find(Name);
     if (Asset != AssetRegistry.end()) {
         return Asset->second;
     }
     LOG(LogAssetRegistry, Warning, "Asset {:s} not found", Name);
+    return nullptr;
+}
+
+Ref<RRHIMaterial> FAssetRegistry::GetMaterial(const std::string& Name) const
+{
+    auto Material = MaterialRegistry.find(Name);
+    if (Material != MaterialRegistry.end()) {
+        return Material->second;
+    }
+    LOG(LogAssetRegistry, Warning, "Material {:s} not found", Name);
     return nullptr;
 }
 
@@ -54,8 +74,10 @@ void FAssetRegistry::UnloadAsset(const std::string& Name)
 
 void FAssetRegistry::Purge()
 {
-    for (auto& Asset: AssetRegistry) {
-        Asset.second->Unload();
+    for (auto& [Name, Asset]: AssetRegistry) {
+        Asset->Unload();
     }
     AssetRegistry.clear();
+
+    MaterialRegistry.clear();
 }

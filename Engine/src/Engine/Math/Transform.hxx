@@ -27,11 +27,11 @@ public:
     TQuaternion<T>& GetRotation();
     TVector3<T>& GetScale();
 
-    FMatrix4 GetModelMatrix();
+    TMatrix4<T> GetModelMatrix();
 
-    FMatrix4 GetTranslationMatrix() const;
-    FMatrix4 GetRotationMatrix() const;
-    FMatrix4 GetScaleMatrix() const;
+    TMatrix4<T> GetTranslationMatrix() const;
+    TMatrix4<T> GetRotationMatrix() const;
+    TMatrix4<T> GetScaleMatrix() const;
 
 public:
     TVector3<T> Location = {0, 0, 0};
@@ -39,10 +39,13 @@ public:
     TVector3<T> Scale = {1, 1, 1};
 
     bool bModelMatrixDirty = true;
-    FMatrix4 ModelMatrix;
+    TMatrix4<T> ModelMatrix;
 };
 
 }    // namespace Math
+
+template <typename T>
+using TTransform = Math::TTransform<T>;
 
 using FTransform = Math::TTransform<float>;
 using DTransform = Math::TTransform<double>;

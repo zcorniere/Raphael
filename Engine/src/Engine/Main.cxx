@@ -36,7 +36,7 @@ try {
     GDynamicRHI->PostInit();
 
     int ExitStatus = 0;
-    float DeltaTime = 0.0f;
+    double DeltaTime = 0.0f;
     FrameLimiter Limiter;
     while (!Utils::HasRequestedExit(ExitStatus) || GEngine->ShouldExit()) {
         RPH_PROFILE_FUNC("Engine Tick")
@@ -46,6 +46,10 @@ try {
         RHI::BeginFrame();
 
         Application->Tick(DeltaTime);
+
+        if (WeakRef<RWorld> World = GEngine->GetWorld()) {
+            World->Tick(DeltaTime);
+        }
 
         // Tick the RHI
         RHI::Tick(DeltaTime);
