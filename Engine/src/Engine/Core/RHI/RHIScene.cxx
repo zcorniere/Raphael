@@ -76,6 +76,8 @@ void RRHIScene::Tick(double DeltaTime)
     RCameraComponent<float>* CameraComponent = CameraComponents[0];
     UpdateCameraAspectRatio();
     if (CameraComponent->IsTransformDirty() || CameraComponent->IsRenderStateDirty()) {
+        RPH_PROFILE_FUNC("RRHIScene::Tick - UpdateCameraBuffer")
+
         CameraData.View = CameraComponent->GetViewMatrix();
         CameraData.Projection = CameraComponent->GetProjectionMatrix();
         CameraData.ViewProjection = CameraData.Projection * CameraData.View;
@@ -84,41 +86,48 @@ void RRHIScene::Tick(double DeltaTime)
 
         ENQUEUE_RENDER_COMMAND(UpdateCameraBuffer)([this](FFRHICommandList& CommandList) {
             TResourceArray<UCameraData> Array{CameraData};
-            CommandList.CopyRessourceArrayToBuffer(&Array, u_CameraBuffer, 0, 0, sizeof(UCameraData));
+            CommandList.CopyResourceArrayToBuffer(&Array, u_CameraBuffer, 0, 0, sizeof(UCameraData));
         });
     }
 
     std::unordered_map<std::string, TResourceArray<FMatrix4>> RenderRequestMap;
-    for (auto& [ActorID, ActorRepresentation]: WorldActorRepresentation) {
-        for (FMeshRepresentation& Mesh: ActorRepresentation) {
-            if (Mesh.Mesh->Asset == nullptr || Mesh.Mesh->Material == nullptr) {
-                continue;
-            }
-            Mesh.Mesh->Material->SetInput("Camera", u_CameraBuffer);
-            Mesh.Mesh->Material->Bake();
+    {
+        RPH_PROFILE_FUNC("RRHIScene::Tick - Order Camera")
+        for (auto& [ActorID, ActorRepresentation]: WorldActorRepresentation) {
+            for (FMeshRepresentation& Mesh: ActorRepresentation) {
+                if (Mesh.Mesh->Asset == nullptr || Mesh.Mesh->Material == nullptr) {
+                    continue;
+                }
+                Mesh.Mesh->Material->SetInput("Camera", u_CameraBuffer);
+                Mesh.Mesh->Material->Bake();
 
-            RenderRequestMap[Mesh.Mesh->Asset->GetName()].Add(Mesh.Transform.GetModelMatrix());
+                RenderRequestMap[Mesh.Mesh->Asset->GetName()].Add(Mesh.Transform.GetModelMatrix());
+            }
         }
     }
 
-    for (auto& [AssetName, TransformArrays]: RenderRequestMap) {
-        Ref<RRHIBuffer>& TransformBuffer = TransformBuffersPerAsset[AssetName];
-        if (TransformBuffer == nullptr || TransformBuffer->GetSize() < TransformArrays.Size()) {
-            TransformBuffer = RHI::CreateBuffer(FRHIBufferDesc{
-                .Size = static_cast<uint32>(std::max(TransformArrays.Size() * sizeof(FMatrix4),
-                                                     sizeof(FMatrix4))),    // @TODO: not that
-                .Stride = sizeof(FMatrix4),
-                .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::KeepCPUAccessible,
-                .ResourceArray = &TransformArrays,
-                .DebugName = "Transform Buffer",
-            });
-        } else {
-            ENQUEUE_RENDER_COMMAND(UpdateTransformBuffer)(
-                [TransformBuffer](FFRHICommandList& CommandList, TResourceArray<FMatrix4> TransformMatrices) mutable {
-                    CommandList.CopyRessourceArrayToBuffer(&TransformMatrices, TransformBuffer, 0, 0,
-                                                           TransformMatrices.GetByteSize());
-                },
-                TransformArrays);
+    {
+        RPH_PROFILE_FUNC("RRHIScene::Tick - Update Transform Buffers")
+        for (auto& [AssetName, TransformArrays]: RenderRequestMap) {
+            Ref<RRHIBuffer>& TransformBuffer = TransformBuffersPerAsset[AssetName];
+            if (TransformBuffer == nullptr || TransformBuffer->GetSize() < TransformArrays.Size()) {
+                TransformBuffer = RHI::CreateBuffer(FRHIBufferDesc{
+                    .Size = static_cast<uint32>(std::max(TransformArrays.Size() * sizeof(FMatrix4),
+                                                         sizeof(FMatrix4))),    // @TODO: not that
+                    .Stride = sizeof(FMatrix4),
+                    .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::KeepCPUAccessible,
+                    .ResourceArray = &TransformArrays,
+                    .DebugName = "Transform Buffer",
+                });
+            } else {
+                ENQUEUE_RENDER_COMMAND(UpdateTransformBuffer)(
+                    [TransformBuffer](FFRHICommandList& CommandList,
+                                      TResourceArray<FMatrix4> TransformMatrices) mutable {
+                        CommandList.CopyResourceArrayToBuffer(&TransformMatrices, TransformBuffer, 0, 0,
+                                                              TransformMatrices.GetByteSize());
+                    },
+                    TransformArrays);
+            }
         }
     }
 }

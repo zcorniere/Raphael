@@ -81,10 +81,10 @@ void FFRHICommandList::CopyBufferToBuffer(const Ref<RRHIBuffer>& Source, Ref<RRH
     Enqueue(new RHICopyBufferToBuffer(Source, Destination, SourceOffset, DestinationOffset, Size));
 }
 
-void FFRHICommandList::CopyRessourceArrayToBuffer(IResourceArrayInterface* Source, Ref<RRHIBuffer>& Destination,
-                                                  uint64 SourceOffset, uint64 DestinationOffset, uint64 Size)
+void FFRHICommandList::CopyResourceArrayToBuffer(IResourceArrayInterface* Source, Ref<RRHIBuffer>& Destination,
+                                                 uint64 SourceOffset, uint64 DestinationOffset, uint64 Size)
 {
-    Enqueue(new RHICopyRessourceArrayToBuffer(Source, Destination, SourceOffset, DestinationOffset, Size));
+    Enqueue(new RHICopyResourceArrayToBuffer(Source, Destination, SourceOffset, DestinationOffset, Size));
 }
 
 void FFRHICommandList::Enqueue(FRHIRenderCommandBase* RenderCommand)
