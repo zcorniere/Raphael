@@ -40,7 +40,7 @@ add_library(
     src/Engine/Main.cxx
     src/Engine/Core/Log.cxx
     src/Engine/Core/UUID.cxx
-    src/Engine/Core/RObject.cxx
+    src/Engine/Core/RTTI/RObject.cxx
     src/Engine/Core/Engine.cxx
     src/Engine/Core/Application.cxx
     src/Engine/Core/Window.cxx
