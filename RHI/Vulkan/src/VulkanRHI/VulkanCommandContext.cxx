@@ -190,9 +190,9 @@ void FVulkanCommandContext::DrawIndexed(Ref<RRHIBuffer> InIndexBuffer, int32 Bas
                                 FirstInstance);
 }
 
-void FVulkanCommandContext::CopyRessourceArrayToBuffer(const IResourceArrayInterface* Source,
-                                                       Ref<RRHIBuffer>& Destination, uint64 SourceOffset,
-                                                       uint64 DestinationOffset, uint64 Size)
+void FVulkanCommandContext::CopyResourceArrayToBuffer(const IResourceArrayInterface* Source,
+                                                      Ref<RRHIBuffer>& Destination, uint64 SourceOffset,
+                                                      uint64 DestinationOffset, uint64 Size)
 {
     RVulkanBuffer* const DstBuffer = Destination.AsRaw<RVulkanBuffer>();
     RVulkanMemoryAllocation* const Memory = DstBuffer->GetMemory();

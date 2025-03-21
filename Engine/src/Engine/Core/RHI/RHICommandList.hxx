@@ -156,8 +156,8 @@ public:
     /// @param SourceOffset The offset in the source buffer
     /// @param DestinationOffset The offset in the destination buffer
     /// @param Size The number of bytes to copy
-    void CopyRessourceArrayToBuffer(IResourceArrayInterface* Source, Ref<RRHIBuffer>& Destination, uint64 SourceOffset,
-                                    uint64 DestinationOffset, uint64 Size);
+    void CopyResourceArrayToBuffer(IResourceArrayInterface* Source, Ref<RRHIBuffer>& Destination, uint64 SourceOffset,
+                                   uint64 DestinationOffset, uint64 Size);
 
     /// @brief Add a command to the back of the queue
     template <typename TSTR, typename TFunction, typename... ArgsType>
