@@ -12,14 +12,16 @@
 #include <vector>
 // IWYU pragma: end_keep
 
-#include <Engine/Core/RTTI/RTTI.hxx>
 #include <Engine/Misc/MiscDefines.hxx>
 
 #include <Engine/Compilers/Compiler.hxx>
 #include <Engine/Platforms/Platform.hxx>
 
 #include <Engine/Core/Memory/Memory.hxx>
-#include <Engine/Core/RObject.hxx>
+
+#include <Engine/Core/RTTI/RTTI.hxx>
+
+#include <Engine/Core/RTTI/RObject.hxx>
 
 #include <Engine/Misc/Profiler.hxx>
 
