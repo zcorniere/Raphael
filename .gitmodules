@@ -46,3 +46,6 @@
 [submodule "RHI/Vulkan/External/Vulkan-Utility-Libraries"]
 	path = RHI/Vulkan/External/Vulkan-Utility-Libraries
 	url = https://github.com/KhronosGroup/Vulkan-Utility-Libraries.git
+[submodule "Engine/External/glm"]
+	path = Engine/External/glm
+	url = https://github.com/g-truc/glm.git
