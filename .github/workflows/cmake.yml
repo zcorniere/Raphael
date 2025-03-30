@@ -9,60 +9,58 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
-
       matrix:
-        os: [self-hosted, windows-latest]
-        build_type: [Debug, Release]
-        c_compiler: [gcc, clang, cl]
         include:
-          - os: windows-latest
-            c_compiler: cl
-            cpp_compiler: cl
-          - os: self-hosted
-            c_compiler: gcc
-            cpp_compiler: g++
-          - os: self-hosted
-            c_compiler: clang
-            cpp_compiler: clang++
-        exclude:
-          - os: windows-latest
-            c_compiler: gcc
-          - os: windows-latest
-            c_compiler: clang
-          - os: self-hosted
-            c_compiler: cl
+          - name: "Windows - MSVC"
+            os: windows-latest
+            compiler: cl
+          - name: "Ubuntu - Clang"
+            os: ubuntu-latest
+            compiler: llvm
+          - name: "Ubuntu - GCC"
+            os: ubuntu-latest
+            compiler: gcc
 
+    runs-on: ${{ matrix.os }}
     steps:
+    - name: Get number of CPU cores
+      uses: SimenB/github-actions-cpu-cores@v1
+      id: cpu-cores
+
     - uses: actions/checkout@v4.1.0
       with:
         submodules: true
 
-    - name: Install dependencies (Windows)
-      if: matrix.os == 'windows-latest'
+    - name: "Setup Cpp"
+      uses: aminya/setup-cpp@v1
+      with:
+        compiler: ${{ matrix.compiler }}
+        vcvarsall: ${{ contains(matrix.os, 'windows' )}}
+        cmake: true
+        ninja: true
+        clangtidy: false
+        cppcheck: false
+
+    - name: Install dependencies
+      if: matrix.os == 'ubuntu-latest'
       run: |
-        choco install glm
-        
-    - name: Set reusable strings
-      id: strings
-      shell: bash
-      run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        sudo apt-get update
+        sudo apt-get install -y valgrind libglm-dev libwayland-bin libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libwayland-dev libxkbcommon-dev
 
     - name: Configure CMake
       run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        cmake -S .
+        -B ./build
+        -DCMAKE_BUILD_TYPE:STRING=Debug
         -S ${{ github.workspace }}
 
     - name: Build
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --parallel 4
+      run: cmake --build ./build --parallel ${{ steps.cpu-cores.outputs.count }} 
 
     - name: Test
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      run: ctest --build-config ${{ matrix.build_type }} --output-on-failure
+      working-directory: ./build
+      run: >
+        ctest -j ${{ steps.cpu-cores.outputs.count }} -C Debug --rerun-failed --output-on-failure;
