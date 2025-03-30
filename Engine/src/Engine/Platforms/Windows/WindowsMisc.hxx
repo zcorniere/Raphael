@@ -23,9 +23,9 @@ public:
     static EBoxReturnType DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
                                             const std::string_view Caption);
 
-    static bool BaseAllocator(void* TargetMemory)
+    static bool BaseAllocator(void* TargetMemory);
 
-        static Ref<IExternalModule> LoadExternalModule(const std::string& ModuleName);
+    static Ref<IExternalModule> LoadExternalModule(const std::string& ModuleName);
 
     static std::filesystem::path GetConfigPath();
 };

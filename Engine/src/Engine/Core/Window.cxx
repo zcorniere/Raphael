@@ -237,7 +237,7 @@ bool RWindow::InitializeGLFW()
         glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
         LOG(LogWindow, Info, "Initializing GLFW - using X11");
     }
-#elif define(PLATFORM_WINDOWS)
+#elif defined(PLATFORM_WINDOWS)
     LOG(LogWindow, Info, "Initializing GLFW.");
 #endif
 
