@@ -4,14 +4,14 @@
 
 #include "VulkanRHI/Resources/VulkanTexture.hxx"
 
-class RWindow;
+#include "Engine/Core/Window.hxx"
+#include "VulkanRHI/VulkanSwapChain.hxx"
 
 namespace VulkanRHI
 {
 
 class FVulkanDevice;
 class RSemaphore;
-class RVulkanSwapChain;
 class FVulkanQueue;
 class FVulkanCmdBuffer;
 struct VulkanSwapChainRecreateInfo;

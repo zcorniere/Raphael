@@ -107,7 +107,9 @@ namespace RTTI
 struct FParameter;
 
 template <typename T>
-concept IsParameterType = requires(T a) { T::GetMembers()->std::template same_as<TArray<::RTTI::FParameter>>; };
+concept IsParameterType = requires(T a) {
+    { T::GetMembers() } -> std::same_as<TArray<::RTTI::FParameter>>;
+};
 
 /// The base type of a shader parameter
 enum class EParameterType : uint8 {

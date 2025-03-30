@@ -58,7 +58,7 @@ jobs:
         -S ${{ github.workspace }}
 
     - name: Build
-      run: cmake --build ./build --parallel ${{ steps.cpu-cores.outputs.count }} 
+      run: cmake --build ./build --config=Debug --parallel ${{ steps.cpu-cores.outputs.count }} 
 
     - name: Test
       working-directory: ./build

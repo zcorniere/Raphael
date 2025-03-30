@@ -125,7 +125,7 @@ bool EditorApplication::OnEngineInitialization()
         }
     }
 
-    ecs::FCameraComponent Camera{.bIsActive = true, .ViewPoint = {80.f, 0.01, 1000000.f}};
+    ecs::FCameraComponent Camera{.bIsActive = true, .ViewPoint = {80.f, 0.01f, 1000000.f}};
     Camera.ViewPoint.SetLocation({0.0f, -3.0f, 0.f});
 
     CameraEntity = World->CreateEntity().WithComponent(Camera).Build();
