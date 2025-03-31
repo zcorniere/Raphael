@@ -16,8 +16,6 @@ namespace VulkanRHI
 VK_ENTRYPOINT_ALL(DEFINE_VK_ENTRYPOINTS)
 #undef DEFINE_VK_ENTRYPOINTS
 
-static Ref<IExternalModule> s_VulkanModuleHandle = nullptr;
-
 #if defined(PLATFORM_WINDOWS)
 static constexpr auto VulkanLibraryName = "vulkan-1.dll";
 #elif defined(PLATFORM_LINUX)
@@ -30,19 +28,19 @@ bool FVulkanPlatform::LoadVulkanLibrary()
 {
     RPH_PROFILE_FUNC()
 
-    if (s_VulkanModuleHandle) {
+    if (VulkanModuleHandle) {
         return true;
     }
 
-    s_VulkanModuleHandle = FPlatformMisc::LoadExternalModule(VulkanLibraryName);
+    VulkanModuleHandle = FPlatformMisc::LoadExternalModule(VulkanLibraryName);
 
-    if (s_VulkanModuleHandle == nullptr) {
+    if (VulkanModuleHandle == nullptr) {
         return false;
     }
 
     bool bFoundAllEntryPoints = true;
 
-#define GET_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = s_VulkanModuleHandle->GetSymbol<Type>(#Func);
+#define GET_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = VulkanModuleHandle->GetSymbol<Type>(#Func);
 #define CHECK_VK_ENTRYPOINTS(Type, Func)                                   \
     if (VulkanAPI::Func == nullptr) {                                      \
         bFoundAllEntryPoints = false;                                      \
@@ -91,12 +89,12 @@ bool FVulkanPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
 
 void FVulkanPlatform::FreeVulkanLibrary()
 {
-    if (s_VulkanModuleHandle != nullptr) {
+    if (VulkanModuleHandle != nullptr) {
 #define CLEAR_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = nullptr;
         VK_ENTRYPOINT_ALL(CLEAR_VK_ENTRYPOINTS);
 #undef CLEAR_VK_ENTRYPOINTS
 
-        s_VulkanModuleHandle = nullptr;
+        VulkanModuleHandle = nullptr;
     }
 }
 
@@ -120,7 +118,7 @@ void FVulkanPlatform::CreateSurface(RWindow* WindowHandle, VkInstance Instance, 
         }                                                                                                       \
     }
 
-TArray<VkExtensionProperties> FVulkanPlatform::GetDriverSupportedInstanceExtensions(const char* LayerName)
+TArray<VkExtensionProperties> FVulkanPlatform::GetDriverSupportedInstanceExtensions(const char* LayerName) const
 {
     TArray<VkExtensionProperties> OutInstanceExtensions;
     uint32 Count = 0;
@@ -135,7 +133,7 @@ TArray<VkExtensionProperties> FVulkanPlatform::GetDriverSupportedInstanceExtensi
 }
 
 TArray<VkExtensionProperties> FVulkanPlatform::GetDriverSupportedDeviceExtensions(VkPhysicalDevice Gpu,
-                                                                                  const char* LayerName)
+                                                                                  const char* LayerName) const
 {
     TArray<VkExtensionProperties> OutDeviceExtensions;
     uint32 Count = 0;

@@ -99,7 +99,7 @@ void FVulkanDevice::InitPhysicalDevice()
     VulkanAPI::vkGetPhysicalDeviceFeatures(Gpu, &PhysicalFeatures);
 
     // Setup layers and extensions
-    FVulkanDeviceExtensionArray DeviceExtensions = FVulkanPlatform::GetDeviceExtensions();
+    FVulkanDeviceExtensionArray DeviceExtensions = GetVulkanDynamicRHI()->GetVulkanPlatform().GetDeviceExtensions();
     if (!CreateDeviceAndQueue({}, DeviceExtensions)) {
         LOG(LogVulkanRHI, Fatal, "Failed to create Vulkan device and queues! Exiting...");
         Utils::RequestExit(1, true);
@@ -133,7 +133,7 @@ bool FVulkanDevice::CreateDeviceAndQueue(const TArray<const char*>& DeviceLayers
     TArray<const char*> DeviceExtensions;
 
     TArray<VkExtensionProperties> QueringDeviceExtensions =
-        FVulkanPlatform::GetDriverSupportedDeviceExtensions(Gpu, nullptr);
+        GetVulkanDynamicRHI()->GetVulkanPlatform().GetDriverSupportedDeviceExtensions(Gpu, nullptr);
 
     for (const std::unique_ptr<IDeviceVulkanExtension>& Extension: Extensions) {
         if (QueringDeviceExtensions.FindByLambda([&Extension](const VkExtensionProperties& Prop) {

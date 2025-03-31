@@ -3,6 +3,7 @@
 #include "VulkanRHI/VulkanExtension.hxx"
 
 class RWindow;
+class IExternalModule;
 
 namespace VulkanRHI
 {
@@ -15,20 +16,23 @@ using FVulkanInstanceExtensionArray = TArray<std::unique_ptr<IInstanceVulkanExte
 class FVulkanPlatform
 {
 public:
-    static bool LoadVulkanLibrary();
-    static bool LoadVulkanInstanceFunctions(VkInstance inInstance);
-    static void FreeVulkanLibrary();
+    bool LoadVulkanLibrary();
+    bool LoadVulkanInstanceFunctions(VkInstance inInstance);
+    void FreeVulkanLibrary();
 
-    static FVulkanInstanceExtensionArray GetInstanceExtensions();
-    static TArray<VkExtensionProperties> GetDriverSupportedInstanceExtensions(const char* LayerName);
-    static void GetInstanceLayers(TArray<const char*>& OutLayers);
+    FVulkanInstanceExtensionArray GetInstanceExtensions() const;
+    TArray<VkExtensionProperties> GetDriverSupportedInstanceExtensions(const char* LayerName) const;
+    void GetInstanceLayers(TArray<const char*>& OutLayers) const;
 
-    static FVulkanDeviceExtensionArray GetDeviceExtensions();
-    static TArray<VkExtensionProperties> GetDriverSupportedDeviceExtensions(VkPhysicalDevice Gpu,
-                                                                            const char* LayerName);
-    static void GetDeviceLayers(TArray<const char*>& OutLayers);
+    FVulkanDeviceExtensionArray GetDeviceExtensions() const;
+    TArray<VkExtensionProperties> GetDriverSupportedDeviceExtensions(VkPhysicalDevice Gpu, const char* LayerName) const;
+    void GetDeviceLayers(TArray<const char*>& OutLayers) const;
 
-    static void CreateSurface(RWindow* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface);
+    void CreateSurface(RWindow* WindowHandle, VkInstance Instance, VkSurfaceKHR* OutSurface);
+
+private:
+private:
+    Ref<IExternalModule> VulkanModuleHandle = nullptr;
 };
 
 }    // namespace VulkanRHI

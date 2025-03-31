@@ -118,7 +118,7 @@ RVulkanSwapChain::RVulkanSwapChain(VkInstance InInstance, FVulkanDevice* InDevic
         Surface = RecreateInfo->Surface;
         RecreateInfo->Surface = VK_NULL_HANDLE;
     } else {
-        FVulkanPlatform::CreateSurface(WindowHandle, Instance, &Surface);
+        GetVulkanDynamicRHI()->GetVulkanPlatform().CreateSurface(WindowHandle, Instance, &Surface);
     }
 
     const FSupportDetails SwapChainSupport = FSupportDetails::QuerySwapChainSupport(Device, Surface);
