@@ -37,7 +37,9 @@ void FBaseApplication::OnEngineDestruction()
     RPH_PROFILE_FUNC()
 
     MainViewport = nullptr;
+
     MainWindow->Destroy();
+    MainWindow = nullptr;
 }
 
 void FBaseApplication::WindowEventHandler(FEvent& Event)

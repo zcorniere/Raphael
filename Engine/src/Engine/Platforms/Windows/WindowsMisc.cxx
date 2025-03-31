@@ -44,7 +44,7 @@ EBoxReturnType FWindowsMisc::DisplayMessageBox(EBoxMessageType MsgType, const st
 
 // ------------------ Windows External Module --------------------------
 
-static std::unordered_map<std::string, WeakRef<RWindowsExternalModule>> s_ModuleStorage;
+static TMap<std::string, WeakRef<RWindowsExternalModule>> s_ModuleStorage;
 
 RWindowsExternalModule::RWindowsExternalModule(std::string_view ModulePath): IExternalModule(ModulePath)
 {
@@ -75,14 +75,14 @@ bool FWindowsMisc::BaseAllocator(void* TargetMemory)
 
 Ref<IExternalModule> FWindowsMisc::LoadExternalModule(const std::string& ModuleName)
 {
-    auto Iter = s_ModuleStorage.find(ModuleName);
+    WeakRef<RWindowsExternalModule>* Iter = s_ModuleStorage.Find(ModuleName);
 
-    if (Iter == s_ModuleStorage.end() || !Iter->second.IsValid()) {
+    if (Iter == nullptr || !Iter->IsValid()) {
         Ref<RWindowsExternalModule> Module = Ref<RWindowsExternalModule>::Create(ModuleName);
-        s_ModuleStorage[ModuleName] = Module;
+        s_ModuleStorage.FindOrAdd(ModuleName) = Module;
         return Module;
     }
-    return Ref(Iter->second);
+    return Iter->Pin();
 }
 
 std::filesystem::path FWindowsMisc::GetConfigPath()

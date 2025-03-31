@@ -63,7 +63,7 @@ public:
     }
 
     template <typename KeyType, typename ValueType>
-    void WriteMap(const std::unordered_map<KeyType, ValueType>& Map, bool bWriteSize = true)
+    void WriteMap(const TMap<KeyType, ValueType>& Map, bool bWriteSize = true)
     {
         if (bWriteSize) {
             WriteRaw<uint32>(static_cast<uint32>(Map.size()));

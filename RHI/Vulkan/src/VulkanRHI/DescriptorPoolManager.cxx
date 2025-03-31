@@ -19,19 +19,19 @@ FDescriptorSetManager::FDescriptorSetManager(FVulkanDevice* InDevice, const TArr
 
     for (unsigned Set = 0; Set < MaxSets; Set++) {
         for (const WeakRef<RVulkanShader>& Shader: Shaders) {
-            for (auto&& [Name, WriteDescriptor]: Shader->GetReflectionData().WriteDescriptorSet) {
-                InputDeclaration[Name] = FRenderPassInputDeclaration{
-                    .Type = ERenderPassInputType::StorageBuffer,
-                    .Set = Set,
-                    .Binding = WriteDescriptor.dstBinding,
-                    .Count = WriteDescriptor.descriptorCount,
-                    .Name = Name,
-                };
-                FRenderPassInput& Input = InputResource[Set][WriteDescriptor.dstBinding];
+            for (const auto& [Name, WriteDescriptor]: Shader->GetReflectionData().WriteDescriptorSet) {
+                InputDeclaration.Insert(Name, {
+                                                  .Type = ERenderPassInputType::StorageBuffer,
+                                                  .Set = Set,
+                                                  .Binding = WriteDescriptor.dstBinding,
+                                                  .Count = WriteDescriptor.descriptorCount,
+                                                  .Name = Name,
+                                              });
+                FRenderPassInput& Input = InputResource.FindOrAdd(Set).FindOrAdd(WriteDescriptor.dstBinding);
                 Input.Type = ERenderPassInputType::StorageBuffer;    // @todo
                 Input.Input.Resize(WriteDescriptor.descriptorCount);
 
-                WriteDescriptorSet[Set][WriteDescriptor.dstBinding] = WriteDescriptor;
+                WriteDescriptorSet.FindOrAdd(Set).FindOrAdd(WriteDescriptor.dstBinding) = WriteDescriptor;
             }
         }
     }
@@ -71,7 +71,7 @@ void FDescriptorSetManager::Bake()
     CreateDescriptorSets(DescriptorSetLayouts);
 
     TArray<VkWriteDescriptorSet> WriteDescriptorSetsArray;
-    for (const auto& [Set, Bindings]: WriteDescriptorSet) {
+    for (auto& [Set, Bindings]: WriteDescriptorSet) {
         for (auto& [Binding, WriteDescriptor]: Bindings) {
             WriteDescriptorSetsArray.Emplace(WriteDescriptor);
             WriteDescriptorSetsArray.Back().dstSet = DescriptorSets[Set];
@@ -100,7 +100,7 @@ void FDescriptorSetManager::Bind(VkCommandBuffer CmdBuffer, VkPipelineLayout Pip
 
 void FDescriptorSetManager::InvalidateAndUpdate()
 {
-    std::unordered_map<uint32, std::unordered_map<uint32, FRenderPassInput>> InvalidatedInput;
+    TMap<uint32, TMap<uint32, FRenderPassInput>> InvalidatedInput;
 
     for (auto& [Set, Inputs]: InputResource) {
         for (auto& [Binding, Input]: Inputs) {
@@ -112,7 +112,7 @@ void FDescriptorSetManager::InvalidateAndUpdate()
                     }
 
                     const VkDescriptorBufferInfo& Info = Buffer->GetDescriptorBufferInfo();
-                    const VkWriteDescriptorSet& SetWrite = WriteDescriptorSet.at(Set).at(Binding);
+                    const VkWriteDescriptorSet& SetWrite = WriteDescriptorSet[Set][Binding];
                     if (SetWrite.pBufferInfo && Info.buffer != SetWrite.pBufferInfo->buffer) {
                         InvalidatedInput[Set][Binding] = Input;
                     }
@@ -123,14 +123,14 @@ void FDescriptorSetManager::InvalidateAndUpdate()
         }
     }
 
-    if (InvalidatedInput.empty())
+    if (InvalidatedInput.IsEmpty())
         return;
 
     for (auto& [Set, Inputs]: InvalidatedInput) {
 
         TArray<VkWriteDescriptorSet> WriteDescriptorSetsToUpdate;
         for (auto& [Binding, Input]: Inputs) {
-            VkWriteDescriptorSet& WriteDescriptor = WriteDescriptorSet.at(Set).at(Binding);
+            VkWriteDescriptorSet& WriteDescriptor = WriteDescriptorSet[Set][Binding];
             switch (Input.Type) {
                 case ERenderPassInputType::StorageBuffer: {
                     const VkDescriptorBufferInfo& Info = Input.Input[0].As<RVulkanBuffer>()->GetDescriptorBufferInfo();
@@ -151,7 +151,7 @@ void FDescriptorSetManager::SetInput(std::string_view Name, const Ref<RVulkanBuf
 {
     const FRenderPassInputDeclaration* const Declaration = GetInputDeclaration(Name);
     if (Declaration) {
-        InputResource.at(Declaration->Set).at(Declaration->Binding).Set(Buffer);
+        InputResource[Declaration->Set][Declaration->Binding].Set(Buffer);
     } else {
         LOG(LogDescriptorSetManager, Warning, "Input declaration not found for {}", Name);
     }
@@ -161,10 +161,7 @@ const FDescriptorSetManager::FRenderPassInputDeclaration*
 FDescriptorSetManager::GetInputDeclaration(std::string_view name) const
 {
     std::string nameStr(name);
-    std::unordered_map<std::string, FRenderPassInputDeclaration>::const_iterator it = InputDeclaration.find(nameStr);
-    if (it == InputDeclaration.end())
-        return nullptr;
-    return &it->second;
+    return InputDeclaration.Find(nameStr);
 }
 
 void FDescriptorSetManager::CreateDescriptorPool(const TArray<VkDescriptorPoolSize>& PoolSize, unsigned InMaxSets)

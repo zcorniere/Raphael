@@ -35,6 +35,7 @@
 
 #include <Engine/Containers/Array.hxx>
 #include <Engine/Containers/ArrayView.hxx>
+#include <Engine/Containers/Map.hxx>
 
 #include <Engine/Core/RTTI/RTTIParameter.hxx>
 

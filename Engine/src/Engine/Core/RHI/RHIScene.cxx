@@ -24,7 +24,7 @@ RRHIScene::RRHIScene(RWorld* OwnerWorld): Context(RHI::Get()->RHIGetCommandConte
 
     // Register to the world events
     OwnerWorld->OnActorAddedToWorld.Add(this, [this](AActor* Actor) mutable {
-        TArray<FMeshRepresentation>& Representation = WorldActorRepresentation[Actor->ID()];
+        TArray<FMeshRepresentation>& Representation = WorldActorRepresentation.Emplace(Actor->ID());
 
         RMeshComponent* const MeshComponent = Actor->GetMesh();
         if (MeshComponent) {
@@ -40,7 +40,7 @@ RRHIScene::RRHIScene(RWorld* OwnerWorld): Context(RHI::Get()->RHIGetCommandConte
     });
 
     OwnerWorld->OnActorRemovedFromWorld.Add(
-        this, [this](AActor* Actor) mutable { WorldActorRepresentation.erase(Actor->ID()); });
+        this, [this](AActor* Actor) mutable { WorldActorRepresentation.Remove(Actor->ID()); });
 }
 
 RRHIScene::RRHIScene(RWorld* OwnerWorld, const FRHIRenderPassTarget& InRenderPassTarget): RRHIScene(OwnerWorld)
@@ -90,7 +90,7 @@ void RRHIScene::Tick(double DeltaTime)
         });
     }
 
-    std::unordered_map<std::string, TResourceArray<FMatrix4>> RenderRequestMap;
+    TMap<std::string, TResourceArray<FMatrix4>> RenderRequestMap;
     {
         RPH_PROFILE_FUNC("RRHIScene::Tick - Order Camera")
         for (auto& [ActorID, ActorRepresentation]: WorldActorRepresentation) {
@@ -101,7 +101,7 @@ void RRHIScene::Tick(double DeltaTime)
                 Mesh.Mesh->Material->SetInput("Camera", u_CameraBuffer);
                 Mesh.Mesh->Material->Bake();
 
-                RenderRequestMap[Mesh.Mesh->Asset->GetName()].Add(Mesh.Transform.GetModelMatrix());
+                RenderRequestMap.FindOrAdd(Mesh.Mesh->Asset->GetName()).Add(Mesh.Transform.GetModelMatrix());
             }
         }
     }
@@ -109,7 +109,7 @@ void RRHIScene::Tick(double DeltaTime)
     {
         RPH_PROFILE_FUNC("RRHIScene::Tick - Update Transform Buffers")
         for (auto& [AssetName, TransformArrays]: RenderRequestMap) {
-            Ref<RRHIBuffer>& TransformBuffer = TransformBuffersPerAsset[AssetName];
+            Ref<RRHIBuffer>& TransformBuffer = TransformBuffersPerAsset.FindOrAdd(AssetName);
             if (TransformBuffer == nullptr || TransformBuffer->GetSize() < TransformArrays.Size()) {
                 TransformBuffer = RHI::CreateBuffer(FRHIBufferDesc{
                     .Size = static_cast<uint32>(std::max(TransformArrays.Size() * sizeof(FMatrix4),
@@ -134,10 +134,10 @@ void RRHIScene::Tick(double DeltaTime)
 
 void RRHIScene::UpdateActorLocation(uint64 Id, const FTransform& NewTransform)
 {
-    auto Iter = WorldActorRepresentation.find(Id);
-    ensure(Iter != WorldActorRepresentation.end());
+    TArray<FMeshRepresentation>* Iter = WorldActorRepresentation.Find(Id);
+    ensure(Iter);
 
-    for (FMeshRepresentation& Mesh: Iter->second) {
+    for (FMeshRepresentation& Mesh: *Iter) {
         Mesh.Transform = NewTransform;
     }
 }
@@ -209,7 +209,7 @@ void RRHIScene::TickRenderer(FFRHICommandList& CommandList)
     };
     CommandList.BeginRendering(Description);
 
-    std::unordered_map<FRenderRequestKey, TArray<FMeshRepresentation*>> SortedRequests;
+    TMap<FRenderRequestKey, TArray<FMeshRepresentation*>> SortedRequests;
     for (auto& [id, Actor]: WorldActorRepresentation) {
 
         for (FMeshRepresentation& Mesh: Actor) {
@@ -220,7 +220,7 @@ void RRHIScene::TickRenderer(FFRHICommandList& CommandList)
                 Mesh.Mesh->Asset->LoadOnGPU();
                 continue;
             }
-            SortedRequests[{Mesh.Mesh->Material.Raw(), Mesh.Mesh->Asset.Raw()}].Emplace(&Mesh);
+            SortedRequests.FindOrAdd({Mesh.Mesh->Material.Raw(), Mesh.Mesh->Asset.Raw()}).Emplace(&Mesh);
         }
     }
 
