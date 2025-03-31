@@ -26,7 +26,8 @@ extern "C" FGenericRHI* RHI_CreateRHI()
 }
 //
 
-static std::string GetMissingExtensions(TArray<const char*> VulkanExtensions);
+static std::string GetMissingExtensions(const VulkanRHI::FVulkanPlatform& Platform,
+                                        TArray<const char*> VulkanExtensions);
 
 namespace VulkanRHI
 {
@@ -37,7 +38,7 @@ FVulkanDynamicRHI::FVulkanDynamicRHI(): Device(nullptr), ShaderCompiler(nullptr)
         VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
         VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 
-    if (!ensure(FVulkanPlatform::LoadVulkanLibrary())) {
+    if (!ensure(Platform.LoadVulkanLibrary())) {
         FPlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok,
             "Unable to load Vulkan library and/or acquire the necessary function pointers. Make sure an "
@@ -51,7 +52,7 @@ FVulkanDynamicRHI::FVulkanDynamicRHI(): Device(nullptr), ShaderCompiler(nullptr)
 
 FVulkanDynamicRHI::~FVulkanDynamicRHI()
 {
-    FVulkanPlatform::FreeVulkanLibrary();
+    Platform.FreeVulkanLibrary();
 }
 
 void FVulkanDynamicRHI::Tick(double fDeltaTime)
@@ -199,7 +200,7 @@ VkInstance FVulkanDynamicRHI::CreateInstance(const TArray<const char*>& Validati
         .pApplicationInfo = &AppInfo,
     };
 
-    FVulkanInstanceExtensionArray Extensions = FVulkanPlatform::GetInstanceExtensions();
+    FVulkanInstanceExtensionArray Extensions = Platform.GetInstanceExtensions();
     TArray<const char*> InstanceExtensions;
     for (const std::unique_ptr<IInstanceVulkanExtension>& Extension: Extensions) {
         Extension->PreInstanceCreated(InstInfo);
@@ -228,7 +229,7 @@ VkInstance FVulkanDynamicRHI::CreateInstance(const TArray<const char*>& Validati
         LOG(LogVulkanRHI, Fatal, "Cannot find a compatible Vulkan driver.");
         Utils::RequestExit(1);
     } else if (Result == VK_ERROR_EXTENSION_NOT_PRESENT) {
-        std::string MissingExtensions = GetMissingExtensions(InstanceExtensions);
+        std::string MissingExtensions = GetMissingExtensions(Platform, InstanceExtensions);
 
         FPlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok, "Incompatible Vulkan driver found!",
@@ -247,7 +248,7 @@ VkInstance FVulkanDynamicRHI::CreateInstance(const TArray<const char*>& Validati
 
     VK_CHECK_RESULT(Result);
 
-    if (!FVulkanPlatform::LoadVulkanInstanceFunctions(Instance)) {
+    if (!Platform.LoadVulkanInstanceFunctions(Instance)) {
         LOG(LogVulkanRHI, Fatal, "Couldn't find some of Vulkan's entry points !");
         FPlatformMisc::DisplayMessageBox(EBoxMessageType::Ok,
                                          "Failed to find all required Vulkan entry points! Try updating your driver.",
@@ -337,11 +338,11 @@ FVulkanDevice* FVulkanDynamicRHI::SelectDevice(VkInstance Instance)
 
 }    // namespace VulkanRHI
 
-static std::string GetMissingExtensions(TArray<const char*> VulkanExtensions)
+static std::string GetMissingExtensions(const VulkanRHI::FVulkanPlatform& Platform,
+                                        TArray<const char*> VulkanExtensions)
 {
     std::string MissingExtensions;
-    TArray<VkExtensionProperties> Properties =
-        VulkanRHI::FVulkanPlatform::GetDriverSupportedInstanceExtensions(nullptr);
+    TArray<VkExtensionProperties> Properties = Platform.GetDriverSupportedInstanceExtensions(nullptr);
 
     for (const char* Extension: VulkanExtensions) {
         bool bExtensionFound = false;

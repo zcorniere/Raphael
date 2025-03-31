@@ -1,5 +1,6 @@
 #pragma once
 
+#include "VulkanRHI/VulkanPlatform.hxx"
 DECLARE_LOGGER_CATEGORY(Core, LogVulkanRHI, Trace);
 
 #include "Engine/Core/RHI/GenericRHI.hxx"
@@ -83,9 +84,14 @@ public:
         return Device.get();
     }
 
+    FVulkanPlatform& GetVulkanPlatform()
+    {
+        return Platform;
+    }
+
 private:
-    static VkInstance CreateInstance(const TArray<const char*>& ValidationLayers);
-    static FVulkanDevice* SelectDevice(VkInstance Instance);
+    VkInstance CreateInstance(const TArray<const char*>& ValidationLayers);
+    FVulkanDevice* SelectDevice(VkInstance Instance);
 
 private:
     void InitializeImGui();
@@ -99,6 +105,8 @@ private:
     VulkanRHI_Debug DebugLayer;
 #endif
     VulkanRHI_ImGui ImGuiStuff;
+
+    FVulkanPlatform Platform;
 
     VkInstance m_Instance = VK_NULL_HANDLE;
     std::unique_ptr<FVulkanDevice> Device;
