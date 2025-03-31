@@ -21,14 +21,14 @@ public:
 
     Ref<RAsset> GetCubeAsset() const
     {
-        return AssetRegistry.at("Box");
+        return AssetRegistry["Box"];
     }
     Ref<RAsset> GetCapsuleAsset() const
     {
-        return AssetRegistry.at("Capsule");
+        return AssetRegistry["Capsule"];
     }
 
 private:
-    std::unordered_map<std::string, Ref<RAsset>> AssetRegistry;
-    std::unordered_map<std::string, Ref<RRHIMaterial>> MaterialRegistry;
+    TMap<std::string, Ref<RAsset>> AssetRegistry;
+    TMap<std::string, Ref<RRHIMaterial>> MaterialRegistry;
 };

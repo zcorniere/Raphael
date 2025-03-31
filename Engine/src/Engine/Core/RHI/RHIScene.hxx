@@ -56,8 +56,8 @@ private:
     UCameraData CameraData;
     Ref<RRHIBuffer> u_CameraBuffer = nullptr;
 
-    std::unordered_map<std::string, Ref<RRHIBuffer>> TransformBuffersPerAsset;
-    std::unordered_map<uint64, TArray<FMeshRepresentation>> WorldActorRepresentation;
+    TMap<std::string, Ref<RRHIBuffer>> TransformBuffersPerAsset;
+    TMap<uint64, TArray<FMeshRepresentation>> WorldActorRepresentation;
     TArray<WeakRef<RCameraComponent<float>>> CameraComponents;
 
     FRHIContext* const Context = nullptr;

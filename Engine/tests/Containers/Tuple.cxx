@@ -24,4 +24,15 @@ TEST_CASE("Tuple Tests")
         CHECK(ConstTuple.Get<1>() == 3.14f);
         CHECK(ConstTuple.Get<2>() == "Hello World");
     }
+
+    SECTION("Test Structured Bindings")
+    {
+        TTuple<int, float, std::string> Tuple(42, 3.14f, "Hello World");
+
+        auto& [IntValue, FloatValue, StringValue] = Tuple;
+
+        CHECK(IntValue == 42);
+        CHECK(FloatValue == 3.14f);
+        CHECK(StringValue == "Hello World");
+    }
 }

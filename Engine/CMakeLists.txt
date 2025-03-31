@@ -113,6 +113,8 @@ build_tests(
     ${PROJECT_NAME}
     tests/Containers/Array.cxx
     tests/Containers/ArrayView.cxx
+    tests/Containers/Tuple.cxx
+    tests/Containers/Map.cxx
     tests/Math/Quaternion.cxx
     tests/Math/Vector.cxx
     tests/Math/Math.cxx

@@ -66,7 +66,7 @@ private:
     EOptimizationLevel Level = EOptimizationLevel::None;
 
     std::mutex m_ShaderCacheMutex;
-    std::unordered_map<std::string, WeakRef<RVulkanShader>> m_ShaderCache;
+    TMap<std::string, WeakRef<RVulkanShader>> m_ShaderCache;
 };
 
 }    // namespace VulkanRHI
