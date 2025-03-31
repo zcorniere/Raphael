@@ -98,15 +98,18 @@ bool EditorApplication::OnEngineInitialization()
         MainViewport,
     });
 
-    Ref<ACameraActor> Actor = World->CreateActor<ACameraActor>("Main Camera", FTransform({-3, 0, 0}, {}, {1, 1, 1}));
+    Ref<ACameraActor> Actor = World->CreateActor<ACameraActor>("Main Camera", FTransform({0, 15, 0}, {}, {1, 1, 1}));
     RCameraComponent<float>* CameraComponent = Actor->GetComponent<RCameraComponent<float>>();
     CameraComponent->SetFOV(80.0);
     CameraComponent->SetNearFar(0.1, 1000.0);
 
-    for (float x = -5; x < 5; x++) {
-        for (float y = -5; y < 5; y++) {
+    const unsigned GridSize = 10;
+    for (float Row = 0; Row < GridSize; Row++) {
+        for (float Col = 0; Col < GridSize; Col++) {
+            float x = (Col - (GridSize - 1) / 2.0f) * 2;
+            float y = (Row - (GridSize - 1) / 2.0f) * 2;
             std::string Name = std::format("Oscillator_{:f}_{:f}", x, y);
-            FVector3 Position = {x * 2, (y - 10) * 2, 0};
+            FVector3 Position = {x, y, 0};
             FQuaternion Rotation;
             FVector3 Scale = {1, 1, 1};
 
