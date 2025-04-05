@@ -14,11 +14,11 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        compiler: [gcc, msvc]
+        compiler: [clang, msvc]
         build_type: [Debug, Release]
         exclude:
           - os: windows-latest
-            compiler: gcc
+            compiler: clang
           - os: ubuntu-latest
             compiler: msvc
 
