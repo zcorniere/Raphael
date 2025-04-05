@@ -52,7 +52,7 @@ set(GLFW_INSTALL
     CACHE INTERNAL "" FORCE
 )
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glfw EXCLUDE_FROM_ALL)
-if(SELECTED_RHI STREQUAL "Vulkan")
+if(RPH_SELECTED_RHI STREQUAL "Vulkan")
     target_link_libraries(glfw INTERFACE Vulkan::Headers)
     target_compile_definitions(glfw INTERFACE GLFW_INCLUDE_NONE)
 endif()
