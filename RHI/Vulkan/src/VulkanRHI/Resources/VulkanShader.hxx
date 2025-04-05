@@ -91,7 +91,7 @@ public:
         TArray<ShaderResource::FStorageBuffer> StorageBuffers;
         TArray<ShaderResource::FUniformBuffer> UniformBuffers;
 
-        std::unordered_map<std::string, VkWriteDescriptorSet> WriteDescriptorSet;
+        TMap<std::string, VkWriteDescriptorSet> WriteDescriptorSet;
 
         bool operator==(const FReflectionData& Other) const
         {

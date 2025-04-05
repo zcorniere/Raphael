@@ -8,7 +8,7 @@ public:
     // Mark the beginning of the frame
     void BeginFrame();
     // Mark the end of the frame, sleep the current thread to fit with asked framerate and return the delta time
-    float EndFrame();
+    double EndFrame();
 
     int GetFrameRate() const
     {

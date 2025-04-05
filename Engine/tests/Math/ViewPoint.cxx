@@ -22,7 +22,7 @@ TEST_CASE("Viewpoint Tests")
     const float fNear = 0.1f;
 
     Math::TViewPoint<float> Viewpoint(fFOV, fNear, fFar, fAspectRatio);
-    Viewpoint.SetLocation(Location);
+    // Viewpoint.SetLocation(Location);
 
     SECTION("Projection Matrix")
     {

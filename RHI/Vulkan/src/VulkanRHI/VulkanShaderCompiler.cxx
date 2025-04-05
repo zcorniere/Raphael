@@ -168,7 +168,7 @@ FVulkanShaderCompiler::FVulkanShaderCompiler()
 
 FVulkanShaderCompiler::~FVulkanShaderCompiler()
 {
-    m_ShaderCache.clear();
+    m_ShaderCache.Clear();
 }
 
 void FVulkanShaderCompiler::SetOptimizationLevel(EOptimizationLevel InLevel)
@@ -214,7 +214,7 @@ try {
     Result.Status = ECompilationStatus::Done;
     {
         std::unique_lock Lock(m_ShaderCacheMutex);
-        m_ShaderCache[Path.filename().string()] = ShaderUnit;
+        m_ShaderCache.Insert(Path.filename().string(), ShaderUnit);
     }
     return ShaderUnit;
 } catch (const spirv_cross::CompilerError& exception) {
@@ -227,9 +227,9 @@ Ref<RVulkanShader> FVulkanShaderCompiler::CheckCache(ShaderCompileResult& Result
 {
     Result.Status = ECompilationStatus::CheckCache;
     std::unique_lock Lock(m_ShaderCacheMutex);
-    auto Iter = m_ShaderCache.find(Result.Path.filename().string());
-    if (Iter != m_ShaderCache.end()) {
-        return Ref(Iter->second);
+    WeakRef<RVulkanShader>* Iter = m_ShaderCache.Find(Result.Path.filename().string());
+    if (Iter) {
+        return Iter->Pin();
     }
     return nullptr;
 }
@@ -412,7 +412,7 @@ static VkWriteDescriptorSet GetWriteDescriptorSet(VkDescriptorType Type, uint32 
 static bool GetStorageBufferReflection(const spirv_cross::Compiler& Compiler,
                                        const spirv_cross::SmallVector<spirv_cross::Resource>& ShaderStorageBuffers,
                                        TArray<ShaderResource::FStorageBuffer>& OutStorageBuffers,
-                                       std::unordered_map<std::string, VkWriteDescriptorSet>& WriteDescriptorSet)
+                                       TMap<std::string, VkWriteDescriptorSet>& WriteDescriptorSet)
 {
     for (const spirv_cross::Resource& resource: ShaderStorageBuffers) {
         const spirv_cross::SPIRType& Type = Compiler.get_type(resource.base_type_id);
@@ -433,8 +433,8 @@ static bool GetStorageBufferReflection(const spirv_cross::Compiler& Compiler,
         }
         LOG(LogVulkanShaderCompiler, Info, "  {}", Buffer);
 
-        WriteDescriptorSet[Buffer.Parameter.Name] =
-            GetWriteDescriptorSet(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, Buffer.Binding, 1);
+        WriteDescriptorSet.Insert(Buffer.Parameter.Name,
+                                  GetWriteDescriptorSet(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, Buffer.Binding, 1));
     }
     return true;
 }
@@ -442,7 +442,7 @@ static bool GetStorageBufferReflection(const spirv_cross::Compiler& Compiler,
 static bool GetUniformBufferReflection(const spirv_cross::Compiler& Compiler,
                                        const spirv_cross::SmallVector<spirv_cross::Resource>& ShaderUniformBuffers,
                                        TArray<ShaderResource::FUniformBuffer>& OutUniformBuffers,
-                                       std::unordered_map<std::string, VkWriteDescriptorSet>& WriteDescriptorSet)
+                                       TMap<std::string, VkWriteDescriptorSet>& WriteDescriptorSet)
 {
     for (const spirv_cross::Resource& resource: ShaderUniformBuffers) {
         const spirv_cross::SPIRType& Type = Compiler.get_type(resource.base_type_id);
@@ -463,8 +463,8 @@ static bool GetUniformBufferReflection(const spirv_cross::Compiler& Compiler,
         }
         LOG(LogVulkanShaderCompiler, Info, "  {}", Buffer);
 
-        WriteDescriptorSet[Buffer.Parameter.Name] =
-            GetWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Buffer.Binding, 1);
+        WriteDescriptorSet.Insert(Buffer.Parameter.Name,
+                                  GetWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Buffer.Binding, 1));
     }
 
     return true;

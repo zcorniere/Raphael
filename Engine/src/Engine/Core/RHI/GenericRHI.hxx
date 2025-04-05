@@ -20,7 +20,7 @@ public:
     virtual void PostInit() = 0;
 
     /// Called every frame from the main loop
-    virtual void Tick(float fDeltaTime) = 0;
+    virtual void Tick(double fDeltaTime) = 0;
 
     /// Shutdown the RHI
     virtual void Shutdown() = 0;
@@ -41,7 +41,8 @@ public:
     virtual void DeferedDeletion(std::function<void()>&& InDeletionFunction) = 0;
     virtual void FlushDeletionQueue() = 0;
 
-    virtual void RegisterScene(WeakRef<RHIScene> Scene) = 0;
+    virtual void RegisterScene(WeakRef<RRHIScene> Scene) = 0;
+    virtual void UnregisterScene(WeakRef<RRHIScene> Scene) = 0;
 
     virtual void WaitUntilIdle() = 0;
 

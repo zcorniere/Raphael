@@ -53,11 +53,21 @@ void FEngine::PostTick()
 {
 }
 
-void FEngine::SetWorld(Ref<ecs::RWorld> World)
+Ref<RWorld> FEngine::CreateWorld()
+{
+    return Ref<RWorld>::Create();
+}
+
+void FEngine::SetWorld(Ref<RWorld> World)
 {
     if (LoadedWorld == World) {
         return;
     }
 
     LoadedWorld = World;
+}
+
+Ref<RWorld> FEngine::GetWorld() const
+{
+    return LoadedWorld;
 }

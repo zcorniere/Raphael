@@ -48,7 +48,10 @@ struct std::formatter<Math::TQuaternion<T>, char>;
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const Math::TQuaternion<T>& m);
 
-using FQuaternion = Math::TQuaternion<float>;
-using DQuaternion = Math::TQuaternion<double>;
+template <typename T>
+using TQuaternion = Math::TQuaternion<T>;
+
+using FQuaternion = TQuaternion<float>;
+using DQuaternion = TQuaternion<double>;
 
 #include "Quaternion.inl"

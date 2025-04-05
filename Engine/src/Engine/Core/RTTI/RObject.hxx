@@ -273,6 +273,9 @@ public:
     requires std::convertible_to<T*, Other*> || std::derived_from<Other, T>
     const Other* AsRaw() const
     {
+        if (!IsValid()) {
+            return nullptr;
+        }
         return Raw()->template Cast<const Other>();
     }
 
@@ -280,6 +283,9 @@ public:
     requires std::convertible_to<T*, Other*> || std::derived_from<Other, T>
     Other* AsRaw()
     {
+        if (!IsValid()) {
+            return nullptr;
+        }
         return Raw()->template Cast<Other>();
     }
 

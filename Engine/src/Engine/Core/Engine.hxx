@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/AssetRegistry/AssetRegistry.hxx"
-#include "Engine/Core/ECS/World.hxx"
+#include "Engine/GameFramework/World.hxx"
 #include "Engine/Threading/ThreadPool.hxx"
 
 extern class FEngine* GEngine;
@@ -26,16 +26,14 @@ public:
     void PreTick();
     void PostTick();
 
-    void SetWorld(Ref<ecs::RWorld> World);
-    Ref<ecs::RWorld> GetWorld() const
-    {
-        return LoadedWorld;
-    }
+    Ref<RWorld> CreateWorld();
+    void SetWorld(Ref<RWorld> World);
+    Ref<RWorld> GetWorld() const;
 
 public:
     FAssetRegistry AssetRegistry;
     FThreadPool m_ThreadPool;
 
 private:
-    Ref<ecs::RWorld> LoadedWorld = nullptr;
+    Ref<RWorld> LoadedWorld = nullptr;
 };

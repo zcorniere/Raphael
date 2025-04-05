@@ -1,12 +1,9 @@
 #include "Engine/Core/Application.hxx"
 
 #include "Application.hxx"
-#include "Engine/Core/Engine.hxx"
 #include "Engine/Core/RHI/RHI.hxx"
 #include "Engine/Core/RHI/Resources/RHIViewport.hxx"
 #include "Engine/Core/Window.hxx"
-
-#include <GLFW/glfw3.h>
 
 #include "Engine/Misc/Utils.hxx"
 
@@ -37,7 +34,9 @@ void FBaseApplication::OnEngineDestruction()
     RPH_PROFILE_FUNC()
 
     MainViewport = nullptr;
+
     MainWindow->Destroy();
+    MainWindow = nullptr;
 }
 
 void FBaseApplication::WindowEventHandler(FEvent& Event)
@@ -52,7 +51,7 @@ void FBaseApplication::WindowEventHandler(FEvent& Event)
     }
 }
 
-void FBaseApplication::Tick(const float DeltaTime)
+void FBaseApplication::Tick(const double DeltaTime)
 {
     RPH_PROFILE_FUNC()
 

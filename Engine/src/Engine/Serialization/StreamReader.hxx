@@ -69,15 +69,15 @@ public:
     }
 
     template <typename KeyType, typename ValueType>
-    void ReadMap(std::unordered_map<KeyType, ValueType>& Map, bool bReadSize = true)
+    void ReadMap(TMap<KeyType, ValueType>& Map, bool bReadSize = true)
     {
         if (bReadSize) {
             uint32 Size = 0;
             ReadRaw<uint32>(Size);
-            Map.reserve(Size);
+            Map.Rehash(Size);
         }
 
-        for (uint32 I = 0; I < Map.capacity(); I++) {
+        for (uint32 I = 0; I < Map.BucketCount(); I++) {
             KeyType Key;
             if constexpr (std::is_trivial<KeyType>()) {
                 ReadRaw(Key);
@@ -87,10 +87,11 @@ public:
                 ReadObject(Key);
             }
 
+            ValueType& Value = Map.FindOrAdd(Key);
             if constexpr (std::is_trivial<ValueType>()) {
-                ReadRaw(Map[Key]);
+                ReadRaw(Value);
             } else {
-                ReadObject(Map[Key]);
+                ReadObject(Value);
             }
         }
     }

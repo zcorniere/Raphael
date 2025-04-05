@@ -19,7 +19,7 @@ public:
 
     /// Called once per frame
     /// @param DeltaTime the time elapsed since last frame
-    virtual void Tick(const float DeltaTime) = 0;
+    virtual void Tick(const double DeltaTime) = 0;
 };
 
 class FBaseApplication : public IApplication
@@ -33,7 +33,7 @@ public:
     virtual bool OnEngineInitialization() override;
     virtual void OnEngineDestruction() override;
 
-    virtual void Tick(const float DeltaTime) override;
+    virtual void Tick(const double DeltaTime) override;
 
 private:
     virtual void WindowEventHandler(FEvent& Event);

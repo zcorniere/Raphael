@@ -17,7 +17,7 @@ Ref<RAsset> FAssetRegistry::LoadAsset(const std::filesystem::path& Path)
 {
     auto Asset = Ref<RAsset>::Create(Path);
     if (Asset->Load()) {
-        AssetRegistry[Asset->GetName()] = Asset;
+        AssetRegistry.Insert(Asset->GetName(), Asset);
         return Asset;
     }
     return nullptr;
@@ -25,37 +25,59 @@ Ref<RAsset> FAssetRegistry::LoadAsset(const std::filesystem::path& Path)
 
 Ref<RAsset> FAssetRegistry::RegisterMemoryOnlyAsset(Ref<RAsset>& Asset)
 {
-    if (AssetRegistry.find(Asset->GetName()) == AssetRegistry.end()) {
-        AssetRegistry[Asset->GetName()] = Asset;
+    if (!AssetRegistry.Contains(Asset->GetName())) {
+        AssetRegistry.Insert(Asset->GetName(), Asset);
         return Asset;
     }
     LOG(LogAssetRegistry, Warning, "Asset {:s} already registered", Asset->GetName());
     return nullptr;
 }
 
-Ref<RAsset> FAssetRegistry::GetAsset(const std::string& Name)
+Ref<RRHIMaterial> FAssetRegistry::RegisterMemoryOnlyMaterial(Ref<RRHIMaterial>& Material)
 {
-    auto Asset = AssetRegistry.find(Name);
-    if (Asset != AssetRegistry.end()) {
-        return Asset->second;
+    if (!MaterialRegistry.Contains(Material->GetName())) {
+        MaterialRegistry.Insert(Material->GetName(), Material);
+        return Material;
+    }
+    LOG(LogAssetRegistry, Warning, "Material {:s} already registered", Material->GetName());
+    return nullptr;
+}
+
+Ref<RAsset> FAssetRegistry::GetAsset(const std::string& Name) const
+{
+    const Ref<RAsset>* Asset = AssetRegistry.Find(Name);
+    if (Asset) {
+        return *Asset;
     }
     LOG(LogAssetRegistry, Warning, "Asset {:s} not found", Name);
     return nullptr;
 }
 
+Ref<RRHIMaterial> FAssetRegistry::GetMaterial(const std::string& Name) const
+{
+    const Ref<RRHIMaterial>* Material = MaterialRegistry.Find(Name);
+    if (Material) {
+        return *Material;
+    }
+    LOG(LogAssetRegistry, Warning, "Material {:s} not found", Name);
+    return nullptr;
+}
+
 void FAssetRegistry::UnloadAsset(const std::string& Name)
 {
-    auto Asset = AssetRegistry.find(Name);
-    if (Asset != AssetRegistry.end()) {
-        Asset->second->Unload();
-        AssetRegistry.erase(Asset);
+    Ref<RAsset>* Asset = AssetRegistry.Find(Name);
+    if (Asset) {
+        (*Asset)->Unload();
+        AssetRegistry.Remove(Name);
     }
 }
 
 void FAssetRegistry::Purge()
 {
-    for (auto& Asset: AssetRegistry) {
-        Asset.second->Unload();
+    for (auto& [Name, Asset]: AssetRegistry) {
+        Asset->Unload();
     }
-    AssetRegistry.clear();
+    AssetRegistry.Clear();
+
+    MaterialRegistry.Clear();
 }

@@ -137,6 +137,7 @@ FVulkanMemoryManager::~FVulkanMemoryManager()
     if (AllocationCountLocal > 0) {
         LOG(LogVulkanMemoryAllocator, Error, "Some memory allocation ({}) are still in flight !", AllocationCountLocal);
 
+#ifndef NDEBUG
         std::unique_lock Lock(MemoryAllocationArrayMutex);
 
         for (WeakRef<RVulkanMemoryAllocation>& Alloc: MemoryAllocationArray) {
@@ -147,6 +148,7 @@ FVulkanMemoryManager::~FVulkanMemoryManager()
                 LOG(LogVulkanMemoryAllocator, Error, "Allocation: nullptr");
             }
         }
+#endif    // !NDEBUG
     }
     checkMsg(AllocationCount == 0, "Some memory allocation ({}) are still in flight !", AllocationCount.load());
     vmaDestroyAllocator(Allocator);
@@ -162,12 +164,12 @@ Ref<RVulkanMemoryAllocation> FVulkanMemoryManager::Alloc(const VkMemoryRequireme
     VmaAllocationCreateInfo CreateInfo = GetCreateInfo(MemUsage, Mappable);
     Ref<RVulkanMemoryAllocation> Alloc = Ref<RVulkanMemoryAllocation>::Create(*this);
 
-#if VULKAN_DEBUGGING_ENABLED
+#ifndef NDEBUG
     {
         std::unique_lock Lock(MemoryAllocationArrayMutex);
         MemoryAllocationArray.Add(Alloc);
     }
-#endif    // VULKAN_DEBUGGING_ENABLED
+#endif    // !NDEBUG
 
     VK_CHECK_RESULT(
         vmaAllocateMemory(Allocator, &MemoryRequirement, &CreateInfo, &(Alloc->GetHandle()), &Alloc->AllocationInfo));
@@ -188,12 +190,12 @@ FVulkanMemoryManager::Alloc(const VkBufferCreateInfo& BufferCreateInfo, const Vm
 {
     Ref<RVulkanMemoryAllocation> Alloc = Ref<RVulkanMemoryAllocation>::Create(*this);
 
-#if VULKAN_DEBUGGING_ENABLED
+#ifndef NDEBUG
     {
         std::unique_lock Lock(MemoryAllocationArrayMutex);
         MemoryAllocationArray.Add(Alloc);
     }
-#endif    // VULKAN_DEBUGGING_ENABLED
+#endif    // NDEBUG
 
     VkBuffer Buffer = VK_NULL_HANDLE;
     VK_CHECK_RESULT(vmaCreateBuffer(Allocator, &BufferCreateInfo, &AllocCreateInfo, &Buffer, &(Alloc->GetHandle()),
@@ -215,12 +217,12 @@ void FVulkanMemoryManager::Free(Ref<RVulkanMemoryAllocation>& Allocation)
     // Allocator should be removed after this call
     check(Allocation->GetRefCount() == 1);
 
-#if VULKAN_DEBUGGING_ENABLED
+#ifndef NDEBUG
     {
         std::unique_lock Lock(MemoryAllocationArrayMutex);
         MemoryAllocationArray.Remove(Allocation);
     }
-#endif    // VULKAN_DEBUGGING_ENABLED
+#endif    // NDEBUG
 
     vmaFreeMemory(Allocator, Allocation->GetHandle());
     AllocationCount -= 1;

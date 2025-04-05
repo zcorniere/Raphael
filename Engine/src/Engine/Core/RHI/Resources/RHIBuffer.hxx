@@ -5,7 +5,7 @@
 #include "Engine/Containers/ResourceArray.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
 
-enum class EBufferUsageFlags {
+enum class EBufferUsageFlags : uint32 {
     None = 0,
 
     Static = BIT(0),

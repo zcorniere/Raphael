@@ -3,7 +3,7 @@ set(CMAKE_FOLDER "Raphael/RHI/Vulkan")
 
 add_subdirectory(External/)
 
-option(ENABLE_VULKAN_DEBUGGING "" ON)
+option(RPH_ENABLE_VULKAN_DEBUGGING "" ON)
 
 file(
     GLOB
@@ -52,7 +52,7 @@ target_compile_options(
 )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC IMGUI_IMPL_VULKAN_NO_PROTOTYPES=1)
-if(ENABLE_VULKAN_DEBUGGING)
+if(RPH_ENABLE_VULKAN_DEBUGGING)
     target_compile_definitions(${PROJECT_NAME} PUBLIC VULKAN_DEBUGGING_ENABLED=1)
 endif()
 

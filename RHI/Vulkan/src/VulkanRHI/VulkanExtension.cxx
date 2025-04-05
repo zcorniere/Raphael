@@ -61,7 +61,7 @@ private:
     Array.AddUnique(std::make_unique<ExtensionType>(ExtensionName, Required))
 #define ADD_COMPLEX_ENTENSION(Array, ExtensionType) Array.AddUnique(std::make_unique<ExtensionType>())
 
-FVulkanInstanceExtensionArray FVulkanPlatform::GetInstanceExtensions()
+FVulkanInstanceExtensionArray FVulkanPlatform::GetInstanceExtensions() const
 {
 
     FVulkanInstanceExtensionArray InstanceExtension;
@@ -81,7 +81,7 @@ FVulkanInstanceExtensionArray FVulkanPlatform::GetInstanceExtensions()
     return InstanceExtension;
 }
 
-FVulkanDeviceExtensionArray FVulkanPlatform::GetDeviceExtensions()
+FVulkanDeviceExtensionArray FVulkanPlatform::GetDeviceExtensions() const
 {
     FVulkanDeviceExtensionArray DeviceExtension;
 

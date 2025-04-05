@@ -53,7 +53,7 @@ constexpr std::false_type AlwaysFalse{};
 template <typename T>
 /// Only accept hashable type
 concept CHashable = requires(T a) {
-    { std::hash<T>{}(a) } -> std::convertible_to<std::size_t>;
+    { std::hash<std::remove_const_t<T>>{}(a) } -> std::convertible_to<std::size_t>;
 };
 
 /// Is the template argument a function pointer ?

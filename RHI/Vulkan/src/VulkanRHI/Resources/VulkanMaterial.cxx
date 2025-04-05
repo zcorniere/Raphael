@@ -17,6 +17,12 @@ RVulkanMaterial::~RVulkanMaterial()
     DescriptorManager.Destroy();
 }
 
+void RVulkanMaterial::SetName(std::string_view InName)
+{
+    Super::SetName(InName);
+    Pipeline->SetName(std::format("{:s} Pipeline", InName));
+}
+
 void RVulkanMaterial::Prepare()
 {
     DescriptorManager.InvalidateAndUpdate();

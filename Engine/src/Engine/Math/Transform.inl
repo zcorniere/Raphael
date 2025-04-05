@@ -68,7 +68,7 @@ TVector3<T>& TTransform<T>::GetScale()
 }
 
 template <typename T>
-FMatrix4 TTransform<T>::GetModelMatrix()
+TMatrix4<T> TTransform<T>::GetModelMatrix()
 {
     if (bModelMatrixDirty) {
         ModelMatrix = GetTranslationMatrix() * Rotation.GetRotationMatrix() * GetScaleMatrix();
@@ -79,9 +79,9 @@ FMatrix4 TTransform<T>::GetModelMatrix()
 }
 
 template <typename T>
-FMatrix4 TTransform<T>::GetTranslationMatrix() const
+TMatrix4<T> TTransform<T>::GetTranslationMatrix() const
 {
-    FMatrix4 TranslationMatrix = FMatrix4::Identity();
+    TMatrix4<T> TranslationMatrix = TMatrix4<T>::Identity();
 
     TranslationMatrix[3, 0] = Location.x;
     TranslationMatrix[3, 1] = Location.y;
@@ -90,15 +90,15 @@ FMatrix4 TTransform<T>::GetTranslationMatrix() const
 }
 
 template <typename T>
-FMatrix4 TTransform<T>::GetRotationMatrix() const
+TMatrix4<T> TTransform<T>::GetRotationMatrix() const
 {
     return Rotation.GetRotationMatrix();
 }
 
 template <typename T>
-FMatrix4 TTransform<T>::GetScaleMatrix() const
+TMatrix4<T> TTransform<T>::GetScaleMatrix() const
 {
-    FMatrix4 ScaleMatrix = FMatrix4::Identity();
+    TMatrix4<T> ScaleMatrix = TMatrix4<T>::Identity();
     ScaleMatrix[0, 0] = Scale.x;
     ScaleMatrix[1, 1] = Scale.y;
     ScaleMatrix[2, 2] = Scale.z;

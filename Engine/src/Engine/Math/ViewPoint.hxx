@@ -17,19 +17,18 @@ public:
     /// @param Near The near plane
     /// @param Far The far plane
     /// @param AspectRatio The aspect ratio of the screen
-    TViewPoint(T FOV, T Near, T Far, T AspectRatio = 0.0f, TTransform<T> InTransform = TTransform<T>())
-        : m_FOV(DegreeToRadian(FOV)),
-          m_AspectRatio(AspectRatio),
-          m_Near(Near),
-          m_Far(Far),
-          bProjectionMatrixDirty(true),
-          Transform(InTransform)
+    TViewPoint(T FOV, T Near, T Far, T AspectRatio = T(0))
+        : m_FOV(DegreeToRadian(FOV)), m_AspectRatio(AspectRatio), m_Near(Near), m_Far(Far), bProjectionMatrixDirty(true)
     {
     }
 
     void SetFOV(T FOV)
     {
-        m_FOV = DegreeToRadian(FOV);
+        const T NewFOV = DegreeToRadian(FOV);
+        if (m_FOV == NewFOV) {
+            return;
+        }
+        m_FOV = NewFOV;
         bProjectionMatrixDirty = true;
     }
     T GetFOV() const
@@ -38,6 +37,9 @@ public:
     }
     void SetAspectRatio(T AspectRatio)
     {
+        if (m_AspectRatio == AspectRatio) {
+            return;
+        }
         m_AspectRatio = AspectRatio;
         bProjectionMatrixDirty = true;
     }
@@ -47,6 +49,9 @@ public:
     }
     void SetNear(T Near)
     {
+        if (m_Near == Near) {
+            return;
+        }
         m_Near = Near;
         bProjectionMatrixDirty = true;
     }
@@ -56,6 +61,9 @@ public:
     }
     void SetFar(T Far)
     {
+        if (m_Far == Far) {
+            return;
+        }
         m_Far = Far;
         bProjectionMatrixDirty = true;
     }
@@ -73,10 +81,10 @@ public:
         return m_ProjectionMatrix;
     }
 
-    TMatrix4<T> GetViewMatrix()
+    TMatrix4<T> GetViewMatrix(const TTransform<T>& InTransform)
     {
         if (bViewMatrixDirty) {
-            ComputeViewMatrix();
+            ComputeViewMatrix(InTransform);
             bViewMatrixDirty = false;
         }
         return m_ViewMatrix;
@@ -87,19 +95,9 @@ public:
         return GetProjectionMatrix() * GetViewMatrix();
     }
 
-    void SetLocation(const TVector3<T>& InLocation)
-    {
-        Transform.SetLocation(InLocation);
-        bViewMatrixDirty = true;
-    }
-    const TVector3<T>& GetLocation() const
-    {
-        return Transform.GetLocation();
-    }
-
 private:
     void ComputeProjectionMatrix();
-    void ComputeViewMatrix();
+    void ComputeViewMatrix(const TTransform<T>& InTransform);
 
 private:
     /// @brief The field of view in radians

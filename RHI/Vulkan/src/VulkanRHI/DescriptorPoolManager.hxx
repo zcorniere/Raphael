@@ -74,10 +74,10 @@ private:
 
     TArray<VkDescriptorSet> DescriptorSets = {};
 
-    std::unordered_map<std::string, FRenderPassInputDeclaration> InputDeclaration = {};
-    std::unordered_map<uint32, std::unordered_map<uint32, FRenderPassInput>> InputResource = {};
+    TMap<std::string, FRenderPassInputDeclaration> InputDeclaration = {};
+    TMap<uint32, TMap<uint32, FRenderPassInput>> InputResource = {};
 
-    std::unordered_map<uint32_t, std::unordered_map<uint32_t, VkWriteDescriptorSet>> WriteDescriptorSet = {};
+    TMap<uint32_t, TMap<uint32_t, VkWriteDescriptorSet>> WriteDescriptorSet = {};
 };
 
 }    // namespace VulkanRHI
