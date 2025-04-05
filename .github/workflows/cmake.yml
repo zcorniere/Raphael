@@ -13,16 +13,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - name: "Windows - MSVC"
-            os: windows-latest
-            compiler: cl
-          - name: "Ubuntu - Clang"
-            os: ubuntu-latest
-            compiler: llvm
-          - name: "Ubuntu - GCC"
-            os: ubuntu-latest
+        os: [ubuntu-latest, windows-latest]
+        compiler: [gcc, clang, msvc]
+        build_type: [Debug, Release]
+        exclude:
+          - os: windows-latest
             compiler: gcc
+          - os: windows-latest
+            compiler: clang
+          - os: ubuntu-latest
+            compiler: msvc
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -49,18 +49,17 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y valgrind libglm-dev libwayland-bin libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libwayland-dev libxkbcommon-dev
-
     - name: Configure CMake
       run: >
         cmake -S .
         -B ./build
-        -DCMAKE_BUILD_TYPE:STRING=Debug
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
 
     - name: Build
-      run: cmake --build ./build --config=Debug --parallel ${{ steps.cpu-cores.outputs.count }} 
+      run: cmake --build ./build --config=${{ matrix.build_type }} --parallel ${{ steps.cpu-cores.outputs.count }} 
 
     - name: Test
       working-directory: ./build
       run: >
-        ctest -j ${{ steps.cpu-cores.outputs.count }} -C Debug --rerun-failed --output-on-failure;
+        ctest -j ${{ steps.cpu-cores.outputs.count }} -C ${{ matrix.build_type }} --rerun-failed --output-on-failure;
