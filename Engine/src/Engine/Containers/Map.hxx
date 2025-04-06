@@ -2,7 +2,8 @@
 
 #include "Engine/Containers/Tuple.hxx"
 
-template <typename TKey, typename TValue, float FLoadFactor = 0.75f, typename TSizeType = uint32>
+template <typename TKey, typename TValue, float FLoadFactor = 0.75f, typename TSizeType = uint32,
+          unsigned MinimalSize = 8>
 requires CHashable<TKey>
 class TMap
 {
@@ -197,7 +198,7 @@ class TMap
 public:
     FORCEINLINE TMap()
     {
-        Rehash(8);
+        Rehash();
     }
 
     FORCEINLINE Iterator begin()
@@ -385,7 +386,7 @@ public:
         return Find(Key) != nullptr;
     }
 
-    void Rehash(const TSizeType NewCount)
+    void Rehash(const TSizeType NewCount = MinimalSize)
     {
         TArray<Bucket, 16u> NewBuckets(NewCount);
         for (const Bucket& CurrentBucket: Buckets) {
@@ -406,7 +407,7 @@ public:
         NumElements = 0;
 
         // The map cannot really be empty, so we rehash to a minimum size
-        Rehash(4);
+        Rehash();
     }
 
     // operator[] cannot fail
