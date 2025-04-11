@@ -51,6 +51,12 @@ RVulkanBuffer::RVulkanBuffer(FVulkanDevice* InDevice, const FRHIBufferDesc& InDe
     checkMsg(CreateInfo.size > 0, "Buffer size must be greater than 0");
     std::tie(BufferHandle, Memory) = Device->GetMemoryManager()->Alloc(CreateInfo, AllocationInfo);
 
+    BufferInfo = {
+        .buffer = BufferHandle,
+        .offset = 0,
+        .range = Description.Size,
+    };
+
     if (Description.ResourceArray) {
         ensure(Description.ResourceArray->GetByteSize() <= Description.Size);
         if (!ensure(EnumHasAnyFlags(Description.Usage, EBufferUsageFlags::KeepCPUAccessible))) {

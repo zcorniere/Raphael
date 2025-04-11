@@ -38,16 +38,13 @@ public:
         return GetStride() == 4 ? VK_INDEX_TYPE_UINT32 : VK_INDEX_TYPE_UINT16;
     }
 
-    VkDescriptorBufferInfo GetDescriptorBufferInfo() const
+    const VkDescriptorBufferInfo& GetDescriptorBufferInfo() const
     {
-        return VkDescriptorBufferInfo{
-            .buffer = BufferHandle,
-            .offset = 0,
-            .range = Description.Size,
-        };
+        return BufferInfo;
     }
 
 private:
+    VkDescriptorBufferInfo BufferInfo;
     VkBuffer BufferHandle;
     Ref<RVulkanMemoryAllocation> Memory;
 };

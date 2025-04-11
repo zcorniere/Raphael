@@ -77,12 +77,7 @@ void FDescriptorSetManager::Bake()
             WriteDescriptorSetsArray.Back().dstSet = DescriptorSets[Set];
 
             Ref<RVulkanBuffer> Buffer = InputResource[Set][Binding].Input[0].As<RVulkanBuffer>();
-            VkDescriptorBufferInfo Info{
-                .buffer = Buffer->GetHandle(),
-                .offset = 0,
-                .range = Buffer->GetSize(),
-            };
-            WriteDescriptorSetsArray.Back().pBufferInfo = &Info;
+            WriteDescriptorSetsArray.Back().pBufferInfo = &Buffer->GetDescriptorBufferInfo();
         }
     }
     if (!WriteDescriptorSetsArray.IsEmpty()) {
