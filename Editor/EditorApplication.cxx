@@ -38,9 +38,6 @@ bool EditorApplication::OnEngineInitialization()
 
     Super::OnEngineInitialization();
 
-    Ref<RAsset> CubeAsset = GEngine->AssetRegistry.GetCubeAsset();
-    CubeAsset->LoadOnGPU();
-
     FRHIGraphicsPipelineSpecification Spec{
         .VertexShader = "Shapes/ShapeShader.vert",
         .FragmentShader = "Shapes/ShapeShader.frag",
@@ -84,7 +81,7 @@ bool EditorApplication::OnEngineInitialization()
 
     Ref<RRHIGraphicsPipeline> Pipeline = RHI::CreateGraphicsPipeline(Spec);
     Ref<RRHIMaterial> Material = RHI::CreateMaterial(Pipeline);
-    Material->SetName("Cube Material");
+    Material->SetName("Shape Material");
     GEngine->AssetRegistry.RegisterMemoryOnlyMaterial(Material);
 
     FRHITextureSpecification DepthTexture = MainViewport->GetBackbuffer()->GetDescription();
@@ -98,8 +95,9 @@ bool EditorApplication::OnEngineInitialization()
         MainViewport,
     });
 
-    Ref<ACameraActor> Actor = World->CreateActor<ACameraActor>("Main Camera", FTransform({0, 15, 0}, {}, {1, 1, 1}));
-    RCameraComponent<float>* CameraComponent = Actor->GetComponent<RCameraComponent<float>>();
+    Ref<ACameraActor> CameraActor =
+        World->CreateActor<ACameraActor>("Main Camera", FTransform({0, 15, 0}, {}, {1, 1, 1}));
+    RCameraComponent<float>* CameraComponent = CameraActor->GetComponent<RCameraComponent<float>>();
     CameraComponent->SetFOV(80.0);
     CameraComponent->SetNearFar(0.1, 1000.0);
 
