@@ -40,6 +40,7 @@ static void CalculateRing(size_t segments, float radius, float z, float dz, floa
 
         FVertex& vertex = vertices.Emplace();
         vertex.Position = FVector3(actualRadius * x, actualRadius * y, actualRadius * z + height * dz);
+        vertex.Normal = FVector3(x, y, z);
     }
 }
 

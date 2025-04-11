@@ -11,6 +11,7 @@ public:
     ~RMeshComponent() = default;
 
     void SetAsset(Ref<RAsset> InAsset);
+    void SetMaterial(Ref<RRHIMaterial> InMaterial);
 
 public:
     Ref<RAsset> Asset = nullptr;
@@ -20,5 +21,11 @@ public:
 inline void RMeshComponent::SetAsset(Ref<RAsset> InAsset)
 {
     Asset = InAsset;
+    MarkRenderStateDirty();
+}
+
+inline void RMeshComponent::SetMaterial(Ref<RRHIMaterial> InMaterial)
+{
+    Material = InMaterial;
     MarkRenderStateDirty();
 }

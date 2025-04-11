@@ -8,10 +8,16 @@ AOscillator::AOscillator()
     Maximum = {0.0f, 0.0f, 6.0f};
     Direction = {0.0f, 0.0f, 1.0f};
 
-    Ref<RAsset> CubeAsset = GEngine->AssetRegistry.GetCubeAsset();
-    CubeAsset->LoadOnGPU();
-    GetMesh()->SetAsset(CubeAsset);
-    GetMesh()->Material = GEngine->AssetRegistry.GetMaterial("Cube Material");
+    Ref<RAsset> UsedAsset;
+    if (rand() % 2) {
+        UsedAsset = GEngine->AssetRegistry.GetCapsuleAsset();
+
+    } else {
+        UsedAsset = GEngine->AssetRegistry.GetCubeAsset();
+    }
+
+    GetMesh()->SetAsset(UsedAsset);
+    GetMesh()->SetMaterial(GEngine->AssetRegistry.GetMaterial("Shape Material"));
 }
 
 AOscillator::~AOscillator()
