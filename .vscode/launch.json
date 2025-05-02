@@ -5,7 +5,7 @@
             "type": "lldb",
             "request": "launch",
             "name": "Launch Raphael Editor",
-            "program": "${workspaceFolder}/build/Editor/RaphaelEditor",
+            "program": "${workspaceFolder}/build/Editor/Debug/RaphaelEditor",
             "args": [],
             "cwd": "${workspaceFolder}/build"
         },
@@ -13,7 +13,7 @@
             "type": "lldb",
             "request": "launch",
             "name": "Launch Vulkan RHI Tests",
-            "program": "${workspaceFolder}/build/RHI/Vulkan/RaphaelRHIVulkan_Test",
+            "program": "${workspaceFolder}/build/RHI/Vulkan/Debug/RaphaelRHIVulkan_Test",
             "args": [],
             "cwd": "${workspaceFolder}/build"
         },
@@ -21,7 +21,7 @@
             "type": "lldb",
             "request": "launch",
             "name": "Launch Engine Tests",
-            "program": "${workspaceFolder}/build//Engine/RaphaelEngine_Test",
+            "program": "${workspaceFolder}/build//Engine/Debug/RaphaelEngine_Test",
             "args": [],
             "cwd": "${workspaceFolder}/build"
         }
