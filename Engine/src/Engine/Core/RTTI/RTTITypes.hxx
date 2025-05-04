@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Containers/Array.hxx"
+
 namespace RTTI
 {
 
@@ -10,9 +12,14 @@ public:
 
     [[nodiscard]] virtual std::string_view GetName() const = 0;
     [[nodiscard]] virtual uint32 GetSize() const = 0;
+    [[nodiscard]] virtual uint32 GetAlignment() const = 0;
 };
 
+class FClass;
 struct FProperty {
+    FProperty(FClass* OwnerClass, std::string_view TypeName, std::string Name, uint32 Offset, uint32 Alignment);
+
+    FClass* const OwnerClass = nullptr;
     IType* const Type = nullptr;
     const std::string Name;
     const uint32 Offset;
@@ -36,16 +43,37 @@ public:
         return Size;
     }
 
-    [[nodiscard]] uint32 GetAlignment() const
+    [[nodiscard]] uint32 GetAlignment() const override
     {
         return Alignment;
     }
 
+    void AddProperty(FProperty&& property)
+    {
+        Properties.Add(std::move(property));
+    }
+
+    void AddParentClass(FClass* InParentClass)
+    {
+        ParentClass = InParentClass;
+    }
+
 private:
+    FClass* ParentClass = nullptr;
+
     const std::string Name;
     const uint32 Size = 0;
     const uint32 Alignment = 0;
     TArray<FProperty> Properties;
+};
+
+template <typename T>
+class TTypedClass : public FClass
+{
+public:
+    TTypedClass(std::string Name): FClass(std::move(Name), sizeof(T), alignof(T))
+    {
+    }
 };
 
 }    // namespace RTTI

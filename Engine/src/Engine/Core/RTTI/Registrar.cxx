@@ -18,6 +18,31 @@ DECLARE_PRIMITIVE_RTTI_REGISTRATION(double)
 
 #undef DECLARE_PRIMITIVE_RTTI_REGISTRATION
 
+DECLARE_LOGGER_CATEGORY(Core, LogRegistrar, Trace)
+
+void Registrar::Init()
+{
+    LOG(LogRegistrar, Trace, "Registering RTTI types");
+    // Register the primitive types
+    for (IClassBuilder* classBuilder: RegisteredClassBuilders) {
+        FClass* NewClass = classBuilder->InitClass();
+        if (NewClass) {
+            LOG(LogRegistrar, Trace, "Registered class: {}", NewClass->GetName());
+        } else {
+            LOG(LogRegistrar, Error, "Failed to register class");
+        }
+    }
+}
+
+void Registrar::RegisteredClassBuilder(IClassBuilder* classBuilder)
+{
+    RegisteredClassBuilders.Add(classBuilder);
+}
+void Registrar::UnregisterClassBuilder(IClassBuilder* classBuilder)
+{
+    RegisteredClassBuilders.Remove(classBuilder);
+}
+
 /// Registers a type in the RTTI system.
 /// @param type The type to register.
 void Registrar::RegisterType(IType* type)
@@ -38,7 +63,8 @@ void Registrar::UnregisterType(IType* type)
 [[nodiscard]] IType* Registrar::FindType(std::string_view name) const
 {
     for (IType* type: RegisteredTypes) {
-        if (type->GetName() == name) {
+        printf("%s %s\n", type->GetName().data(), name.data());
+        if (type->GetName().compare(name) == 0) {
             return type;
         }
     }

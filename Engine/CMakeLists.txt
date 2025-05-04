@@ -41,6 +41,7 @@ add_library(
     src/Engine/Core/Log.cxx
     src/Engine/Core/UUID.cxx
     src/Engine/Core/RTTI/RObject.cxx
+    src/Engine/Core/RTTI/RTTITypes.cxx
     src/Engine/Core/RTTI/Registrar.cxx
     src/Engine/Core/Engine.cxx
     src/Engine/Core/Application.cxx

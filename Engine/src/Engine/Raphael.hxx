@@ -37,6 +37,7 @@
 #include <Engine/Containers/ArrayView.hxx>
 #include <Engine/Containers/Map.hxx>
 
+#include <Engine/Core/RTTI/ClassBuilder.hxx>
 #include <Engine/Core/RTTI/RTTIParameter.hxx>
 
 // Make sure we're 64 bit

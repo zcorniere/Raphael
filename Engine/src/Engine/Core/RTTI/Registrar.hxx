@@ -4,6 +4,7 @@
 
 namespace RTTI
 {
+class IClassBuilder;
 
 class Registrar
 {
@@ -21,6 +22,11 @@ public:
         checkNoReentry();
     }
 
+    void Init();
+
+    void RegisteredClassBuilder(IClassBuilder* classBuilder);
+    void UnregisterClassBuilder(IClassBuilder* classBuilder);
+
     /// Registers a type in the RTTI system.
     /// @param type The type to register.
     void RegisterType(IType* type);
@@ -34,6 +40,7 @@ public:
     [[nodiscard]] IType* FindType(std::string_view name) const;
 
 private:
+    TArray<IClassBuilder*> RegisteredClassBuilders;
     TArray<IType*> RegisteredTypes;
 };
 
@@ -46,7 +53,7 @@ public:
         Registrar::Get().RegisterType(this);
     }
 
-    ~TFundamentalType()
+    virtual ~TFundamentalType()
     {
         Registrar::Get().UnregisterType(this);
     }
@@ -55,17 +62,21 @@ public:
     {
         return sizeof(TType);
     }
-    [[nodiscard]] uint32 GetAlignment() const
+    [[nodiscard]] uint32 GetAlignment() const override
     {
         return Alignment;
     }
 };
 
+#pragma clang optimize off
+
 #define DECLARE_PRIMITIVE_RTTI_TYPE(Type)                      \
     class TPrimitiveType##Type : public TFundamentalType<Type> \
     {                                                          \
     public:                                                    \
-        std::string_view GetName() const override              \
+        virtual ~TPrimitiveType##Type() = default;             \
+                                                               \
+        std::string_view GetName() const override final        \
         {                                                      \
             return #Type;                                      \
         }                                                      \

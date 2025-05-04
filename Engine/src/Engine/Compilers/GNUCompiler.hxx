@@ -22,6 +22,10 @@ static_assert(false, "GNU Compiler header included without compiling with GNU");
             __builtin_unreachable(); \
     }
 
+#define DISABLE_WARNING_PUSH _Pragma("GCC diagnostic push")
+#define DISABLE_WARNING_POP _Pragma("GCC diagnostic pop")
+#define DISABLE_WARNING(warning) _Pragma(warning)
+
 ///
 /// @brief Wrapper around GCC intrinsics functions
 ///
