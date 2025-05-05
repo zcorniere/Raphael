@@ -1,20 +1,6 @@
 project(RaphaelEditor)
 set(CMAKE_FOLDER "Raphael/Editor")
 
-option(RPH_ENABLE_PROFILING "Enable the profiling" OFF)
-option(RPH_ENABLE_MEMORY_PROFILING "Enable the memory profiling" OFF)
-if(RPH_ENABLE_PROFILING)
-    message(STATUS "RPH - Profiling is enabled")
-
-    if(RPH_ENABLE_MEMORY_PROFILING)
-        message(STATUS "RPH - Memory profiling is enabled")
-    else()
-        message(STATUS "RPH - Memory profiling is disabled")
-    endif(RPH_ENABLE_MEMORY_PROFILING)
-else()
-    message(STATUS "RPH - Profiling is disabled")
-endif(RPH_ENABLE_PROFILING)
-
 add_executable(${PROJECT_NAME} EditorApplication.cxx Actor/Oscillator.cxx)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelEngine imgui)
