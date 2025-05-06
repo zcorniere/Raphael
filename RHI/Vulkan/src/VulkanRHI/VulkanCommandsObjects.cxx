@@ -200,10 +200,10 @@ VulkanCommandBufferManager::VulkanCommandBufferManager(FVulkanDevice* InDevice, 
 {
     Pool = new VulkanCommandBufferPool(Device);
     Pool->Initialize(Queue->GetFamilyIndex());
-    Pool->SetName("Main.CommandPool");
+    Pool->SetName("Unammed.CommandPool");
 
     ActiveCmdBufferRef = Pool->GetCommandBuffer();
-    ActiveCmdBufferRef->SetName("Active.CommandBuffer");
+    ActiveCmdBufferRef->SetName("Unammed.CommandBuffer");
     UploadCmdBufferRef = nullptr;
 }
 
@@ -211,6 +211,12 @@ VulkanCommandBufferManager::~VulkanCommandBufferManager()
 {
     RefreshFenceStatus();
     delete Pool;
+}
+
+void VulkanCommandBufferManager::SetName(std::string_view InName)
+{
+    FNamedClass::SetName(InName);
+    Pool->SetName(std::format("{:s}.CommandPool", InName));
 }
 
 void VulkanCommandBufferManager::WaitForCmdBuffer(FVulkanCmdBuffer* CmdBuffer, float TimeInSecondsToWait)
@@ -232,7 +238,7 @@ FVulkanCmdBuffer* VulkanCommandBufferManager::GetUploadCmdBuffer()
 {
     if (!UploadCmdBufferRef) {
         UploadCmdBufferRef = FindAvailableCmdBuffer();
-        UploadCmdBufferRef->SetName("Upload.CommandBuffer");
+        UploadCmdBufferRef->SetName(std::format("{:s}.Upload.CommandBuffer", GetName()));
     }
     return UploadCmdBufferRef;
 }
@@ -240,7 +246,7 @@ FVulkanCmdBuffer* VulkanCommandBufferManager::GetUploadCmdBuffer()
 void VulkanCommandBufferManager::PrepareForNewActiveCommandBuffer()
 {
     ActiveCmdBufferRef = FindAvailableCmdBuffer();
-    ActiveCmdBufferRef->SetName(std::format("Active{:d}.CommandBuffer", GFrameCounter));
+    ActiveCmdBufferRef->SetName(std::format("{:s}.Active{:d}.CommandBuffer", GetName(), GFrameCounter));
 }
 
 void VulkanCommandBufferManager::SubmitUploadCmdBuffer(const Ref<RSemaphore>& SignalSemaphore)
@@ -258,7 +264,7 @@ void VulkanCommandBufferManager::SubmitUploadCmdBuffer(const Ref<RSemaphore>& Si
             Queue->Submit(UploadCmdBufferRef);
         }
     }
-    UploadCmdBufferRef->SetName("Unused.Buffer");
+    UploadCmdBufferRef->SetName(std::format("{:s}.Unused.Buffer", GetName()));
     UploadCmdBufferRef = nullptr;
 }
 
@@ -280,7 +286,7 @@ void VulkanCommandBufferManager::SubmitActiveCmdBuffer(const Ref<RSemaphore>& Si
             Queue->Submit(ActiveCmdBufferRef);
         }
     }
-    ActiveCmdBufferRef->SetName("Unused.Buffer");
+    ActiveCmdBufferRef->SetName(std::format("{:s}.Unused.Buffer", GetName()));
     ActiveCmdBufferRef = nullptr;
 }
 

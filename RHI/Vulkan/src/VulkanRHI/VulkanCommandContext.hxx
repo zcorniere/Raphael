@@ -12,7 +12,7 @@ class VulkanCommandBufferManager;
 
 class RVulkanTexture;
 
-class FVulkanCommandContext : public FRHIContext
+class FVulkanCommandContext : public FRHIContext, public FNamedClass
 {
     RTTI_DECLARE_TYPEINFO(FVulkanCommandContext, FRHIContext);
 
@@ -27,6 +27,8 @@ public:
     virtual void BeginFrame() override;
     /// @brief Mark the end of the current frame
     virtual void EndFrame() override;
+
+    void SetName(std::string_view InName) override;
 
     /// @brief Indicate the RHI that we are starting drawing in the given viewport
     virtual void RHIBeginDrawingViewport(RRHIViewport* const Viewport) override;
