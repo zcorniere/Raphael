@@ -68,7 +68,7 @@ TEST_CASE("Map Tests")
 TEST_CASE("Map Iterators")
 {
     // Lower the min bucket size, to force rehashing
-    TMap<int, std::string, 0.75f, uint32, 2> TestMap;
+    TMap<int, std::string, std::hash<int>, 0.75f, uint32, 2> TestMap;
     TestMap.Insert(44, "Hello");
     TestMap.Insert(45, "World");
     TestMap.Insert(46, "!");
@@ -125,7 +125,7 @@ TEST_CASE("Map Iterators")
 
     SECTION("Const Iterator")
     {
-        const TMap<int, std::string, 0.75f, uint32, 2>& ConstTestMap = TestMap;
+        const TMap<int, std::string, std::hash<int>, 0.75f, uint32, 2>& ConstTestMap = TestMap;
         for (const TPair<int, std::string>& Pair: ConstTestMap) {
             if (Pair.Get<0>() == 44) {
                 CHECK(Pair.Get<1>() == "Hello");
@@ -149,7 +149,7 @@ TEST_CASE("Map Iterators")
 
     SECTION("Const Iterator with structured binding")
     {
-        const TMap<int, std::string, 0.75f, uint32, 2>& ConstTestMap = TestMap;
+        const TMap<int, std::string, std::hash<int>, 0.75f, uint32, 2>& ConstTestMap = TestMap;
         for (const auto& [Key, Value]: ConstTestMap) {
             if (Key == 44) {
                 CHECK(Value == "Hello");

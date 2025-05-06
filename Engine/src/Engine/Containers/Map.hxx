@@ -2,11 +2,12 @@
 
 #include "Engine/Containers/Tuple.hxx"
 
-template <typename TKey, typename TValue, float FLoadFactor = 0.75f, typename TSizeType = uint32,
-          unsigned MinimalSize = 8>
+template <typename TKey, typename TValue, typename THasher = std::hash<TKey>, float FLoadFactor = 0.75f,
+          typename TSizeType = uint32, unsigned MinimalSize = 8>
 requires CHashable<TKey>
 class TMap
 {
+private:
     using Bucket = TArray<TPair<TKey, TValue>>;
 
     class Iterator
@@ -400,7 +401,7 @@ public:
     }
 
     /// @brief Remove all elements from the map
-    /// @note The map is never truly, se rehash it to a minimum size
+    /// @note The map is never truly empty, it is rehashed to a minimum size
     FORCEINLINE void Clear()
     {
         Buckets.Clear();
@@ -428,7 +429,7 @@ public:
 private:
     FORCEINLINE TSizeType Hash(const TKey& Key) const
     {
-        return std::hash<TKey>{}(Key);
+        return THasher{}(Key);
     }
 
     FORCEINLINE TSizeType GetBucketIndex(const TKey& Key) const
