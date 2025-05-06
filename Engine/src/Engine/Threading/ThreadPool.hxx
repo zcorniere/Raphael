@@ -3,6 +3,7 @@
 #include <atomic>
 #include <functional>
 #include <future>
+#include <latch>
 #include <memory>
 #include <queue>
 #include <thread>
@@ -80,6 +81,38 @@ public:
         }
         state->q_var.notify_one();
         return packagedFunction->get_future();
+    }
+
+    template <typename F>
+    std::shared_ptr<std::latch> ParallelFor(uint32 Count, uint32 ChunkSize, F&& Function)
+    {
+        if (!ensureAlwaysMsg(!thread_p.IsEmpty(), "Pushing task when no thread are started !")) {
+            Start(1);
+        }
+        const uint32 ChunkCount = (Count + ChunkSize - 1) / ChunkSize;
+        std::shared_ptr<std::latch> DoneLatch = std::make_shared<std::latch>(ChunkCount);
+
+        for (uint32 i = 0; i < ChunkCount; i++) {
+            const uint32 StartIndex = i * ChunkSize;
+            const uint32 EndIndex = std::min(StartIndex + ChunkSize, Count);
+            (void)Push([DoneLatch, Function, StartIndex, EndIndex](unsigned id) {
+                (void)id;
+                for (uint32 j = StartIndex; j < EndIndex; j++) {
+                    Function(j);
+                }
+                DoneLatch->count_down();
+            });
+        }
+
+        return DoneLatch;
+    }
+
+    template <typename F>
+    std::shared_ptr<std::latch> ParallelFor(uint32 Count, F&& Function)
+    {
+        const uint32 ThreadCount = thread_p.Size();
+        const uint32 ChunkSize = (Count + ThreadCount - 1) / ThreadCount;
+        return ParallelFor(Count, ChunkSize, std::forward<F>(Function));
     }
 
 private:

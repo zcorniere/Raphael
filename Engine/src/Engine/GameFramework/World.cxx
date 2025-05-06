@@ -1,5 +1,6 @@
 #include "Engine/GameFramework/World.hxx"
 
+#include "Engine/Core/Engine.hxx"
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "Engine/Core/RHI/RHIScene.hxx"
 
@@ -38,8 +39,14 @@ void RWorld::Tick(double DeltaTime)
 {
     RPH_PROFILE_FUNC();
 
-    for (Ref<AActor>& Actor: Actors) {
-        HandleActorTick(Actor.Raw(), DeltaTime);
+    {
+        RPH_PROFILE_FUNC("Actor Tick - parallel");
+        std::shared_ptr<std::latch> Latch =
+            GEngine->GetThreadPool().ParallelFor(Actors.Size(), [this, DeltaTime](unsigned i) {
+                Ref<AActor>& Actor = Actors[i];
+                HandleActorTick(Actor.Raw(), DeltaTime);
+            });
+        Latch->wait();
     }
 
     Scene->Tick(DeltaTime);
