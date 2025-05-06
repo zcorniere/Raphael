@@ -152,7 +152,7 @@ private:
 /// It manage two command buffers:
 /// - The active command buffer, used for rendering
 /// - The upload command buffer, used for uploading resources to the GPU
-class VulkanCommandBufferManager : public IDeviceChild
+class VulkanCommandBufferManager : public IDeviceChild, public FNamedClass
 {
     RPH_NONCOPYABLE(VulkanCommandBufferManager)
 public:
@@ -161,6 +161,8 @@ public:
     VulkanCommandBufferManager(FVulkanDevice* InDevice, FVulkanQueue* InQueue);
     /// Destruct the command buffer manager, and all its command buffers as well
     virtual ~VulkanCommandBufferManager();
+
+    void SetName(std::string_view InName) override;
 
     /// Update the fences of all cmd buffers except the one givent as argument
     /// @arg SkipCmdBuffer the command buffer to skip

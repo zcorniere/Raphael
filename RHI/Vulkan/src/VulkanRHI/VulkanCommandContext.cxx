@@ -27,6 +27,12 @@ FVulkanCommandContext::~FVulkanCommandContext()
 {
 }
 
+void FVulkanCommandContext::SetName(std::string_view InName)
+{
+    FNamedClass::SetName(InName);
+    CommandManager->SetName(InName);
+}
+
 void FVulkanCommandContext::Reset()
 {
     FVulkanDevice* const ODevice = this->Device;
