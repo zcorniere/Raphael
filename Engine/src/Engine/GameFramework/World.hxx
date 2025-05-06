@@ -4,6 +4,7 @@
 #include "Engine/Misc/Delegate.hxx"
 
 class AActor;
+class RSceneComponent;
 class RRHIScene;
 
 class RWorld : public RObject
@@ -34,6 +35,7 @@ public:
     Ref<RRHIScene> GetScene() const;
 
 private:
+    void UpdateActorLocation(uint64 ID, RSceneComponent* const Component);
     void HandleActorTick(AActor* const Actor, double DeltaTime);
 
 public:

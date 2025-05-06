@@ -24,6 +24,7 @@ RRHIScene::RRHIScene(RWorld* OwnerWorld): Context(RHI::Get()->RHIGetCommandConte
 
     // Register to the world events
     OwnerWorld->OnActorAddedToWorld.Add(this, [this](AActor* Actor) mutable {
+        TRenderSceneLock<ERenderSceneLockType::Write> Lock(this);
         TArray<FMeshRepresentation>& Representation = WorldActorRepresentation.Emplace(Actor->ID());
 
         RMeshComponent* const MeshComponent = Actor->GetMesh();
@@ -31,6 +32,8 @@ RRHIScene::RRHIScene(RWorld* OwnerWorld): Context(RHI::Get()->RHIGetCommandConte
             FMeshRepresentation& Mesh = Representation.Emplace();
             Mesh.Transform = Actor->GetRootComponent()->GetRelativeTransform();
             Mesh.Mesh = MeshComponent;
+
+            NewlyAddedActors.Add(Actor->ID());
         }
 
         RCameraComponent<float>* CameraComponent = Actor->GetComponent<RCameraComponent<float>>();
@@ -39,8 +42,24 @@ RRHIScene::RRHIScene(RWorld* OwnerWorld): Context(RHI::Get()->RHIGetCommandConte
         }
     });
 
-    OwnerWorld->OnActorRemovedFromWorld.Add(
-        this, [this](AActor* Actor) mutable { WorldActorRepresentation.Remove(Actor->ID()); });
+    OwnerWorld->OnActorRemovedFromWorld.Add(this, [this](AActor* Actor) mutable {
+        TRenderSceneLock<ERenderSceneLockType::Write> Lock(this);
+        TPair<uint64, TArray<FMeshRepresentation>> DeletedMesh;
+        WorldActorRepresentation.Remove(Actor->ID(), &DeletedMesh);
+
+        for (FMeshRepresentation& Mesh: DeletedMesh.Get<1>()) {
+            TResourceArray<FMatrix4>* TransformArrays = TransformResourceArray.Find(Mesh.Mesh->Asset->GetName());
+            if (TransformArrays) {
+                TransformArrays->RemoveAt(Mesh.TransformBufferIndex);
+            }
+
+            FRenderRequestKey Key{Mesh.Mesh->Material.Raw(), Mesh.Mesh->Asset.Raw()};
+            TArray<FMeshRepresentation*>* RenderRequests = RenderCalls.Find(Key);
+            if (RenderRequests) {
+                RenderRequests->RemoveAt(Mesh.RenderBufferIndex);
+            }
+        }
+    });
 }
 
 RRHIScene::RRHIScene(RWorld* OwnerWorld, const FRHIRenderPassTarget& InRenderPassTarget): RRHIScene(OwnerWorld)
@@ -63,7 +82,37 @@ void RRHIScene::SetRenderPassTarget(const FRHIRenderPassTarget& InRenderPassTarg
     RenderPassTarget = InRenderPassTarget;
 }
 
-void RRHIScene::Tick(double DeltaTime)
+void RRHIScene::PreTick()
+{
+    {
+        RPH_PROFILE_FUNC("RRHIScene::Tick - Take care of the new actors")
+        for (uint64 ActorID: NewlyAddedActors) {
+            TArray<FMeshRepresentation>* Iter = WorldActorRepresentation.Find(ActorID);
+            ensure(Iter);
+
+            for (FMeshRepresentation& Mesh: *Iter) {
+                if (Mesh.Mesh->Asset == nullptr || Mesh.Mesh->Material == nullptr) {
+                    continue;
+                }
+                if (!Mesh.Mesh->Material->WasBaked()) {
+                    Mesh.Mesh->Material->SetInput("Camera", u_CameraBuffer);
+                    Mesh.Mesh->Material->Bake();
+                }
+                TResourceArray<FMatrix4>& RequestArrays = TransformResourceArray.FindOrAdd(Mesh.Mesh->Asset->GetName());
+                RequestArrays.Add(Mesh.Transform.GetModelMatrix());
+                Mesh.TransformBufferIndex = RequestArrays.Size() - 1;
+
+                FRenderRequestKey Key{Mesh.Mesh->Material.Raw(), Mesh.Mesh->Asset.Raw()};
+                TArray<FMeshRepresentation*>& RenderRequests = RenderCalls.FindOrAdd(Key);
+                RenderRequests.Add(&Mesh);
+                Mesh.RenderBufferIndex = RenderRequests.Size() - 1;
+            }
+        }
+        NewlyAddedActors.Clear();
+    }
+}
+
+void RRHIScene::PostTick(double DeltaTime)
 {
     RPH_PROFILE_FUNC()
 
@@ -90,26 +139,10 @@ void RRHIScene::Tick(double DeltaTime)
         });
     }
 
-    TMap<std::string, TResourceArray<FMatrix4>> RenderRequestMap;
-    {
-        RPH_PROFILE_FUNC("RRHIScene::Tick - Order Camera")
-        for (auto& [ActorID, ActorRepresentation]: WorldActorRepresentation) {
-            for (FMeshRepresentation& Mesh: ActorRepresentation) {
-                if (Mesh.Mesh->Asset == nullptr || Mesh.Mesh->Material == nullptr) {
-                    continue;
-                }
-                Mesh.Mesh->Material->SetInput("Camera", u_CameraBuffer);
-                Mesh.Mesh->Material->Bake();
-
-                RenderRequestMap.FindOrAdd(Mesh.Mesh->Asset->GetName()).Add(Mesh.Transform.GetModelMatrix());
-            }
-        }
-    }
-
     {
         RPH_PROFILE_FUNC("RRHIScene::Tick - Update Transform Buffers")
-        for (auto& [AssetName, TransformArrays]: RenderRequestMap) {
-            Ref<RRHIBuffer>& TransformBuffer = TransformBuffersPerAsset.FindOrAdd(AssetName);
+        for (auto& [AssetName, TransformArrays]: TransformResourceArray) {
+            Ref<RRHIBuffer>& TransformBuffer = TransformBuffers.FindOrAdd(AssetName);
             if (TransformBuffer == nullptr || TransformBuffer->GetSize() < TransformArrays.Size()) {
                 TransformBuffer = RHI::CreateBuffer(FRHIBufferDesc{
                     .Size = static_cast<uint32>(std::max(TransformArrays.Size() * sizeof(FMatrix4),
@@ -134,34 +167,19 @@ void RRHIScene::Tick(double DeltaTime)
 
 void RRHIScene::UpdateActorLocation(uint64 Id, const FTransform& NewTransform)
 {
+    RPH_PROFILE_FUNC()
     TArray<FMeshRepresentation>* Iter = WorldActorRepresentation.Find(Id);
     ensure(Iter);
 
     for (FMeshRepresentation& Mesh: *Iter) {
         Mesh.Transform = NewTransform;
+        if (Mesh.Mesh->Asset == nullptr || Mesh.Mesh->Material == nullptr) {
+            continue;
+        }
+        TransformResourceArray.FindOrAdd(Mesh.Mesh->Asset->GetName())[Mesh.TransformBufferIndex] =
+            Mesh.Transform.GetModelMatrix();
     }
 }
-
-struct FRenderRequestKey {
-    RRHIMaterial* Material = nullptr;
-    RAsset* Asset = nullptr;
-
-    bool operator==(const FRenderRequestKey& Other) const = default;
-};
-
-namespace std
-{
-
-// std::hash specialization for FRenderRequestKey
-template <>
-struct hash<FRenderRequestKey> {
-    std::size_t operator()(const FRenderRequestKey& Key) const
-    {
-        return std::hash<RAsset*>{}(Key.Asset) ^ std::hash<RRHIMaterial*>{}(Key.Material);
-    }
-};
-
-}    // namespace std
 
 void RRHIScene::TickRenderer(FFRHICommandList& CommandList)
 {
@@ -209,34 +227,26 @@ void RRHIScene::TickRenderer(FFRHICommandList& CommandList)
     };
     CommandList.BeginRendering(Description);
 
-    TMap<FRenderRequestKey, TArray<FMeshRepresentation*>> SortedRequests;
-    for (auto& [id, Actor]: WorldActorRepresentation) {
+    {
+        RPH_PROFILE_FUNC("RRHIScene::TickRenderer - Draw")
+        for (auto& [Key, Requests]: RenderCalls) {
+            if (!Key.Asset->IsLoadedOnGPU()) {
+                Key.Asset->LoadOnGPU();
+                continue;
+            }
+            CommandList.SetMaterial(Key.Material);
 
-        for (FMeshRepresentation& Mesh: Actor) {
-            if (!Mesh.Mesh->Asset.IsValid()) {
-                continue;
-            }
-            if (!Mesh.Mesh->Asset->IsLoadedOnGPU()) {
-                Mesh.Mesh->Asset->LoadOnGPU();
-                continue;
-            }
-            SortedRequests.FindOrAdd({Mesh.Mesh->Material.Raw(), Mesh.Mesh->Asset.Raw()}).Emplace(&Mesh);
+            Ref<RRHIBuffer> TransformVertexBuffer = TransformBuffers[Key.Asset->GetName()];
+            RAsset::FDrawInfo Cube = Key.Asset->GetDrawInfo();
+
+            ensure(Key.Asset->GetVertexBuffer() != nullptr);
+            ensure(TransformVertexBuffer != nullptr);
+
+            CommandList.SetVertexBuffer(Key.Asset->GetVertexBuffer(), 0, 0);
+            CommandList.SetVertexBuffer(TransformVertexBuffer, 1, 0);
+            CommandList.DrawIndexed(Key.Asset->GetIndexBuffer(), 0, 0, Cube.NumVertices, 0, Cube.NumPrimitives,
+                                    Requests.Size());
         }
-    }
-
-    for (auto& [Key, Requests]: SortedRequests) {
-        CommandList.SetMaterial(Key.Material);
-
-        Ref<RRHIBuffer> TransformVertexBuffer = TransformBuffersPerAsset[Key.Asset->GetName()];
-        RAsset::FDrawInfo Cube = Key.Asset->GetDrawInfo();
-
-        ensure(Key.Asset->GetVertexBuffer() != nullptr);
-        ensure(TransformVertexBuffer != nullptr);
-
-        CommandList.SetVertexBuffer(Key.Asset->GetVertexBuffer(), 0, 0);
-        CommandList.SetVertexBuffer(TransformVertexBuffer, 1, 0);
-        CommandList.DrawIndexed(Key.Asset->GetIndexBuffer(), 0, 0, Cube.NumVertices, 0, Cube.NumPrimitives,
-                                Requests.Size());
     }
 
     CommandList.EndRendering();

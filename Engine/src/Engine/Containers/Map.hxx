@@ -287,7 +287,7 @@ public:
     /// @brief Remove an element from the map
     /// @param Key The key of the element to remove
     /// @return true if the element was removed
-    bool Remove(const TKey& Key)
+    bool Remove(const TKey& Key, TPair<TKey, TValue>* RemovedValue = nullptr)
     {
         // Pick the bucket
         const TSizeType HashValue = Hash(Key);
@@ -299,7 +299,7 @@ public:
             const TPair<TKey, TValue>& Pair = CurrentBucket[i];
             const TSizeType PairHash = Hash(Pair.template Get<0>());
             if (PairHash == HashValue) {
-                CurrentBucket.RemoveAt(i);
+                CurrentBucket.RemoveAt(i, RemovedValue);
                 NumElements--;
                 return true;
             }
