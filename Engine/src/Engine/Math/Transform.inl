@@ -71,6 +71,7 @@ template <typename T>
 TMatrix4<T> TTransform<T>::GetModelMatrix()
 {
     if (bModelMatrixDirty) {
+        RPH_PROFILE_FUNC()
         ModelMatrix = GetTranslationMatrix() * Rotation.GetRotationMatrix() * GetScaleMatrix();
         Math::CheckNaN(ModelMatrix);
         bModelMatrixDirty = false;

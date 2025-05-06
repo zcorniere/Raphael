@@ -225,13 +225,18 @@ public:
     }
 
     /// Remove the given element from the array
-    constexpr bool RemoveAt(const TSize Index)
+    constexpr bool RemoveAt(const TSize Index, T* RemovedType = nullptr)
     {
         if (Index >= Size())
             return false;
 
-        // Destruct the element at Index
-        DestructItems(Raw() + Index, 1);
+        if (RemovedType) {
+            // Move the element at Index
+            MoveItems(RemovedType, Raw() + Index, 1);
+        } else {
+            // Destruct the element at Index
+            DestructItems(Raw() + Index, 1);
+        }
 
         // Move element after Index to the left
         MoveItems(Raw() + Index, Raw() + Index + 1, Size() - Index - 1);

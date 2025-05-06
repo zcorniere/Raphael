@@ -39,6 +39,8 @@ void RWorld::Tick(double DeltaTime)
 {
     RPH_PROFILE_FUNC();
 
+    Scene->PreTick();
+
     {
         RPH_PROFILE_FUNC("Actor Tick - parallel");
         std::shared_ptr<std::latch> Latch =
@@ -49,7 +51,7 @@ void RWorld::Tick(double DeltaTime)
         Latch->wait();
     }
 
-    Scene->Tick(DeltaTime);
+    Scene->PostTick(DeltaTime);
 }
 
 void RWorld::HandleActorTick(AActor* const Actor, double DeltaTime)
@@ -60,10 +62,18 @@ void RWorld::HandleActorTick(AActor* const Actor, double DeltaTime)
 
     RSceneComponent* const RootComponent = Actor->GetRootComponent();
     if (RootComponent->IsTransformDirty()) {
-        const FTransform RelativeTransform = RootComponent->GetRelativeTransform();
-        Scene->UpdateActorLocation(Actor->ID(), RelativeTransform);
+        UpdateActorLocation(Actor->ID(), RootComponent);
         RootComponent->ClearDirtyTransformFlag();
     }
+}
+
+void RWorld::UpdateActorLocation(uint64 ID, RSceneComponent* const RootComponent)
+{
+    RPH_PROFILE_FUNC();
+
+    TRenderSceneLock<ERenderSceneLockType::Read> Lock(Scene);
+    const FTransform RelativeTransform = RootComponent->GetRelativeTransform();
+    Scene->UpdateActorLocation(ID, RelativeTransform);
 }
 
 Ref<RRHIScene> RWorld::GetScene() const
