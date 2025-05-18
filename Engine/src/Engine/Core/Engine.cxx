@@ -15,11 +15,7 @@ FEngine::FEngine()
 {
     GEngine = this;
 
-    // Would love to make it constexpr, but it's not possible with the current C++ standard
-    // accessing a union member is not allowed in a constant expression context
-    LOG(LogEngine, Trace, "Making sure the math still make sense: {} == {}", Math::RightVector,
-        Math::Cross(Math::UpVector, Math::FrontVector));
-    check(Math::RightVector == Math::Cross(Math::UpVector, Math::FrontVector));
+    Math::RegisterMathTypes();
 }
 
 FEngine::~FEngine()
@@ -33,6 +29,8 @@ bool FEngine::ShouldExit() const
 
 bool FEngine::Initialisation()
 {
+    RTTI::Registrar::Get().Init();
+
     RWindow::EnsureGLFWInit();
 
     m_ThreadPool.Start();

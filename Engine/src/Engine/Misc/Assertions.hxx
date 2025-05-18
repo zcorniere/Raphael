@@ -4,6 +4,8 @@
 #include "Engine/Compilers/Compiler.hxx"    // IWYU pragma: keep
 #include "Engine/Platforms/Platform.hxx"
 
+#include "Engine/Core/RTTI/RTTI.hxx"
+
 #include <atomic>    // IWYU pragma: keep
 
 #define RPH_CHECK_STACKTRACE

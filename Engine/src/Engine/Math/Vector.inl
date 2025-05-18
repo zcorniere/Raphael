@@ -37,6 +37,7 @@ T TVector<2, T>::operator[](unsigned index) const
     assert(index < 2);
     return data[index];
 }
+
 // End TVector 2
 
 // TVector 3

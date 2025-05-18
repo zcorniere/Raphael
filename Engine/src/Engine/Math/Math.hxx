@@ -5,6 +5,8 @@
 namespace Math
 {
 
+void RegisterMathTypes();
+
 DECLARE_LOGGER_CATEGORY(Core, LogMath, Info)
 
 // The math should be done, considering a right-handed coordinate system, with Z pointing up

@@ -4,12 +4,15 @@
 #include "Engine/Math/Quaternion.hxx"
 #include "Engine/Math/Vector.hxx"
 
+DECLARE_RTTI_CLASSBUILDER_TEMPLATE(TTransform, T)
+
 namespace Math
 {
 
 template <typename T>
 class TTransform
 {
+    DECLARE_TEMPLATE_RTTI(TTransform, T)
     RTTI_DECLARE_TYPEINFO_MINIMAL(TTransform)
 public:
     TTransform() = default;
@@ -47,7 +50,18 @@ public:
 template <typename T>
 using TTransform = Math::TTransform<T>;
 
-using FTransform = Math::TTransform<float>;
-using DTransform = Math::TTransform<double>;
+RTTI_DECLARE_NAME_TEMPLATE(TTransform, float);
+RTTI_DECLARE_NAME_TEMPLATE(TTransform, double);
+
+RTTI_BEGIN_CLASS_DECLARATION_TEMPLATE(TTransform, T)
+PROPERTY(Location)
+PROPERTY(Rotation)
+PROPERTY(Scale)
+PROPERTY(bModelMatrixDirty)
+PROPERTY(ModelMatrix)
+RTTI_END_CLASS_DECLARATION;
+
+using FTransform = TTransform<float>;
+using DTransform = TTransform<double>;
 
 #include "Transform.inl"
