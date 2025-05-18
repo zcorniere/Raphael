@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Misc/Assertions.hxx"
+
 #include "Engine/Core/Memory/MemoryOperations.hxx"
 #include "Engine/Misc/MiscDefines.hxx"
 

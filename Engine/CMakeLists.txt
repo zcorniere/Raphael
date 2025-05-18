@@ -41,6 +41,7 @@ add_library(
     src/Engine/Core/Log.cxx
     src/Engine/Core/UUID.cxx
     src/Engine/Core/RTTI/RObject.cxx
+    src/Engine/Core/RTTI/Name.cxx
     src/Engine/Core/RTTI/RTTITypes.cxx
     src/Engine/Core/RTTI/Registrar.cxx
     src/Engine/Core/Engine.cxx
@@ -54,6 +55,7 @@ add_library(
     src/Engine/Core/Memory/Memory.cxx
     src/Engine/Core/Memory/MiMalloc.cxx
     src/Engine/Core/Memory/StdMalloc.cxx
+    src/Engine/Math/Math.cxx
     src/Engine/GameFramework/Actor.cxx
     src/Engine/GameFramework/World.cxx
     src/Engine/GameFramework/CameraActor.cxx

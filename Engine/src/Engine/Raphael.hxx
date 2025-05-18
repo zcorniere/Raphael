@@ -21,6 +21,9 @@
 
 #include <Engine/Core/RTTI/RTTI.hxx>
 
+#include <Engine/Core/RTTI/Name.hxx>
+#include <Engine/Core/RTTI/TypeName.hxx>
+
 #include <Engine/Core/RTTI/RObject.hxx>
 
 #include <Engine/Misc/Profiler.hxx>
@@ -28,16 +31,17 @@
 #include <Engine/Misc/Assertions.hxx>
 #include <Engine/Misc/Hash.hxx>
 
-#include <Engine/Math/Matrix.hxx>
-#include <Engine/Math/Vector.hxx>
-
-#include <Engine/Math/Math.hxx>
-
 #include <Engine/Containers/Array.hxx>
 #include <Engine/Containers/ArrayView.hxx>
 #include <Engine/Containers/Map.hxx>
 
 #include <Engine/Core/RTTI/ClassBuilder.hxx>
+
+#include <Engine/Math/Matrix.hxx>
+#include <Engine/Math/Vector.hxx>
+
+#include <Engine/Math/Math.hxx>
+
 #include <Engine/Core/RTTI/RTTIParameter.hxx>
 
 // Make sure we're 64 bit

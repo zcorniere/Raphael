@@ -1,8 +1,13 @@
 #include "Engine/Core/RTTI/Registrar.hxx"
 
-namespace RTTI
-{
-#define DECLARE_PRIMITIVE_RTTI_REGISTRATION(Type) const TPrimitiveType##Type gRegistrator##Type##Registrator;
+#include "Engine/Core/RTTI/Name.hxx"
+
+#define DECLARE_PRIMITIVE_RTTI_REGISTRATION(Type)               \
+    RTTI_DEFINE_NAME(Type);                                     \
+    namespace RTTI                                              \
+    {                                                           \
+    const TPrimitiveType##Type gRegistrator##Type##Registrator; \
+    }
 
 DECLARE_PRIMITIVE_RTTI_REGISTRATION(bool)
 DECLARE_PRIMITIVE_RTTI_REGISTRATION(int8)
@@ -18,13 +23,15 @@ DECLARE_PRIMITIVE_RTTI_REGISTRATION(double)
 
 #undef DECLARE_PRIMITIVE_RTTI_REGISTRATION
 
-DECLARE_LOGGER_CATEGORY(Core, LogRegistrar, Trace)
+namespace RTTI
+{
 
 void Registrar::Init()
 {
     LOG(LogRegistrar, Trace, "Registering RTTI types");
     // Register the primitive types
     for (IClassBuilder* classBuilder: RegisteredClassBuilders) {
+        LOG(LogRegistrar, Trace, "Registering class: {}", classBuilder->GetName());
         FClass* NewClass = classBuilder->InitClass();
         if (NewClass) {
             LOG(LogRegistrar, Trace, "Registered class: {}", NewClass->GetName());
@@ -60,11 +67,11 @@ void Registrar::UnregisterType(IType* type)
 /// Finds a type by name.
 /// @param name The name of the type to find.
 /// @return The type if found, nullptr otherwise.
-[[nodiscard]] IType* Registrar::FindType(std::string_view name) const
+[[nodiscard]] IType* Registrar::FindType(const FName& name) const
 {
     for (IType* type: RegisteredTypes) {
-        printf("%s %s\n", type->GetName().data(), name.data());
-        if (type->GetName().compare(name) == 0) {
+        LOG(LogRegistrar, Trace, "Found type: {} == {}", type->GetName(), name);
+        if (type->GetName() == name) {
             return type;
         }
     }

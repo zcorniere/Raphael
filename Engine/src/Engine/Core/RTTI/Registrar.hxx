@@ -2,6 +2,10 @@
 
 #include "Engine/Core/RTTI/RTTITypes.hxx"
 
+#include "Engine/Core/RTTI/Name.hxx"
+
+DECLARE_LOGGER_CATEGORY(Core, LogRegistrar, Trace)
+
 namespace RTTI
 {
 class IClassBuilder;
@@ -37,7 +41,7 @@ public:
     /// Finds a type by name.
     /// @param name The name of the type to find.
     /// @return The type if found, nullptr otherwise.
-    [[nodiscard]] IType* FindType(std::string_view name) const;
+    [[nodiscard]] IType* FindType(const FName& name) const;
 
 private:
     TArray<IClassBuilder*> RegisteredClassBuilders;
@@ -68,19 +72,23 @@ public:
     }
 };
 
-#pragma clang optimize off
+}    // namespace RTTI
 
-#define DECLARE_PRIMITIVE_RTTI_TYPE(Type)                      \
-    class TPrimitiveType##Type : public TFundamentalType<Type> \
-    {                                                          \
-    public:                                                    \
-        virtual ~TPrimitiveType##Type() = default;             \
-                                                               \
-        std::string_view GetName() const override final        \
-        {                                                      \
-            return #Type;                                      \
-        }                                                      \
-    };
+#define DECLARE_PRIMITIVE_RTTI_TYPE(Type)                          \
+    RTTI_DECLARE_NAME(Type);                                       \
+    namespace RTTI                                                 \
+    {                                                              \
+        class TPrimitiveType##Type : public TFundamentalType<Type> \
+        {                                                          \
+        public:                                                    \
+            virtual ~TPrimitiveType##Type() = default;             \
+                                                                   \
+            virtual FName GetName() const override final           \
+            {                                                      \
+                return ::RTTI::Names::name_##Type;                 \
+            }                                                      \
+        };                                                         \
+    }
 
 DECLARE_PRIMITIVE_RTTI_TYPE(bool)
 DECLARE_PRIMITIVE_RTTI_TYPE(int8)
@@ -95,5 +103,3 @@ DECLARE_PRIMITIVE_RTTI_TYPE(float)
 DECLARE_PRIMITIVE_RTTI_TYPE(double)
 
 #undef DECLARE_PRIMITIVE_RTTI_TYPE
-
-}    // namespace RTTI

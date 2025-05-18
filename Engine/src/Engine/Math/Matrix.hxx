@@ -4,6 +4,10 @@
     #include <cmath>
 #endif    // RPH_NAN_CHECKS
 
+DECLARE_RTTI_CLASSBUILDER_TEMPLATE(TMatrix2, T)
+DECLARE_RTTI_CLASSBUILDER_TEMPLATE(TMatrix3, T)
+DECLARE_RTTI_CLASSBUILDER_TEMPLATE(TMatrix4, T)
+
 namespace Math
 {
 
@@ -12,6 +16,9 @@ struct TVector;
 
 template <unsigned TRows, unsigned TColumns, typename T>
 struct TMatrix {
+    DECLARE_TEMPLATE_RTTI_NO_FRIEND(TMatrix, T, public);
+
+public:
     using Type = T;
     using ColumnType = TVector<TColumns, T>;
 
@@ -19,6 +26,16 @@ struct TMatrix {
     static constexpr const unsigned Columns = TColumns;
 
     static constexpr TMatrix Identity();
+
+    static const RTTI::FName& GetTypeName()
+    {
+        static const RTTI::FName NameHolder(InitName());
+        return NameHolder;
+    }
+    static std::string InitName()
+    {
+        return std::format("Matrix<{}, {}, {}>", TRows, TColumns, RTTI::TypeName<T>());
+    }
 
 public:
     constexpr TMatrix();
@@ -107,5 +124,21 @@ using FMatrix4 = TMatrix4<float>;
 using DMatrix2 = TMatrix2<double>;
 using DMatrix3 = TMatrix3<double>;
 using DMatrix4 = TMatrix4<double>;
+
+RTTI_DECLARE_NAME_TEMPLATE(TMatrix2, float);
+RTTI_DECLARE_NAME_TEMPLATE(TMatrix2, double);
+
+RTTI_DECLARE_NAME_TEMPLATE(TMatrix3, float);
+RTTI_DECLARE_NAME_TEMPLATE(TMatrix3, double);
+
+RTTI_DECLARE_NAME_TEMPLATE(TMatrix4, float);
+RTTI_DECLARE_NAME_TEMPLATE(TMatrix4, double);
+
+RTTI_BEGIN_CLASS_DECLARATION_TEMPLATE(TMatrix2, T)
+RTTI_END_CLASS_DECLARATION
+RTTI_BEGIN_CLASS_DECLARATION_TEMPLATE(TMatrix3, T)
+RTTI_END_CLASS_DECLARATION
+RTTI_BEGIN_CLASS_DECLARATION_TEMPLATE(TMatrix4, T)
+RTTI_END_CLASS_DECLARATION
 
 #include "Matrix.inl"

@@ -2,6 +2,8 @@
 
 #include "Engine/Containers/Array.hxx"
 
+#include "Engine/Core/RTTI/Name.hxx"
+
 namespace RTTI
 {
 
@@ -10,18 +12,18 @@ class IType
 public:
     virtual ~IType() = default;
 
-    [[nodiscard]] virtual std::string_view GetName() const = 0;
+    [[nodiscard]] virtual FName GetName() const = 0;
     [[nodiscard]] virtual uint32 GetSize() const = 0;
     [[nodiscard]] virtual uint32 GetAlignment() const = 0;
 };
 
 class FClass;
 struct FProperty {
-    FProperty(FClass* OwnerClass, std::string_view TypeName, std::string Name, uint32 Offset, uint32 Alignment);
+    FProperty(FClass* OwnerClass, FName TypeName, FName Name, uint32 Offset, uint32 Alignment);
 
     FClass* const OwnerClass = nullptr;
     IType* const Type = nullptr;
-    const std::string Name;
+    const FName Name;
     const uint32 Offset;
     const uint32 Alignment;
 };
@@ -29,11 +31,11 @@ struct FProperty {
 class FClass : public IType
 {
 public:
-    FClass(std::string name, uint32 size, uint32 alignment): Name(std::move(name)), Size(size), Alignment(alignment)
+    FClass(FName name, uint32 size, uint32 alignment): Name(std::move(name)), Size(size), Alignment(alignment)
     {
     }
 
-    [[nodiscard]] std::string_view GetName() const override
+    [[nodiscard]] FName GetName() const override
     {
         return Name;
     }
@@ -61,7 +63,7 @@ public:
 private:
     FClass* ParentClass = nullptr;
 
-    const std::string Name;
+    const FName Name;
     const uint32 Size = 0;
     const uint32 Alignment = 0;
     TArray<FProperty> Properties;
@@ -71,7 +73,7 @@ template <typename T>
 class TTypedClass : public FClass
 {
 public:
-    TTypedClass(std::string Name): FClass(std::move(Name), sizeof(T), alignof(T))
+    TTypedClass(FName Name): FClass(std::move(Name), sizeof(T), alignof(T))
     {
     }
 };
