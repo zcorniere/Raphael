@@ -80,4 +80,92 @@ void Registrar::UnregisterType(IType* type)
     return nullptr;
 }
 
+std::string Registrar::PrintGraph(const FName& name) const
+{
+    const IType* type = FindType(name);
+    if (!type)
+        return std::format("Type {} not found", name);
+    const FClass* root = dynamic_cast<const FClass*>(type);
+    if (!root)
+        return std::format("Type {} is not a class", name);
+
+    std::ostringstream out;
+    out << "digraph RTTIGraph {\n"
+        << "    node [shape=record];\n";
+
+    std::unordered_set<std::string> emittedNodes;
+    std::unordered_set<std::string> emittedEdges;
+
+    const auto escapeDot = [](const std::string& s) -> std::string {
+        std::string result;
+        for (const char c: s)
+            switch (c) {
+                case '"':
+                    result += "\\\"";
+                    break;
+                case '<':
+                    result += "\\<";
+                    break;
+                case '>':
+                    result += "\\>";
+                    break;
+                default:
+                    result += c;
+            }
+        return result;
+    };
+
+    const auto classLabel = [&](const FClass* klass) -> std::string {
+        std::string label = "{" + escapeDot(klass->GetName().ToString()) + "|";
+        for (const auto& member: klass->GetProperties())
+            label += std::format("{} : {}\\l", escapeDot(member.Name.ToString()),
+                                 escapeDot(member.Type ? member.Type->GetName().ToString() : "unknown"));
+        label += "}";
+        return label;
+    };
+
+    const auto emitTypeGraph = [&](this const auto& self, const IType* t) -> void {
+        const std::string typeName = t->GetName().ToString();
+
+        if (const auto* klass = dynamic_cast<const FClass*>(t)) {
+            // Emit class node
+            if (emittedNodes.insert(typeName).second)
+                out << std::format("    \"{}\" [label=\"{}\"];\n", escapeDot(typeName), classLabel(klass));
+            // Emit inheritance edges (dotted)
+            for (const FClass* parent: klass->GetParentClass()) {
+                if (!parent)
+                    continue;
+                const std::string parentName = parent->GetName().ToString();
+                if (emittedNodes.find(parentName) == emittedNodes.end())
+                    self(parent);
+                const std::string inhEdge = std::format("\"{}\" -> \"{}\" [label=\"inherits\", style=dotted]",
+                                                        escapeDot(parentName), escapeDot(typeName));
+                if (emittedEdges.insert(inhEdge).second)
+                    out << "    " << inhEdge << ";\n";
+            }
+            // Emit property-type edges and recurse on property types
+            for (const auto& member: klass->GetProperties()) {
+                if (!member.Type)
+                    continue;
+                const std::string memberTypeName = member.Type->GetName().ToString();
+                const std::string memberEdge = std::format("\"{}\" -> \"{}\" [label=\"member type\"]",
+                                                           escapeDot(typeName), escapeDot(memberTypeName));
+                if (emittedEdges.insert(memberEdge).second)
+                    out << "    " << memberEdge << ";\n";
+                if (emittedNodes.find(memberTypeName) == emittedNodes.end())
+                    self(member.Type);
+            }
+        } else {
+            // Non-class types: emit simple node if needed
+            if (emittedNodes.insert(typeName).second)
+                out << std::format("    \"{}\" [label=\"{}\"];\n", escapeDot(typeName), escapeDot(typeName));
+        }
+    };
+
+    emitTypeGraph(root);
+
+    out << "}\n";
+    return out.str();
+}
+
 }    // namespace RTTI

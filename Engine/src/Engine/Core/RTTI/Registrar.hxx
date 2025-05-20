@@ -43,6 +43,8 @@ public:
     /// @return The type if found, nullptr otherwise.
     [[nodiscard]] IType* FindType(const FName& name) const;
 
+    std::string PrintGraph(const FName& name) const;
+
 private:
     TArray<IClassBuilder*> RegisteredClassBuilders;
     TArray<IType*> RegisteredTypes;
