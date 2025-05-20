@@ -1,5 +1,11 @@
 #pragma once
 
+template <typename T>
+class Ref;
+
+template <typename T>
+class WeakRef;
+
 namespace RTTI
 {
 class FName;
@@ -20,6 +26,17 @@ FORCEINLINE const FName& GetTypeName()
 
 template <class Type>
 FORCEINLINE const FName& GetTypeName(const Type&)
+{
+    return TTypeName<Type>::GetTypeName();
+}
+
+template <class Type>
+FORCEINLINE const FName& GetTypeName(const Ref<Type>&)
+{
+    return TTypeName<Type>::GetTypeName();
+}
+template <class Type>
+FORCEINLINE const FName& GetTypeName(const WeakRef<Type>&)
 {
     return TTypeName<Type>::GetTypeName();
 }

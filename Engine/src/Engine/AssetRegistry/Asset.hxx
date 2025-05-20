@@ -13,6 +13,7 @@ END_PARAMETER_STRUCT();
 
 class RAsset : public RObject
 {
+    DECLARE_RTTI(RAsset);
     RTTI_DECLARE_TYPEINFO(RAsset, RObject);
 
 public:
@@ -67,3 +68,9 @@ private:
     TResourceArray<FVertex> VertexData;
     TResourceArray<uint32> IndexData;
 };
+
+RTTI_BEGIN_CLASS_DECLARATION(RAsset)
+PARENT_CLASS(RObject)
+PROPERTY(bIsMemoryOnly)
+// PROPERTY(AssetPath)
+RTTI_END_CLASS_DECLARATION

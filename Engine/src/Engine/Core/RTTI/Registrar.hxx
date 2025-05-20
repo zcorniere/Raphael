@@ -90,6 +90,7 @@ public:
         };                                                         \
     }
 
+DECLARE_PRIMITIVE_RTTI_TYPE(char)
 DECLARE_PRIMITIVE_RTTI_TYPE(bool)
 DECLARE_PRIMITIVE_RTTI_TYPE(int8)
 DECLARE_PRIMITIVE_RTTI_TYPE(int16)

@@ -90,21 +90,37 @@ public:
         {                                                                                                             \
             using CurrentType = ClassName<TemplateParameter>;
 
-// Note: I need to do this horible cast of adress 0 because of MSVC refusing the CurrentType::field patern. Because this
-// is obviously better
-#define PROPERTY(field)                                                                                       \
-    {                                                                                                         \
-        LOG(LogRegistrar, Trace, "Registering member: " #field);                                              \
-        ::RTTI::FProperty Property(RegisteredClass, ::RTTI::GetTypeName(static_cast<CurrentType*>(0)->field), \
-                                   ::RTTI::FName(#field), offsetof(CurrentType, field),                       \
-                                   __alignof(CurrentType::field));                                            \
-        RegisteredClass->AddProperty(std::move(Property));                                                    \
+#define __INTERNAL_PROPERTY(field, type)                                                          \
+    ::RTTI::FProperty Property(RegisteredClass, ::RTTI::GetTypeName(type), ::RTTI::FName(#field), \
+                               offsetof(CurrentType, field), __alignof(CurrentType::field));      \
+    RegisteredClass->AddProperty(std::move(Property));
+
+// Note: I need to do this horrible cast of adress 0 because of MSVC refusing the CurrentType::field patern. Because
+// this is obviously better
+#define PROPERTY(field)                                                  \
+    {                                                                    \
+        LOG(LogRegistrar, Trace, "Registering member: " #field);         \
+        __INTERNAL_PROPERTY(field, static_cast<CurrentType*>(0)->field); \
+    }
+
+#define REF_PROPERTY(field)                                             \
+    {                                                                   \
+        LOG(LogRegistrar, Trace, "Registering Ref member: " #field);    \
+        __INTERNAL_PROPERTY(field, static_cast<CurrentType*>(0)->field) \
+    }
+
+#define TYPED_PROPERTY(field, type)                                                                     \
+    {                                                                                                   \
+        LOG(LogRegistrar, Trace, "Registering member with forced type " #type " member: " #field);      \
+        ::RTTI::FProperty Property(RegisteredClass, ::RTTI::GetTypeName<type>(), ::RTTI::FName(#field), \
+                                   offsetof(CurrentType, field), __alignof(CurrentType::field));        \
+        RegisteredClass->AddProperty(std::move(Property));                                              \
     }
 
 // #TODO: check if parrent class is acually a FClass instead of just yolo casting
 #define PARENT_CLASS(Parent)                                                                  \
     {                                                                                         \
-        LOG(LogRegistrar, Trace, "Registering Parent class :" #Parent);                       \
+        LOG(LogRegistrar, Trace, "Registering Parent class: " #Parent);                       \
         ::RTTI::IType* ParentClass = RTTI::Registrar::Get().FindType(::RTTI::FName(#Parent)); \
         check(ParentClass);                                                                   \
         RegisteredClass->AddParentClass(static_cast<::RTTI::FClass*>(ParentClass));           \

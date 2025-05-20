@@ -1,6 +1,7 @@
 #include "Engine/Core/RTTI/Registrar.hxx"
 
 #include "Engine/Core/RTTI/Name.hxx"
+#include <unordered_set>
 
 #define DECLARE_PRIMITIVE_RTTI_REGISTRATION(Type)               \
     RTTI_DEFINE_NAME(Type);                                     \
@@ -9,6 +10,7 @@
     const TPrimitiveType##Type gRegistrator##Type##Registrator; \
     }
 
+DECLARE_PRIMITIVE_RTTI_REGISTRATION(char)
 DECLARE_PRIMITIVE_RTTI_REGISTRATION(bool)
 DECLARE_PRIMITIVE_RTTI_REGISTRATION(int8)
 DECLARE_PRIMITIVE_RTTI_REGISTRATION(int16)

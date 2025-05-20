@@ -42,12 +42,10 @@ protected:
 private:
     WeakRef<RSceneComponent> RootComponent = nullptr;
     Ref<RMeshComponent> MeshComponent = nullptr;
-
-    int32 TestIndex = 0;
 };
 
 RTTI_BEGIN_CLASS_DECLARATION(AActor)
-// PROPERTY(RootComponent)
-// PROPERTY(MeshComponent)
-PROPERTY(TestIndex)
+PARENT_CLASS(RObject)
+REF_PROPERTY(RootComponent)
+REF_PROPERTY(MeshComponent)
 RTTI_END_CLASS_DECLARATION;

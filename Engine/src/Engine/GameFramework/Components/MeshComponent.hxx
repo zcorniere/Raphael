@@ -5,6 +5,7 @@
 
 class RMeshComponent : public RSceneComponent
 {
+    DECLARE_RTTI(RMeshComponent);
     RTTI_DECLARE_TYPEINFO(RMeshComponent, RSceneComponent)
 public:
     RMeshComponent() = default;
@@ -17,6 +18,11 @@ public:
     Ref<RAsset> Asset = nullptr;
     Ref<RRHIMaterial> Material = nullptr;
 };
+
+RTTI_BEGIN_CLASS_DECLARATION(RMeshComponent)
+PARENT_CLASS(RSceneComponent);
+REF_PROPERTY(Asset);
+RTTI_END_CLASS_DECLARATION;
 
 inline void RMeshComponent::SetAsset(Ref<RAsset> InAsset)
 {

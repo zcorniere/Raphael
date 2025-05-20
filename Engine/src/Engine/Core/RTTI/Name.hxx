@@ -20,8 +20,12 @@ public:
     {
         return Index;
     }
+    std::string ToString() const;
 
-    bool operator==(const FName& Other) const = default;
+    bool operator==(const FName& Other) const
+    {
+        return Index == Other.Index;
+    }
 
 private:
     int32 Index;
@@ -39,6 +43,11 @@ public:
         FNameHolder(const std::string& name, int32 index): Name(name), Index(index)
         {
             assert(!name.empty());
+        }
+
+        bool operator==(const FNameHolder& Other) const
+        {
+            return Name == Other.Name;
         }
     };
 
@@ -69,6 +78,15 @@ private:
     TArray<FNameHolder, MaxNamePoolSize> NamePool = 0;
     mutable std::mutex Mutex;
 };
+
+inline std::string FName::ToString() const
+{
+    if (Index == FNamePool::InvalidIndex) {
+        return "None";
+    }
+    return FNamePool::Get().FindName(Index);
+}
+
 }    // namespace RTTI
 
 DEFINE_PRINTABLE_TYPE(RTTI::FName, "{}", RTTI::FNamePool::Get().FindName(Value.GetIndex()))

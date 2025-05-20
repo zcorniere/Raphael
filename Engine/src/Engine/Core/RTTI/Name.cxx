@@ -32,7 +32,7 @@ void FNamePool::AddStaticName(FNameHolder name)
     std::lock_guard<std::mutex> lock(Mutex);
     ensureAlwaysMsg(NamePool.Size() <= MaxNamePoolSize, "Name pool is full !");
     name.Index = NamePool.Size();
-    NamePool.Add(std::move(name));
+    NamePool.AddUnique(std::move(name));
 }
 
 uint32 FNamePool::AddDynamicName(const std::string& Name)
@@ -41,7 +41,8 @@ uint32 FNamePool::AddDynamicName(const std::string& Name)
     ensureAlwaysMsg(NamePool.Size() <= MaxNamePoolSize, "Name pool is full !");
 
     // Check if the name already exists
-    FNameHolder* Existing = NamePool.FindByLambda([&Name](const FNameHolder& other) { return other.Name == Name; });
+    FNameHolder* const Existing =
+        NamePool.FindByLambda([&Name](const FNameHolder& other) { return other.Name == Name; });
     if (Existing) {
         return Existing->Index;
     }

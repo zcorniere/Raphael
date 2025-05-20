@@ -24,8 +24,6 @@
 #include <Engine/Core/RTTI/Name.hxx>
 #include <Engine/Core/RTTI/TypeName.hxx>
 
-#include <Engine/Core/RTTI/RObject.hxx>
-
 #include <Engine/Misc/Profiler.hxx>
 
 #include <Engine/Misc/Assertions.hxx>
@@ -36,6 +34,8 @@
 #include <Engine/Containers/Map.hxx>
 
 #include <Engine/Core/RTTI/ClassBuilder.hxx>
+
+#include <Engine/Core/RTTI/RObject.hxx>
 
 #include <Engine/Math/Matrix.hxx>
 #include <Engine/Math/Vector.hxx>

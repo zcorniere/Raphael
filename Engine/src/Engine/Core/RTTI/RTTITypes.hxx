@@ -57,11 +57,20 @@ public:
 
     void AddParentClass(FClass* InParentClass)
     {
-        ParentClass = InParentClass;
+        ParentClass.AddUnique(InParentClass);
+    }
+    [[nodiscard]] const TArray<FClass*>& GetParentClass() const
+    {
+        return ParentClass;
+    }
+
+    [[nodiscard]] const TArray<FProperty>& GetProperties() const
+    {
+        return Properties;
     }
 
 private:
-    FClass* ParentClass = nullptr;
+    TArray<FClass*> ParentClass;
 
     const FName Name;
     const uint32 Size = 0;

@@ -2,6 +2,9 @@
 
 #include <unordered_set>
 
+IMPLEMENT_RTTI(FNamedClass)
+IMPLEMENT_RTTI(RObject)
+
 static std::unordered_set<RObject*> s_LiveReferences;
 static std::recursive_mutex s_LiveReferenceMutex;
 
