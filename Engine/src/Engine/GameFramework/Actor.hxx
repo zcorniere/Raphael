@@ -6,6 +6,7 @@
 
 class AActor : public RObject, public Raphael::FUUID
 {
+    DECLARE_RTTI(AActor);
     RTTI_DECLARE_TYPEINFO(AActor, RObject)
 public:
     AActor();
@@ -42,3 +43,9 @@ private:
     WeakRef<RSceneComponent> RootComponent = nullptr;
     Ref<RMeshComponent> MeshComponent = nullptr;
 };
+
+RTTI_BEGIN_CLASS_DECLARATION(AActor)
+PARENT_CLASS(RObject)
+REF_PROPERTY(RootComponent)
+REF_PROPERTY(MeshComponent)
+RTTI_END_CLASS_DECLARATION;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Misc/Assertions.hxx"
+
 #include "Engine/Core/Memory/MemoryOperations.hxx"
 #include "Engine/Misc/MiscDefines.hxx"
 
@@ -381,16 +383,26 @@ public:
     /// @arg Item The element to find
     /// @return The index of the element if found, std::nullopt otherwise
     [[nodiscard]] std::optional<TSize> Find(const T& Item) const
+    requires(std::is_same_v<std::remove_cv<T>, char*>)
     {
         for (TSize i = 0; i < Size(); i++) {
-            if constexpr (std::is_same_v<std::remove_cv<T>, char*>) {
-                if (strcmp(Item, (*this)[i]) == 0) {
-                    return i;
-                }
-            } else {
-                if (Item == (*this)[i]) {
-                    return i;
-                }
+            if (strcmp(Item, (*this)[i]) == 0) {
+                return i;
+            }
+        }
+        return std::nullopt;
+    }
+    /// Find the index of the given element
+    /// @note Support char* strings with strcmp
+    ///
+    /// @arg Item The element to find
+    /// @return The index of the element if found, std::nullopt otherwise
+    [[nodiscard]] std::optional<TSize> Find(const T& Item) const
+    requires CIsEqualityComparable<T>
+    {
+        for (TSize i = 0; i < Size(); i++) {
+            if (Item == (*this)[i]) {
+                return i;
             }
         }
         return std::nullopt;

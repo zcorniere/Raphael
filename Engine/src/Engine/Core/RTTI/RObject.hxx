@@ -30,6 +30,7 @@ bool AreThereAnyLiveObject(bool bPrintObjects = true);
 
 class FNamedClass : public RTTI::FEnable
 {
+    DECLARE_RTTI(FNamedClass);
     RTTI_DECLARE_TYPEINFO(FNamedClass);
 
 public:
@@ -64,6 +65,7 @@ private:
 /// Custom Ref Counting class
 class RObject : public FNamedClass
 {
+    DECLARE_RTTI(RObject);
     RTTI_DECLARE_TYPEINFO(RObject, FNamedClass);
 
 public:
@@ -111,6 +113,8 @@ template <typename T>
 class Ref
 {
 public:
+    using EnclosedType = T;
+
     /// @brief Create a new RObject and give it is name
     /// @return the new RObject
     template <typename... Args>
@@ -454,3 +458,11 @@ struct hash<WeakRef<T>> {
 };
 
 }    // namespace std
+
+RTTI_BEGIN_CLASS_DECLARATION(FNamedClass)
+RTTI_END_CLASS_DECLARATION;
+
+RTTI_BEGIN_CLASS_DECLARATION(RObject)
+PARENT_CLASS(FNamedClass)
+TYPED_PROPERTY(m_RefCount, uint32)
+RTTI_END_CLASS_DECLARATION;

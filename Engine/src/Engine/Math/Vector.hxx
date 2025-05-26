@@ -4,6 +4,10 @@
     #include <cmath>
 #endif    // RPH_NAN_CHECKS
 
+DECLARE_RTTI_CLASSBUILDER_TEMPLATE(TVector2, T)
+DECLARE_RTTI_CLASSBUILDER_TEMPLATE(TVector3, T)
+DECLARE_RTTI_CLASSBUILDER_TEMPLATE(TVector4, T)
+
 namespace Math
 {
 
@@ -15,7 +19,11 @@ constexpr std::strong_ordering IsVectorEqual(const TVector<Size, T>& lhs, const 
 
 template <typename T>
 struct TVector<2, T> {
+    DECLARE_TEMPLATE_RTTI(TVector2, T);
+
+public:
     using Type = T;
+
     static constexpr unsigned Length = 2;
     union {
         struct {
@@ -35,7 +43,11 @@ struct TVector<2, T> {
 
 template <typename T>
 struct TVector<3, T> {
+    DECLARE_TEMPLATE_RTTI(TVector3, T);
+
+public:
     using Type = T;
+
     static constexpr unsigned Length = 3;
     union {
         struct {
@@ -59,7 +71,11 @@ struct TVector<3, T> {
 
 template <typename T>
 struct TVector<4, T> {
+    DECLARE_TEMPLATE_RTTI(TVector4, T);
+
+public:
     using Type = T;
+
     static constexpr unsigned Length = 4;
     union {
         struct {
@@ -165,3 +181,30 @@ using UVector3 = Math::TVector<3, uint32>;
 using UVector4 = Math::TVector<4, uint32>;
 
 #include "Vector.inl"
+
+RTTI_DECLARE_NAME_TEMPLATE(TVector2, float);
+RTTI_DECLARE_NAME_TEMPLATE(TVector2, double);
+
+RTTI_DECLARE_NAME_TEMPLATE(TVector3, float);
+RTTI_DECLARE_NAME_TEMPLATE(TVector3, double);
+
+RTTI_DECLARE_NAME_TEMPLATE(TVector4, float);
+RTTI_DECLARE_NAME_TEMPLATE(TVector4, double);
+
+RTTI_BEGIN_CLASS_DECLARATION_TEMPLATE(TVector2, T)
+PROPERTY(x)
+PROPERTY(y)
+RTTI_END_CLASS_DECLARATION;
+
+RTTI_BEGIN_CLASS_DECLARATION_TEMPLATE(TVector3, T)
+PROPERTY(x)
+PROPERTY(y)
+PROPERTY(z)
+RTTI_END_CLASS_DECLARATION;
+
+RTTI_BEGIN_CLASS_DECLARATION_TEMPLATE(TVector4, T)
+PROPERTY(x)
+PROPERTY(y)
+PROPERTY(z)
+PROPERTY(w)
+RTTI_END_CLASS_DECLARATION;

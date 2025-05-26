@@ -4,6 +4,7 @@
 
 class RSceneComponent : public RObject
 {
+    DECLARE_RTTI(RSceneComponent);
     RTTI_DECLARE_TYPEINFO(RSceneComponent, RObject)
 public:
     RSceneComponent() = default;
@@ -27,9 +28,16 @@ public:
 private:
     FTransform RelativeTransform;
 
-    uint8 bTransformDirty : 1 = false;
-    uint8 bRenderStateDirty : 1 = false;
+    bool bTransformDirty = false;
+    bool bRenderStateDirty = false;
 };
+
+RTTI_BEGIN_CLASS_DECLARATION(RSceneComponent)
+PARENT_CLASS(RObject)
+PROPERTY(RelativeTransform)
+PROPERTY(bTransformDirty)
+PROPERTY(bRenderStateDirty)
+RTTI_END_CLASS_DECLARATION;
 
 inline void RSceneComponent::SetRelativeLocation(const FVector3& Location)
 {

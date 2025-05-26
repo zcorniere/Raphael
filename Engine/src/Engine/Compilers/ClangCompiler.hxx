@@ -16,6 +16,12 @@ static_assert(false, "Clang Compiler header included without compiling with clan
 
 #define ASSUME(...) __builtin_assume((__VA_ARGS__)) /* Assume code will ALWAYS be true */
 
+#define DISABLE_WARNING_PUSH _Pragma("GCC diagnostic push")
+#define DISABLE_WARNING_POP _Pragma("GCC diagnostic pop")
+
+#define __PRAGMA_INTERNAL(X) _Pragma(#X)
+#define DISABLE_WARNING(warning) __PRAGMA_INTERNAL(clang diagnostic ignored warning)
+
 ///
 /// @brief Wrapper around clang intrinsics function
 ///

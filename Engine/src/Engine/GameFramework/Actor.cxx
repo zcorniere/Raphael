@@ -1,5 +1,10 @@
 #include "Engine/GameFramework/Actor.hxx"
 
+IMPLEMENT_RTTI(AActor)
+
+IMPLEMENT_RTTI(RMeshComponent)
+IMPLEMENT_RTTI(RSceneComponent)
+
 AActor::AActor()
 {
     MeshComponent = Ref<RMeshComponent>::Create();

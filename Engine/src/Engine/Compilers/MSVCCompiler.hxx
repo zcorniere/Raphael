@@ -23,6 +23,10 @@ static_assert(false, "MSVC Compiler header included without compiling with MSVC"
 
 #define ASSUME(...) __assume((__VA_ARGS__)) /* Assume code will ALWAYS be true */
 
+#define DISABLE_WARNING_PUSH __pragma(warning(push))
+#define DISABLE_WARNING_POP __pragma(warning(pop))
+#define DISABLE_WARNING(warning) __pragma(warning(disable : warning))
+
 ///
 /// @brief Wrapper around MSCV intrinsics functions
 ///

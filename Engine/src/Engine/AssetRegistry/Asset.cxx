@@ -2,6 +2,8 @@
 
 #include "Engine/Core/RHI/RHI.hxx"
 
+IMPLEMENT_RTTI(RAsset)
+
 RAsset::RAsset(const std::filesystem::path& Path): bIsMemoryOnly(false), AssetPath(Path.string())
 {
     SetName(Path.stem().string());

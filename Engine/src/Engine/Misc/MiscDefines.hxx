@@ -60,6 +60,17 @@ concept CHashable = requires(T a) {
 template <typename T>
 concept CIsFunctionPointer = requires { std::is_pointer_v<T>&& std::is_function_v<typename std::remove_pointer<T>>; };
 
+// Is the template argument implement the == operator ?
+template <typename T>
+concept CIsEqualityComparable = requires(T a, T b) {
+    { a == b } -> std::convertible_to<bool>;
+};
+
+template <typename T>
+concept CCharacter =
+    std::same_as<T, char> || std::same_as<T, signed char> || std::same_as<T, unsigned char> ||
+    std::same_as<T, wchar_t> || std::same_as<T, char8_t> || std::same_as<T, char16_t> || std::same_as<T, char32_t>;
+
 /// Is the types compatibles ?
 template <typename TSource, typename TDest>
 concept CCompatibleTypes =
