@@ -64,8 +64,9 @@ VkPresentModeKHR RVulkanSwapChain::FSupportDetails::ChooseSwapPresentMode(bool L
     LOG(LogVulkanSwapchain, Info, "Found {} Surface present modes:", PresentModes.Size());
 
     for (const auto& availablePresentMode: PresentModes) {
+        const auto Index = magic_enum::enum_index(availablePresentMode);
         LOG(LogVulkanSwapchain, Info, "- {}({})", magic_enum::enum_name(availablePresentMode),
-            magic_enum::enum_index(availablePresentMode).value());
+            (Index.has_value() ? Index.value() : NAN));
         switch (availablePresentMode) {
             case VK_PRESENT_MODE_MAILBOX_KHR:
                 bFoundPresentModeMailbox = true;
