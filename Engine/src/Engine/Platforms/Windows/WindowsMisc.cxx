@@ -9,6 +9,7 @@
 
 #include <libloaderapi.h>
 #include <shlobj_core.h>
+#include "WindowsMisc.hxx"
 
 EBoxReturnType FWindowsMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
                                                const std::string_view Caption)
@@ -42,6 +43,74 @@ EBoxReturnType FWindowsMisc::DisplayMessageBox(EBoxMessageType MsgType, const st
     return EBoxReturnType::Cancel;
 }
 
+static void GetCPUVendor(char (&OutBuffer)[12 + 1])
+{
+    union
+    {
+        char Buffer[12 + 1];
+        struct
+        {
+            int dw0;
+            int dw1;
+            int dw2;
+        } Dw;
+    } VendorResult;
+
+    int Args[4];
+    __cpuid(Args, 0);
+
+    VendorResult.Dw.dw0 = Args[1];
+    VendorResult.Dw.dw1 = Args[3];
+    VendorResult.Dw.dw2 = Args[2];
+    VendorResult.Buffer[12] = 0;
+
+    std::memcpy(OutBuffer, VendorResult.Buffer, std::size(OutBuffer));
+}
+
+static void GetCPUBrand(char (&OutBrandString)[0x40])
+{
+	// @see for more information http://msdn.microsoft.com/en-us/library/vstudio/hskdteyh(v=vs.100).aspx
+	char BrandString[0x40] = {0};
+	int32 CPUInfo[4] = {-1};
+	const SIZE_T CPUInfoSize = sizeof( CPUInfo );
+
+	__cpuid( CPUInfo, 0x80000000 );
+	const uint32 MaxExtIDs = CPUInfo[0];
+
+	if( MaxExtIDs >= 0x80000004 )
+	{
+		const uint32 FirstBrandString = 0x80000002;
+		const uint32 NumBrandStrings = 3;
+		for( uint32 Index = 0; Index < NumBrandStrings; Index++ )
+		{
+			__cpuid( CPUInfo, FirstBrandString + Index );
+			std::memcpy( BrandString + CPUInfoSize * Index, CPUInfo, CPUInfoSize );
+		}
+	}
+
+	std::memcpy(OutBrandString, BrandString, std::size(BrandString));
+}
+
+const FCPUInformation &FWindowsMisc::GetCPUInformation()
+{
+    static FCPUInformation Informations = {};
+    if (Informations.Vendor[0] != '\0') [[likely]]
+    {
+        return Informations; 
+    }
+
+    std::memset(&Informations, 0, sizeof(Informations));
+
+    GetCPUBrand(Informations.Brand);
+    GetCPUVendor(Informations.Vendor);
+
+    int reg[4];
+    std::memset(reg, 0, sizeof(reg));
+
+    __cpuid(reg, 1);
+    Informations.AES = reg[2] & 0x02000000;
+    return Informations;
+}
 // ------------------ Windows External Module --------------------------
 
 static TMap<std::string, WeakRef<RWindowsExternalModule>> s_ModuleStorage;

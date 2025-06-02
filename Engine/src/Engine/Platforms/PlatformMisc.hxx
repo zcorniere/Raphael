@@ -4,6 +4,17 @@
 
 #include <magic_enum/magic_enum.hpp>
 
+/// Structure that hold info about the CPU, things like instruction set, vendor named etc...
+struct FCPUInformation
+{
+    char Vendor[12 + 1] = {0};
+    char Brand[0x40] = {0};
+    // Is the AVX512 extension supported ?
+    bool AVX512 = false;
+    // Is the AES extension supported ?
+    bool AES = false;
+};
+
 /// Enumerates supported message dialog button types.
 enum EBoxMessageType {
     Ok,
@@ -65,6 +76,10 @@ public:
         LOG(LogPlatformMisc, Info, "{:s} Message Box: {:s} {:s}", magic_enum::enum_name(Type), Title, Text);
         return EBoxReturnType::Ok;
     }
+
+    /// @brief Return the capability of the CPU
+    /// @note The function will only query the CPU once when the function is called for the first time.
+    static const FCPUInformation& GetCPUInformation();
 
     /// @brief Platform independent function to allocate memory
     /// @param TargetMemory The location reserved for the allocator (it is exaclty the size of IMallocInterface)

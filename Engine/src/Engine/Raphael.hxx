@@ -23,6 +23,8 @@
 
 #include <Engine/Core/RTTI/RObject.hxx>
 
+#include <Engine/Platforms/PlatformMisc.hxx>
+
 #include <Engine/Misc/Profiler.hxx>
 
 #include <Engine/Misc/Assertions.hxx>

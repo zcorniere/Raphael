@@ -20,13 +20,20 @@ private:
 class FWindowsMisc : public FGenericMisc
 {
 public:
+    /// @copydoc FGenericMisc::DisplayMessageBox
     static EBoxReturnType DisplayMessageBox(EBoxMessageType MsgType, const std::string_view Text,
                                             const std::string_view Caption);
 
+    /// @copydoc FGenericMisc::GetCPUInformation
+    static const FCPUInformation &GetCPUInformation();
+
+    /// @copydoc FGenericMisc::BaseAllocator
     static bool BaseAllocator(void* TargetMemory);
 
+    /// @copydoc FGenericMisc::LoadExternalModule
     static Ref<IExternalModule> LoadExternalModule(const std::string& ModuleName);
 
+    /// @copydoc FGenericMisc::GetConfigPath
     static std::filesystem::path GetConfigPath();
 };
 
