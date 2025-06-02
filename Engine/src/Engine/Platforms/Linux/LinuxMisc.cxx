@@ -8,6 +8,7 @@
 #include "Engine/Misc/CommandLine.hxx"
 
 #include <ModernDialogs.h>
+#include <cpuid.h>
 #include <dlfcn.h>
 #include <filesystem>
 #include <xdg.hpp>
@@ -47,6 +48,84 @@ EBoxReturnType FLinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std:
             break;
     }
     return EBoxReturnType::Ok;
+}
+
+static void GetCPUVendor(char (&OutBuffer)[12 + 1])
+{
+    std::memset(OutBuffer, 0, sizeof(OutBuffer));
+
+    union {
+        int8 Buffer[12 + 1];
+        struct {
+            int32 dw0;
+            int32 dw1;
+            int32 dw2;
+        } Dw;
+    } VendorResult;
+
+    int32 Args[4];
+    __cpuid(0, Args[0], Args[1], Args[2], Args[3]);
+
+    VendorResult.Dw.dw0 = Args[1];
+    VendorResult.Dw.dw1 = Args[3];
+    VendorResult.Dw.dw2 = Args[2];
+    VendorResult.Buffer[12] = 0;
+
+    std::memcpy(OutBuffer, VendorResult.Buffer, std::size(OutBuffer));
+}
+
+static void GetCPUBrand(char (&OutBrandString)[0x40])
+{
+    std::memset(OutBrandString, 0, sizeof(OutBrandString));
+
+    // @see for more information http://msdn.microsoft.com/en-us/library/vstudio/hskdteyh(v=vs.100).aspx
+    char BrandString[0x40] = {0};
+    int32 CPUInfo[4] = {-1};
+    const size_t CPUInfoSize = sizeof(CPUInfo);
+
+    __cpuid(0x80000000, CPUInfo[0], CPUInfo[1], CPUInfo[2], CPUInfo[3]);
+    const uint32 MaxExtIDs = CPUInfo[0];
+
+    if (MaxExtIDs >= 0x80000004) {
+        const uint32 FirstBrandString = 0x80000002;
+        const uint32 NumBrandStrings = 3;
+        for (uint32 Index = 0; Index < NumBrandStrings; Index++) {
+            __cpuid(FirstBrandString + Index, CPUInfo[0], CPUInfo[1], CPUInfo[2], CPUInfo[3]);
+            std::memcpy(BrandString + CPUInfoSize * Index, CPUInfo, CPUInfoSize);
+        }
+    }
+
+    std::memcpy(OutBrandString, BrandString, std::size(BrandString));
+}
+
+bool SupportAES()
+{
+    unsigned int eax, ebx, ecx, edx;
+    __cpuid(1, eax, ebx, ecx, edx);
+    return (ecx & 0x02000000) != 0;    // Check if AES is supported
+}
+
+bool SupportAVX512()
+{
+    unsigned int eax, ebx, ecx, edx;
+    __get_cpuid_count(7, 0, &eax, &ebx, &ecx, &edx);
+    return (ebx & (1 << 16)) != 0;    // Check if AVX512F is supported
+}
+
+const FCPUInformation& FLinuxMisc::GetCPUInformation()
+{
+    static FCPUInformation Info;
+    if (Info.Vendor[0] != '\0') {
+        return Info;
+    }
+
+    GetCPUBrand(Info.Brand);
+    GetCPUVendor(Info.Vendor);
+
+    Info.AES = SupportAES();
+    Info.AVX512 = SupportAVX512();
+
+    return Info;
 }
 
 // ------------------ Linux External Module --------------------------

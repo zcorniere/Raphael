@@ -27,6 +27,9 @@ public:
     /// @copydoc GenericMisc::DisplayMessageBox
     static EBoxReturnType DisplayMessageBox(EBoxMessageType MsgType, const std::string Title, const std::string Text);
 
+    /// @copydoc GenericMisc::GetCPUInformation
+    static const FCPUInformation& GetCPUInformation();
+
     /// @copydoc GenericMisc::BaseAllocator
     static bool BaseAllocator(void* TargetMemory);
 
