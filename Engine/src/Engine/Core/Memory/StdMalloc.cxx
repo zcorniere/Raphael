@@ -1,8 +1,15 @@
 #include "Engine/Core/Memory/StdMalloc.hxx"
 
-void* FStdMalloc::Alloc(uint32 Size, uint32)
+void* FStdMalloc::Alloc(uint32 Size, uint32 Alignment)
 {
-    return std::malloc(Size);
+    if (Alignment != 0)
+    {
+        return std::aligned_alloc(Alignment, Size);
+    }
+    else
+    {
+        return std::malloc(Size);
+    }
 }
 
 void* FStdMalloc::Realloc(void* Original, uint32 Size, uint32)
