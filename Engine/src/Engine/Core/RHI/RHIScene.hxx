@@ -33,13 +33,35 @@ namespace std
 template <>
 struct hash<FRenderRequestKey>
 {
-    std::size_t operator()(const FRenderRequestKey& Key) const
+    FORCEINLINE std::size_t operator()(const FRenderRequestKey& Key) const
     {
         return std::hash<RAsset*>{}(Key.Asset) ^ std::hash<RRHIMaterial*>{}(Key.Material);
     }
 };
 
 }    // namespace std
+
+struct FRHISceneUpdateBatch
+{
+    FRHISceneUpdateBatch(unsigned Count);
+
+    TArray<FMatrix4, 64> MatrixArray;
+
+    TArray<uint64> Actors;
+
+    TArray<float, 64> PositionX;
+    TArray<float, 64> PositionY;
+    TArray<float, 64> PositionZ;
+
+    TArray<float, 64> ScaleX;
+    TArray<float, 64> ScaleY;
+    TArray<float, 64> ScaleZ;
+
+    TArray<float, 64> QuaternionX;
+    TArray<float, 64> QuaternionY;
+    TArray<float, 64> QuaternionZ;
+    TArray<float, 64> QuaternionW;
+};
 
 template <ERenderSceneLockType LockType>
 class TRenderSceneLock
@@ -76,9 +98,15 @@ private:
     struct FMeshRepresentation
     {
         FTransform Transform = {};
-        uint32 TransformBufferIndex = 0;
-        uint32 RenderBufferIndex = 0;
+        uint32 TransformBufferIndex = std::numeric_limits<uint32>::max();
+        uint32 RenderBufferIndex = std::numeric_limits<uint32>::max();
         WeakRef<RMeshComponent> Mesh = nullptr;
+    };
+
+    struct FActorRepresentationUpdateRequest
+    {
+        uint64 ActorId = 0;
+        FTransform NewTransform = {};
     };
 
 public:
@@ -99,22 +127,28 @@ public:
 private:
     void UpdateCameraAspectRatio();
 
+    void Async_UpdateActorRepresentations(FRHISceneUpdateBatch& Batch);
+
 private:
     FRHIRenderPassTarget RenderPassTarget;
 
     UCameraData CameraData;
     Ref<RRHIBuffer> u_CameraBuffer = nullptr;
 
-    TMap<std::string, TResourceArray<FMatrix4>> TransformResourceArray;
-    TMap<std::string, Ref<RRHIBuffer>> TransformBuffers;
+    TMap<uint64, TResourceArray<FMatrix4>> TransformResourceArray;
+    TMap<uint64, Ref<RRHIBuffer>> TransformBuffers;
     TMap<FRenderRequestKey, TArray<FMeshRepresentation*>> RenderCalls;
 
-    TArray<uint64> NewlyAddedActors;
     TMap<uint64, TArray<FMeshRepresentation>> WorldActorRepresentation;
     TArray<WeakRef<RCameraComponent<float>>> CameraComponents;
 
     FRWFifoLock Lock;
     FRHIContext* const Context = nullptr;
+
+    std::future<void> AsyncTaskUpdateResult;
+
+    std::mutex ActorAttentionMutex;
+    TMap<uint64, FActorRepresentationUpdateRequest> ActorThatNeedAttention;
 
     template <ERenderSceneLockType LockType>
     friend class TRenderSceneLock;

@@ -19,6 +19,7 @@ Ref<RAsset> FAssetRegistry::LoadAsset(const std::filesystem::path& Path)
     if (Asset->Load())
     {
         AssetRegistry.Insert(Asset->GetName(), Asset);
+        AssetRegistryById.Insert(Asset->ID(), Asset);
         return Asset;
     }
     return nullptr;
@@ -29,6 +30,7 @@ Ref<RAsset> FAssetRegistry::RegisterMemoryOnlyAsset(Ref<RAsset>& Asset)
     if (!AssetRegistry.Contains(Asset->GetName()))
     {
         AssetRegistry.Insert(Asset->GetName(), Asset);
+        AssetRegistryById.Insert(Asset->ID(), Asset);
         return Asset;
     }
     LOG(LogAssetRegistry, Warning, "Asset {:s} already registered", Asset->GetName());
@@ -39,6 +41,7 @@ Ref<RRHIMaterial> FAssetRegistry::RegisterMemoryOnlyMaterial(Ref<RRHIMaterial>& 
 {
     if (!MaterialRegistry.Contains(Material->GetName()))
     {
+        MaterialRegistryId.Insert(Material->ID(), Material);
         MaterialRegistry.Insert(Material->GetName(), Material);
         return Material;
     }
@@ -68,6 +71,28 @@ Ref<RRHIMaterial> FAssetRegistry::GetMaterial(const std::string& Name) const
     return nullptr;
 }
 
+Ref<RAsset> FAssetRegistry::GetAssetByID(uint64 ID) const
+{
+    const Ref<RAsset>* Asset = AssetRegistryById.Find(ID);
+    if (Asset)
+    {
+        return *Asset;
+    }
+    LOG(LogAssetRegistry, Warning, "Asset with ID {:d} not found", ID);
+    return nullptr;
+}
+
+Ref<RRHIMaterial> FAssetRegistry::GetMaterialByID(uint64 ID) const
+{
+    const Ref<RRHIMaterial>* Material = MaterialRegistryId.Find(ID);
+    if (Material)
+    {
+        return *Material;
+    }
+    LOG(LogAssetRegistry, Warning, "Material with ID {:d} not found", ID);
+    return nullptr;
+}
+
 void FAssetRegistry::UnloadAsset(const std::string& Name)
 {
     Ref<RAsset>* Asset = AssetRegistry.Find(Name);
@@ -85,6 +110,8 @@ void FAssetRegistry::Purge()
         Asset->Unload();
     }
     AssetRegistry.Clear();
+    AssetRegistryById.Clear();
 
     MaterialRegistry.Clear();
+    MaterialRegistryId.Clear();
 }

@@ -1,5 +1,6 @@
 #include "Engine/Core/RHI/RHIScene.hxx"
 
+#include "Engine/Core/Engine.hxx"
 #include "Engine/Core/RHI/GenericRHI.hxx"
 #include "Engine/Core/RHI/RHI.hxx"
 
@@ -23,30 +24,32 @@ RRHIScene::RRHIScene(RWorld* OwnerWorld): Context(RHI::Get()->RHIGetCommandConte
     CameraData.ViewProjection = FMatrix4::Identity();
 
     // Register to the world events
-    OwnerWorld->OnActorAddedToWorld.Add(this,
-                                        [this](AActor* Actor) mutable
-                                        {
-                                            TRenderSceneLock<ERenderSceneLockType::Write> Lock(this);
-                                            TArray<FMeshRepresentation>& Representation =
-                                                WorldActorRepresentation.Emplace(Actor->ID());
+    OwnerWorld->OnActorAddedToWorld.Add(
+        this,
+        [this](AActor* Actor) mutable
+        {
+            TRenderSceneLock<ERenderSceneLockType::Write> Lock(this);
+            TArray<FMeshRepresentation>& Representation = WorldActorRepresentation.Emplace(Actor->ID());
 
-                                            RMeshComponent* const MeshComponent = Actor->GetMesh();
-                                            if (MeshComponent)
-                                            {
-                                                FMeshRepresentation& Mesh = Representation.Emplace();
-                                                Mesh.Transform = Actor->GetRootComponent()->GetRelativeTransform();
-                                                Mesh.Mesh = MeshComponent;
+            RMeshComponent* const MeshComponent = Actor->GetMesh();
+            if (MeshComponent)
+            {
+                FMeshRepresentation& Mesh = Representation.Emplace();
+                Mesh.Transform = Actor->GetRootComponent()->GetRelativeTransform();
+                Mesh.Mesh = MeshComponent;
 
-                                                NewlyAddedActors.Add(Actor->ID());
-                                            }
+                ActorThatNeedAttention.Insert(Actor->ID(), FActorRepresentationUpdateRequest{
+                                                               .ActorId = Actor->ID(),
+                                                               .NewTransform = Mesh.Transform,
+                                                           });
+            }
 
-                                            RCameraComponent<float>* CameraComponent =
-                                                Actor->GetComponent<RCameraComponent<float>>();
-                                            if (CameraComponent)
-                                            {
-                                                CameraComponents.Add(CameraComponent);
-                                            }
-                                        });
+            RCameraComponent<float>* CameraComponent = Actor->GetComponent<RCameraComponent<float>>();
+            if (CameraComponent)
+            {
+                CameraComponents.Add(CameraComponent);
+            }
+        });
 
     OwnerWorld->OnActorRemovedFromWorld.Add(
         this,
@@ -58,7 +61,7 @@ RRHIScene::RRHIScene(RWorld* OwnerWorld): Context(RHI::Get()->RHIGetCommandConte
 
             for (FMeshRepresentation& Mesh: DeletedMesh.Get<1>())
             {
-                TResourceArray<FMatrix4>* TransformArrays = TransformResourceArray.Find(Mesh.Mesh->Asset->GetName());
+                TResourceArray<FMatrix4>* TransformArrays = TransformResourceArray.Find(Mesh.Mesh->Asset->ID());
                 if (TransformArrays)
                 {
                     TransformArrays->RemoveAt(Mesh.TransformBufferIndex);
@@ -96,36 +99,63 @@ void RRHIScene::SetRenderPassTarget(const FRHIRenderPassTarget& InRenderPassTarg
 
 void RRHIScene::PreTick()
 {
+    RPH_PROFILE_FUNC("RRHIScene::PreTick - Take care of the new actors")
+
+    auto UpdateBatch = std::make_shared<FRHISceneUpdateBatch>(ActorThatNeedAttention.Size());
+
+    for (auto& [ActorID, UpdateRequest]: ActorThatNeedAttention)
     {
-        RPH_PROFILE_FUNC("RRHIScene::Tick - Take care of the new actors")
-        for (uint64 ActorID: NewlyAddedActors)
+        TArray<FMeshRepresentation>* Iter = WorldActorRepresentation.Find(ActorID);
+        ensure(Iter);
+
+        for (FMeshRepresentation& Mesh: *Iter)
         {
-            TArray<FMeshRepresentation>* Iter = WorldActorRepresentation.Find(ActorID);
-            ensure(Iter);
-
-            for (FMeshRepresentation& Mesh: *Iter)
+            if (Mesh.Mesh->Asset == nullptr || Mesh.Mesh->Material == nullptr)
             {
-                if (Mesh.Mesh->Asset == nullptr || Mesh.Mesh->Material == nullptr)
-                {
-                    continue;
-                }
-                if (!Mesh.Mesh->Material->WasBaked())
-                {
-                    Mesh.Mesh->Material->SetInput("Camera", u_CameraBuffer);
-                    Mesh.Mesh->Material->Bake();
-                }
-                TResourceArray<FMatrix4>& RequestArrays = TransformResourceArray.FindOrAdd(Mesh.Mesh->Asset->GetName());
-                RequestArrays.Add(Mesh.Transform.GetModelMatrix());
-                Mesh.TransformBufferIndex = RequestArrays.Size() - 1;
+                continue;
+            }
 
+            UpdateBatch->Actors.Add(ActorID);
+
+            UpdateBatch->PositionX.Add(UpdateRequest.NewTransform.GetLocation().x);
+            UpdateBatch->PositionY.Add(UpdateRequest.NewTransform.GetLocation().y);
+            UpdateBatch->PositionZ.Add(UpdateRequest.NewTransform.GetLocation().z);
+
+            UpdateBatch->ScaleX.Add(UpdateRequest.NewTransform.GetScale().x);
+            UpdateBatch->ScaleY.Add(UpdateRequest.NewTransform.GetScale().y);
+            UpdateBatch->ScaleZ.Add(UpdateRequest.NewTransform.GetScale().z);
+
+            UpdateBatch->QuaternionX.Add(UpdateRequest.NewTransform.GetRotation().x);
+            UpdateBatch->QuaternionY.Add(UpdateRequest.NewTransform.GetRotation().y);
+            UpdateBatch->QuaternionZ.Add(UpdateRequest.NewTransform.GetRotation().z);
+            UpdateBatch->QuaternionW.Add(UpdateRequest.NewTransform.GetRotation().w);
+
+            if (!Mesh.Mesh->Material->WasBaked())
+            {
+                Mesh.Mesh->Material->SetInput("Camera", u_CameraBuffer);
+                Mesh.Mesh->Material->Bake();
+            }
+
+            if (Mesh.TransformBufferIndex == std::numeric_limits<uint32>::max())
+            {
+                TResourceArray<FMatrix4>& RequestArrays = TransformResourceArray.FindOrAdd(Mesh.Mesh->Asset->ID());
+                RequestArrays.Add({});
+                Mesh.TransformBufferIndex = RequestArrays.Size() - 1;
+            }
+
+            if (Mesh.RenderBufferIndex == std::numeric_limits<uint32>::max())
+            {
                 FRenderRequestKey Key{Mesh.Mesh->Material.Raw(), Mesh.Mesh->Asset.Raw()};
                 TArray<FMeshRepresentation*>& RenderRequests = RenderCalls.FindOrAdd(Key);
                 RenderRequests.Add(&Mesh);
                 Mesh.RenderBufferIndex = RenderRequests.Size() - 1;
             }
         }
-        NewlyAddedActors.Clear();
     }
+    ActorThatNeedAttention.Clear();
+
+    AsyncTaskUpdateResult =
+        GEngine->GetThreadPool().Push([this, UpdateBatch](size_t) { Async_UpdateActorRepresentations(*UpdateBatch); });
 }
 
 void RRHIScene::PostTick(double DeltaTime)
@@ -157,6 +187,14 @@ void RRHIScene::PostTick(double DeltaTime)
                 TResourceArray<UCameraData> Array{CameraData};
                 CommandList.CopyResourceArrayToBuffer(&Array, u_CameraBuffer, 0, 0, sizeof(UCameraData));
             });
+    }
+    {
+        RPH_PROFILE_FUNC("RRHIScene::Tick - Update Transform Buffers - Wait")
+        if (AsyncTaskUpdateResult.valid())
+        {
+            AsyncTaskUpdateResult.wait();
+            AsyncTaskUpdateResult = std::future<void>();
+        }
     }
 
     {
@@ -192,26 +230,18 @@ void RRHIScene::PostTick(double DeltaTime)
 void RRHIScene::UpdateActorLocation(uint64 Id, const FTransform& NewTransform)
 {
     RPH_PROFILE_FUNC()
-    TArray<FMeshRepresentation>* Iter = WorldActorRepresentation.Find(Id);
-    ensure(Iter);
 
-    for (FMeshRepresentation& Mesh: *Iter)
-    {
-        Mesh.Transform = NewTransform;
-        if (Mesh.Mesh->Asset == nullptr || Mesh.Mesh->Material == nullptr)
-        {
-            continue;
-        }
-        TransformResourceArray.FindOrAdd(Mesh.Mesh->Asset->GetName())[Mesh.TransformBufferIndex] =
-            Mesh.Transform.GetModelMatrix();
-    }
+    std::unique_lock Lock(ActorAttentionMutex);
+    ActorThatNeedAttention.FindOrAdd(Id) = FActorRepresentationUpdateRequest{
+        .ActorId = Id,
+        .NewTransform = NewTransform,
+    };
 }
 
 void RRHIScene::TickRenderer(FFRHICommandList& CommandList)
 {
     RPH_PROFILE_FUNC()
 
-    // for (const ecs::FRenderTargetComponent& TargetComponent: RenderTargets) {
     UVector2 Size;
     TArray<FRHIRenderTarget> ColorTargets;
     std::optional<FRHIRenderTarget> DepthTarget = std::nullopt;
@@ -267,7 +297,7 @@ void RRHIScene::TickRenderer(FFRHICommandList& CommandList)
             }
             CommandList.SetMaterial(Key.Material);
 
-            Ref<RRHIBuffer> TransformVertexBuffer = TransformBuffers[Key.Asset->GetName()];
+            Ref<RRHIBuffer> TransformVertexBuffer = TransformBuffers[Key.Asset->ID()];
             RAsset::FDrawInfo Cube = Key.Asset->GetDrawInfo();
 
             ensure(Key.Asset->GetVertexBuffer() != nullptr);
@@ -303,4 +333,63 @@ void RRHIScene::UpdateCameraAspectRatio()
     {
         CameraComponents[0]->SetAspectRatio(RenderPassTarget.Size.x / static_cast<float>(RenderPassTarget.Size.y));
     }
+}
+
+void RRHIScene::Async_UpdateActorRepresentations(FRHISceneUpdateBatch& Batch)
+{
+    RPH_PROFILE_FUNC()
+
+    Math::ComputeModelMatrixBatch(Batch.Actors.Size(), Batch.PositionX.Raw(), Batch.PositionY.Raw(),
+                                  Batch.PositionZ.Raw(), Batch.QuaternionX.Raw(), Batch.QuaternionY.Raw(),
+                                  Batch.QuaternionZ.Raw(), Batch.QuaternionW.Raw(), Batch.ScaleX.Raw(),
+                                  Batch.ScaleY.Raw(), Batch.ScaleZ.Raw(), Batch.MatrixArray.Raw());
+
+    for (unsigned i = 0; i < Batch.Actors.Size();)
+    {
+        RPH_PROFILE_FUNC("Update Actor Representations")
+
+        uint64 ActorId = Batch.Actors[i];
+        TRenderSceneLock<ERenderSceneLockType::Read> Lock(this);
+        TArray<FMeshRepresentation>* Iter = WorldActorRepresentation.Find(ActorId);
+        ensure(Iter);
+
+        for (FMeshRepresentation& Mesh: *Iter)
+        {
+            ensure(ActorId == Batch.Actors[i]);    //  make sure that we're still with the same actor
+            if (Mesh.Mesh->Asset == nullptr || Mesh.Mesh->Material == nullptr)
+            {
+                continue;
+            }
+
+            Mesh.Transform.ModelMatrix = Batch.MatrixArray[i];
+            Mesh.Transform.bModelMatrixDirty = false;
+
+            // Update the transform resource array
+            TransformResourceArray.FindOrAdd(Mesh.Mesh->Asset->ID())[Mesh.TransformBufferIndex] =
+                Mesh.Transform.GetModelMatrix();
+
+            i++;
+        }
+    }
+}
+
+FRHISceneUpdateBatch::FRHISceneUpdateBatch(unsigned Count)
+{
+    Actors.Reserve(Count);
+
+    PositionX.Reserve(Count);
+    PositionY.Reserve(Count);
+    PositionZ.Reserve(Count);
+
+    ScaleX.Reserve(Count);
+    ScaleY.Reserve(Count);
+    ScaleZ.Reserve(Count);
+
+    QuaternionX.Reserve(Count);
+    QuaternionY.Reserve(Count);
+    QuaternionZ.Reserve(Count);
+    QuaternionW.Reserve(Count);
+
+    // Here we resize, because this is the output of the batch
+    MatrixArray.Resize(Count);
 }

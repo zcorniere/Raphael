@@ -14,6 +14,8 @@ public:
 
     Ref<RAsset> GetAsset(const std::string& Name) const;
     Ref<RRHIMaterial> GetMaterial(const std::string& Name) const;
+    Ref<RAsset> GetAssetByID(uint64 ID) const;
+    Ref<RRHIMaterial> GetMaterialByID(uint64 ID) const;
 
     void UnloadAsset(const std::string& Name);
 
@@ -29,6 +31,9 @@ public:
     }
 
 private:
+    TMap<uint64, Ref<RAsset>> AssetRegistryById;
+    TMap<uint64, Ref<RRHIMaterial>> MaterialRegistryId;
+
     TMap<std::string, Ref<RAsset>> AssetRegistry;
     TMap<std::string, Ref<RRHIMaterial>> MaterialRegistry;
 };

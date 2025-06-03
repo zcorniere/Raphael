@@ -48,11 +48,11 @@ static void CalculateRing(size_t segments, float radius, float z, float dz, floa
 // Create a capsule mesh with the given radius and height.
 Ref<RAsset> MeshFactory::CreateCapsule(float radius, float height)
 {
-    constexpr float subdivisionsHeight = 8.f;
-    constexpr float ringsBody = subdivisionsHeight + 1.f;
-    constexpr float ringsTotal = subdivisionsHeight + ringsBody;
-    constexpr float numSegments = 12.f;
-    constexpr float radiusModifier = 0.021f;    // Needed to ensure that the wireframe is always visible
+    const float subdivisionsHeight = 8.f;
+    const float ringsBody = subdivisionsHeight + 1.f;
+    const float ringsTotal = subdivisionsHeight + ringsBody;
+    const float numSegments = 12.f;
+    const float radiusModifier = 0.021f;    // Needed to ensure that the wireframe is always visible
 
     TResourceArray<FVertex> vertices;
     TResourceArray<uint32> indices;

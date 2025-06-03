@@ -70,19 +70,6 @@ TVector3<T>& TTransform<T>::GetScale()
 }
 
 template <typename T>
-TMatrix4<T> TTransform<T>::GetModelMatrix()
-{
-    if (bModelMatrixDirty)
-    {
-        RPH_PROFILE_FUNC()
-        ModelMatrix = GetTranslationMatrix() * Rotation.GetRotationMatrix() * GetScaleMatrix();
-        Math::CheckNaN(ModelMatrix);
-        bModelMatrixDirty = false;
-    }
-    return ModelMatrix;
-}
-
-template <typename T>
 TMatrix4<T> TTransform<T>::GetTranslationMatrix() const
 {
     TMatrix4<T> TranslationMatrix = TMatrix4<T>::Identity();

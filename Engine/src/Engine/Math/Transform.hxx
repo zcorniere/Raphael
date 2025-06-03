@@ -42,6 +42,11 @@ public:
     TMatrix4<T> ModelMatrix;
 };
 
+template <typename T>
+void ComputeModelMatrixBatch(const size_t Count, const T* LocationX, const T* LocationY, const T* LocationZ,
+                             const T* QuaternionX, const T* QuaternionY, const T* QuaternionZ, const T* QuaternionW,
+                             const T* ScaleX, const T* ScaleY, const T* ScaleZ, TMatrix4<T>* OutModelMatrix);
+
 }    // namespace Math
 
 template <typename T>
