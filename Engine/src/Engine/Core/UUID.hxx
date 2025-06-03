@@ -3,11 +3,6 @@
 namespace Raphael
 {
 
-// "UUID" (universally unique identifier) or GUID is (usually) a 128-bit integer
-// used to "uniquely" identify information. We use the term
-// GUID and UUID, at the moment we're simply using a randomly generated 64-bit
-// integer, as the possibility of a clash is low enough for now.
-// This may change in the future.
 class FUUID
 {
 public:
@@ -15,25 +10,26 @@ public:
     explicit FUUID(uint64 uuid);
     FUUID(const FUUID& other);
 
-    uint64 ID() const
+    FORCEINLINE uint64 ID() const
     {
         return m_UUID;
     }
 
-    operator uint64()
-    {
-        return m_UUID;
-    }
-    operator uint64() const
+    FORCEINLINE operator uint64() const
     {
         return m_UUID;
     }
 
 private:
-    uint64 m_UUID;
+    const uint64 m_UUID;
 };
 
 }    // namespace Raphael
+
+FORCEINLINE bool operator==(const Raphael::FUUID& lhs, const Raphael::FUUID& rhs)
+{
+    return lhs.ID() == rhs.ID();
+}
 
 namespace std
 {
