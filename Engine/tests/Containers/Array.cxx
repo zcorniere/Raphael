@@ -53,7 +53,8 @@ TEST_CASE("Array: Basic Operation")
         CHECK_NOTHROW(TestVec[0] == Value1);
         CHECK_NOTHROW(TestVec[1] == Value2);
         CHECK_NOTHROW(TestVec[2] == Value3);
-        for (unsigned Index = 3; Index < TestVec.Size(); Index++) {
+        for (unsigned Index = 3; Index < TestVec.Size(); Index++)
+        {
             CHECK_NOTHROW(TestVec[Index] == 0);
         }
 
@@ -98,7 +99,8 @@ TEST_CASE("Array: Basic Operation")
     }
 }
 
-struct ComplexType {
+struct ComplexType
+{
     int* Value = nullptr;
 
     explicit ComplexType(int* const InValue): Value(InValue)

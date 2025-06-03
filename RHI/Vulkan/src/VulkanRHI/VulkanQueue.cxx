@@ -8,7 +8,10 @@ namespace VulkanRHI
 {
 
 FVulkanQueue::FVulkanQueue(FVulkanDevice* InDevice, std::uint32_t InFamilyIndex)
-    : IDeviceChild(InDevice), Queue(VK_NULL_HANDLE), FamilyIndex(InFamilyIndex), QueueIndex(0)
+    : IDeviceChild(InDevice)
+    , Queue(VK_NULL_HANDLE)
+    , FamilyIndex(InFamilyIndex)
+    , QueueIndex(0)
 {
     VulkanAPI::vkGetDeviceQueue(Device->GetHandle(), FamilyIndex, QueueIndex, &Queue);
 }
@@ -39,9 +42,11 @@ void FVulkanQueue::Submit(FVulkanCmdBuffer* CmdBuffer, uint32 NumSignaledSemapho
     };
 
     TArray<VkSemaphore> WaitSemaphores;
-    if (!CmdBuffer->WaitSemaphore.IsEmpty()) {
+    if (!CmdBuffer->WaitSemaphore.IsEmpty())
+    {
         WaitSemaphores.Reserve(CmdBuffer->WaitSemaphore.Size());
-        for (Ref<RSemaphore>& Semaphore: CmdBuffer->WaitSemaphore) {
+        for (Ref<RSemaphore>& Semaphore: CmdBuffer->WaitSemaphore)
+        {
             WaitSemaphores.Add(Semaphore->GetHandle());
         }
         SubmitInfo.waitSemaphoreCount = CmdBuffer->WaitSemaphore.Size();

@@ -41,7 +41,8 @@ void AActor::SetRootComponent(Ref<RSceneComponent> InRootComponent)
 
 RObject* AActor::FindComponent(RTTI::FTypeId TypeId)
 {
-    if (MeshComponent->TypeId() == TypeId) {
+    if (MeshComponent->TypeId() == TypeId)
+    {
         return MeshComponent.Raw();
     }
 

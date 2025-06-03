@@ -33,8 +33,10 @@ TEST_CASE("Viewpoint Tests")
 
         INFO("ProjectionMatrix: " << ProjectionMatrix);
         INFO("ExpectedProjectionMatrix: " << glm::to_string(ExpectedProjectionMatrix));
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
                 INFO("Result[" << i << "][" << j << "]: " << ProjectionMatrix[i][j]);
                 INFO("ExpectedResult[" << i << "][" << j << "]: " << ExpectedProjectionMatrix[i][j]);
                 CHECK_THAT(ProjectionMatrix[i][j], Catch::Matchers::WithinRel(ExpectedProjectionMatrix[i][j]));

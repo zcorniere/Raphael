@@ -16,7 +16,8 @@ class RAsset : public RObject
     RTTI_DECLARE_TYPEINFO(RAsset, RObject);
 
 public:
-    struct FDrawInfo {
+    struct FDrawInfo
+    {
         uint32 NumVertices;
         uint32 NumIndices;
         uint32 NumPrimitives;

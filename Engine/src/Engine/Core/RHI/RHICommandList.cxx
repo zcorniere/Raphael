@@ -11,7 +11,8 @@ FFRHICommandList::~FFRHICommandList()
     Reset();
 
     /// Don't forget to release the context
-    if (m_Context != nullptr) {
+    if (m_Context != nullptr)
+    {
         RHI::Get()->RHIReleaseCommandContext(m_Context);
     }
 }
@@ -90,17 +91,21 @@ void FFRHICommandList::CopyResourceArrayToBuffer(IResourceArrayInterface* Source
 void FFRHICommandList::Enqueue(FRHIRenderCommandBase* RenderCommand)
 {
     // If we are executing the command list, we need to execute the command immediately
-    if (bIsExecuting) {
+    if (bIsExecuting)
+    {
         check(m_Context != nullptr);
         RenderCommand->DoTask(*this);
         delete RenderCommand;
         return;
     }
 
-    if (m_CommandList == nullptr) {
+    if (m_CommandList == nullptr)
+    {
         m_CommandList = RenderCommand;
         m_CommandListTail = m_CommandList;
-    } else {
+    }
+    else
+    {
         m_CommandListTail->p_Next = RenderCommand;
         m_CommandListTail = m_CommandListTail->p_Next;
     }
@@ -113,19 +118,21 @@ void FFRHICommandList::Execute(FRHIContext* const InContext)
     check(m_Context != nullptr);
 
     // Finish the command list with a submit command
-    struct FinalizeAndSubmitCommandListString {
+    struct FinalizeAndSubmitCommandListString
+    {
         static constexpr const char* Str()
         {
             return "FinalizeAndSubmitCommandList";
         }
     };
-    this->EnqueueLambda<FinalizeAndSubmitCommandListString>(
-        [](FFRHICommandList& CommandList) { RHI::Get()->RHISubmitCommandLists(&CommandList, 1); });
+    this->EnqueueLambda<FinalizeAndSubmitCommandListString>([](FFRHICommandList& CommandList)
+                                                            { RHI::Get()->RHISubmitCommandLists(&CommandList, 1); });
 
     // Execute all the commands
     bIsExecuting = true;
     m_CommandListTail = nullptr;
-    while (m_CommandList != nullptr) {
+    while (m_CommandList != nullptr)
+    {
         m_CommandList->DoTask(*this);
 
         // Delete the object after grabbing a ref to the next one
@@ -145,7 +152,8 @@ void FFRHICommandList::Reset()
     // We need to be very careful with deleting the chained list
     // By doing it that way we are to destroy one node at a time
 
-    while (m_CommandList != nullptr) {
+    while (m_CommandList != nullptr)
+    {
         FRHIRenderCommandBase* const Next = m_CommandList->p_Next;
 
         delete m_CommandList;

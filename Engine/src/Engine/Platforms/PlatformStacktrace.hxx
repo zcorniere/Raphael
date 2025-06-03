@@ -5,7 +5,8 @@
 /// @brief Holds information about the symbol located at ProgramCounter.
 ///
 /// This struct is supposed to only be used during the stacktrace generation, and should not be cached !
-struct DetailedSymbolInfo {
+struct DetailedSymbolInfo
+{
     static constexpr int MaxNameLength = 1024;
 
     /// Name of the module (executable name or shared library name)
@@ -20,7 +21,8 @@ struct DetailedSymbolInfo {
 static_assert(std::is_trivial<DetailedSymbolInfo>::value, "DetailedSymbolInfo must be trivial");
 
 /// @brief Hold the raw information about a stacktrace
-struct StacktraceContent {
+struct StacktraceContent
+{
     static constexpr int MaxDepth = 99;
 
     /// Max Depth of the of stack trace

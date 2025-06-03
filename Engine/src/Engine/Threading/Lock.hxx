@@ -17,8 +17,10 @@ public:
         m_Mutex.lock();    // Lock the mutex to prevent readers from entering,
 
         // Wait for all readers to finish, yeilding the CPU
-        for (;;) {
-            if (m_readers.load() == 0) {
+        for (;;)
+        {
+            if (m_readers.load() == 0)
+            {
                 break;
             }
             _mm_pause();

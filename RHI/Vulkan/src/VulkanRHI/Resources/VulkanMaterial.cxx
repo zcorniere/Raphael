@@ -8,7 +8,9 @@ namespace VulkanRHI
 {
 
 RVulkanMaterial::RVulkanMaterial(FVulkanDevice* InDevice, WeakRef<RVulkanGraphicsPipeline> InPipeline)
-    : IDeviceChild(InDevice), Pipeline(InPipeline), DescriptorManager(InDevice, Pipeline->GetShaders())
+    : IDeviceChild(InDevice)
+    , Pipeline(InPipeline)
+    , DescriptorManager(InDevice, Pipeline->GetShaders())
 {
 }
 
@@ -30,7 +32,8 @@ void RVulkanMaterial::Prepare()
 
 void RVulkanMaterial::Bake()
 {
-    if (WasBaked()) {
+    if (WasBaked())
+    {
         return;
     }
     DescriptorManager.Bake();

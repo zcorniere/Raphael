@@ -12,23 +12,22 @@ AllowShortBlocksOnASingleLine: Always
 AllowShortCaseLabelsOnASingleLine: false
 AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: true
-#BitFieldColonSpacingStyle: After
-BreakBeforeBraces: Linux
+BreakBeforeBraces: Custom
 BraceWrapping:
-  AfterEnum: false
-  AfterClass: false
+  AfterEnum: true
+  AfterClass: true
   AfterUnion: true
-  BeforeElse: false
-  #  BeforeWhile: false
-  BeforeCatch: false
-  AfterStruct: false
-  AfterFunction: false
-  AfterNamespace: false
-  AfterCaseLabel: false
-  AfterExternBlock: false
-  #  BeforeLambdaBody: false
-  SplitEmptyFunction: false
-#  BraceWrappingAfterControlStatementStyle: Never
+  BeforeElse: true
+  BeforeWhile: true
+  BeforeCatch: true
+  AfterStruct: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterCaseLabel: true
+  AfterExternBlock: true
+  BeforeLambdaBody: true
+  SplitEmptyFunction: true
+  AfterControlStatement: Always
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 4
 Cpp11BracedListStyle: true
@@ -57,3 +56,11 @@ SpacesInSquareBrackets: false
 UseTab: Never
 IndentRequiresClause: false
 RequiresClausePosition: OwnLine
+BreakConstructorInitializers: BeforeComma
+PackConstructorInitializers: CurrentLine
+TabWidth: 4
+SpaceBeforeParensOptions:
+  AfterControlStatements: true
+  AfterRequiresInExpression: true
+  AfterRequiresInClause: true
+  AfterFunctionDefinitionName: false

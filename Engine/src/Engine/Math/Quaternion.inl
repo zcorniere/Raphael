@@ -14,7 +14,10 @@ constexpr TQuaternion<T>::TQuaternion()
 
 template <typename T>
 requires std::is_floating_point_v<T>
-constexpr TQuaternion<T>::TQuaternion(T w, T x, T y, T z): x(x), y(y), z(z), w(w)
+constexpr TQuaternion<T>::TQuaternion(T w, T x, T y, T z): x(x)
+                                                         , y(y)
+                                                         , z(z)
+                                                         , w(w)
 {
 }
 
@@ -152,7 +155,8 @@ void CheckNaN(const TQuaternion<T>& q)
 }    // namespace Math
 
 template <typename T>
-struct std::formatter<Math::TQuaternion<T>, char> : public std::formatter<T> {
+struct std::formatter<Math::TQuaternion<T>, char> : public std::formatter<T>
+{
 
     template <class FormatContext>
     auto format(const Math::TQuaternion<T>& Value, FormatContext& ctx) const

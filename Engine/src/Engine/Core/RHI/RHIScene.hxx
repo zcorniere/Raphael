@@ -12,12 +12,14 @@ class RRHIScene;
 class RAsset;
 class RRHIMaterial;
 
-enum class ERenderSceneLockType {
+enum class ERenderSceneLockType
+{
     Read,
     Write,
 };
 
-struct FRenderRequestKey {
+struct FRenderRequestKey
+{
     RRHIMaterial* Material = nullptr;
     RAsset* Asset = nullptr;
 
@@ -29,7 +31,8 @@ namespace std
 
 // std::hash specialization for FRenderRequestKey
 template <>
-struct hash<FRenderRequestKey> {
+struct hash<FRenderRequestKey>
+{
     std::size_t operator()(const FRenderRequestKey& Key) const
     {
         return std::hash<RAsset*>{}(Key.Asset) ^ std::hash<RRHIMaterial*>{}(Key.Material);
@@ -54,7 +57,8 @@ class RRHIScene : public RObject
     RTTI_DECLARE_TYPEINFO(RRHIScene, RObject);
 
 public:
-    struct FRHIRenderPassTarget {
+    struct FRHIRenderPassTarget
+    {
         WeakRef<RRHIViewport> Viewport = nullptr;
 
         TArray<FRHIRenderTarget> ColorTargets = {};
@@ -69,7 +73,8 @@ public:
     END_PARAMETER_STRUCT();
 
 private:
-    struct FMeshRepresentation {
+    struct FMeshRepresentation
+    {
         FTransform Transform = {};
         uint32 TransformBufferIndex = 0;
         uint32 RenderBufferIndex = 0;
@@ -118,10 +123,13 @@ private:
 template <ERenderSceneLockType LockType>
 inline TRenderSceneLock<LockType>::TRenderSceneLock(WeakRef<RRHIScene> InScene): Scene(InScene)
 {
-    if constexpr (LockType == ERenderSceneLockType::Read) {
+    if constexpr (LockType == ERenderSceneLockType::Read)
+    {
         RPH_PROFILE_FUNC("TRenderSceneLock - Read Lock");
         Scene->Lock.ReadLock();
-    } else {
+    }
+    else
+    {
         RPH_PROFILE_FUNC("TRenderSceneLock - Write Lock");
         Scene->Lock.WriteLock();
     }
@@ -130,10 +138,13 @@ inline TRenderSceneLock<LockType>::TRenderSceneLock(WeakRef<RRHIScene> InScene):
 template <ERenderSceneLockType LockType>
 inline TRenderSceneLock<LockType>::~TRenderSceneLock()
 {
-    if constexpr (LockType == ERenderSceneLockType::Read) {
+    if constexpr (LockType == ERenderSceneLockType::Read)
+    {
         RPH_PROFILE_FUNC("TRenderSceneLock - Read Unlock");
         Scene->Lock.ReadUnlock();
-    } else {
+    }
+    else
+    {
         RPH_PROFILE_FUNC("TRenderSceneLock - Write Unlock");
         Scene->Lock.WriteUnlock();
     }

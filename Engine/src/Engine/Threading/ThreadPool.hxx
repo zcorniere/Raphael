@@ -19,7 +19,8 @@ class FThreadPool
 private:
     using WorkUnits = std::function<void(unsigned id)>;
 
-    struct State {
+    struct State
+    {
         std::mutex q_mutex;
         std::condition_variable q_var;
         std::queue<WorkUnits> qWork;
@@ -67,7 +68,8 @@ public:
     requires std::is_invocable_v<F, unsigned, Args...>
     [[nodiscard]] auto Push(F&& f, Args&&... args) -> std::future<decltype(f(0, args...))>
     {
-        if (!ensureAlwaysMsg(!thread_p.IsEmpty(), "Pushing task when no thread are started !")) {
+        if (!ensureAlwaysMsg(!thread_p.IsEmpty(), "Pushing task when no thread are started !"))
+        {
             Start(1);
         }
         auto packagedFunction = std::make_shared<std::packaged_task<decltype(f(0, args...))(unsigned)>>(
@@ -86,22 +88,27 @@ public:
     template <typename F>
     std::shared_ptr<std::latch> ParallelFor(uint32 Count, uint32 ChunkSize, F&& Function)
     {
-        if (!ensureAlwaysMsg(!thread_p.IsEmpty(), "Pushing task when no thread are started !")) {
+        if (!ensureAlwaysMsg(!thread_p.IsEmpty(), "Pushing task when no thread are started !"))
+        {
             Start(1);
         }
         const uint32 ChunkCount = (Count + ChunkSize - 1) / ChunkSize;
         std::shared_ptr<std::latch> DoneLatch = std::make_shared<std::latch>(ChunkCount);
 
-        for (uint32 i = 0; i < ChunkCount; i++) {
+        for (uint32 i = 0; i < ChunkCount; i++)
+        {
             const uint32 StartIndex = i * ChunkSize;
             const uint32 EndIndex = std::min(StartIndex + ChunkSize, Count);
-            (void)Push([DoneLatch, Function, StartIndex, EndIndex](unsigned id) {
-                (void)id;
-                for (uint32 j = StartIndex; j < EndIndex; j++) {
-                    Function(j);
-                }
-                DoneLatch->count_down();
-            });
+            (void)Push(
+                [DoneLatch, Function, StartIndex, EndIndex](unsigned id)
+                {
+                    (void)id;
+                    for (uint32 j = StartIndex; j < EndIndex; j++)
+                    {
+                        Function(j);
+                    }
+                    DoneLatch->count_down();
+                });
         }
 
         return DoneLatch;

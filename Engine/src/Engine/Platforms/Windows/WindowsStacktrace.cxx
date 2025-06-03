@@ -13,9 +13,12 @@ StacktraceContent FWindowsStacktrace::GetStackTraceFromReturnAddress(void* retur
     trace.Depth = CaptureStackBackTrace(0, trace.MaxDepth, reinterpret_cast<void**>(trace.StackTrace), 0);
     trace.CurrentDepth = 0;
 
-    if (returnAddress != nullptr) {
-        for (std::uint32_t i = 0; i < trace.Depth; ++i) {
-            if (trace.StackTrace[i] != int64(returnAddress)) {
+    if (returnAddress != nullptr)
+    {
+        for (std::uint32_t i = 0; i < trace.Depth; ++i)
+        {
+            if (trace.StackTrace[i] != int64(returnAddress))
+            {
                 continue;
             }
             trace.CurrentDepth = i;
@@ -39,7 +42,8 @@ bool FWindowsStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, Detaile
 
         pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
         pSymbol->MaxNameLen = MAX_SYM_NAME;
-        if (!SymFromAddr(FWindowsPlatform::GetDebugSymbolHandle(), dwAddress, &dwDisplacement, pSymbol)) {
+        if (!SymFromAddr(FWindowsPlatform::GetDebugSymbolHandle(), dwAddress, &dwDisplacement, pSymbol))
+        {
             DWORD error = GetLastError();
             printf("SymFromAddr returned error : %d\n", error);
             return false;
@@ -51,12 +55,16 @@ bool FWindowsStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, Detaile
         IMAGEHLP_MODULE ModuleInfo;
         ModuleInfo.SizeOfStruct = sizeof(ModuleInfo);
 
-        if (SymGetModuleInfo64(FWindowsPlatform::GetDebugSymbolHandle(), dwAddress, &ModuleInfo)) {
+        if (SymGetModuleInfo64(FWindowsPlatform::GetDebugSymbolHandle(), dwAddress, &ModuleInfo))
+        {
             const char* const ModulePath = ModuleInfo.ImageName;
             const char* ModuleName = std::strrchr(ModulePath, '\\');
-            if (ModuleName) {
+            if (ModuleName)
+            {
                 ModuleName += 1;
-            } else {
+            }
+            else
+            {
                 ModuleName = ModulePath;
             }
             std::strncpy(detailed_info.ModuleName, ModuleName, DetailedSymbolInfo::MaxNameLength);
@@ -68,12 +76,16 @@ bool FWindowsStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, Detaile
         IMAGEHLP_LINE64 line;
         line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 
-        if (SymGetLineFromAddr64(FWindowsPlatform::GetDebugSymbolHandle(), dwAddress, &dwDisplacement, &line)) {
+        if (SymGetLineFromAddr64(FWindowsPlatform::GetDebugSymbolHandle(), dwAddress, &dwDisplacement, &line))
+        {
             const char* const cFilePath = line.FileName;
             const char* cFilenamePath = std::strrchr(cFilePath, '\\');
-            if (cFilenamePath) {
+            if (cFilenamePath)
+            {
                 cFilenamePath += 1;
-            } else {
+            }
+            else
+            {
                 cFilenamePath = cFilePath;
             }
             std::strncpy(detailed_info.Filename, cFilenamePath, DetailedSymbolInfo::MaxNameLength);

@@ -9,18 +9,21 @@ IMallocInterface* GMalloc = 0;
 static void EnsureAllocatorIsSetup()
 {
     // Note: must manually allocate the memory
-    if (!GMalloc) [[unlikely]] {
+    if (!GMalloc) [[unlikely]]
+    {
         checkNoReentry();
 
         static char AllocatorMemory[sizeof(IMallocInterface)];
         std::memset(AllocatorMemory, 0, sizeof(IMallocInterface));
-        if (!FPlatformMisc::BaseAllocator(AllocatorMemory)) {
+        if (!FPlatformMisc::BaseAllocator(AllocatorMemory))
+        {
             checkNoEntry();
         }
         GMalloc = reinterpret_cast<IMallocInterface*>(AllocatorMemory);
 
 #if RPH_POISON_ALLOCATION
-        if (GMalloc->SupportPoison()) {
+        if (GMalloc->SupportPoison())
+        {
             static char PoisonAllocatorMemory[sizeof(FAllocatorPoison)];
             new (PoisonAllocatorMemory) FAllocatorPoison(GMalloc);
             GMalloc = reinterpret_cast<IMallocInterface*>(PoisonAllocatorMemory);
@@ -41,7 +44,8 @@ void* Memory::Realloc(void* Original, uint32 Size, uint32 Alignment)
 {
     EnsureAllocatorIsSetup();
 
-    if (!Original) {
+    if (!Original)
+    {
         RPH_PROFILE_FREE(Original);
     }
     void* const Memory = GMalloc->Realloc(Original, Size, Alignment);

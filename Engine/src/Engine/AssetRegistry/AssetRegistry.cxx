@@ -16,7 +16,8 @@ FAssetRegistry::FAssetRegistry()
 Ref<RAsset> FAssetRegistry::LoadAsset(const std::filesystem::path& Path)
 {
     auto Asset = Ref<RAsset>::Create(Path);
-    if (Asset->Load()) {
+    if (Asset->Load())
+    {
         AssetRegistry.Insert(Asset->GetName(), Asset);
         return Asset;
     }
@@ -25,7 +26,8 @@ Ref<RAsset> FAssetRegistry::LoadAsset(const std::filesystem::path& Path)
 
 Ref<RAsset> FAssetRegistry::RegisterMemoryOnlyAsset(Ref<RAsset>& Asset)
 {
-    if (!AssetRegistry.Contains(Asset->GetName())) {
+    if (!AssetRegistry.Contains(Asset->GetName()))
+    {
         AssetRegistry.Insert(Asset->GetName(), Asset);
         return Asset;
     }
@@ -35,7 +37,8 @@ Ref<RAsset> FAssetRegistry::RegisterMemoryOnlyAsset(Ref<RAsset>& Asset)
 
 Ref<RRHIMaterial> FAssetRegistry::RegisterMemoryOnlyMaterial(Ref<RRHIMaterial>& Material)
 {
-    if (!MaterialRegistry.Contains(Material->GetName())) {
+    if (!MaterialRegistry.Contains(Material->GetName()))
+    {
         MaterialRegistry.Insert(Material->GetName(), Material);
         return Material;
     }
@@ -46,7 +49,8 @@ Ref<RRHIMaterial> FAssetRegistry::RegisterMemoryOnlyMaterial(Ref<RRHIMaterial>& 
 Ref<RAsset> FAssetRegistry::GetAsset(const std::string& Name) const
 {
     const Ref<RAsset>* Asset = AssetRegistry.Find(Name);
-    if (Asset) {
+    if (Asset)
+    {
         return *Asset;
     }
     LOG(LogAssetRegistry, Warning, "Asset {:s} not found", Name);
@@ -56,7 +60,8 @@ Ref<RAsset> FAssetRegistry::GetAsset(const std::string& Name) const
 Ref<RRHIMaterial> FAssetRegistry::GetMaterial(const std::string& Name) const
 {
     const Ref<RRHIMaterial>* Material = MaterialRegistry.Find(Name);
-    if (Material) {
+    if (Material)
+    {
         return *Material;
     }
     LOG(LogAssetRegistry, Warning, "Material {:s} not found", Name);
@@ -66,7 +71,8 @@ Ref<RRHIMaterial> FAssetRegistry::GetMaterial(const std::string& Name) const
 void FAssetRegistry::UnloadAsset(const std::string& Name)
 {
     Ref<RAsset>* Asset = AssetRegistry.Find(Name);
-    if (Asset) {
+    if (Asset)
+    {
         (*Asset)->Unload();
         AssetRegistry.Remove(Name);
     }
@@ -74,7 +80,8 @@ void FAssetRegistry::UnloadAsset(const std::string& Name)
 
 void FAssetRegistry::Purge()
 {
-    for (auto& [Name, Asset]: AssetRegistry) {
+    for (auto& [Name, Asset]: AssetRegistry)
+    {
         Asset->Unload();
     }
     AssetRegistry.Clear();

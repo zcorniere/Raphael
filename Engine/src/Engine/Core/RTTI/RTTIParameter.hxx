@@ -5,7 +5,8 @@
 #include "Engine/Serialization/StreamReader.hxx"
 #include "Engine/Serialization/StreamWriter.hxx"
 
-enum class EParameterStructOption {
+enum class EParameterStructOption
+{
     None = 0,
     NoAlignmentType = BIT(1),
 };
@@ -29,7 +30,8 @@ enum class EParameterStructOption {
     private:                                                                                                         \
         typedef StructureName zzTThisStruct;                                                                         \
                                                                                                                      \
-        struct zzFirstMemberId {                                                                                     \
+        struct zzFirstMemberId                                                                                       \
+        {                                                                                                            \
         };                                                                                                           \
         typedef void* zzFuncPtr;                                                                                     \
         typedef zzFuncPtr (*zzMemberFunc)(zzFirstMemberId, TArray<::RTTI::FParameter>*);                             \
@@ -57,7 +59,8 @@ public:                                                                         
     ParameterDeclaration(ParameterName, MACRO_EXPENDER_ARGS(TypeInfo));                                           \
                                                                                                                   \
 private:                                                                                                          \
-    struct zzNextMemberId##ParameterName {                                                                        \
+    struct zzNextMemberId##ParameterName                                                                          \
+    {                                                                                                             \
     };                                                                                                            \
     static zzFuncPtr zzGetPreviousMember(zzNextMemberId##ParameterName, TArray<::RTTI::FParameter>* zzParameters) \
     {                                                                                                             \
@@ -93,9 +96,11 @@ public:                                                                         
         zzFuncPtr (*LastFunc)(zzLastMemberId, TArray<::RTTI::FParameter>*);         \
         LastFunc = zzGetPreviousMember;                                             \
         zzFuncPtr Ptr = (zzFuncPtr)LastFunc;                                        \
-        do {                                                                        \
+        do                                                                          \
+        {                                                                           \
             Ptr = reinterpret_cast<zzMemberFunc>(Ptr)(zzFirstMemberId(), &Members); \
-        } while (Ptr);                                                              \
+        }                                                                           \
+        while (Ptr);                                                                \
         std::reverse(Members.begin(), Members.end());                               \
         return Members;                                                             \
     }                                                                               \
@@ -112,7 +117,8 @@ concept IsParameterType = requires(T a) {
 };
 
 /// The base type of a shader parameter
-enum class EParameterType : uint8 {
+enum class EParameterType : uint8
+{
     Invalid,
 
     Struct,
@@ -124,7 +130,8 @@ enum class EParameterType : uint8 {
 };
 
 /// This structure define a shader parameters (uniforms, storage buffers, etc)
-struct FParameter {
+struct FParameter
+{
     std::string Name = "";
     EParameterType Type = EParameterType::Invalid;
     uint64 Size = 0;
@@ -169,7 +176,8 @@ template <typename T, EParameterStructOption Option>
 struct TSupportedParameterType;
 
 template <EParameterStructOption Option>
-struct TSupportedParameterType<int32, Option> {
+struct TSupportedParameterType<int32, Option>
+{
     using OriginalType = int32;
     using AlignedType = int32;
     static constexpr EParameterType Type = EParameterType::Int32;
@@ -179,7 +187,8 @@ struct TSupportedParameterType<int32, Option> {
 };
 
 template <EParameterStructOption Option>
-struct TSupportedParameterType<uint32, Option> {
+struct TSupportedParameterType<uint32, Option>
+{
     using OriginalType = uint32;
     using AlignedType = uint32;
     static constexpr EParameterType Type = EParameterType::Uint32;
@@ -189,7 +198,8 @@ struct TSupportedParameterType<uint32, Option> {
 };
 
 template <EParameterStructOption Option>
-struct TSupportedParameterType<float, Option> {
+struct TSupportedParameterType<float, Option>
+{
     using OriginalType = float;
     using AlignedType = float;
     static constexpr EParameterType Type = EParameterType::Float;
@@ -199,7 +209,8 @@ struct TSupportedParameterType<float, Option> {
 };
 
 template <EParameterStructOption Option>
-struct TSupportedParameterType<FVector2, Option> {
+struct TSupportedParameterType<FVector2, Option>
+{
     using OriginalType = FVector2;
     using AlignedType = FVector2;
     static constexpr EParameterType Type = EParameterType::Float;
@@ -209,7 +220,8 @@ struct TSupportedParameterType<FVector2, Option> {
 };
 
 template <>
-struct TSupportedParameterType<FVector3, EParameterStructOption::NoAlignmentType> {
+struct TSupportedParameterType<FVector3, EParameterStructOption::NoAlignmentType>
+{
     using OriginalType = FVector3;
     using AlignedType = FVector3;
     static constexpr EParameterType Type = EParameterType::Float;
@@ -219,7 +231,8 @@ struct TSupportedParameterType<FVector3, EParameterStructOption::NoAlignmentType
 };
 
 template <EParameterStructOption Option>
-struct TSupportedParameterType<FVector3, Option> {
+struct TSupportedParameterType<FVector3, Option>
+{
     using OriginalType = FVector3;
     using AlignedType = FVector4;
     static constexpr EParameterType Type = EParameterType::Float;
@@ -229,7 +242,8 @@ struct TSupportedParameterType<FVector3, Option> {
 };
 
 template <EParameterStructOption Option>
-struct TSupportedParameterType<FVector4, Option> {
+struct TSupportedParameterType<FVector4, Option>
+{
     using OriginalType = FVector4;
     using AlignedType = FVector4;
     static constexpr EParameterType Type = EParameterType::Float;
@@ -239,7 +253,8 @@ struct TSupportedParameterType<FVector4, Option> {
 };
 
 template <EParameterStructOption Option>
-struct TSupportedParameterType<UVector2, Option> {
+struct TSupportedParameterType<UVector2, Option>
+{
     using OriginalType = UVector2;
     using AlignedType = UVector2;
     static constexpr EParameterType Type = EParameterType::Uint32;
@@ -249,7 +264,8 @@ struct TSupportedParameterType<UVector2, Option> {
 };
 
 template <EParameterStructOption Option>
-struct TSupportedParameterType<IVector2, Option> {
+struct TSupportedParameterType<IVector2, Option>
+{
     using OriginalType = IVector2;
     using AlignedType = IVector2;
     static constexpr EParameterType Type = EParameterType::Int32;
@@ -259,7 +275,8 @@ struct TSupportedParameterType<IVector2, Option> {
 };
 
 template <EParameterStructOption Option>
-struct TSupportedParameterType<FMatrix4, Option> {
+struct TSupportedParameterType<FMatrix4, Option>
+{
     using OriginalType = FMatrix4;
     using AlignedType = FMatrix4;
     static constexpr EParameterType Type = EParameterType::Float;
@@ -270,14 +287,16 @@ struct TSupportedParameterType<FMatrix4, Option> {
 
 inline std::string PrintShaderParameter(const FParameter& Param, unsigned Indent, bool bSimple)
 {
-    if (bSimple) {
+    if (bSimple)
+    {
         return std::format("Name: \"{0}\", Type: {1}, Size: {2}, Offset: {3}, Columns: {4}, Rows: {5}", Param.Name,
                            magic_enum::enum_name(Param.Type), Param.Size, Param.Offset, Param.Columns, Param.Rows);
     }
 
     std::string Result = "";
     std::string Padding = "";
-    for (unsigned i = 0; i < Indent; ++i) {
+    for (unsigned i = 0; i < Indent; ++i)
+    {
         Padding += ("\t");
     }
 
@@ -290,7 +309,8 @@ inline std::string PrintShaderParameter(const FParameter& Param, unsigned Indent
     Result += std::format("{0}Columns: {1}\n", Padding, Param.Columns);
     Result += std::format("{0}Rows: {1}\n", Padding, Param.Rows);
 
-    for (const FParameter& Member: Param.Members) {
+    for (const FParameter& Member: Param.Members)
+    {
         Result += PrintShaderParameter(Member, Indent + 2, bSimple);
     }
 
@@ -300,7 +320,8 @@ inline std::string PrintShaderParameter(const FParameter& Param, unsigned Indent
 }    // namespace RTTI
 
 template <>
-struct std::formatter<RTTI::FParameter, char> {
+struct std::formatter<RTTI::FParameter, char>
+{
     bool bSimple = false;
 
     constexpr auto parse(format_parse_context& ctx)
@@ -309,7 +330,8 @@ struct std::formatter<RTTI::FParameter, char> {
         if (it == ctx.end())
             return it;
 
-        if (*it == '#') {
+        if (*it == '#')
+        {
             bSimple = true;
             ++it;
         }

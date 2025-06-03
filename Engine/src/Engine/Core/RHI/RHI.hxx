@@ -9,7 +9,8 @@ class RWindow;
 
 DECLARE_LOGGER_CATEGORY(Core, LogRHI, Info);
 
-enum class ERHIInterfaceType {
+enum class ERHIInterfaceType
+{
     Null,
     Vulkan,
 };

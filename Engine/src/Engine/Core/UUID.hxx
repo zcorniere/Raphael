@@ -39,7 +39,8 @@ namespace std
 {
 
 template <>
-struct hash<Raphael::FUUID> {
+struct hash<Raphael::FUUID>
+{
     std::size_t operator()(const Raphael::FUUID& uuid) const
     {
         // uuid is already a randomly generated number, and is suitable as a hash key as-is.

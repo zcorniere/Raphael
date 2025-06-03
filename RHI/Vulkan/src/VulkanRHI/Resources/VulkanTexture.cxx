@@ -11,12 +11,12 @@ namespace VulkanRHI
 {
 
 RVulkanTexture::RVulkanTexture(FVulkanDevice* InDevice, const FRHITextureSpecification& InDesc)
-    : Super(InDesc),
-      IDeviceChild(InDevice),
-      Allocation(nullptr),
-      Image(VK_NULL_HANDLE),
-      Layout(VK_IMAGE_LAYOUT_UNDEFINED),
-      View(VK_NULL_HANDLE)
+    : Super(InDesc)
+    , IDeviceChild(InDevice)
+    , Allocation(nullptr)
+    , Image(VK_NULL_HANDLE)
+    , Layout(VK_IMAGE_LAYOUT_UNDEFINED)
+    , View(VK_NULL_HANDLE)
 {
     CreateTexture();
 }
@@ -29,13 +29,16 @@ RVulkanTexture::~RVulkanTexture()
 void RVulkanTexture::SetName(std::string_view InName)
 {
     Super::SetName(InName);
-    if (Image) {
+    if (Image)
+    {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE, Image, "{:s}.Image", InName);
     }
-    if (View) {
+    if (View)
+    {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_IMAGE_VIEW, View, "{:s}.Image.View", InName);
     }
-    if (Allocation) {
+    if (Allocation)
+    {
         Allocation->SetName(std::format("{:s}.Image.Memory", InName));
     }
 }
@@ -43,14 +46,16 @@ void RVulkanTexture::SetName(std::string_view InName)
 void RVulkanTexture::Invalidate()
 {
     ENQUEUE_RENDER_COMMAND(InvalidateTexture)
-    ([instance = WeakRef(this)](FFRHICommandList& CommandList) mutable {
-        const VkImageLayout Layout = instance->GetLayout();
-        instance->DestroyTexture();
-        instance->CreateTexture();
+    (
+        [instance = WeakRef(this)](FFRHICommandList& CommandList) mutable
+        {
+            const VkImageLayout Layout = instance->GetLayout();
+            instance->DestroyTexture();
+            instance->CreateTexture();
 
-        FVulkanCommandContext* Context = CommandList.GetContext()->Cast<FVulkanCommandContext>();
-        Context->SetLayout(instance.Raw(), Layout);
-    });
+            FVulkanCommandContext* Context = CommandList.GetContext()->Cast<FVulkanCommandContext>();
+            Context->SetLayout(instance.Raw(), Layout);
+        });
 }
 
 VkImage RVulkanTexture::GetImage() const
@@ -60,7 +65,8 @@ VkImage RVulkanTexture::GetImage() const
 
 VkImageView RVulkanTexture::GetImageView() const
 {
-    if (View != VK_NULL_HANDLE) {
+    if (View != VK_NULL_HANDLE)
+    {
         return View;
     }
     VkImageViewCreateInfo CreateInfo{
@@ -95,7 +101,8 @@ VkImageLayout RVulkanTexture::GetLayout() const
 void RVulkanTexture::SetLayout(FVulkanCmdBuffer* CmdBuffer, VkImageLayout NewLayout)
 {
     VkImageAspectFlags AspectMask = 0;
-    switch (Description.Format) {
+    switch (Description.Format)
+    {
         case EImageFormat::R8G8B8_SRGB:
         case EImageFormat::B8G8R8A8_SRGB:
         case EImageFormat::R8G8B8A8_SRGB:
@@ -132,7 +139,8 @@ void RVulkanTexture::CreateTexture()
     };
 
     const VkImageViewType ResourceImageView = TextureDimensionToVkImageViewType(Description.Dimension);
-    switch (ResourceImageView) {
+    switch (ResourceImageView)
+    {
         case VK_IMAGE_VIEW_TYPE_2D:
             ImageCreateInfo.imageType = TextureDimensionToVkImageType(Description.Dimension);
             check(Description.Extent.x <= DeviceProperties.limits.maxImageDimension2D);
@@ -142,7 +150,8 @@ void RVulkanTexture::CreateTexture()
             checkNoEntry() break;
     }
 
-    switch (Description.NumSamples) {
+    switch (Description.NumSamples)
+    {
         case 1:
             ImageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
             break;
@@ -180,8 +189,10 @@ void RVulkanTexture::CreateTexture()
 void RVulkanTexture::DestroyTexture()
 {
     RHI::DeferedDeletion(
-        [View = this->View, Allocation = this->Allocation, Image = this->Image, Device = this->Device]() mutable {
-            if (View) {
+        [View = this->View, Allocation = this->Allocation, Image = this->Image, Device = this->Device]() mutable
+        {
+            if (View)
+            {
                 VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, VULKAN_CPU_ALLOCATOR);
             }
             Device->GetMemoryManager()->Free(Allocation);
@@ -195,7 +206,8 @@ void RVulkanTexture::DestroyTexture()
 
 VkImageLayout RVulkanTexture::GetDefaultLayout() const
 {
-    switch (Description.Flags) {
+    switch (Description.Flags)
+    {
         case ETextureUsageFlags::RenderTargetable:
             return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         case ETextureUsageFlags::DepthStencilTargetable:
@@ -236,10 +248,10 @@ void VulkanTextureView::Create(FVulkanDevice* Device, VkImage InImage, VkImageVi
 
 void VulkanTextureView::Destroy(FVulkanDevice* Device)
 {
-    if (View) {
-        RHI::DeferedDeletion([View = this->View, Device] {
-            VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, VULKAN_CPU_ALLOCATOR);
-        });
+    if (View)
+    {
+        RHI::DeferedDeletion([View = this->View, Device]
+                             { VulkanAPI::vkDestroyImageView(Device->GetHandle(), View, VULKAN_CPU_ALLOCATOR); });
         // We don't own the image, so we don't destroy it
         Image = VK_NULL_HANDLE;
         View = VK_NULL_HANDLE;

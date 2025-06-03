@@ -34,7 +34,8 @@ public:
     void* GetMappedPointer()
     {
         check(IsMapped());
-        if (AllocationInfo.pMappedData) {
+        if (AllocationInfo.pMappedData)
+        {
             return AllocationInfo.pMappedData;
         }
         return MappedPointer;

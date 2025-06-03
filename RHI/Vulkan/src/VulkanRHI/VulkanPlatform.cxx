@@ -28,13 +28,15 @@ bool FVulkanPlatform::LoadVulkanLibrary()
 {
     RPH_PROFILE_FUNC()
 
-    if (VulkanModuleHandle) {
+    if (VulkanModuleHandle)
+    {
         return true;
     }
 
     VulkanModuleHandle = FPlatformMisc::LoadExternalModule(VulkanLibraryName);
 
-    if (VulkanModuleHandle == nullptr) {
+    if (VulkanModuleHandle == nullptr)
+    {
         return false;
     }
 
@@ -42,7 +44,8 @@ bool FVulkanPlatform::LoadVulkanLibrary()
 
 #define GET_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = VulkanModuleHandle->GetSymbol<Type>(#Func);
 #define CHECK_VK_ENTRYPOINTS(Type, Func)                                   \
-    if (VulkanAPI::Func == nullptr) {                                      \
+    if (VulkanAPI::Func == nullptr)                                        \
+    {                                                                      \
         bFoundAllEntryPoints = false;                                      \
         LOG(LogVulkanRHI, Error, "Failed to find entry point for " #Func); \
     }
@@ -52,7 +55,8 @@ bool FVulkanPlatform::LoadVulkanLibrary()
 #undef GET_VK_ENTRYPOINTS
 #undef CHECK_VK_ENTRYPOINTS
 
-    if (!bFoundAllEntryPoints) {
+    if (!bFoundAllEntryPoints)
+    {
         FreeVulkanLibrary();
         return false;
     }
@@ -66,7 +70,8 @@ bool FVulkanPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
 
     bool bFoundAllEntryPoints = true;
 #define CHECK_VK_ENTRYPOINTS(Type, Func)                                     \
-    if (VulkanAPI::Func == nullptr) {                                        \
+    if (VulkanAPI::Func == nullptr)                                          \
+    {                                                                        \
         bFoundAllEntryPoints = false;                                        \
         LOG(LogVulkanRHI, Warning, "Failed to find entry point for " #Func); \
     }
@@ -89,7 +94,8 @@ bool FVulkanPlatform::LoadVulkanInstanceFunctions(VkInstance inInstance)
 
 void FVulkanPlatform::FreeVulkanLibrary()
 {
-    if (VulkanModuleHandle != nullptr) {
+    if (VulkanModuleHandle != nullptr)
+    {
 #define CLEAR_VK_ENTRYPOINTS(Type, Func) VulkanAPI::Func = nullptr;
         VK_ENTRYPOINT_ALL(CLEAR_VK_ENTRYPOINTS);
 #undef CLEAR_VK_ENTRYPOINTS
@@ -108,12 +114,15 @@ void FVulkanPlatform::CreateSurface(RWindow* WindowHandle, VkInstance Instance, 
 #define VERIFYVULKANRESULT_INIT(VkFunction)                                                                     \
     {                                                                                                           \
         const VkResult ScopedResult = VkFunction;                                                               \
-        if (ScopedResult == VK_ERROR_INITIALIZATION_FAILED) {                                                   \
+        if (ScopedResult == VK_ERROR_INITIALIZATION_FAILED)                                                     \
+        {                                                                                                       \
             LOG(LogVulkanRHI, Error,                                                                            \
                 "{:s} failed\n at {:s}:{}\nThis typically means Vulkan is not properly set up in your system; " \
                 "try running vulkaninfo from the Vulkan SDK.",                                                  \
                 #VkFunction, __FILE__, __LINE__);                                                               \
-        } else if (ScopedResult < VK_SUCCESS) {                                                                 \
+        }                                                                                                       \
+        else if (ScopedResult < VK_SUCCESS)                                                                     \
+        {                                                                                                       \
             VulkanRHI::VulkanCheckResult(ScopedResult, #VkFunction);                                            \
         }                                                                                                       \
     }
@@ -123,7 +132,8 @@ TArray<VkExtensionProperties> FVulkanPlatform::GetDriverSupportedInstanceExtensi
     TArray<VkExtensionProperties> OutInstanceExtensions;
     uint32 Count = 0;
     VERIFYVULKANRESULT_INIT(VulkanAPI::vkEnumerateInstanceExtensionProperties(LayerName, &Count, nullptr));
-    if (Count > 0) {
+    if (Count > 0)
+    {
         OutInstanceExtensions.Resize(Count);
         VERIFYVULKANRESULT_INIT(
             VulkanAPI::vkEnumerateInstanceExtensionProperties(LayerName, &Count, OutInstanceExtensions.Raw()));
@@ -138,7 +148,8 @@ TArray<VkExtensionProperties> FVulkanPlatform::GetDriverSupportedDeviceExtension
     TArray<VkExtensionProperties> OutDeviceExtensions;
     uint32 Count = 0;
     VERIFYVULKANRESULT_INIT(VulkanAPI::vkEnumerateDeviceExtensionProperties(Gpu, LayerName, &Count, nullptr));
-    if (Count > 0) {
+    if (Count > 0)
+    {
         OutDeviceExtensions.Resize(Count);
         VERIFYVULKANRESULT_INIT(
             VulkanAPI::vkEnumerateDeviceExtensionProperties(Gpu, LayerName, &Count, OutDeviceExtensions.Raw()));

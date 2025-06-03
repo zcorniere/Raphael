@@ -91,7 +91,8 @@ private:
     /// Decrement the ref count of the RObject
     void DecrementRefCount() const
     {
-        if (!ensureAlwaysMsg(m_RefCount > 0, "Ref count is already at 0")) {
+        if (!ensureAlwaysMsg(m_RefCount > 0, "Ref count is already at 0"))
+        {
             return;
         }
         m_RefCount.fetch_sub(1, std::memory_order_acq_rel);
@@ -273,7 +274,8 @@ public:
     requires std::convertible_to<T*, Other*> || std::derived_from<Other, T>
     const Other* AsRaw() const
     {
-        if (!IsValid()) {
+        if (!IsValid())
+        {
             return nullptr;
         }
         return Raw()->template Cast<const Other>();
@@ -283,7 +285,8 @@ public:
     requires std::convertible_to<T*, Other*> || std::derived_from<Other, T>
     Other* AsRaw()
     {
-        if (!IsValid()) {
+        if (!IsValid())
+        {
             return nullptr;
         }
         return Raw()->template Cast<Other>();
@@ -438,7 +441,8 @@ private:
 namespace std
 {
 template <typename T>
-struct hash<Ref<T>> {
+struct hash<Ref<T>>
+{
     std::size_t operator()(const Ref<T>& ref) const
     {
         return std::hash<const T*>{}(ref.Raw());
@@ -446,7 +450,8 @@ struct hash<Ref<T>> {
 };
 
 template <typename T>
-struct hash<WeakRef<T>> {
+struct hash<WeakRef<T>>
+{
     std::size_t operator()(const WeakRef<T>& ref) const
     {
         return std::hash<const T*>{}(ref.Raw());

@@ -3,7 +3,8 @@
 namespace VulkanRHI
 {
 
-struct FOptionalExtensionStatus {
+struct FOptionalExtensionStatus
+{
     bool Maintenance5 = false;
 };
 
@@ -12,7 +13,8 @@ class IVulkanExtension
 {
 protected:
     IVulkanExtension(const char* InExtensionName, bool bInRequired)
-        : bRequired(bInRequired), ExtensionName(InExtensionName)
+        : bRequired(bInRequired)
+        , ExtensionName(InExtensionName)
     {
     }
 

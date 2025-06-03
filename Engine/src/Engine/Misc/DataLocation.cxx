@@ -12,9 +12,11 @@ fs::path DataLocationFinder::GetShaderPath()
 
     fs::path SearchDirectory = ExePath;
     // Search all the way to the root. (add a limit ?)
-    while (SearchDirectory.parent_path() != SearchDirectory) {
+    while (SearchDirectory.parent_path() != SearchDirectory)
+    {
         fs::path FolderPath = SearchDirectory / "Shaders";
-        if (fs::exists(FolderPath) && fs::is_directory(FolderPath)) {
+        if (fs::exists(FolderPath) && fs::is_directory(FolderPath))
+        {
             return FolderPath;
         }
         SearchDirectory = SearchDirectory.parent_path();

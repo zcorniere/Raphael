@@ -102,8 +102,10 @@ bool EditorApplication::OnEngineInitialization()
     CameraComponent->SetNearFar(0.1, 1000.0);
 
     const unsigned GridSize = 10;
-    for (float Row = 0; Row < GridSize; Row++) {
-        for (float Col = 0; Col < GridSize; Col++) {
+    for (float Row = 0; Row < GridSize; Row++)
+    {
+        for (float Col = 0; Col < GridSize; Col++)
+        {
             float x = (Col - (GridSize - 1) / 2.0f) * 2;
             float y = (Row - (GridSize - 1) / 2.0f) * 2;
             std::string Name = std::format("Oscillator_{:f}_{:f}", x, y);

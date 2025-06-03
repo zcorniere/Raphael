@@ -15,14 +15,16 @@
 
 EBoxReturnType FLinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string Title, const std::string Text)
 {
-    if (!RWindow::EnsureGLFWInit()) {
+    if (!RWindow::EnsureGLFWInit())
+    {
         return FGenericMisc::DisplayMessageBox(MsgType, Title, Text);
     }
 
     MD::Style Style = MD::Style::Error;
     MD::Buttons Button = MD::Buttons::OK;
 
-    switch (MsgType) {
+    switch (MsgType)
+    {
         case EBoxMessageType::Ok:
             Button = MD::Buttons::OK;
             break;
@@ -33,7 +35,8 @@ EBoxReturnType FLinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std:
 
     MD::Selection Result = MD::ShowMsgBox(Title, Text, Style, Button);
 
-    switch (Result) {
+    switch (Result)
+    {
         case MD::Selection::Error:
             return FGenericMisc::DisplayMessageBox(MsgType, Title, Text);
         case MD::Selection::OK:
@@ -54,9 +57,11 @@ static void GetCPUVendor(char (&OutBuffer)[12 + 1])
 {
     std::memset(OutBuffer, 0, sizeof(OutBuffer));
 
-    union {
+    union
+    {
         int8 Buffer[12 + 1];
-        struct {
+        struct
+        {
             int32 dw0;
             int32 dw1;
             int32 dw2;
@@ -86,10 +91,12 @@ static void GetCPUBrand(char (&OutBrandString)[0x40])
     __cpuid(0x80000000, CPUInfo[0], CPUInfo[1], CPUInfo[2], CPUInfo[3]);
     const uint32 MaxExtIDs = CPUInfo[0];
 
-    if (MaxExtIDs >= 0x80000004) {
+    if (MaxExtIDs >= 0x80000004)
+    {
         const uint32 FirstBrandString = 0x80000002;
         const uint32 NumBrandStrings = 3;
-        for (uint32 Index = 0; Index < NumBrandStrings; Index++) {
+        for (uint32 Index = 0; Index < NumBrandStrings; Index++)
+        {
             __cpuid(FirstBrandString + Index, CPUInfo[0], CPUInfo[1], CPUInfo[2], CPUInfo[3]);
             std::memcpy(BrandString + CPUInfoSize * Index, CPUInfo, CPUInfoSize);
         }
@@ -115,7 +122,8 @@ bool SupportAVX512()
 const FCPUInformation& FLinuxMisc::GetCPUInformation()
 {
     static FCPUInformation Info;
-    if (Info.Vendor[0] != '\0') {
+    if (Info.Vendor[0] != '\0')
+    {
         return Info;
     }
 
@@ -149,9 +157,12 @@ bool FLinuxMisc::BaseAllocator(void* TargetMemory)
 {
     checkNoReentry();
 
-    if (FCommandLine::Param("usemimalloc")) {
+    if (FCommandLine::Param("usemimalloc"))
+    {
         new (TargetMemory) FMiMalloc;
-    } else {
+    }
+    else
+    {
         new (TargetMemory) FStdMalloc;
     }
     return true;

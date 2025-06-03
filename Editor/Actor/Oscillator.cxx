@@ -9,10 +9,12 @@ AOscillator::AOscillator()
     Direction = {0.0f, 0.0f, 1.0f};
 
     Ref<RAsset> UsedAsset;
-    if (rand() % 2) {
+    if (rand() % 2)
+    {
         UsedAsset = GEngine->AssetRegistry.GetCapsuleAsset();
-
-    } else {
+    }
+    else
+    {
         UsedAsset = GEngine->AssetRegistry.GetCubeAsset();
     }
 
@@ -30,13 +32,16 @@ void AOscillator::Tick(double DeltaTime)
 
     const FVector3 Delta = Direction * Multiplier * float(DeltaTime);
     const FVector3 NewLocation = GetRootComponent()->GetRelativeTransform().GetLocation() + Delta;
-    if (NewLocation.x > Maximum.x || NewLocation.x < Minimum.x) {
+    if (NewLocation.x > Maximum.x || NewLocation.x < Minimum.x)
+    {
         Direction.x *= -1;
     }
-    if (NewLocation.y > Maximum.y || NewLocation.y < Minimum.y) {
+    if (NewLocation.y > Maximum.y || NewLocation.y < Minimum.y)
+    {
         Direction.y *= -1;
     }
-    if (NewLocation.z > Maximum.z || NewLocation.z < Minimum.z) {
+    if (NewLocation.z > Maximum.z || NewLocation.z < Minimum.z)
+    {
         Direction.z *= -1;
     }
 

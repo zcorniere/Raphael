@@ -3,7 +3,8 @@
 #include "Engine/Core/RHI/RHICommandList.hxx"
 
 #define RHICOMMAND_MACRO(CommandName)      \
-    struct CommandName##String {           \
+    struct CommandName##String             \
+    {                                      \
         static constexpr const char* Str() \
         {                                  \
             return #CommandName;           \

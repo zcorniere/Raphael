@@ -19,7 +19,8 @@ static HANDLE GDebugSymbolHandle;
 void FWindowsPlatform::Initialize()
 {
     // allocate a console for this app
-    if (!AllocConsole()) {
+    if (!AllocConsole())
+    {
         return;
     }
 
@@ -35,14 +36,16 @@ void FWindowsPlatform::Initialize()
     SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES);
 
     if (!DuplicateHandle(hCurrentProcess, hCurrentProcess, hCurrentProcess, &GDebugSymbolHandle, 0, FALSE,
-                         DUPLICATE_SAME_ACCESS)) {
+                         DUPLICATE_SAME_ACCESS))
+    {
         // DuplicateHandle failed
         error = GetLastError();
         fprintf(stderr, "DuplicateHandle returned error : %d\n", error);
         return;
     }
 
-    if (!SymInitialize(GDebugSymbolHandle, NULL, TRUE)) {
+    if (!SymInitialize(GDebugSymbolHandle, NULL, TRUE))
+    {
         // SymInitialize failed
         error = GetLastError();
         fprintf(stderr, "SymInitialize returned error : %d\n", error);
@@ -72,7 +75,8 @@ void FWindowsPlatform::setThreadName(std::jthread& thread, const std::string& na
 {
     std::wstring nameStupidType(name.begin(), name.end());
     HRESULT hr = ::SetThreadDescription(thread.native_handle(), nameStupidType.c_str());
-    if (FAILED(hr)) {
+    if (FAILED(hr))
+    {
         LOG(LogWindowsPlateform, Error, "SetThreadDescription('{}') failed", name);
     }
 }
@@ -81,7 +85,8 @@ std::string FWindowsPlatform::getThreadName(std::jthread& thread)
 {
     PWSTR name;
     HRESULT hr = ::GetThreadDescription(thread.native_handle(), &name);
-    if (SUCCEEDED(hr)) {
+    if (SUCCEEDED(hr))
+    {
         std::wstring nameNoStupidType(name, wcslen(name));
         LocalFree(name);
         return std::string(nameNoStupidType.begin(), nameNoStupidType.end());

@@ -20,7 +20,8 @@ RAsset::~RAsset()
 
 bool RAsset::Load()
 {
-    if (bIsMemoryOnly) {
+    if (bIsMemoryOnly)
+    {
         return false;
     }
     return true;
@@ -28,7 +29,8 @@ bool RAsset::Load()
 
 bool RAsset::LoadOnGPU()
 {
-    if (IsLoadedOnGPU()) {
+    if (IsLoadedOnGPU())
+    {
         return true;
     }
     Ref<RRHIBuffer> TmpBuffer = RHI::CreateBuffer(FRHIBufferDesc{
@@ -47,26 +49,28 @@ bool RAsset::LoadOnGPU()
     });
 
     ENQUEUE_RENDER_COMMAND(CopyBuffer)
-    ([this, TmpBuffer, TmpIndexBuffer](FFRHICommandList& CommandList) {
-        VertexBuffer = RHI::CreateBuffer(FRHIBufferDesc{
-            .Size = TmpBuffer->GetSize(),
-            .Stride = TmpBuffer->GetStride(),
-            .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::DestinationCopy,
-            .ResourceArray = nullptr,
-            .DebugName = std::format("{:s}.VertexBuffer", GetName()),
-        });
-        IndexBuffer = RHI::CreateBuffer(FRHIBufferDesc{
-            .Size = TmpIndexBuffer->GetSize(),
-            .Stride = TmpIndexBuffer->GetStride(),
-            .Usage = EBufferUsageFlags::IndexBuffer | EBufferUsageFlags::DestinationCopy,
-            .ResourceArray = nullptr,
-            .DebugName = std::format("{:s}.IndexBuffer", GetName()),
-        });
-        CommandList.CopyBufferToBuffer(TmpBuffer, VertexBuffer, 0, 0, TmpBuffer->GetSize());
-        CommandList.CopyBufferToBuffer(TmpIndexBuffer, IndexBuffer, 0, 0, TmpIndexBuffer->GetSize());
+    (
+        [this, TmpBuffer, TmpIndexBuffer](FFRHICommandList& CommandList)
+        {
+            VertexBuffer = RHI::CreateBuffer(FRHIBufferDesc{
+                .Size = TmpBuffer->GetSize(),
+                .Stride = TmpBuffer->GetStride(),
+                .Usage = EBufferUsageFlags::VertexBuffer | EBufferUsageFlags::DestinationCopy,
+                .ResourceArray = nullptr,
+                .DebugName = std::format("{:s}.VertexBuffer", GetName()),
+            });
+            IndexBuffer = RHI::CreateBuffer(FRHIBufferDesc{
+                .Size = TmpIndexBuffer->GetSize(),
+                .Stride = TmpIndexBuffer->GetStride(),
+                .Usage = EBufferUsageFlags::IndexBuffer | EBufferUsageFlags::DestinationCopy,
+                .ResourceArray = nullptr,
+                .DebugName = std::format("{:s}.IndexBuffer", GetName()),
+            });
+            CommandList.CopyBufferToBuffer(TmpBuffer, VertexBuffer, 0, 0, TmpBuffer->GetSize());
+            CommandList.CopyBufferToBuffer(TmpIndexBuffer, IndexBuffer, 0, 0, TmpIndexBuffer->GetSize());
 
-        RHI::RHIWaitUntilIdle();
-    });
+            RHI::RHIWaitUntilIdle();
+        });
 
     return true;
 }

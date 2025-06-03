@@ -11,7 +11,8 @@ class RSemaphore;
 class RFence;
 class FVulkanQueue;
 
-struct VulkanSwapChainRecreateInfo {
+struct VulkanSwapChainRecreateInfo
+{
     VkSwapchainKHR SwapChain = VK_NULL_HANDLE;
     VkSurfaceKHR Surface = VK_NULL_HANDLE;
 };
@@ -21,7 +22,8 @@ class RVulkanSwapChain : public RObject, public IDeviceChild
     RTTI_DECLARE_TYPEINFO(RVulkanSwapChain, RObject);
 
 public:
-    enum class EStatus {
+    enum class EStatus
+    {
         Healty = 0,
         OutOfDate = -1,
         SurfaceLost = -2,

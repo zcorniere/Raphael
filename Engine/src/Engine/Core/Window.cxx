@@ -17,7 +17,8 @@ std::atomic_short RWindow::GFLWInUseCount = 0;
 
 bool RWindow::EnsureGLFWInit()
 {
-    if (!InitializeGLFW()) {
+    if (!InitializeGLFW())
+    {
         LOG(LogWindow, Fatal, "Window::Initialize() : Failed to initialize window");
         checkNoEntry();
         return false;
@@ -31,7 +32,8 @@ RWindow::RWindow(): Definition(), p_Handle(nullptr), bIsVisible(false)
 
 RWindow::~RWindow()
 {
-    if (p_Handle) {
+    if (p_Handle)
+    {
         Destroy();
     }
 }
@@ -62,7 +64,8 @@ void RWindow::Initialize(const FWindowDefinition& InDefinition)
     glfwWindowHint(GLFW_DECORATED, InDefinition.HasOsWindowBorder);
 
     p_Handle = glfwCreateWindow(Width, Height, Definition.Title.c_str(), nullptr, nullptr);
-    if (!p_Handle) {
+    if (!p_Handle)
+    {
         LOG(LogWindow, Fatal, "Failed To create the GLFW Window");
         Utils::RequestExit(1);
     }
@@ -84,9 +87,12 @@ void RWindow::MoveWindow(int32 X, int32 Y)
 
 void RWindow::BringToFront(bool bForce)
 {
-    if (bForce) {
+    if (bForce)
+    {
         glfwFocusWindow(p_Handle);
-    } else {
+    }
+    else
+    {
         Show();
     }
 }
@@ -100,7 +106,8 @@ void RWindow::Destroy()
     p_Handle = nullptr;
 
     GFLWInUseCount -= 1;
-    if (GFLWInUseCount == 0) {
+    if (GFLWInUseCount == 0)
+    {
         LOG(LogWindow, Info, "Terminating GLFW.");
         glfwTerminate();
         bGLFWInitialized = false;
@@ -124,11 +131,13 @@ void RWindow::Restore()
 
 void RWindow::Show()
 {
-    if (IsMinimized()) {
+    if (IsMinimized())
+    {
         Restore();
     }
 
-    if (!bIsVisible) {
+    if (!bIsVisible)
+    {
         bIsVisible = true;
         glfwShowWindow(p_Handle);
     }
@@ -136,7 +145,8 @@ void RWindow::Show()
 
 void RWindow::Hide()
 {
-    if (bIsVisible) {
+    if (bIsVisible)
+    {
         bIsVisible = false;
         glfwHideWindow(p_Handle);
     }
@@ -213,13 +223,13 @@ void Deallocate(void* Pointer, void*)
 
 bool RWindow::InitializeGLFW()
 {
-    if (bGLFWInitialized) {
+    if (bGLFWInitialized)
+    {
         return true;
     }
 
-    glfwSetErrorCallback([](int ErrorCode, const char* ErrorMessage) {
-        LOG(LogWindow, Error, "GLFW Error ({}) \"{:s}\"", ErrorCode, ErrorMessage);
-    });
+    glfwSetErrorCallback([](int ErrorCode, const char* ErrorMessage)
+                         { LOG(LogWindow, Error, "GLFW Error ({}) \"{:s}\"", ErrorCode, ErrorMessage); });
 
     GLFWallocator allocator = {
         .allocate = GLFWMemAllocator::Allocate,
@@ -230,10 +240,13 @@ bool RWindow::InitializeGLFW()
     glfwInitAllocator(&allocator);
 
 #if defined(PLATFORM_LINUX)
-    if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND) && !FCommandLine::Param("-forceX11")) {
+    if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND) && !FCommandLine::Param("-forceX11"))
+    {
         glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WAYLAND);
         LOG(LogWindow, Info, "Initializing GLFW - using Wayland");
-    } else {
+    }
+    else
+    {
         glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
         LOG(LogWindow, Info, "Initializing GLFW - using X11");
     }
@@ -241,10 +254,12 @@ bool RWindow::InitializeGLFW()
     LOG(LogWindow, Info, "Initializing GLFW.");
 #endif
 
-    if (glfwInit() == GLFW_FALSE) {
+    if (glfwInit() == GLFW_FALSE)
+    {
         const char* ErrorMessage = nullptr;
         glfwGetError(&ErrorMessage);
-        if (ErrorMessage) {
+        if (ErrorMessage)
+        {
             LOG(LogWindow, Warning, "Could not initialize GLFW: {}", ErrorMessage);
         }
         return false;
@@ -273,79 +288,110 @@ void RWindow::SetupGLFWCallbacks()
         LOG(LogWindow, Warning, "Raw mouse motion not supported.");
 
     // Set GLFW callbacks
-    glfwSetWindowSizeCallback(p_Handle, [](GLFWwindow* window, int width, int height) {
-        auto& Callback = *(static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
-        FWindowResizeEvent event((uint32_t)width, (uint32_t)height);
-        Callback(event);
-    });
+    glfwSetWindowSizeCallback(p_Handle,
+                              [](GLFWwindow* window, int width, int height)
+                              {
+                                  auto& Callback = *(
+                                      static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
+                                  FWindowResizeEvent event((uint32_t)width, (uint32_t)height);
+                                  Callback(event);
+                              });
 
-    glfwSetWindowCloseCallback(p_Handle, [](GLFWwindow* window) {
-        auto& Callback = *(static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
-        FWindowCloseEvent event;
-        Callback(event);
-    });
+    glfwSetWindowCloseCallback(p_Handle,
+                               [](GLFWwindow* window)
+                               {
+                                   auto& Callback = *(
+                                       static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
+                                   FWindowCloseEvent event;
+                                   Callback(event);
+                               });
 
-    glfwSetKeyCallback(p_Handle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-        (void)scancode;
-        (void)mods;
-        auto& Callback = *(static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
-        switch (action) {
-            case GLFW_PRESS: {
-                FKeyPressedEvent event((EKeyCode)key, 0);
-                Callback(event);
-                break;
-            }
-            case GLFW_RELEASE: {
-                FKeyReleasedEvent event((EKeyCode)key);
-                Callback(event);
-                break;
-            }
-            case GLFW_REPEAT: {
-                FKeyPressedEvent event((EKeyCode)key, 1);
-                Callback(event);
-                break;
-            }
-        }
-    });
+    glfwSetKeyCallback(p_Handle,
+                       [](GLFWwindow* window, int key, int scancode, int action, int mods)
+                       {
+                           (void)scancode;
+                           (void)mods;
+                           auto& Callback =
+                               *(static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
+                           switch (action)
+                           {
+                               case GLFW_PRESS:
+                               {
+                                   FKeyPressedEvent event((EKeyCode)key, 0);
+                                   Callback(event);
+                                   break;
+                               }
+                               case GLFW_RELEASE:
+                               {
+                                   FKeyReleasedEvent event((EKeyCode)key);
+                                   Callback(event);
+                                   break;
+                               }
+                               case GLFW_REPEAT:
+                               {
+                                   FKeyPressedEvent event((EKeyCode)key, 1);
+                                   Callback(event);
+                                   break;
+                               }
+                           }
+                       });
 
-    glfwSetCharCallback(p_Handle, [](GLFWwindow* window, uint32_t codepoint) {
-        auto& Callback = *(static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
-        FKeyTypedEvent event((EKeyCode)codepoint);
-        Callback(event);
-    });
+    glfwSetCharCallback(p_Handle,
+                        [](GLFWwindow* window, uint32_t codepoint)
+                        {
+                            auto& Callback =
+                                *(static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
+                            FKeyTypedEvent event((EKeyCode)codepoint);
+                            Callback(event);
+                        });
 
-    glfwSetMouseButtonCallback(p_Handle, [](GLFWwindow* window, int button, int action, int mods) {
-        (void)mods;
-        auto& Callback = *(static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
-        switch (action) {
-            case GLFW_PRESS: {
-                FMouseButtonPressedEvent event((EMouseButton)button);
-                Callback(event);
-                break;
-            }
-            case GLFW_RELEASE: {
-                FMouseButtonReleasedEvent event((EMouseButton)button);
-                Callback(event);
-                break;
-            }
-        }
-    });
+    glfwSetMouseButtonCallback(p_Handle,
+                               [](GLFWwindow* window, int button, int action, int mods)
+                               {
+                                   (void)mods;
+                                   auto& Callback = *(
+                                       static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
+                                   switch (action)
+                                   {
+                                       case GLFW_PRESS:
+                                       {
+                                           FMouseButtonPressedEvent event((EMouseButton)button);
+                                           Callback(event);
+                                           break;
+                                       }
+                                       case GLFW_RELEASE:
+                                       {
+                                           FMouseButtonReleasedEvent event((EMouseButton)button);
+                                           Callback(event);
+                                           break;
+                                       }
+                                   }
+                               });
 
-    glfwSetScrollCallback(p_Handle, [](GLFWwindow* window, double xOffset, double yOffset) {
-        auto& Callback = *(static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
-        FMouseScrolledEvent event((float)xOffset, (float)yOffset);
-        Callback(event);
-    });
+    glfwSetScrollCallback(p_Handle,
+                          [](GLFWwindow* window, double xOffset, double yOffset)
+                          {
+                              auto& Callback =
+                                  *(static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
+                              FMouseScrolledEvent event((float)xOffset, (float)yOffset);
+                              Callback(event);
+                          });
 
-    glfwSetCursorPosCallback(p_Handle, [](GLFWwindow* window, double x, double y) {
-        auto& Callback = *(static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
-        FMouseMovedEvent event((float)x, (float)y);
-        Callback(event);
-    });
+    glfwSetCursorPosCallback(p_Handle,
+                             [](GLFWwindow* window, double x, double y)
+                             {
+                                 auto& Callback =
+                                     *(static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
+                                 FMouseMovedEvent event((float)x, (float)y);
+                                 Callback(event);
+                             });
 
-    glfwSetWindowIconifyCallback(p_Handle, [](GLFWwindow* window, int iconified) {
-        auto& Callback = *(static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
-        FWindowMinimizeEvent event((bool)iconified);
-        Callback(event);
-    });
+    glfwSetWindowIconifyCallback(
+        p_Handle,
+        [](GLFWwindow* window, int iconified)
+        {
+            auto& Callback = *(static_cast<FWindowDefinition::EventHandler*>(glfwGetWindowUserPointer(window)));
+            FWindowMinimizeEvent event((bool)iconified);
+            Callback(event);
+        });
 }

@@ -3,7 +3,8 @@
 #include "Engine/Core/RHI/RHIDefinitions.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
 
-struct FRHIAttachmentFormats {
+struct FRHIAttachmentFormats
+{
     TArray<EImageFormat> ColorFormats;
     std::optional<EImageFormat> DepthFormat = std::nullopt;
     std::optional<EImageFormat> StencilFormat = std::nullopt;
@@ -11,12 +12,15 @@ struct FRHIAttachmentFormats {
     bool operator==(const FRHIAttachmentFormats&) const = default;
 };
 
-struct FRHIGraphicsPipelineSpecification {
+struct FRHIGraphicsPipelineSpecification
+{
     std::string VertexShader;
     std::string FragmentShader;
 
-    struct FVertexBufferLayout {
-        struct FElement {
+    struct FVertexBufferLayout
+    {
+        struct FElement
+        {
             std::string Name;
             EVertexElementType Type;
         };
@@ -26,7 +30,8 @@ struct FRHIGraphicsPipelineSpecification {
     };
     TArray<FVertexBufferLayout> VertexBufferLayouts;
 
-    struct FRasterizerDesc {
+    struct FRasterizerDesc
+    {
         EPolygonMode PolygonMode;
         ECullMode CullMode;
         EFrontFace FrontFaceCulling;

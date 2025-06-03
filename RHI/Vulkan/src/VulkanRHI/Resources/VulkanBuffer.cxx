@@ -10,9 +10,8 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage)
 {
     VkBufferUsageFlags OutUsage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     auto TranslateFlags = [&OutUsage, &InUsage](EBufferUsageFlags SearchFlag, VkBufferUsageFlags AddedIfFound,
-                                                VkBufferUsageFlags AddedIfNotFound = 0) {
-        OutUsage |= EnumHasAnyFlags(InUsage, SearchFlag) ? AddedIfFound : AddedIfNotFound;
-    };
+                                                VkBufferUsageFlags AddedIfNotFound = 0)
+    { OutUsage |= EnumHasAnyFlags(InUsage, SearchFlag) ? AddedIfFound : AddedIfNotFound; };
 
     TranslateFlags(EBufferUsageFlags::VertexBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     TranslateFlags(EBufferUsageFlags::IndexBuffer, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
@@ -26,7 +25,8 @@ static VkBufferUsageFlags ConvertToVulkanType(EBufferUsageFlags InUsage)
 }
 
 RVulkanBuffer::RVulkanBuffer(FVulkanDevice* InDevice, const FRHIBufferDesc& InDescription)
-    : Super(InDescription), IDeviceChild(InDevice)
+    : Super(InDescription)
+    , IDeviceChild(InDevice)
 {
 
     check(Device);
@@ -39,13 +39,15 @@ RVulkanBuffer::RVulkanBuffer(FVulkanDevice* InDevice, const FRHIBufferDesc& InDe
         .usage = VMA_MEMORY_USAGE_AUTO,
     };
 
-    if (EnumHasAnyFlags(Description.Usage, EBufferUsageFlags::KeepCPUAccessible)) {
+    if (EnumHasAnyFlags(Description.Usage, EBufferUsageFlags::KeepCPUAccessible))
+    {
         AllocationInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
                                VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT |
                                VMA_ALLOCATION_CREATE_MAPPED_BIT;
     }
 
-    if (CreateInfo.size == 0 && Description.ResourceArray) {
+    if (CreateInfo.size == 0 && Description.ResourceArray)
+    {
         CreateInfo.size = Description.ResourceArray->GetByteSize();
     }
     checkMsg(CreateInfo.size > 0, "Buffer size must be greater than 0");
@@ -57,9 +59,11 @@ RVulkanBuffer::RVulkanBuffer(FVulkanDevice* InDevice, const FRHIBufferDesc& InDe
         .range = Description.Size,
     };
 
-    if (Description.ResourceArray) {
+    if (Description.ResourceArray)
+    {
         ensure(Description.ResourceArray->GetByteSize() <= Description.Size);
-        if (!ensure(EnumHasAnyFlags(Description.Usage, EBufferUsageFlags::KeepCPUAccessible))) {
+        if (!ensure(EnumHasAnyFlags(Description.Usage, EBufferUsageFlags::KeepCPUAccessible)))
+        {
             return;
         }
 
@@ -72,11 +76,13 @@ RVulkanBuffer::RVulkanBuffer(FVulkanDevice* InDevice, const FRHIBufferDesc& InDe
 
 RVulkanBuffer::~RVulkanBuffer()
 {
-    RHI::DeferedDeletion([Memory = this->Memory, BufferHandle = this->BufferHandle, Device = this->Device]() mutable {
-        Device->GetMemoryManager()->Free(Memory);
+    RHI::DeferedDeletion(
+        [Memory = this->Memory, BufferHandle = this->BufferHandle, Device = this->Device]() mutable
+        {
+            Device->GetMemoryManager()->Free(Memory);
 
-        VulkanAPI::vkDestroyBuffer(Device->GetHandle(), BufferHandle, VULKAN_CPU_ALLOCATOR);
-    });
+            VulkanAPI::vkDestroyBuffer(Device->GetHandle(), BufferHandle, VULKAN_CPU_ALLOCATOR);
+        });
 }
 
 void RVulkanBuffer::SetName(std::string_view InName)

@@ -18,12 +18,14 @@ public:
     }
 
     template <unsigned N>
-    constexpr TArrayView(T (&Array)[N]): Data(Array), ArraySize(N)
+    constexpr TArrayView(T (&Array)[N]): Data(Array)
+                                       , ArraySize(N)
     {
     }
 
     template <unsigned MinimalCapacity>
-    constexpr TArrayView(TArray<T, MinimalCapacity, SizeType>& Other): Data(Other.Raw()), ArraySize(Other.Size())
+    constexpr TArrayView(TArray<T, MinimalCapacity, SizeType>& Other): Data(Other.Raw())
+                                                                     , ArraySize(Other.Size())
     {
     }
 
@@ -76,8 +78,10 @@ public:
         if (Other.Size() != this->Size())
             return false;
 
-        for (unsigned i = 0; i < Other.Size() && i < this->Size(); i++) {
-            if ((*this)[i] != Other[i]) {
+        for (unsigned i = 0; i < Other.Size() && i < this->Size(); i++)
+        {
+            if ((*this)[i] != Other[i])
+            {
                 return false;
             }
         }

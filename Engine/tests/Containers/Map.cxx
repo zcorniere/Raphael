@@ -79,22 +79,38 @@ TEST_CASE("Map Iterators")
 
     SECTION("Iterator")
     {
-        for (TPair<int, std::string>& Pair: TestMap) {
-            if (Pair.Get<0>() == 44) {
+        for (TPair<int, std::string>& Pair: TestMap)
+        {
+            if (Pair.Get<0>() == 44)
+            {
                 CHECK(Pair.Get<1>() == "Hello");
-            } else if (Pair.Get<0>() == 45) {
+            }
+            else if (Pair.Get<0>() == 45)
+            {
                 CHECK(Pair.Get<1>() == "World");
-            } else if (Pair.Get<0>() == 46) {
+            }
+            else if (Pair.Get<0>() == 46)
+            {
                 CHECK(Pair.Get<1>() == "!");
-            } else if (Pair.Get<0>() == 47) {
+            }
+            else if (Pair.Get<0>() == 47)
+            {
                 CHECK(Pair.Get<1>() == "Test");
-            } else if (Pair.Get<0>() == 48) {
+            }
+            else if (Pair.Get<0>() == 48)
+            {
                 CHECK(Pair.Get<1>() == "123");
-            } else if (Pair.Get<0>() == 49) {
+            }
+            else if (Pair.Get<0>() == 49)
+            {
                 CHECK(Pair.Get<1>() == "456");
-            } else if (Pair.Get<0>() == 50) {
+            }
+            else if (Pair.Get<0>() == 50)
+            {
                 CHECK(Pair.Get<1>() == "789");
-            } else {
+            }
+            else
+            {
                 CHECK(false);
             }
         }
@@ -102,22 +118,38 @@ TEST_CASE("Map Iterators")
 
     SECTION("Iterator with structured binding")
     {
-        for (auto& [Key, Value]: TestMap) {
-            if (Key == 44) {
+        for (auto& [Key, Value]: TestMap)
+        {
+            if (Key == 44)
+            {
                 CHECK(Value == "Hello");
-            } else if (Key == 45) {
+            }
+            else if (Key == 45)
+            {
                 CHECK(Value == "World");
-            } else if (Key == 46) {
+            }
+            else if (Key == 46)
+            {
                 CHECK(Value == "!");
-            } else if (Key == 47) {
+            }
+            else if (Key == 47)
+            {
                 CHECK(Value == "Test");
-            } else if (Key == 48) {
+            }
+            else if (Key == 48)
+            {
                 CHECK(Value == "123");
-            } else if (Key == 49) {
+            }
+            else if (Key == 49)
+            {
                 CHECK(Value == "456");
-            } else if (Key == 50) {
+            }
+            else if (Key == 50)
+            {
                 CHECK(Value == "789");
-            } else {
+            }
+            else
+            {
                 CHECK(false);
             }
         }
@@ -126,22 +158,38 @@ TEST_CASE("Map Iterators")
     SECTION("Const Iterator")
     {
         const TMap<int, std::string, std::hash<int>, 0.75f, uint32, 2>& ConstTestMap = TestMap;
-        for (const TPair<int, std::string>& Pair: ConstTestMap) {
-            if (Pair.Get<0>() == 44) {
+        for (const TPair<int, std::string>& Pair: ConstTestMap)
+        {
+            if (Pair.Get<0>() == 44)
+            {
                 CHECK(Pair.Get<1>() == "Hello");
-            } else if (Pair.Get<0>() == 45) {
+            }
+            else if (Pair.Get<0>() == 45)
+            {
                 CHECK(Pair.Get<1>() == "World");
-            } else if (Pair.Get<0>() == 46) {
+            }
+            else if (Pair.Get<0>() == 46)
+            {
                 CHECK(Pair.Get<1>() == "!");
-            } else if (Pair.Get<0>() == 47) {
+            }
+            else if (Pair.Get<0>() == 47)
+            {
                 CHECK(Pair.Get<1>() == "Test");
-            } else if (Pair.Get<0>() == 48) {
+            }
+            else if (Pair.Get<0>() == 48)
+            {
                 CHECK(Pair.Get<1>() == "123");
-            } else if (Pair.Get<0>() == 49) {
+            }
+            else if (Pair.Get<0>() == 49)
+            {
                 CHECK(Pair.Get<1>() == "456");
-            } else if (Pair.Get<0>() == 50) {
+            }
+            else if (Pair.Get<0>() == 50)
+            {
                 CHECK(Pair.Get<1>() == "789");
-            } else {
+            }
+            else
+            {
                 CHECK(false);
             }
         }
@@ -150,22 +198,38 @@ TEST_CASE("Map Iterators")
     SECTION("Const Iterator with structured binding")
     {
         const TMap<int, std::string, std::hash<int>, 0.75f, uint32, 2>& ConstTestMap = TestMap;
-        for (const auto& [Key, Value]: ConstTestMap) {
-            if (Key == 44) {
+        for (const auto& [Key, Value]: ConstTestMap)
+        {
+            if (Key == 44)
+            {
                 CHECK(Value == "Hello");
-            } else if (Key == 45) {
+            }
+            else if (Key == 45)
+            {
                 CHECK(Value == "World");
-            } else if (Key == 46) {
+            }
+            else if (Key == 46)
+            {
                 CHECK(Value == "!");
-            } else if (Key == 47) {
+            }
+            else if (Key == 47)
+            {
                 CHECK(Value == "Test");
-            } else if (Key == 48) {
+            }
+            else if (Key == 48)
+            {
                 CHECK(Value == "123");
-            } else if (Key == 49) {
+            }
+            else if (Key == 49)
+            {
                 CHECK(Value == "456");
-            } else if (Key == 50) {
+            }
+            else if (Key == 50)
+            {
                 CHECK(Value == "789");
-            } else {
+            }
+            else
+            {
                 CHECK(false);
             }
         }

@@ -5,7 +5,8 @@
 struct GLFWwindow;
 
 /// @brief Define a Window
-struct FWindowDefinition {
+struct FWindowDefinition
+{
     using EventHandler = std::function<void(FEvent&)>;
 
     /// The X position on the screen

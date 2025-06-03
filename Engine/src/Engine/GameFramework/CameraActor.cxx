@@ -13,7 +13,8 @@ ACameraActor::~ACameraActor()
 
 RObject* ACameraActor::FindComponent(RTTI::FTypeId TypeId)
 {
-    if (CameraComponent->TypeId() == TypeId) {
+    if (CameraComponent->TypeId() == TypeId)
+    {
         return CameraComponent.Raw();
     }
 

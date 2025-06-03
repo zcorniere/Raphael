@@ -16,14 +16,16 @@ private:
     {
     public:
         TWeakLambda(WeakRef<T> InWeakPtr, std::function<TFunctionSignature>&& InFunction)
-            : WeakPtr(InWeakPtr), Function(std::move(InFunction))
+            : WeakPtr(InWeakPtr)
+            , Function(std::move(InFunction))
         {
         }
         virtual ~TWeakLambda() = default;
 
         virtual std::function<TFunctionSignature> GetFunction() const override
         {
-            if (!WeakPtr.IsValid()) {
+            if (!WeakPtr.IsValid())
+            {
                 return {};
             }
             return Function;
@@ -73,7 +75,8 @@ public:
 
     void AddUnique(std::function<TFunctionSignature>&& Function)
     {
-        if (std::find(Function->begin(), Function->end(), Function) == Function->end()) {
+        if (std::find(Function->begin(), Function->end(), Function) == Function->end())
+        {
             Functions.Add(std::make_unique<TLambda>(std::move(Function)));
         }
     }
@@ -82,9 +85,11 @@ public:
     requires std::is_invocable_v<TFunctionSignature, TFunctionArgs&...>
     void Broadcast(TFunctionArgs&&... Args)
     {
-        for (std::unique_ptr<ILamdaInterface>& Function: Functions) {
+        for (std::unique_ptr<ILamdaInterface>& Function: Functions)
+        {
             std::function<TFunctionSignature> LambdaFunction = Function->GetFunction();
-            if (LambdaFunction) {
+            if (LambdaFunction)
+            {
                 LambdaFunction(Args...);
             }
         }

@@ -38,7 +38,8 @@ public:
         uint8 Data;
         ReadData(&Data, sizeof(uint8));
 
-        if (Data) {
+        if (Data)
+        {
             T Value;
             ReadObject(Value);
             OptionalValue = Value;
@@ -50,19 +51,26 @@ public:
     template <typename T>
     void ReadArray(TArray<T>& Array, bool bReadSize = true)
     {
-        if (bReadSize) {
+        if (bReadSize)
+        {
             uint32 Size = 0;
             ReadRaw<uint32>(Size);
 
             Array.Resize(Size);
         }
 
-        for (T& Element: Array) {
-            if constexpr (std::is_trivial<T>()) {
+        for (T& Element: Array)
+        {
+            if constexpr (std::is_trivial<T>())
+            {
                 ReadRaw(Element);
-            } else if constexpr (std::is_same<T, std::string>()) {
+            }
+            else if constexpr (std::is_same<T, std::string>())
+            {
                 ReadString(Element);
-            } else {
+            }
+            else
+            {
                 ReadObject(Element);
             }
         }
@@ -71,26 +79,36 @@ public:
     template <typename KeyType, typename ValueType>
     void ReadMap(TMap<KeyType, ValueType>& Map, bool bReadSize = true)
     {
-        if (bReadSize) {
+        if (bReadSize)
+        {
             uint32 Size = 0;
             ReadRaw<uint32>(Size);
             Map.Rehash(Size);
         }
 
-        for (uint32 I = 0; I < Map.BucketCount(); I++) {
+        for (uint32 I = 0; I < Map.BucketCount(); I++)
+        {
             KeyType Key;
-            if constexpr (std::is_trivial<KeyType>()) {
+            if constexpr (std::is_trivial<KeyType>())
+            {
                 ReadRaw(Key);
-            } else if constexpr (std::is_same<KeyType, std::string>()) {
+            }
+            else if constexpr (std::is_same<KeyType, std::string>())
+            {
                 ReadString(Key);
-            } else {
+            }
+            else
+            {
                 ReadObject(Key);
             }
 
             ValueType& Value = Map.FindOrAdd(Key);
-            if constexpr (std::is_trivial<ValueType>()) {
+            if constexpr (std::is_trivial<ValueType>())
+            {
                 ReadRaw(Value);
-            } else {
+            }
+            else
+            {
                 ReadObject(Value);
             }
         }

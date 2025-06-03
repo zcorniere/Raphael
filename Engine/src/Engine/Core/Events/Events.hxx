@@ -2,7 +2,8 @@
 
 #include <functional>
 
-enum class EEventType {
+enum class EEventType
+{
     None = 0,
     WindowClose,
     WindowMinimize,
@@ -20,7 +21,8 @@ enum class EEventType {
     MouseScrolled,
 };
 
-enum EEventCategory {
+enum EEventCategory
+{
     None = 0,
     EventCategoryApplication = BIT(0),
     EventCategoryInput = BIT(1),
@@ -89,7 +91,8 @@ public:
     template <DispatchableEvent T>
     bool Dispatch(EventFn<T>&& func)
     {
-        if (m_Event.GetEventType() == T::GetStaticType() && !m_Event.Handled) {
+        if (m_Event.GetEventType() == T::GetStaticType() && !m_Event.Handled)
+        {
             T* const CastedEvent = m_Event.Cast<T>();
             check(CastedEvent);
             m_Event.Handled = func(*CastedEvent);

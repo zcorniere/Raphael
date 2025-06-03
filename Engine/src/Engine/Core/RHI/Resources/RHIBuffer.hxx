@@ -5,7 +5,8 @@
 #include "Engine/Containers/ResourceArray.hxx"
 #include "Engine/Core/RHI/RHIResource.hxx"
 
-enum class EBufferUsageFlags : uint32 {
+enum class EBufferUsageFlags : uint32
+{
     None = 0,
 
     Static = BIT(0),
@@ -25,7 +26,8 @@ enum class EBufferUsageFlags : uint32 {
 };
 ENUM_CLASS_FLAGS(EBufferUsageFlags);
 
-struct FRHIBufferDesc {
+struct FRHIBufferDesc
+{
     /// Size in bytes of the buffer
     uint32 Size = 0;
     uint32 Stride = 0;

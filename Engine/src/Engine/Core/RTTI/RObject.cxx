@@ -33,8 +33,10 @@ bool RObjectUtils::AreThereAnyLiveObject(bool bPrintObjects)
 {
     std::scoped_lock lock(s_LiveReferenceMutex);
 
-    if (bPrintObjects) {
-        for (RObject* ObjectPtr: s_LiveReferences) {
+    if (bPrintObjects)
+    {
+        for (RObject* ObjectPtr: s_LiveReferences)
+        {
             LOG(LogRObject, Trace, "{}<{}> ({:p}) have {} references", ObjectPtr->GetBaseTypeName(),
                 ObjectPtr->GetName(), (void*)ObjectPtr, ObjectPtr->GetRefCount());
         }

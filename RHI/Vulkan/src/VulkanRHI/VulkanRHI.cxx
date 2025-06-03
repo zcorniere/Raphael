@@ -38,7 +38,8 @@ FVulkanDynamicRHI::FVulkanDynamicRHI(): Device(nullptr), ShaderCompiler(nullptr)
         VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
         VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 
-    if (!ensure(Platform.LoadVulkanLibrary())) {
+    if (!ensure(Platform.LoadVulkanLibrary()))
+    {
         FPlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok,
             "Unable to load Vulkan library and/or acquire the necessary function pointers. Make sure an "
@@ -61,8 +62,10 @@ void FVulkanDynamicRHI::Tick(double fDeltaTime)
 
     ENQUEUE_RENDER_COMMAND(BeginFrame)([](FFRHICommandList& CommandList) { CommandList.BeginFrame(); });
 
-    for (WeakRef<RRHIScene>& Scene: ScenesContainers) {
-        if (Scene.IsValid()) {
+    for (WeakRef<RRHIScene>& Scene: ScenesContainers)
+    {
+        if (Scene.IsValid())
+        {
             ENQUEUE_RENDER_COMMAND(RenderScene)
             ([Scene](FFRHICommandList& CommandList) mutable { Scene->TickRenderer(CommandList); });
         }
@@ -137,12 +140,14 @@ void FVulkanDynamicRHI::PostInit()
 void FVulkanDynamicRHI::FlushDeletionQueue()
 {
     int Counter = 0;
-    for (std::function<void()>& DeletionFunction: DeletionQueue) {
+    for (std::function<void()>& DeletionFunction: DeletionQueue)
+    {
         DeletionFunction();
         Counter++;
     }
     DeletionQueue.Clear();
-    if (Counter > 0) {
+    if (Counter > 0)
+    {
         LOG(LogVulkanRHI, Info, "Deleted {} RHI ressources", Counter);
     }
 }
@@ -202,7 +207,8 @@ VkInstance FVulkanDynamicRHI::CreateInstance(const TArray<const char*>& Validati
 
     FVulkanInstanceExtensionArray Extensions = Platform.GetInstanceExtensions();
     TArray<const char*> InstanceExtensions;
-    for (const std::unique_ptr<IInstanceVulkanExtension>& Extension: Extensions) {
+    for (const std::unique_ptr<IInstanceVulkanExtension>& Extension: Extensions)
+    {
         Extension->PreInstanceCreated(InstInfo);
         InstanceExtensions.AddUnique(Extension->GetExtensionName());
     }
@@ -221,14 +227,17 @@ VkInstance FVulkanDynamicRHI::CreateInstance(const TArray<const char*>& Validati
     VkInstance Instance = VK_NULL_HANDLE;
     VkResult Result = VulkanAPI::vkCreateInstance(&InstInfo, VULKAN_CPU_ALLOCATOR, &Instance);
 
-    if (Result == VK_ERROR_INCOMPATIBLE_DRIVER) {
+    if (Result == VK_ERROR_INCOMPATIBLE_DRIVER)
+    {
         FPlatformMisc::DisplayMessageBox(
             EBoxMessageType::Ok, "Unable to initialize Vulkan.",
             "Unable to load Vulkan library and/or acquire the necessary function pointers. Make sure an "
             "up-to-date libvulkan.so.1 is installed.");
         LOG(LogVulkanRHI, Fatal, "Cannot find a compatible Vulkan driver.");
         Utils::RequestExit(1);
-    } else if (Result == VK_ERROR_EXTENSION_NOT_PRESENT) {
+    }
+    else if (Result == VK_ERROR_EXTENSION_NOT_PRESENT)
+    {
         std::string MissingExtensions = GetMissingExtensions(Platform, InstanceExtensions);
 
         FPlatformMisc::DisplayMessageBox(
@@ -238,7 +247,9 @@ VkInstance FVulkanDynamicRHI::CreateInstance(const TArray<const char*>& Validati
                         MissingExtensions));
         LOG(LogVulkanRHI, Fatal, "Extension not found : {} !", MissingExtensions);
         Utils::RequestExit(1);
-    } else if (Result != VK_SUCCESS) {
+    }
+    else if (Result != VK_SUCCESS)
+    {
         LOG(LogVulkanRHI, Fatal, "Vulkan failed to create instance! {:s}", magic_enum::enum_name(Result));
         FPlatformMisc::DisplayMessageBox(EBoxMessageType::Ok, "No Vulkan driver found!",
                                          "Vulkan failed to create instance !\n\nDo you have a compatible Vulkan "
@@ -248,7 +259,8 @@ VkInstance FVulkanDynamicRHI::CreateInstance(const TArray<const char*>& Validati
 
     VK_CHECK_RESULT(Result);
 
-    if (!Platform.LoadVulkanInstanceFunctions(Instance)) {
+    if (!Platform.LoadVulkanInstanceFunctions(Instance))
+    {
         LOG(LogVulkanRHI, Fatal, "Couldn't find some of Vulkan's entry points !");
         FPlatformMisc::DisplayMessageBox(EBoxMessageType::Ok,
                                          "Failed to find all required Vulkan entry points! Try updating your driver.",
@@ -258,7 +270,8 @@ VkInstance FVulkanDynamicRHI::CreateInstance(const TArray<const char*>& Validati
 
     LOG(LogVulkanRHI, Info, "Using {} Instance extensions {}", InstanceExtensions.Size(),
         InstanceExtensions.Size() ? ":" : ".");
-    for (const char* Layer: InstanceExtensions) {
+    for (const char* Layer: InstanceExtensions)
+    {
         LOG(LogVulkanRHI, Info, "* {}", Layer);
     }
 
@@ -269,7 +282,8 @@ FVulkanDevice* FVulkanDynamicRHI::SelectDevice(VkInstance Instance)
 {
     std::uint32_t GpuCount = 0;
     VkResult Result = VulkanAPI::vkEnumeratePhysicalDevices(Instance, &GpuCount, nullptr);
-    if (Result == VK_ERROR_INITIALIZATION_FAILED) {
+    if (Result == VK_ERROR_INITIALIZATION_FAILED)
+    {
         LOG(LogVulkanRHI, Fatal, "Vulkan failed to find enumerate device!");
         return nullptr;
     }
@@ -280,7 +294,8 @@ FVulkanDevice* FVulkanDynamicRHI::SelectDevice(VkInstance Instance)
     VK_CHECK_RESULT_EXPANDED(VulkanAPI::vkEnumeratePhysicalDevices(Instance, &GpuCount, PhysicalDevices.Raw()));
     checkMsg(GpuCount >= 1, "Couldn't enumerate physical devices!");
 
-    struct FDeviceInfo {
+    struct FDeviceInfo
+    {
         FVulkanDevice* Device;
         std::uint32_t DeviceIndex;
     };
@@ -290,7 +305,8 @@ FVulkanDevice* FVulkanDynamicRHI::SelectDevice(VkInstance Instance)
 
     // Sort the physical devices into discrete and integrated
     LOG(LogVulkanRHI, Info, "Found {} device(s)", GpuCount);
-    for (std::uint32_t Index = 0; Index < GpuCount; Index++) {
+    for (std::uint32_t Index = 0; Index < GpuCount; Index++)
+    {
         LOG(LogVulkanRHI, Info, "Device {}:", Index);
         FVulkanDevice* NewDevice = new FVulkanDevice(PhysicalDevices[Index]);
         Devices.Add(NewDevice);
@@ -298,12 +314,17 @@ FVulkanDevice* FVulkanDynamicRHI::SelectDevice(VkInstance Instance)
         const bool bIsDiscrete = (NewDevice->GetDeviceProperties().deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
         const bool bIsCPUDevice = (NewDevice->GetDeviceProperties().deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU);
 
-        if (bIsDiscrete) {
+        if (bIsDiscrete)
+        {
             DiscreteDevice.Emplace(NewDevice, Index);
-        } else if (bIsCPUDevice) {
+        }
+        else if (bIsCPUDevice)
+        {
             LOG(LogVulkanRHI, Info, "Skipping device[{}] of type VK_PHYSICAL_DEVICE_TYPE_CPU",
                 NewDevice->GetDeviceProperties().deviceName);
-        } else {
+        }
+        else
+        {
             IntegratedDevice.Emplace(NewDevice, Index);
         }
     }
@@ -313,22 +334,28 @@ FVulkanDevice* FVulkanDynamicRHI::SelectDevice(VkInstance Instance)
 
     uint32 DeviceIndex = (uint32)-1;
     FVulkanDevice* SelectedDevice = nullptr;
-    if (DiscreteDevice.Size() > 0) {
+    if (DiscreteDevice.Size() > 0)
+    {
         SelectedDevice = DiscreteDevice[0].Device;
         DeviceIndex = DiscreteDevice[0].DeviceIndex;
-    } else if (IntegratedDevice.Size() > 0) {
+    }
+    else if (IntegratedDevice.Size() > 0)
+    {
         SelectedDevice = IntegratedDevice[0].Device;
         DeviceIndex = IntegratedDevice[0].DeviceIndex;
     }
 
     // Remove all the other devices
-    for (FVulkanDevice* const Device: Devices) {
-        if (Device != SelectedDevice) {
+    for (FVulkanDevice* const Device: Devices)
+    {
+        if (Device != SelectedDevice)
+        {
             delete Device;
         }
     }
 
-    if (SelectedDevice == nullptr) {
+    if (SelectedDevice == nullptr)
+    {
         LOG(LogVulkanRHI, Info, "Cannot find compatible Vulkan device");
         return nullptr;
     }
@@ -344,19 +371,23 @@ static std::string GetMissingExtensions(const VulkanRHI::FVulkanPlatform& Platfo
     std::string MissingExtensions;
     TArray<VkExtensionProperties> Properties = Platform.GetDriverSupportedInstanceExtensions(nullptr);
 
-    for (const char* Extension: VulkanExtensions) {
+    for (const char* Extension: VulkanExtensions)
+    {
         bool bExtensionFound = false;
 
-        for (const VkExtensionProperties& Property: Properties) {
+        for (const VkExtensionProperties& Property: Properties)
+        {
             const char* PropertyExtensionName = Property.extensionName;
 
-            if (!std::strcmp(PropertyExtensionName, Extension)) {
+            if (!std::strcmp(PropertyExtensionName, Extension))
+            {
                 bExtensionFound = true;
                 break;
             }
         }
 
-        if (!bExtensionFound) {
+        if (!bExtensionFound)
+        {
             LOG(LogVulkanRHI, Error, "Missing required Vulkan extension: {:s}", Extension);
             MissingExtensions += Extension;
             MissingExtensions += "\n";

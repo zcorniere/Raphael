@@ -44,7 +44,8 @@ namespace details
     }
 
     template <typename T>
-    struct type_name_holder {
+    struct type_name_holder
+    {
         static inline constexpr auto value = type_name_array<T>();
     };
 #endif
@@ -111,7 +112,8 @@ concept IsRTTIValidEnabled = ((... && std::derived_from<TThis, TParents>)) && ((
 
 template <typename TThis, typename... TParents>
 /// Static typeinfo structure for registering types and accessing their information.
-struct TypeInfo {
+struct TypeInfo
+{
     using T = std::remove_const_t<std::remove_reference_t<TThis>>;
 
     [[nodiscard]] static constexpr std::string_view Name() noexcept
@@ -146,7 +148,8 @@ struct TypeInfo {
     [[nodiscard]] constexpr static const void* DynamicCast(FTypeId typeId, const T* ptr) noexcept
     {
         // Check whether the current type matches the requested type.
-        if (Id() == typeId) {
+        if (Id() == typeId)
+        {
             // Cast the passed pointer in to the current type and stop
             // the recursion.
             return static_cast<const TThis*>(ptr);
@@ -162,7 +165,8 @@ struct TypeInfo {
 };
 
 /// Parent type for types at the base of an open RTTI hierarchy
-struct FEnable {
+struct FEnable
+{
     virtual ~FEnable() = default;
 
     [[nodiscard]] virtual std::string_view GetBaseTypeName() const = 0;

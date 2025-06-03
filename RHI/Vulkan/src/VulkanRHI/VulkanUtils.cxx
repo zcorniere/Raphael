@@ -14,7 +14,8 @@ void VulkanCheckResult(VkResult Result, const char* VulkanFunction, const std::s
     bool bDumpMemory = false;
     std::string_view ErrorString = magic_enum::enum_name(Result);
 
-    switch (Result) {
+    switch (Result)
+    {
         case VK_ERROR_OUT_OF_HOST_MEMORY:
         case VK_ERROR_OUT_OF_DEVICE_MEMORY:
             bDumpMemory = true;
@@ -23,7 +24,8 @@ void VulkanCheckResult(VkResult Result, const char* VulkanFunction, const std::s
             break;
     }
 
-    if (bDumpMemory) {
+    if (bDumpMemory)
+    {
         LOG(LogVulkanRHI, Fatal, "VMA DUMP : \n{}",
             GetVulkanDynamicRHI()->GetDevice()->GetMemoryManager()->GetVMADumpString());
     }

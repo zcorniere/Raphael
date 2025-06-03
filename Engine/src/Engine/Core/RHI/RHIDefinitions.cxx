@@ -2,7 +2,8 @@
 
 uint32 GetSizeOfElementType(EVertexElementType Type)
 {
-    switch (Type) {
+    switch (Type)
+    {
         case EVertexElementType::Float1:
             return sizeof(float);
         case EVertexElementType::Float2:

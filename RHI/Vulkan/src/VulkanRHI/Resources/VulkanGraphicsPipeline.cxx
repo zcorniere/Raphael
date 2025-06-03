@@ -53,7 +53,8 @@ bool FGraphicsPipelineDescription::Validate() const
 
 RVulkanGraphicsPipeline::RVulkanGraphicsPipeline(FVulkanDevice* InDevice,
                                                  const FGraphicsPipelineDescription& Description)
-    : IDeviceChild(InDevice), Desc(Description)
+    : IDeviceChild(InDevice)
+    , Desc(Description)
 {
     Create();
 }
@@ -62,10 +63,12 @@ RVulkanGraphicsPipeline::~RVulkanGraphicsPipeline()
 {
     RHI::RHIWaitUntilIdle();
 
-    if (VulkanPipeline) {
+    if (VulkanPipeline)
+    {
         VulkanAPI::vkDestroyPipeline(Device->GetHandle(), VulkanPipeline, VULKAN_CPU_ALLOCATOR);
     }
-    if (PipelineLayout) {
+    if (PipelineLayout)
+    {
         VulkanAPI::vkDestroyPipelineLayout(Device->GetHandle(), PipelineLayout, VULKAN_CPU_ALLOCATOR);
     }
 }
@@ -73,27 +76,33 @@ RVulkanGraphicsPipeline::~RVulkanGraphicsPipeline()
 void RVulkanGraphicsPipeline::SetName(std::string_view Name)
 {
     Super::SetName(Name);
-    if (VulkanPipeline) {
+    if (VulkanPipeline)
+    {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE, VulkanPipeline, "{:s}", Name);
     }
-    if (PipelineLayout) {
+    if (PipelineLayout)
+    {
         VULKAN_SET_DEBUG_NAME(Device, VK_OBJECT_TYPE_PIPELINE_LAYOUT, PipelineLayout, "{:s}.PipelineLayout", Name);
     }
 }
 
 bool RVulkanGraphicsPipeline::Create()
 {
-    auto FillShaderStageInfo = [this](Ref<RVulkanShader>& InShader,
-                                      TArray<VkPipelineShaderStageCreateInfo>& OutShaderStage) {
+    auto FillShaderStageInfo =
+        [this](Ref<RVulkanShader>& InShader, TArray<VkPipelineShaderStageCreateInfo>& OutShaderStage)
+    {
         OutShaderStage.Add(VkPipelineShaderStageCreateInfo{
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .stage = ConvertToVulkanType(InShader->GetShaderType()),
             .module = VK_NULL_HANDLE,
             .pName = InShader->GetEntryPoint(),
         });
-        if (Device->ExtensionStatus.Maintenance5) {
+        if (Device->ExtensionStatus.Maintenance5)
+        {
             OutShaderStage.Back().pNext = &InShader->GetShaderModuleCreateInfo();
-        } else {
+        }
+        else
+        {
             Ref<RVulkanShader::RVulkanShaderHandle> ShaderHandle =
                 Ref<RVulkanShader::RVulkanShaderHandle>::Create(Device, InShader->GetShaderModuleCreateInfo());
             OutShaderStage.Back().module = ShaderHandle->Handle;
@@ -106,11 +115,13 @@ bool RVulkanGraphicsPipeline::Create()
     FillShaderStageInfo(Desc.FragmentShader, ShaderStage);
 
     TArray<VkVertexInputBindingDescription> InputBinding(Desc.VertexBindings.Size());
-    for (unsigned i = 0; i < Desc.VertexBindings.Size(); i++) {
+    for (unsigned i = 0; i < Desc.VertexBindings.Size(); i++)
+    {
         Desc.VertexBindings[i].WriteInto(InputBinding[i]);
     }
     TArray<VkVertexInputAttributeDescription> InputAttribute(Desc.VertexAttributes.Size());
-    for (unsigned i = 0; i < Desc.VertexAttributes.Size(); i++) {
+    for (unsigned i = 0; i < Desc.VertexAttributes.Size(); i++)
+    {
         Desc.VertexAttributes[i].WriteInto(InputAttribute[i]);
     }
     VkPipelineRasterizationStateCreateInfo RasterizerInfo{
@@ -194,7 +205,8 @@ bool RVulkanGraphicsPipeline::Create()
 
     // Dynamic rendering
     TArray<VkFormat> ColorFormats(Desc.AttachmentFormats.ColorFormats.Size());
-    for (unsigned i = 0; i < Desc.AttachmentFormats.ColorFormats.Size(); i++) {
+    for (unsigned i = 0; i < Desc.AttachmentFormats.ColorFormats.Size(); i++)
+    {
         ColorFormats[i] = ImageFormatToFormat(Desc.AttachmentFormats.ColorFormats[i]);
     }
     VkPipelineRenderingCreateInfo PipelineRenderingCreateInfo{
@@ -242,12 +254,14 @@ void RVulkanGraphicsPipeline::Bind(VkCommandBuffer CmdBuffer)
 
 RVulkanShader* RVulkanGraphicsPipeline::GetShader(ERHIShaderType Type)
 {
-    switch (Type) {
+    switch (Type)
+    {
         case ERHIShaderType::Vertex:
             return Desc.VertexShader.AsRaw<RVulkanShader>();
         case ERHIShaderType::Fragment:
             return Desc.FragmentShader.AsRaw<RVulkanShader>();
-        case ERHIShaderType::Compute: {
+        case ERHIShaderType::Compute:
+        {
             checkNoEntry();
             return nullptr;
         }
@@ -277,9 +291,11 @@ static bool GetConstantRangeFromShader(TArray<VkPushConstantRange>& OutPushRange
         .offset = InShader->GetReflectionData().PushConstants->Offset,
         .size = InShader->GetReflectionData().PushConstants->Size,
     };
-    for (VkPushConstantRange& Range: OutPushRanges) {
+    for (VkPushConstantRange& Range: OutPushRanges)
+    {
         // The same range is used in multiple ranges, so just add the ShaderStage and return
-        if (Range.size == NewRange.size && Range.offset == NewRange.offset) {
+        if (Range.size == NewRange.size && Range.offset == NewRange.offset)
+        {
             Range.stageFlags |= ShaderStage;
             return true;
         }
@@ -295,7 +311,8 @@ bool RVulkanGraphicsPipeline::CreatePipelineLayout()
     GetConstantRangeFromShader(PushRanges, Desc.FragmentShader, VK_SHADER_STAGE_FRAGMENT_BIT);
 
     TArray<VkDescriptorSetLayout> DescriptorSetLayouts;
-    for (const WeakRef<RVulkanShader>& Shader: GetShaders()) {
+    for (const WeakRef<RVulkanShader>& Shader: GetShaders())
+    {
         DescriptorSetLayouts.Append(Shader->GetDescriptorSetLayout());
     }
 

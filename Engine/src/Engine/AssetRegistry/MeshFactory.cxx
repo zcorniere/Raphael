@@ -34,7 +34,8 @@ static void CalculateRing(size_t segments, float radius, float z, float dz, floa
                           TArray<FVertex>& vertices)
 {
     float segIncr = 1.0f / (float)(segments - 1);
-    for (size_t s = 0; s < segments; s++) {
+    for (size_t s = 0; s < segments; s++)
+    {
         float x = std::cos(std::numbers::pi_v<float> * 2 * s * segIncr) * radius;
         float y = std::sin(std::numbers::pi_v<float> * 2 * s * segIncr) * radius;
 
@@ -79,8 +80,10 @@ Ref<RAsset> MeshFactory::CreateCapsule(float radius, float height)
                       radius + radiusModifier, vertices);
 
     // Generate indices for the capsule mesh
-    for (unsigned r = 0; r < ringsTotal - 1; r++) {
-        for (unsigned s = 0; s < numSegments - 1; s++) {
+    for (unsigned r = 0; r < ringsTotal - 1; r++)
+    {
+        for (unsigned s = 0; s < numSegments - 1; s++)
+        {
             indices.Add(r * numSegments + s);
             indices.Add((r + 1) * numSegments + s);
             indices.Add(r * numSegments + s + 1);

@@ -20,7 +20,8 @@ class FVulkanCmdBuffer : public FNamedClass, public IDeviceChild
 
 public:
     /// The state of the command buffer
-    enum class EState : uint8 {
+    enum class EState : uint8
+    {
         ReadyForBegin = 0,
         IsInsideBegin = 1,
         IsInsideRenderPass = 2,

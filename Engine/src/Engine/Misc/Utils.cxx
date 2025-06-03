@@ -49,13 +49,15 @@ std::string Utils::BytesToString(uint64 bytes)
 
 #undef SPRINTF
 
-static struct {
+static struct
+{
     bool bHasRequested = false;
     int ExitStatus = 0;
 } GExitRequestInfo;
 void Utils::RequestExit(int Status, bool bForce)
 {
-    if (bForce) {
+    if (bForce)
+    {
         std::exit(Status);
     }
     GExitRequestInfo.ExitStatus = Status;

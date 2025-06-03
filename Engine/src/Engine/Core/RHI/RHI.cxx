@@ -83,8 +83,8 @@ Ref<RRHIShader> RHI::CreateShader(const std::filesystem::path Path, bool bForceC
 
 std::future<Ref<RRHIShader>> RHI::CreateShaderAsync(const std::filesystem::path Path, bool bForceCompile)
 {
-    return GEngine->GetThreadPool().Push(
-        [Path, bForceCompile](int) { return RHI::Get()->CreateShader(Path, bForceCompile); });
+    return GEngine->GetThreadPool().Push([Path, bForceCompile](int)
+                                         { return RHI::Get()->CreateShader(Path, bForceCompile); });
 }
 
 Ref<RRHIGraphicsPipeline> RHI::CreateGraphicsPipeline(const FRHIGraphicsPipelineSpecification& Config)

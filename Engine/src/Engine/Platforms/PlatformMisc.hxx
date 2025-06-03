@@ -16,13 +16,15 @@ struct FCPUInformation
 };
 
 /// Enumerates supported message dialog button types.
-enum EBoxMessageType {
+enum EBoxMessageType
+{
     Ok,
     YesNo,
 };
 
 /// Enumerates message dialog return types.
-enum class EBoxReturnType {
+enum class EBoxReturnType
+{
     No,
     Yes,
     Ok,

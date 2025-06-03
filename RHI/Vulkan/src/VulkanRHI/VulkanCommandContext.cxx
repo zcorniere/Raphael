@@ -15,7 +15,9 @@ namespace VulkanRHI
 
 FVulkanCommandContext::FVulkanCommandContext(FVulkanDevice* InDevice, FVulkanQueue* InGraphicsQueue,
                                              FVulkanQueue* InPresentQueue)
-    : Device(InDevice), GfxQueue(InGraphicsQueue), PresentQueue(InPresentQueue)
+    : Device(InDevice)
+    , GfxQueue(InGraphicsQueue)
+    , PresentQueue(InPresentQueue)
 {
     PendingState = std::make_unique<FVulkanPendingState>(Device, *this);
 
@@ -70,7 +72,8 @@ void FVulkanCommandContext::RHIEndDrawningViewport(RRHIViewport* const Viewport)
 
 void FVulkanCommandContext::RHIBeginRendering(const FRHIRenderPassDescription& Description)
 {
-    auto RenderTargetToAttachmentInfo = [](const FRHIRenderTarget& Target) -> VkRenderingAttachmentInfo {
+    auto RenderTargetToAttachmentInfo = [](const FRHIRenderTarget& Target) -> VkRenderingAttachmentInfo
+    {
         Ref<RVulkanTexture> const Texture = Target.Texture.As<RVulkanTexture>();
 
         VkClearColorValue ClearColor;
@@ -91,10 +94,12 @@ void FVulkanCommandContext::RHIBeginRendering(const FRHIRenderPassDescription& D
             .clearValue = {.color = ClearColor},
         };
     };
-    auto TransitionToCorrectLayout = [this](const FRHIRenderTarget& Target) -> bool {
+    auto TransitionToCorrectLayout = [this](const FRHIRenderTarget& Target) -> bool
+    {
         Ref<RVulkanTexture> Texture = Target.Texture.As<RVulkanTexture>();
         VkImageLayout ExpectedLayout = Texture->GetDefaultLayout();
-        if (ExpectedLayout != VK_IMAGE_LAYOUT_UNDEFINED && ExpectedLayout != Texture->GetLayout()) {
+        if (ExpectedLayout != VK_IMAGE_LAYOUT_UNDEFINED && ExpectedLayout != Texture->GetLayout())
+        {
             Texture->SetLayout(CommandManager->GetUploadCmdBuffer(), ExpectedLayout);
             return true;
         }
@@ -104,17 +109,20 @@ void FVulkanCommandContext::RHIBeginRendering(const FRHIRenderPassDescription& D
     bool bNeedTransition = false;
     TArray<VkRenderingAttachmentInfo> ColorAttachments;
     ColorAttachments.Reserve(Description.ColorTargets.Size());
-    for (const FRHIRenderTarget& ColorTarget: Description.ColorTargets) {
+    for (const FRHIRenderTarget& ColorTarget: Description.ColorTargets)
+    {
         bNeedTransition |= TransitionToCorrectLayout(ColorTarget);
         ColorAttachments.Add(RenderTargetToAttachmentInfo(ColorTarget));
     }
     std::optional<VkRenderingAttachmentInfo> DepthAttachment = std::nullopt;
-    if (Description.DepthTarget) {
+    if (Description.DepthTarget)
+    {
         bNeedTransition |= TransitionToCorrectLayout(Description.DepthTarget.value());
         DepthAttachment = RenderTargetToAttachmentInfo(Description.DepthTarget.value());
     }
 
-    if (bNeedTransition) {
+    if (bNeedTransition)
+    {
         CommandManager->SubmitUploadCmdBuffer();
     }
     VkRenderingInfo RenderingInfo{

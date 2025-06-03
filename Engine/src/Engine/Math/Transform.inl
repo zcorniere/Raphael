@@ -3,7 +3,9 @@ namespace Math
 
 template <typename T>
 TTransform<T>::TTransform(const TVector3<T>& InLocation, const TQuaternion<T>& InRotation, const TVector3<T>& InScale)
-    : Location(InLocation), Rotation(InRotation), Scale(InScale)
+    : Location(InLocation)
+    , Rotation(InRotation)
+    , Scale(InScale)
 {
 }
 
@@ -70,7 +72,8 @@ TVector3<T>& TTransform<T>::GetScale()
 template <typename T>
 TMatrix4<T> TTransform<T>::GetModelMatrix()
 {
-    if (bModelMatrixDirty) {
+    if (bModelMatrixDirty)
+    {
         RPH_PROFILE_FUNC()
         ModelMatrix = GetTranslationMatrix() * Rotation.GetRotationMatrix() * GetScaleMatrix();
         Math::CheckNaN(ModelMatrix);

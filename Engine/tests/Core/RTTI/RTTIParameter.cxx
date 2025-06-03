@@ -86,7 +86,8 @@ TEST_CASE("Test Parametter info with no align option")
     using namespace RTTI;
     using namespace TestTypes;
 
-    struct FExpectedVertexMemLayout {
+    struct FExpectedVertexMemLayout
+    {
         FVector3 Position;
         FVector3 Normal;
     };

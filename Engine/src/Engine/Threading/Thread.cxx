@@ -17,19 +17,22 @@ void FThread::Start()
 
 void FThread::End(bool bShouldWait)
 {
-    if (m_internalRuntime) {
+    if (m_internalRuntime)
+    {
         m_internalRuntime->Stop();
     }
     m_managedThread.request_stop();
 
-    if (bShouldWait && m_managedThread.joinable()) {
+    if (bShouldWait && m_managedThread.joinable())
+    {
         m_managedThread.join();
     }
 }
 
 void FThread::Create(const std::string& name, std::unique_ptr<IThreadRuntime> threadCode)
 {
-    if (m_managedThread.joinable()) {
+    if (m_managedThread.joinable())
+    {
         m_managedThread.request_stop();
         m_managedThread.join();
     }
@@ -50,10 +53,13 @@ std::uint32_t FThread::Run()
     std::uint32_t exitCode = 1;
     check(m_internalRuntime);
 
-    if (m_internalRuntime->Init()) {
+    if (m_internalRuntime->Init())
+    {
         PreRun();
         exitCode = m_internalRuntime->Run();
-    } else {
+    }
+    else
+    {
         m_internalRuntime->Stop();
     }
 

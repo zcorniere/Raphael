@@ -16,10 +16,12 @@ DECLARE_LOGGER_CATEGORY(Core, LogEngine, Info)
 extern "C" IApplication* GetApplication();
 
 FORCEINLINE int EngineLoop()
-try {
+try
+{
     GEngine = new FEngine;
 
-    if (!GEngine->Initialisation()) {
+    if (!GEngine->Initialisation())
+    {
         return -1;
     }
 
@@ -29,7 +31,8 @@ try {
 
     IApplication* const Application = GetApplication();
     check(Application);
-    if (!Application->OnEngineInitialization()) {
+    if (!Application->OnEngineInitialization())
+    {
         return -1;
     }
 
@@ -38,7 +41,8 @@ try {
     int ExitStatus = 0;
     double DeltaTime = 0.0f;
     FrameLimiter Limiter;
-    while (!Utils::HasRequestedExit(ExitStatus) || GEngine->ShouldExit()) {
+    while (!Utils::HasRequestedExit(ExitStatus) || GEngine->ShouldExit())
+    {
         RPH_PROFILE_FUNC("Engine Tick")
         Limiter.BeginFrame();
 
@@ -47,7 +51,8 @@ try {
 
         Application->Tick(DeltaTime);
 
-        if (WeakRef<RWorld> World = GEngine->GetWorld()) {
+        if (WeakRef<RWorld> World = GEngine->GetWorld())
+        {
             World->Tick(DeltaTime);
         }
 
@@ -65,7 +70,8 @@ try {
         RPH_PROFILE_MARK_FRAME
     }
     // Only destroy if the return value is ok
-    if (ExitStatus == 0) {
+    if (ExitStatus == 0)
+    {
         RHI::RHIWaitUntilIdle();
         Application->OnEngineDestruction();
         RHI::Destroy();
@@ -76,10 +82,14 @@ try {
     delete GEngine;
 
     return ExitStatus;
-} catch (const std::exception& e) {
+}
+catch (const std::exception& e)
+{
     LOG(LogEngine, Error, "EngineLoop exception: {:s}", e.what());
     return -1;
-} catch (...) {
+}
+catch (...)
+{
     LOG(LogEngine, Error, "EngineLoop unknown exception");
     return -1;
 }
@@ -98,8 +108,10 @@ int main(int ac, char** av)
 #endif    // !PLATFORM_WINDOWS
 
     FPlatform::Initialize();
-    if (FCommandLine::Param("-waitfordebugger")) {
-        while (!FPlatform::isDebuggerPresent()) {
+    if (FCommandLine::Param("-waitfordebugger"))
+    {
+        while (!FPlatform::isDebuggerPresent())
+        {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         PLATFORM_BREAK();

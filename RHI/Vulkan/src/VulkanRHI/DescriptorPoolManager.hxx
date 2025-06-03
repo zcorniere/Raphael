@@ -10,12 +10,14 @@ class RVulkanShader;
 class FDescriptorSetManager : public IDeviceChild
 {
 public:
-    enum class ERenderPassInputType : uint16_t {
+    enum class ERenderPassInputType : uint16_t
+    {
         None = 0,
         StorageBuffer,
     };
 
-    struct FRenderPassInputDeclaration {
+    struct FRenderPassInputDeclaration
+    {
         ERenderPassInputType Type = ERenderPassInputType::None;
         uint32_t Set = 0;
         uint32_t Binding = 0;
@@ -23,7 +25,8 @@ public:
         std::string Name;
     };
 
-    struct FRenderPassInput {
+    struct FRenderPassInput
+    {
         FRenderPassInput() = default;
         FRenderPassInput(Ref<RVulkanBuffer> StorageBuffer): Type(ERenderPassInputType::StorageBuffer)
         {

@@ -9,7 +9,8 @@ static VkAccessFlags GetVkAccessMaskForLayout(const VkImageLayout Layout)
 {
     VkAccessFlags Flags = 0;
 
-    switch (Layout) {
+    switch (Layout)
+    {
         case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
             Flags = VK_ACCESS_TRANSFER_READ_BIT;
             break;
@@ -79,7 +80,8 @@ static VkPipelineStageFlags GetVkStageFlagsForLayout(VkImageLayout Layout)
 {
     VkPipelineStageFlags Flags = 0;
 
-    switch (Layout) {
+    switch (Layout)
+    {
         case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
             Flags = VK_PIPELINE_STAGE_TRANSFER_BIT;
             break;
@@ -194,12 +196,14 @@ void FBarrier::Execute(VkCommandBuffer CmdBuffer)
     VkPipelineStageFlags SrcStageMask = 0;
     VkPipelineStageFlags DstStageMask = 0;
 
-    for (const auto& Barrier: ImageBarrier) {
+    for (const auto& Barrier: ImageBarrier)
+    {
         SrcStageMask |= GetVkStageFlagsForLayout(Barrier.oldLayout);
         DstStageMask |= GetVkStageFlagsForLayout(Barrier.newLayout);
     }
 
-    if (!ImageBarrier.IsEmpty()) {
+    if (!ImageBarrier.IsEmpty())
+    {
         VulkanAPI::vkCmdPipelineBarrier(CmdBuffer, SrcStageMask, DstStageMask, 0, 0, nullptr, 0, nullptr,
                                         ImageBarrier.Size(), ImageBarrier.Raw());
     }
@@ -216,10 +220,10 @@ RSemaphore::RSemaphore(FVulkanDevice* InDevice): IDeviceChild(InDevice), Semapho
 
 RSemaphore::~RSemaphore()
 {
-    if (SemaphoreHandle) {
-        RHI::DeferedDeletion([Handle = SemaphoreHandle, Device = Device]() {
-            VulkanAPI::vkDestroySemaphore(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR);
-        });
+    if (SemaphoreHandle)
+    {
+        RHI::DeferedDeletion([Handle = SemaphoreHandle, Device = Device]()
+                             { VulkanAPI::vkDestroySemaphore(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR); });
     }
     SemaphoreHandle = VK_NULL_HANDLE;
 }
@@ -231,13 +235,15 @@ void RSemaphore::SetName(std::string_view InName)
 }
 
 RFence::RFence(FVulkanDevice* InDevice, bool bCreateSignaled)
-    : IDeviceChild(InDevice), State(bCreateSignaled ? RFence::EState::Signaled : RFence::EState::NotReady)
+    : IDeviceChild(InDevice)
+    , State(bCreateSignaled ? RFence::EState::Signaled : RFence::EState::NotReady)
 {
     VkFenceCreateInfo Info{
         .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
         .flags = 0,
     };
-    if (bCreateSignaled) {
+    if (bCreateSignaled)
+    {
         Info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
     }
     VK_CHECK_RESULT(VulkanAPI::vkCreateFence(Device->GetHandle(), &Info, VULKAN_CPU_ALLOCATOR, &Handle));
@@ -245,9 +251,8 @@ RFence::RFence(FVulkanDevice* InDevice, bool bCreateSignaled)
 
 RFence::~RFence()
 {
-    RHI::DeferedDeletion([Handle = Handle, Device = Device]() {
-        VulkanAPI::vkDestroyFence(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR);
-    });
+    RHI::DeferedDeletion([Handle = Handle, Device = Device]()
+                         { VulkanAPI::vkDestroyFence(Device->GetHandle(), Handle, VULKAN_CPU_ALLOCATOR); });
     Handle = VK_NULL_HANDLE;
 }
 
@@ -259,7 +264,8 @@ void RFence::SetName(std::string_view InName)
 
 void RFence::Reset()
 {
-    if (State != EState::NotReady) {
+    if (State != EState::NotReady)
+    {
         VK_CHECK_RESULT(VulkanAPI::vkResetFences(Device->GetHandle(), 1, &Handle));
         State = EState::NotReady;
     }
@@ -270,7 +276,8 @@ bool RFence::Wait(uint64 TimeInNanoseconds)
     check(State == EState::NotReady);
 
     VkResult Result = VulkanAPI::vkWaitForFences(Device->GetHandle(), 1, &Handle, true, TimeInNanoseconds);
-    switch (Result) {
+    switch (Result)
+    {
         case VK_SUCCESS:
             State = EState::Signaled;
             return true;
@@ -287,7 +294,8 @@ bool RFence::CheckFenceStatus()
 {
     check(State == EState::NotReady);
     VkResult Result = VulkanAPI::vkGetFenceStatus(Device->GetHandle(), Handle);
-    switch (Result) {
+    switch (Result)
+    {
         case VK_SUCCESS:
             State = EState::Signaled;
             return true;

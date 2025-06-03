@@ -10,7 +10,8 @@ void FCommandLine::Set(const char* CommandLine)
 void FCommandLine::Set(const int argc, const char* const* const argv)
 {
     std::memset(CommandLineStorage, 0, sizeof(CommandLineStorage));
-    for (int i = 1; i < argc; ++i) {
+    for (int i = 1; i < argc; ++i)
+    {
         std::strncat(CommandLineStorage, argv[i], sizeof(CommandLineStorage) - 1);
         std::strncat(CommandLineStorage, " ", sizeof(CommandLineStorage) - 1);
     }
@@ -34,7 +35,8 @@ bool FCommandLine::Param(const char* Key)
 bool FCommandLine::Parse(const char* Key, int& Value)
 {
     const char* const FoundKey = std::strstr(CommandLineStorage, Key);
-    if (FoundKey == nullptr) {
+    if (FoundKey == nullptr)
+    {
         return false;
     }
     Value = std::atoi(FoundKey + std::strlen(Key));
@@ -43,25 +45,31 @@ bool FCommandLine::Parse(const char* Key, int& Value)
 bool FCommandLine::Parse(const char* Key, std::string& Value)
 {
     const char* const FoundKey = std::strstr(CommandLineStorage, Key);
-    if (FoundKey == nullptr) {
+    if (FoundKey == nullptr)
+    {
         return false;
     }
 
     const char* ValueStartInStream = FoundKey + std::strlen(Key);
     const char* ValueEndInStream = nullptr;
-    if (ValueStartInStream == nullptr) {
+    if (ValueStartInStream == nullptr)
+    {
         return false;
     }
 
     const bool bArgumentQuoted = *ValueStartInStream == '"';
-    if (bArgumentQuoted) {
+    if (bArgumentQuoted)
+    {
         ValueStartInStream += 1;
         ValueEndInStream = std::strchr(ValueStartInStream, '"');
-        if (ValueEndInStream == nullptr) {
+        if (ValueEndInStream == nullptr)
+        {
             // Unterminated quote, so we just take the rest of the string
             ValueEndInStream = ValueStartInStream + std::strlen(ValueStartInStream);
         }
-    } else {
+    }
+    else
+    {
         ValueEndInStream = std::strchr(ValueStartInStream, ' ');
     }
     const int Length = std::max(0, int(ValueEndInStream - ValueStartInStream));

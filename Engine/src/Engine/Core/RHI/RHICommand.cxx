@@ -50,7 +50,9 @@ void FRHISetMaterial::Execute(FFRHICommandList& CommandList)
 }
 
 FRHISetVertexBuffer::FRHISetVertexBuffer(Ref<RRHIBuffer> InVertexBuffer, uint32 BufferIndex, uint32 Offset)
-    : VertexBuffer(std::move(InVertexBuffer)), BufferIndex(BufferIndex), Offset(Offset)
+    : VertexBuffer(std::move(InVertexBuffer))
+    , BufferIndex(BufferIndex)
+    , Offset(Offset)
 {
     check(EnumHasAnyFlags(EBufferUsageFlags::VertexBuffer, VertexBuffer->GetUsage()));
 }
@@ -79,7 +81,9 @@ void FRHISetScissor::Execute(FFRHICommandList& CommandList)
 }
 
 FRHIDraw::FRHIDraw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances)
-    : BaseVertexIndex(BaseVertexIndex), NumPrimitives(NumPrimitives), NumInstances(NumInstances)
+    : BaseVertexIndex(BaseVertexIndex)
+    , NumPrimitives(NumPrimitives)
+    , NumInstances(NumInstances)
 {
 }
 
@@ -90,13 +94,13 @@ void FRHIDraw::Execute(FFRHICommandList& CommandList)
 
 RHIDrawIndexed::RHIDrawIndexed(Ref<RRHIBuffer> InIndexBuffer, int32 InBaseVertexIndex, uint32 InFirstInstance,
                                uint32 InNumVertices, uint32 InStartIndex, uint32 InNumPrimitives, uint32 InNumInstances)
-    : IndexBuffer(std::move(InIndexBuffer)),
-      BaseVertexIndex(InBaseVertexIndex),
-      FirstInstance(InFirstInstance),
-      NumVertices(InNumVertices),
-      StartIndex(InStartIndex),
-      NumPrimitives(InNumPrimitives),
-      NumInstances(InNumInstances)
+    : IndexBuffer(std::move(InIndexBuffer))
+    , BaseVertexIndex(InBaseVertexIndex)
+    , FirstInstance(InFirstInstance)
+    , NumVertices(InNumVertices)
+    , StartIndex(InStartIndex)
+    , NumPrimitives(InNumPrimitives)
+    , NumInstances(InNumInstances)
 {
     check(EnumHasAnyFlags(EBufferUsageFlags::IndexBuffer, IndexBuffer->GetUsage()));
 }
@@ -110,11 +114,11 @@ void RHIDrawIndexed::Execute(FFRHICommandList& CommandList)
 RHICopyResourceArrayToBuffer::RHICopyResourceArrayToBuffer(IResourceArrayInterface* const InSourceArray,
                                                            Ref<RRHIBuffer> InDestinationBuffer, uint64 InSourceOffset,
                                                            uint64 InDestinationOffset, uint64 InSize)
-    : SourceArray(InSourceArray),
-      DestinationBuffer(std::move(InDestinationBuffer)),
-      Size(InSize),
-      SourceOffset(InSourceOffset),
-      DestinationOffset(InDestinationOffset)
+    : SourceArray(InSourceArray)
+    , DestinationBuffer(std::move(InDestinationBuffer))
+    , Size(InSize)
+    , SourceOffset(InSourceOffset)
+    , DestinationOffset(InDestinationOffset)
 {
     check(EnumHasAnyFlags(EBufferUsageFlags::KeepCPUAccessible, DestinationBuffer->GetUsage()));
 }
@@ -127,11 +131,11 @@ void RHICopyResourceArrayToBuffer::Execute(FFRHICommandList& CommandList)
 
 RHICopyBufferToBuffer::RHICopyBufferToBuffer(const Ref<RRHIBuffer> InSourceBuffer, Ref<RRHIBuffer> InDestinationBuffer,
                                              uint64 InSourceOffset, uint64 InDestinationOffset, uint64 InSize)
-    : SourceBuffer(std::move(InSourceBuffer)),
-      DestinationBuffer(std::move(InDestinationBuffer)),
-      Size(InSize),
-      SourceOffset(InSourceOffset),
-      DestinationOffset(InDestinationOffset)
+    : SourceBuffer(std::move(InSourceBuffer))
+    , DestinationBuffer(std::move(InDestinationBuffer))
+    , Size(InSize)
+    , SourceOffset(InSourceOffset)
+    , DestinationOffset(InDestinationOffset)
 {
     check(EnumHasAnyFlags(EBufferUsageFlags::SourceCopy, SourceBuffer->GetUsage()));
     check(EnumHasAnyFlags(EBufferUsageFlags::DestinationCopy, DestinationBuffer->GetUsage()));

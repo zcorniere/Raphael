@@ -7,10 +7,13 @@ namespace Math
 
 template <typename T>
 requires std::is_floating_point_v<T>
-struct TQuaternion {
+struct TQuaternion
+{
     using Type = T;
-    union {
-        struct {
+    union
+    {
+        struct
+        {
             T x, y, z, w;
         };
         T data[4];

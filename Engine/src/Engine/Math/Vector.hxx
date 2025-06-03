@@ -14,11 +14,14 @@ template <unsigned Size, typename T>
 constexpr std::strong_ordering IsVectorEqual(const TVector<Size, T>& lhs, const TVector<Size, T>& rhs);
 
 template <typename T>
-struct TVector<2, T> {
+struct TVector<2, T>
+{
     using Type = T;
     static constexpr unsigned Length = 2;
-    union {
-        struct {
+    union
+    {
+        struct
+        {
             T x, y;
         };
         T data[2];
@@ -34,14 +37,18 @@ struct TVector<2, T> {
 };
 
 template <typename T>
-struct TVector<3, T> {
+struct TVector<3, T>
+{
     using Type = T;
     static constexpr unsigned Length = 3;
-    union {
-        struct {
+    union
+    {
+        struct
+        {
             T x, y, z;
         };
-        struct {
+        struct
+        {
             T r, g, b;
         };
         T data[3];
@@ -58,14 +65,18 @@ struct TVector<3, T> {
 };
 
 template <typename T>
-struct TVector<4, T> {
+struct TVector<4, T>
+{
     using Type = T;
     static constexpr unsigned Length = 4;
-    union {
-        struct {
+    union
+    {
+        struct
+        {
             T x, y, z, w;
         };
-        struct {
+        struct
+        {
             T r, g, b, a;
         };
         T data[4];
@@ -116,16 +127,19 @@ void CheckNaN(const TVector<Size, T>& v);
 }    // namespace Math
 
 template <unsigned Size, typename T>
-struct std::formatter<Math::TVector<Size, T>, char> : public std::formatter<T> {
+struct std::formatter<Math::TVector<Size, T>, char> : public std::formatter<T>
+{
 
     template <class FormatContext>
     auto format(const Math::TVector<Size, T>& Value, FormatContext& ctx) const
     {
         auto&& out = ctx.out();
         format_to(out, "[");
-        for (unsigned i = 0; i < Value.Length; i++) {
+        for (unsigned i = 0; i < Value.Length; i++)
+        {
             std::formatter<T>::format(Value.data[i], ctx);
-            if (i != Value.Length - 1) {
+            if (i != Value.Length - 1)
+            {
                 format_to(out, ", ");
             }
         }

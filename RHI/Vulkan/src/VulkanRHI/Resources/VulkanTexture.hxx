@@ -43,7 +43,8 @@ private:
     mutable VkImageView View = VK_NULL_HANDLE;
 };
 
-struct VulkanTextureView {
+struct VulkanTextureView
+{
     VulkanTextureView(): View(VK_NULL_HANDLE), Image(VK_NULL_HANDLE)
     {
     }

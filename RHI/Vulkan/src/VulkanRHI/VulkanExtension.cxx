@@ -70,7 +70,8 @@ FVulkanInstanceExtensionArray FVulkanPlatform::GetInstanceExtensions() const
     uint32 glfwExtensionCount = 0;
     const char** glfwExtentsions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-    for (uint32 i = 0; i < glfwExtensionCount; i++) {
+    for (uint32 i = 0; i < glfwExtensionCount; i++)
+    {
         ADD_SIMPLE_EXTENSION(InstanceExtension, IInstanceVulkanExtension, glfwExtentsions[i], true);
     }
 

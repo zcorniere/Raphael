@@ -30,8 +30,10 @@ TEST_CASE("Matrix")
 
         INFO("Result: " << Result);
         INFO("ExpectedResult: " << glm::to_string(ExpectedResult));
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
                 INFO("Result[" << i << "][" << j << "]: " << Result[i][j]);
                 INFO("ExpectedResult[" << i << "][" << j << "]: " << ExpectedResult[i][j]);
                 CHECK(Result[i][j] == ExpectedResult[i][j]);
@@ -46,8 +48,10 @@ TEST_CASE("Matrix")
 
         INFO("Result: " << Result);
         INFO("ExpectedResult: " << glm::to_string(ExpectedResult));
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
                 INFO("Result[" << i << "][" << j << "]: " << Result[i][j]);
                 INFO("ExpectedResult[" << i << "][" << j << "]: " << ExpectedResult[i][j]);
                 CHECK(Result[i][j] == ExpectedResult[i][j]);
@@ -61,8 +65,10 @@ TEST_CASE("Matrix")
 
         INFO("Result: " << Result);
         INFO("ExpectedResult: " << glm::to_string(ExpectedResult));
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
                 INFO("Result[" << i << "][" << j << "]: " << Result[i][j]);
                 INFO("ExpectedResult[" << i << "][" << j << "]: " << ExpectedResult[i][j]);
                 CHECK(Result[i][j] == ExpectedResult[i][j]);

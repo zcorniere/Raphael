@@ -38,7 +38,8 @@ RCameraComponent<T>::RCameraComponent(T FOV, T Near, T Far, T AspectRatio): View
 template <typename T>
 void RCameraComponent<T>::SetFOV(T FOV)
 {
-    if (ViewPoint.GetFOV() == FOV) {
+    if (ViewPoint.GetFOV() == FOV)
+    {
         return;
     }
     ViewPoint.SetFOV(FOV);
@@ -54,7 +55,8 @@ T RCameraComponent<T>::GetFOV() const
 template <typename T>
 void RCameraComponent<T>::SetAspectRatio(T AspectRatio)
 {
-    if (ViewPoint.GetAspectRatio() == AspectRatio) {
+    if (ViewPoint.GetAspectRatio() == AspectRatio)
+    {
         return;
     }
     ViewPoint.SetAspectRatio(AspectRatio);
@@ -70,7 +72,8 @@ T RCameraComponent<T>::GetAspectRatio() const
 template <typename T>
 void RCameraComponent<T>::SetNearFar(T Near, T Far)
 {
-    if (ViewPoint.GetNear() == Near && ViewPoint.GetFar() == Far) {
+    if (ViewPoint.GetNear() == Near && ViewPoint.GetFar() == Far)
+    {
         return;
     }
     ViewPoint.SetNear(Near);

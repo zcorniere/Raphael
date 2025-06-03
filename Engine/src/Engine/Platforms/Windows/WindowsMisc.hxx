@@ -25,7 +25,7 @@ public:
                                             const std::string_view Caption);
 
     /// @copydoc FGenericMisc::GetCPUInformation
-    static const FCPUInformation &GetCPUInformation();
+    static const FCPUInformation& GetCPUInformation();
 
     /// @copydoc FGenericMisc::BaseAllocator
     static bool BaseAllocator(void* TargetMemory);

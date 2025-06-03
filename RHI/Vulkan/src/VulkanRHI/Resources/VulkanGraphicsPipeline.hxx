@@ -8,8 +8,10 @@ namespace VulkanRHI
 {
 class RVulkanShader;
 
-struct FGraphicsPipelineDescription {
-    struct FVertexBinding {
+struct FGraphicsPipelineDescription
+{
+    struct FVertexBinding
+    {
         uint32 Stride = 0;
         uint16 Binding = 0;
         VkVertexInputRate InputRate = VK_VERTEX_INPUT_RATE_VERTEX;
@@ -20,7 +22,8 @@ struct FGraphicsPipelineDescription {
     };
     TArray<FVertexBinding> VertexBindings;
 
-    struct FVertexAttribute {
+    struct FVertexAttribute
+    {
         uint32 Location = 0;
         uint32 Binding = 0;
         EVertexElementType Format = EVertexElementType::Float3;
@@ -32,7 +35,8 @@ struct FGraphicsPipelineDescription {
     };
     TArray<FVertexAttribute> VertexAttributes;
 
-    struct FRasterizer {
+    struct FRasterizer
+    {
         VkPolygonMode PolygonMode;
         VkCullModeFlags CullMode;
         VkFrontFace FrontFaceCulling;

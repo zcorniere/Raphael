@@ -60,7 +60,8 @@ Ref<RWorld> FEngine::CreateWorld()
 
 void FEngine::SetWorld(Ref<RWorld> World)
 {
-    if (LoadedWorld == World) {
+    if (LoadedWorld == World)
+    {
         return;
     }
 

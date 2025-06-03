@@ -3,13 +3,14 @@
 #include "Engine/Core/RHI/RHI.hxx"
 #include "Engine/Core/RHI/RHIContext.hxx"
 
-#define ENQUEUE_RENDER_COMMAND(Type)                \
-    struct MACRO_EXPENDER(Type##String, __LINE__) { \
-        static constexpr const char* Str()          \
-        {                                           \
-            return #Type;                           \
-        }                                           \
-    };                                              \
+#define ENQUEUE_RENDER_COMMAND(Type)              \
+    struct MACRO_EXPENDER(Type##String, __LINE__) \
+    {                                             \
+        static constexpr const char* Str()        \
+        {                                         \
+            return #Type;                         \
+        }                                         \
+    };                                            \
     FRHICommandListExecutor::GetCommandList().EnqueueLambda<MACRO_EXPENDER(Type##String, __LINE__)>
 
 DECLARE_LOGGER_CATEGORY(Core, LogRenderCommand, Warning)
@@ -30,7 +31,8 @@ public:
     FRHIRenderCommandBase* p_Next = nullptr;
 };
 
-struct FMissingNameCommand {
+struct FMissingNameCommand
+{
     static const char* Str()
     {
         return "MissingNameCommand";
@@ -60,7 +62,8 @@ class TLambdaRenderCommandType : public FRHIRenderCommandBase
 {
 public:
     TLambdaRenderCommandType(TLambda&& InLambda, ArgsType&&... Args)
-        : Lambda(std::forward<TLambda>(InLambda)), Args(std::make_tuple(std::forward<ArgsType>(Args)...))
+        : Lambda(std::forward<TLambda>(InLambda))
+        , Args(std::make_tuple(std::forward<ArgsType>(Args)...))
     {
     }
     TLambdaRenderCommandType(const TLambdaRenderCommandType&) = delete;

@@ -66,7 +66,8 @@ private:
     TArray<VkViewport> Viewports;
     TArray<VkRect2D> Scissors;
 
-    struct FVertexSource {
+    struct FVertexSource
+    {
         Ref<RVulkanBuffer> Buffer = nullptr;
         uint32 Offset = 0;
     };

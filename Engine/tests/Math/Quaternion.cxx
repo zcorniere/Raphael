@@ -95,8 +95,10 @@ TEST_CASE("Quaternion operations")
 
         INFO("Quaternion: " << q1);
         INFO("Result: " << Result);
-        for (unsigned i = 0; i < 4; i++) {
-            for (unsigned j = 0; j < 4; j++) {
+        for (unsigned i = 0; i < 4; i++)
+        {
+            for (unsigned j = 0; j < 4; j++)
+            {
                 INFO("Result[" << i << "][" << j << "]: " << Result[i][j]);
                 INFO("ExpectedResult[" << i << "][" << j << "]: " << ExpectedResult[i][j]);
                 CHECK_THAT(Result[i][j], Catch::Matchers::WithinRel(ExpectedResult[i][j]));

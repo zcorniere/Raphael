@@ -14,7 +14,8 @@ class FVulkanDevice;
 
 namespace ShaderResource
 {
-    struct FPushConstantRange {
+    struct FPushConstantRange
+    {
         uint32 Offset = 0;
         uint32 Size = 0;
 
@@ -26,7 +27,8 @@ namespace ShaderResource
         static void Deserialize(Serialization::FStreamReader* Reader, FPushConstantRange& OutValue);
     };
 
-    struct FStageIO {
+    struct FStageIO
+    {
         std::string Name;
         EVertexElementType Type;
         uint32 Binding = 0;
@@ -39,7 +41,8 @@ namespace ShaderResource
         static void Deserialize(Serialization::FStreamReader* Reader, FStageIO& OutValue);
     };
 
-    struct FStorageBuffer {
+    struct FStorageBuffer
+    {
         uint32 Set = 0;
         uint32 Binding = 0;
         ::RTTI::FParameter Parameter;
@@ -50,7 +53,8 @@ namespace ShaderResource
         static void Deserialize(Serialization::FStreamReader* Reader, FStorageBuffer& OutValue);
     };
 
-    struct FUniformBuffer {
+    struct FUniformBuffer
+    {
         uint32 Set = 0;
         uint32 Binding = 0;
         ::RTTI::FParameter Parameter;
@@ -82,7 +86,8 @@ public:
         VkShaderModule Handle;
     };
 
-    struct FReflectionData {
+    struct FReflectionData
+    {
         TArray<ShaderResource::FStageIO> StageInput;
         TArray<ShaderResource::FStageIO> StageOutput;
 

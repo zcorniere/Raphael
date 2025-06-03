@@ -12,7 +12,8 @@ void VulkanRHI_ImGui::Initialize(FVulkanDevice* Device, ImGui_ImplVulkan_InitInf
 
     IMGUI_CHECKVERSION();
     ImGui_ImplVulkan_LoadFunctions(
-        [](const char* FunctionName, void* UserData) -> PFN_vkVoidFunction {
+        [](const char* FunctionName, void* UserData) -> PFN_vkVoidFunction
+        {
             VkInstance Instance = reinterpret_cast<VkInstance>(UserData);
             return VulkanAPI::vkGetInstanceProcAddr(Instance, FunctionName);
         },

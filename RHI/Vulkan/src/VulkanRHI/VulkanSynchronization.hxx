@@ -52,7 +52,8 @@ class RFence : public RObject, public IDeviceChild
     RTTI_DECLARE_TYPEINFO(RFence, RObject);
 
 protected:
-    enum class EState {
+    enum class EState
+    {
         // Initial state
         NotReady,
 

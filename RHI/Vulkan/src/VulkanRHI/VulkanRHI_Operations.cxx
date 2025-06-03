@@ -19,7 +19,8 @@ namespace VulkanRHI
 
 void FVulkanDynamicRHI::RHISubmitCommandLists(FFRHICommandList* const CommandLists, std::uint32_t NumCommandLists)
 {
-    for (std::uint32_t i = 0; i < NumCommandLists; ++i) {
+    for (std::uint32_t i = 0; i < NumCommandLists; ++i)
+    {
         FVulkanCommandContext* Context = static_cast<FVulkanCommandContext*>(CommandLists[i].GetContext());
         Context->GetCommandManager()->SubmitActiveCmdBuffer();
     }
@@ -28,9 +29,12 @@ void FVulkanDynamicRHI::RHISubmitCommandLists(FFRHICommandList* const CommandLis
 FRHIContext* FVulkanDynamicRHI::RHIGetCommandContext()
 {
     FVulkanCommandContext* Context = nullptr;
-    if (AvailableCommandContexts.IsEmpty()) {
+    if (AvailableCommandContexts.IsEmpty())
+    {
         Context = new FVulkanCommandContext(Device.get(), Device->GraphicsQueue.get(), Device->PresentQueue);
-    } else {
+    }
+    else
+    {
         Context = AvailableCommandContexts.Pop();
         Context->GetCommandManager()->RefreshFenceStatus();
     }
@@ -49,7 +53,8 @@ void FVulkanDynamicRHI::RHIReleaseCommandContext(FRHIContext* Context)
 void FVulkanDynamicRHI::WaitUntilIdle()
 {
     Device->WaitUntilIdle();
-    for (FVulkanCommandContext* Context: CommandContexts) {
+    for (FVulkanCommandContext* Context: CommandContexts)
+    {
         Context->GetCommandManager()->RefreshFenceStatus();
     }
 }
@@ -72,7 +77,8 @@ Ref<RRHITexture> FVulkanDynamicRHI::CreateTexture(const FRHITextureSpecification
 Ref<RRHIBuffer> FVulkanDynamicRHI::CreateBuffer(const FRHIBufferDesc& InDesc)
 {
     Ref<RVulkanBuffer> Buffer = Ref<RVulkanBuffer>::Create(GetDevice(), InDesc);
-    if (!InDesc.DebugName.empty()) {
+    if (!InDesc.DebugName.empty())
+    {
         Buffer->SetName(InDesc.DebugName);
     }
     return Buffer;
@@ -98,14 +104,16 @@ VulkanRHI::FVulkanDynamicRHI::CreateGraphicsPipeline(const FRHIGraphicsPipelineS
     Desc.AttachmentFormats = Config.AttachmentFormats;
 
     unsigned NextLocation = 0;
-    for (unsigned BufferLayoutIndex = 0; BufferLayoutIndex < Config.VertexBufferLayouts.Size(); BufferLayoutIndex++) {
+    for (unsigned BufferLayoutIndex = 0; BufferLayoutIndex < Config.VertexBufferLayouts.Size(); BufferLayoutIndex++)
+    {
         const FRHIGraphicsPipelineSpecification::FVertexBufferLayout& Layout =
             Config.VertexBufferLayouts[BufferLayoutIndex];
 
         // Compute the stride and offsets of the provided layout and
         // Set the vertex attributes with the components in the layout
         unsigned Stride = 0;
-        for (unsigned ElementIndex = 0; ElementIndex < Layout.Parameter.Size(); ElementIndex++) {
+        for (unsigned ElementIndex = 0; ElementIndex < Layout.Parameter.Size(); ElementIndex++)
+        {
             const FRHIGraphicsPipelineSpecification::FVertexBufferLayout::FElement& Element =
                 Layout.Parameter[ElementIndex];
 
@@ -127,7 +135,8 @@ VulkanRHI::FVulkanDynamicRHI::CreateGraphicsPipeline(const FRHIGraphicsPipelineS
 
     Desc.VertexShader = VertexShader.get();
     Desc.FragmentShader = FragmentShader.get();
-    if (!Desc.Validate()) {
+    if (!Desc.Validate())
+    {
         return nullptr;
     }
     return Ref<RVulkanGraphicsPipeline>::Create(Device.get(), Desc);
@@ -135,7 +144,8 @@ VulkanRHI::FVulkanDynamicRHI::CreateGraphicsPipeline(const FRHIGraphicsPipelineS
 
 Ref<RRHIMaterial> FVulkanDynamicRHI::CreateMaterial(const WeakRef<RRHIGraphicsPipeline>& Pipeline)
 {
-    if (!Pipeline->IsValid()) {
+    if (!Pipeline->IsValid())
+    {
         return nullptr;
     }
     Ref<RVulkanGraphicsPipeline> PipelineRef = Pipeline.Pin();

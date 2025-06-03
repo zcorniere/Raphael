@@ -4,7 +4,8 @@ namespace __details::tuple
 {
 
 template <uint32 Index, typename TType>
-struct TTupleElement {
+struct TTupleElement
+{
     using Type = TType;
 
     TTupleElement(const TType& value): Value(value)
@@ -42,7 +43,8 @@ template <typename Indices, typename... Types>
 struct TTupleImpl;
 
 template <uint32... Indices, typename... Types>
-struct TTupleImpl<std::index_sequence<Indices...>, Types...> : TTupleElement<Indices, Types>... {
+struct TTupleImpl<std::index_sequence<Indices...>, Types...> : TTupleElement<Indices, Types>...
+{
     TTupleImpl() = default;
 
     template <typename... Args>
@@ -80,11 +82,13 @@ using TPair = TTuple<Key, Value>;
 
 /// Structured bindings support
 template <typename... ArgType>
-struct std::tuple_size<TTuple<ArgType...>> : std::integral_constant<std::size_t, sizeof...(ArgType)> {
+struct std::tuple_size<TTuple<ArgType...>> : std::integral_constant<std::size_t, sizeof...(ArgType)>
+{
 };
 
 template <std::size_t Index, typename... ArgType>
-struct std::tuple_element<Index, TTuple<ArgType...>> {
+struct std::tuple_element<Index, TTuple<ArgType...>>
+{
 
 #ifdef COMPILER_CLANG    // Clang is the only one to support the __type_pack_element
     using type = __type_pack_element<Index, ArgType...>;

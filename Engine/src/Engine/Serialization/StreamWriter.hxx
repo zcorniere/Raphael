@@ -37,7 +37,8 @@ public:
         const uint8 Data = OptionalValue.has_value();
         WriteData(&Data, sizeof(uint8));
 
-        if (Data) {
+        if (Data)
+        {
             WriteObject(OptionalValue.value());
         }
     }
@@ -47,16 +48,23 @@ public:
     template <typename T>
     void WriteArray(const TArray<T>& Array, bool bWriteSize = true)
     {
-        if (bWriteSize) {
+        if (bWriteSize)
+        {
             WriteRaw<uint32>(static_cast<uint32>(Array.Size()));
         }
 
-        for (const T& Element: Array) {
-            if constexpr (std::is_trivial<T>()) {
+        for (const T& Element: Array)
+        {
+            if constexpr (std::is_trivial<T>())
+            {
                 WriteRaw(Element);
-            } else if constexpr (std::is_same<T, std::string>()) {
+            }
+            else if constexpr (std::is_same<T, std::string>())
+            {
                 WriteString(Element);
-            } else {
+            }
+            else
+            {
                 WriteObject(Element);
             }
         }
@@ -65,22 +73,32 @@ public:
     template <typename KeyType, typename ValueType>
     void WriteMap(const TMap<KeyType, ValueType>& Map, bool bWriteSize = true)
     {
-        if (bWriteSize) {
+        if (bWriteSize)
+        {
             WriteRaw<uint32>(static_cast<uint32>(Map.size()));
         }
 
-        for (const auto& [Key, Value]: Map) {
-            if constexpr (std::is_trivial<KeyType>()) {
+        for (const auto& [Key, Value]: Map)
+        {
+            if constexpr (std::is_trivial<KeyType>())
+            {
                 WriteRaw(Key);
-            } else if constexpr (std::is_same<KeyType, std::string>()) {
+            }
+            else if constexpr (std::is_same<KeyType, std::string>())
+            {
                 WriteString(Key);
-            } else {
+            }
+            else
+            {
                 WriteObject(Key);
             }
 
-            if constexpr (std::is_trivial<ValueType>()) {
+            if constexpr (std::is_trivial<ValueType>())
+            {
                 WriteRaw(Value);
-            } else {
+            }
+            else
+            {
                 WriteObject(Value);
             }
         }

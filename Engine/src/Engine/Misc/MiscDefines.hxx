@@ -26,7 +26,8 @@
     std::ostream& operator<<(std::ostream& os, const Type& m);
 #define DEFINE_PRINTABLE_TYPE(Type, Format, ...)                     \
     template <>                                                      \
-    struct std::formatter<Type, char> {                              \
+    struct std::formatter<Type, char>                                \
+    {                                                                \
         constexpr auto parse(format_parse_context& ctx)              \
         {                                                            \
             return begin(ctx);                                       \

@@ -15,7 +15,8 @@ DECLARE_LOGGER_CATEGORY(Core, LogUnixPlateform, Info)
 
 void FLinuxPlateform::Initialize()
 {
-    if (geteuid() == 0) {
+    if (geteuid() == 0)
+    {
         fprintf(stderr, "Refusing to run with the root privileges.\n");
         Utils::RequestExit(1, true);
     }
@@ -29,14 +30,16 @@ bool FLinuxPlateform::isDebuggerPresent()
     // Performance wise, the /proc filesystem is ram only, so it is ok
 
     int StatusFile = open("/proc/self/status", O_RDONLY);
-    if (StatusFile == -1) [[unlikely]] {
+    if (StatusFile == -1) [[unlikely]]
+    {
         // Failed - unknown debugger status.
         return false;
     }
 
     char Buffer[256] = {0};
     const ssize_t Length = read(StatusFile, Buffer, sizeof(Buffer) - 1);
-    if (Length == -1) [[unlikely]] {
+    if (Length == -1) [[unlikely]]
+    {
         // Failed - unknown debugger status.
         return false;
     }
@@ -48,9 +51,12 @@ bool FLinuxPlateform::isDebuggerPresent()
 
     const char* const foundStr = std::strstr(Buffer, TracerString);
 
-    if (foundStr != nullptr) [[likely]] {
+    if (foundStr != nullptr) [[likely]]
+    {
         return foundStr[LenTracerString] != '0';
-    } else {
+    }
+    else
+    {
         return false;
     }
 }
@@ -64,7 +70,8 @@ void FLinuxPlateform::setThreadName(std::jthread& thread, const std::string& nam
 {
     std::string sizeLimitedThreadName = name;
 
-    if (sizeLimitedThreadName.size() > UnixThreadNameLimit) {
+    if (sizeLimitedThreadName.size() > UnixThreadNameLimit)
+    {
         constexpr char sDash[] = "-";
         constexpr size_t uDashLen = std::size(sDash);
         constexpr int numToLeave = (UnixThreadNameLimit - uDashLen) / 2;
@@ -78,7 +85,8 @@ void FLinuxPlateform::setThreadName(std::jthread& thread, const std::string& nam
     }
 
     int errorCode = pthread_setname_np(thread.native_handle(), sizeLimitedThreadName.c_str());
-    if (errorCode != 0) {
+    if (errorCode != 0)
+    {
         LOG(LogUnixPlateform, Error, "pthread_setname_np(\"{}\") failed with error {} ({})", name, errorCode,
             strerror(errorCode));
     }
@@ -89,7 +97,8 @@ std::string FLinuxPlateform::getThreadName(std::jthread& thread)
     char name[UnixThreadNameLimit + 1] = {'\0'};
 
     int errorCode = pthread_getname_np(thread.native_handle(), name, std::size(name));
-    if (errorCode != 0) {
+    if (errorCode != 0)
+    {
         LOG(LogUnixPlateform, Error, "pthread_getname_np() failed with error {}({})", errorCode, strerror(errorCode));
     }
     return std::string(name);

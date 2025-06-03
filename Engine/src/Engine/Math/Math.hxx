@@ -31,7 +31,8 @@ constexpr T Dot(const TVector<Size, T>& lhs, const TVector<Size, T>& rhs)
     const TVector<Size, T> ResultTemp(lhs * rhs);
 
     T Result = 0;
-    for (unsigned i = 0; i < Size; i++) {
+    for (unsigned i = 0; i < Size; i++)
+    {
         Result += ResultTemp.data[i];
     }
     return Result;

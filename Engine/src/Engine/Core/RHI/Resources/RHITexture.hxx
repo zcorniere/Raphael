@@ -4,7 +4,8 @@
 #include "Engine/Core/RHI/RHIResource.hxx"
 
 /// @brief Describe the texture to be created
-struct FRHITextureSpecification {
+struct FRHITextureSpecification
+{
     ETextureUsageFlags Flags = ETextureUsageFlags::TransferTargetable;
     EImageDimension Dimension = EImageDimension::Texture2D;
     EImageFormat Format = EImageFormat::R8G8B8A8_SRGB;
@@ -28,7 +29,8 @@ class RRHITexture : public RRHIResource
 
 public:
     explicit RRHITexture(const FRHITextureSpecification& InDesc)
-        : RRHIResource(ERHIResourceType::Texture), Description(InDesc)
+        : RRHIResource(ERHIResourceType::Texture)
+        , Description(InDesc)
     {
     }
     virtual ~RRHITexture() = default;
@@ -57,7 +59,8 @@ protected:
 };
 
 /// @brief Group up information about the textures that is about to be used in a render
-struct FRHIRenderTarget {
+struct FRHIRenderTarget
+{
     /// The texture to render to
     Ref<RRHITexture> Texture;
 
@@ -72,7 +75,8 @@ struct FRHIRenderTarget {
     bool operator==(const FRHIRenderTarget&) const = default;
 };
 
-struct FRHIRenderPassDescription {
+struct FRHIRenderPassDescription
+{
     IVector2 RenderAreaLocation = IVector2(0);
     UVector2 RenderAreaSize;
 

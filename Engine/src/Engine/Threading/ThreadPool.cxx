@@ -21,7 +21,8 @@ void FThreadPool::Resize(unsigned size)
 {
     unsigned old_size = thread_p.Size();
     thread_p.Resize(size);
-    for (; old_size < thread_p.Size(); old_size++) {
+    for (; old_size < thread_p.Size(); old_size++)
+    {
         std::unique_ptr<WorkerPoolRuntime> Runtime = std::make_unique<WorkerPoolRuntime>(state);
         thread_p[old_size].Create(std::format("Worker Thread nb {}", old_size), std::move(Runtime));
     }
@@ -30,7 +31,9 @@ void FThreadPool::Resize(unsigned size)
 std::atomic_int FThreadPool::WorkerPoolRuntime::s_threadIDCounter = 0;
 
 FThreadPool::WorkerPoolRuntime::WorkerPoolRuntime(std::shared_ptr<FThreadPool::State> context)
-    : i_threadID(0), b_requestExit(false), p_state(std::move(context))
+    : i_threadID(0)
+    , b_requestExit(false)
+    , p_state(std::move(context))
 {
 }
 
@@ -45,8 +48,10 @@ std::uint32_t FThreadPool::WorkerPoolRuntime::Run()
     using namespace std::chrono_literals;
     FThreadPool::WorkUnits work;
 
-    while (!b_requestExit) {
-        try {
+    while (!b_requestExit)
+    {
+        try
+        {
             {
                 std::unique_lock lock(p_state->q_mutex);
                 if (p_state->qWork.empty())
@@ -61,9 +66,13 @@ std::uint32_t FThreadPool::WorkerPoolRuntime::Run()
             }
             if (work)
                 work(i_threadID);
-        } catch (const std::exception& e) {
+        }
+        catch (const std::exception& e)
+        {
             LOG(LogWorkerThreadRuntime, Fatal, "{} : {}", i_threadID, e.what());
-        } catch (...) {
+        }
+        catch (...)
+        {
             LOG(LogWorkerThreadRuntime, Fatal, "Unknown error on thread {}", i_threadID);
             return 1;
         }

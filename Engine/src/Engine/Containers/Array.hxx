@@ -24,7 +24,8 @@ public:
     }
     constexpr TArray(const TSize Count, T DefaultValue): TArray(Count)
     {
-        for (TSize i = 0; i < Count; i++) {
+        for (TSize i = 0; i < Count; i++)
+        {
             (*this)[i] = DefaultValue;
         }
     }
@@ -33,7 +34,8 @@ public:
     /// The copy will be done according to the type stored so copy constructors will be called if needed
     constexpr TArray(const T* const Ptr, const TSize Count): TArray(Count)
     {
-        if (Count > 0) {
+        if (Count > 0)
+        {
             CopyItems(Data, Ptr, ArraySize);
         }
     }
@@ -70,13 +72,15 @@ public:
 
     constexpr TArray& operator=(const TArray& Other)
     {
-        if (this == &Other) {
+        if (this == &Other)
+        {
             return *this;
         }
 
         Clear(Other.Size());
 
-        if (Other.Size() == 0) {
+        if (Other.Size() == 0)
+        {
             return *this;
         }
         Reserve(Other.Size());
@@ -87,7 +91,8 @@ public:
 
     constexpr TArray& operator=(TArray&& Other) noexcept
     {
-        if (this == &Other) {
+        if (this == &Other)
+        {
             return *this;
         }
 
@@ -106,11 +111,13 @@ public:
     constexpr TArray& operator=(std::initializer_list<T> InitList)
     {
         // destroy everything, resize the array to fit the list, and copy the list into the array
-        if (Raw()) {
+        if (Raw())
+        {
             DestructItems(Raw(), ArraySize);
         }
         Resize(InitList.size());
-        if (InitList.size() > 0) {
+        if (InitList.size() > 0)
+        {
             CopyItems(Raw(), InitList.begin(), Size());
         }
         return *this;
@@ -192,7 +199,8 @@ public:
     void Clear(Function&& Func, TSize ExpectedCapacity = 0)
     requires std::invocable<Function, T&>
     {
-        for (TSize i = 0; i < TSize(Size()); i++) {
+        for (TSize i = 0; i < TSize(Size()); i++)
+        {
             Func((*this)[i]);
         }
         return this->Clear(ExpectedCapacity);
@@ -211,7 +219,8 @@ public:
     constexpr bool Remove(const T& Value)
     {
         std::optional<TSize> OptIndex = Find(Value);
-        if (!OptIndex.has_value()) {
+        if (!OptIndex.has_value())
+        {
             return false;
         }
 
@@ -230,10 +239,13 @@ public:
         if (Index >= Size())
             return false;
 
-        if (RemovedType) {
+        if (RemovedType)
+        {
             // Move the element at Index
             MoveItems(RemovedType, Raw() + Index, 1);
-        } else {
+        }
+        else
+        {
             // Destruct the element at Index
             DestructItems(Raw() + Index, 1);
         }
@@ -247,13 +259,16 @@ public:
     /// Resize the array to the given size
     constexpr void Resize(const TSize NewSize)
     {
-        if (NewSize < ArraySize) {
+        if (NewSize < ArraySize)
+        {
             DestructItems(Raw() + NewSize, ArraySize - NewSize);
         }
-        if (NewSize > ArrayCapacity) {
+        if (NewSize > ArrayCapacity)
+        {
             Reserve(NewSize);
         }
-        if (NewSize > ArraySize) {
+        if (NewSize > ArraySize)
+        {
             ConstructItems(Raw() + ArraySize, NewSize - ArraySize);
         }
         ArraySize = NewSize;
@@ -261,17 +276,21 @@ public:
     /// Reserve the given capacity for the array
     constexpr void Reserve(const TSize NewCapacity)
     {
-        if (NewCapacity == ArrayCapacity) {
+        if (NewCapacity == ArrayCapacity)
+        {
             return;
         }
-        if (NewCapacity < ArraySize) {
+        if (NewCapacity < ArraySize)
+        {
             Resize(NewCapacity);
         }
 
         // New capacity is 0, free the data, and return
         // The objects should be destroyed after the call to Resize above
-        if (NewCapacity == 0) {
-            if (Data) {
+        if (NewCapacity == 0)
+        {
+            if (Data)
+            {
                 Memory::Free(Data);
                 Data = nullptr;
             }
@@ -281,7 +300,8 @@ public:
 
         // Malloc new array, and move the old data to it, then free the old data
         T* const NewData = (T*)Memory::Malloc(NewCapacity * sizeof(T));
-        if (Data) {
+        if (Data)
+        {
             MoveItems(NewData, Data, ArraySize);
             Memory::Free(Data);
         }
@@ -343,7 +363,8 @@ public:
     /// Add an element to the array if it's not already in it
     constexpr bool AddUnique(T&& Value)
     {
-        if (!Find(Value).has_value()) {
+        if (!Find(Value).has_value())
+        {
             Add(std::forward<T>(Value));
             return true;
         }
@@ -352,7 +373,8 @@ public:
     /// Add an element to the array if if it's not already in it
     constexpr bool AddUnique(T& Value)
     {
-        if (!Contains(Value)) {
+        if (!Contains(Value))
+        {
             Add(Value);
             return true;
         }
@@ -382,13 +404,19 @@ public:
     /// @return The index of the element if found, std::nullopt otherwise
     [[nodiscard]] std::optional<TSize> Find(const T& Item) const
     {
-        for (TSize i = 0; i < Size(); i++) {
-            if constexpr (std::is_same_v<std::remove_cv<T>, char*>) {
-                if (strcmp(Item, (*this)[i]) == 0) {
+        for (TSize i = 0; i < Size(); i++)
+        {
+            if constexpr (std::is_same_v<std::remove_cv<T>, char*>)
+            {
+                if (strcmp(Item, (*this)[i]) == 0)
+                {
                     return i;
                 }
-            } else {
-                if (Item == (*this)[i]) {
+            }
+            else
+            {
+                if (Item == (*this)[i])
+                {
                     return i;
                 }
             }
@@ -401,8 +429,10 @@ public:
     requires std::invocable<Lambda, const T&>
     [[nodiscard]] FORCEINLINE T* FindByLambda(Lambda&& Func)
     {
-        for (TSize i = 0; i < Size(); i++) {
-            if (Func((*this)[i])) {
+        for (TSize i = 0; i < Size(); i++)
+        {
+            if (Func((*this)[i]))
+            {
                 return &(*this)[i];
             }
         }
@@ -430,7 +460,8 @@ public:
         TSize NewCombinedSize = Size() + Source.Size();
         IncreaseCapacityIfNeeded(NewCombinedSize - Size());
 
-        for (const T& Item: Source) {
+        for (const T& Item: Source)
+        {
             this->Add(Item);
         }
     }
@@ -460,8 +491,10 @@ public:
         if (other.Size() != this->Size())
             return false;
 
-        for (unsigned i = 0; i < other.Size() && i < this->Size(); i++) {
-            if ((*this)[i] != other[i]) {
+        for (unsigned i = 0; i < other.Size() && i < this->Size(); i++)
+        {
+            if ((*this)[i] != other[i])
+            {
                 return false;
             }
         }
@@ -472,15 +505,18 @@ private:
     TSize GetAllocationIncrease(TSize NewMinimalCapacity = 0) const
     {
         TSize NewCapacity = ArrayCapacity;
-        do {
+        do
+        {
             NewCapacity = NewCapacity + (NewCapacity / 2 + 1);
-        } while (NewCapacity < NewMinimalCapacity);
+        }
+        while (NewCapacity < NewMinimalCapacity);
         return NewCapacity;
     }
 
     void IncreaseCapacityIfNeeded(TSize Increase)
     {
-        if (ArraySize + Increase > ArrayCapacity) {
+        if (ArraySize + Increase > ArrayCapacity)
+        {
             const TSize NewCapacity = GetAllocationIncrease();
             Reserve(NewCapacity);
         }
@@ -501,16 +537,19 @@ std::ostream& operator<<(std::ostream& os, const TArray<T>& m)
 }
 
 template <typename T>
-struct std::formatter<TArray<T>> : std::formatter<T> {
+struct std::formatter<TArray<T>> : std::formatter<T>
+{
 
     template <class FormatContext>
     auto format(const TArray<T>& Value, FormatContext& ctx) const
     {
         auto&& out = ctx.out();
         format_to(out, "[");
-        for (typename TArray<T>::TSize i = 0; i < Value.Size(); i++) {
+        for (typename TArray<T>::TSize i = 0; i < Value.Size(); i++)
+        {
             std::formatter<T>::format(Value[i], ctx);
-            if (i + 1 < Value.Size()) {
+            if (i + 1 < Value.Size())
+            {
                 format_to(out, ", ");
             }
         }

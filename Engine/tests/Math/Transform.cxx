@@ -32,8 +32,10 @@ TEST_CASE("Transform Matrices")
 
         INFO("ExpectedTranslationMatrix: " << glm::to_string(ExpectedTranslationMatrix));
         INFO("TranslationMatrix: " << TranslationMatrix);
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
                 INFO("Result[" << i << "][" << j << "]: " << TranslationMatrix[i][j]);
                 INFO("ExpectedResult[" << i << "][" << j << "]: " << ExpectedTranslationMatrix[i][j]);
                 CHECK_THAT(TranslationMatrix[i][j], Catch::Matchers::WithinRel(ExpectedTranslationMatrix[i][j]));
@@ -48,8 +50,10 @@ TEST_CASE("Transform Matrices")
 
         INFO("ExpectedRotationMatrix: " << glm::to_string(ExpectedRotationMatrix));
         INFO("RotationMatrix: " << RotationMatrix);
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
                 INFO("Result[" << i << "][" << j << "]: " << RotationMatrix[i][j]);
                 INFO("ExpectedResult[" << i << "][" << j << "]: " << ExpectedRotationMatrix[i][j]);
                 CHECK_THAT(RotationMatrix[i][j], Catch::Matchers::WithinRel(ExpectedRotationMatrix[i][j]));
@@ -64,8 +68,10 @@ TEST_CASE("Transform Matrices")
 
         INFO("ExpectedScaleMatrix: " << glm::to_string(ExpectedScaleMatrix));
         INFO("ScaleMatrix: " << ScaleMatrix);
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
                 INFO("Result[" << i << "][" << j << "]: " << ScaleMatrix[i][j]);
                 INFO("ExpectedResult[" << i << "][" << j << "]: " << ExpectedScaleMatrix[i][j]);
                 CHECK_THAT(ScaleMatrix[i][j], Catch::Matchers::WithinRel(ExpectedScaleMatrix[i][j]));
@@ -90,8 +96,10 @@ TEST_CASE("Transform Matrices")
 
         INFO("ExpectedModelMatrix: " << glm::to_string(ExpectedModelMatrix));
         INFO("ModelMatrix: " << ModelMatrix);
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
                 INFO("Result[" << i << "][" << j << "]: " << ModelMatrix[i][j]);
                 INFO("ExpectedResult[" << i << "][" << j << "]: " << ExpectedModelMatrix[i][j]);
                 CHECK_THAT(ModelMatrix[i][j], Catch::Matchers::WithinRel(ExpectedModelMatrix[i][j]));

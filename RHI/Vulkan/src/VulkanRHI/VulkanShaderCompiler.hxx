@@ -11,7 +11,8 @@ class FVulkanShaderCompiler
 {
 public:
     /// Which optimization level to use when compiling
-    enum class EOptimizationLevel {
+    enum class EOptimizationLevel
+    {
         /// No optimization, enable debug symbols
         None,
         /// Optimize for size, no debug symbols
@@ -23,7 +24,8 @@ public:
     };
 
 private:
-    enum class ECompilationStatus {
+    enum class ECompilationStatus
+    {
         None,
         CheckCache,
         Loading,
@@ -33,7 +35,8 @@ private:
         Done,
     };
 
-    struct ShaderCompileResult {
+    struct ShaderCompileResult
+    {
         ECompilationStatus Status = ECompilationStatus::None;
         std::filesystem::path Path;
         ERHIShaderType ShaderType;

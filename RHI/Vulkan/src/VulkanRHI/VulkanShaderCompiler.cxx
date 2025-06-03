@@ -14,7 +14,8 @@ DECLARE_LOGGER_CATEGORY(Core, LogVulkanShaderCompiler, Info)
 
 static uint32 VulkanVersionToShaderc(uint32 Version)
 {
-    switch (Version) {
+    switch (Version)
+    {
         case VK_API_VERSION_1_0:
             return shaderc_env_version_vulkan_1_0;
         case VK_API_VERSION_1_1:
@@ -41,21 +42,27 @@ namespace Utils
             (void)includeDepth;
 
             std::filesystem::path FileName;
-            switch (type) {
-                case shaderc_include_type_relative: {
+            switch (type)
+            {
+                case shaderc_include_type_relative:
+                {
                     const std::filesystem::path msg(requestingSource);
                     FileName = msg.parent_path() / requestedSource;
-                } break;
-                case shaderc_include_type_standard: {
+                }
+                break;
+                case shaderc_include_type_standard:
+                {
                     FileName = DataLocationFinder::GetShaderPath() / requestedSource;
-                } break;
+                }
+                break;
             }
 
             std::string* Container = new std::string[2];
             Container[0] = FileName.string();
             Container[1] = ::Utils::ReadFile(FileName);
 
-            if (Container[1].empty()) {
+            if (Container[1].empty())
+            {
                 LOG(LogVulkanShaderCompiler, Error, "Failed to read include file: {}", FileName.string());
                 delete[] Container;
                 return nullptr;
@@ -84,7 +91,8 @@ namespace Utils
         Options.SetTargetEnvironment(shaderc_target_env_vulkan, VulkanVersionToShaderc(RHI_VULKAN_VERSION));
         Options.SetPreserveBindings(true);
 
-        switch (Level) {
+        switch (Level)
+        {
             case FVulkanShaderCompiler::EOptimizationLevel::None:
                 Options.SetGenerateDebugInfo();
                 Options.SetOptimizationLevel(shaderc_optimization_level_zero);
@@ -118,7 +126,8 @@ namespace Utils
 
     static shaderc_shader_kind ShaderTypeToShaderc(ERHIShaderType Kind)
     {
-        switch (Kind) {
+        switch (Kind)
+        {
             case ERHIShaderType::Compute:
                 return shaderc_compute_shader;
             case ERHIShaderType::Vertex:
@@ -131,25 +140,29 @@ namespace Utils
 
     static std::optional<EVertexElementType> SPRIVTypeToVertexElement(const spirv_cross::SPIRType& Type)
     {
-#define SPIRV_CONVERT_VEC(SpirvType, RaphTypePrefix)                                        \
-    case spirv_cross::SpirvType: {                                                          \
-        if (!ensureMsg(Type.columns == 1, "Shader stage IO matrices is not supported !")) { \
-            return std::nullopt;                                                            \
-        }                                                                                   \
-        switch (Type.vecsize) {                                                             \
-            case 1:                                                                         \
-                return EVertexElementType::RaphTypePrefix##1;                               \
-            case 2:                                                                         \
-                return EVertexElementType::RaphTypePrefix##2;                               \
-            case 3:                                                                         \
-                return EVertexElementType::RaphTypePrefix##3;                               \
-            case 4:                                                                         \
-                return EVertexElementType::RaphTypePrefix##4;                               \
-        }                                                                                   \
-        checkNoEntry();                                                                     \
+#define SPIRV_CONVERT_VEC(SpirvType, RaphTypePrefix)                                      \
+    case spirv_cross::SpirvType:                                                          \
+    {                                                                                     \
+        if (!ensureMsg(Type.columns == 1, "Shader stage IO matrices is not supported !")) \
+        {                                                                                 \
+            return std::nullopt;                                                          \
+        }                                                                                 \
+        switch (Type.vecsize)                                                             \
+        {                                                                                 \
+            case 1:                                                                       \
+                return EVertexElementType::RaphTypePrefix##1;                             \
+            case 2:                                                                       \
+                return EVertexElementType::RaphTypePrefix##2;                             \
+            case 3:                                                                       \
+                return EVertexElementType::RaphTypePrefix##3;                             \
+            case 4:                                                                       \
+                return EVertexElementType::RaphTypePrefix##4;                             \
+        }                                                                                 \
+        checkNoEntry();                                                                   \
     }
 
-        switch (Type.basetype) {
+        switch (Type.basetype)
+        {
             SPIRV_CONVERT_VEC(SPIRType::Int, Int)
             SPIRV_CONVERT_VEC(SPIRType::UInt, Uint)
             SPIRV_CONVERT_VEC(SPIRType::Float, Float)
@@ -177,33 +190,39 @@ void FVulkanShaderCompiler::SetOptimizationLevel(EOptimizationLevel InLevel)
 }
 
 Ref<RVulkanShader> FVulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile, bool bUnitTesting)
-try {
+try
+{
     RPH_PROFILE_FUNC()
 
     Ref<RVulkanShader> ShaderUnit = nullptr;
     ShaderCompileResult Result{
         .Path = Path,
     };
-    if (!bForceCompile) {
+    if (!bForceCompile)
+    {
         ShaderUnit = CheckCache(Result);
-        if (ShaderUnit) {
+        if (ShaderUnit)
+        {
             LOG(LogVulkanShaderCompiler, Trace, "Cache hit with shader: {:s} !", Path.filename().string());
             return ShaderUnit;
         }
     }
 
-    if (!LoadShaderSourceFile(Result)) {
+    if (!LoadShaderSourceFile(Result))
+    {
         LOG(LogVulkanShaderCompiler, Error, "Error at stage {} for shader {}!", magic_enum::enum_name(Result.Status),
             Path.string());
         return nullptr;
     }
 
-    if (!CompileShader(Result)) {
+    if (!CompileShader(Result))
+    {
         LOG(LogVulkanShaderCompiler, Error, "Error at stage {} for shader {}!", magic_enum::enum_name(Result.Status),
             Path.string());
         return nullptr;
     }
-    if (!GenerateReflection(Result)) {
+    if (!GenerateReflection(Result))
+    {
         LOG(LogVulkanShaderCompiler, Error, "Error at stage {} for shader {}!", magic_enum::enum_name(Result.Status),
             Path.string());
         return nullptr;
@@ -217,7 +236,9 @@ try {
         m_ShaderCache.Insert(Path.filename().string(), ShaderUnit);
     }
     return ShaderUnit;
-} catch (const spirv_cross::CompilerError& exception) {
+}
+catch (const spirv_cross::CompilerError& exception)
+{
     LOG(LogVulkanShaderCompiler, Error, "Error during compilation of shader {}: {}", Path.filename().string(),
         exception.what());
     return nullptr;
@@ -228,7 +249,8 @@ Ref<RVulkanShader> FVulkanShaderCompiler::CheckCache(ShaderCompileResult& Result
     Result.Status = ECompilationStatus::CheckCache;
     std::unique_lock Lock(m_ShaderCacheMutex);
     WeakRef<RVulkanShader>* Iter = m_ShaderCache.Find(Result.Path.filename().string());
-    if (Iter) {
+    if (Iter)
+    {
         return Iter->Pin();
     }
     return nullptr;
@@ -241,13 +263,15 @@ bool FVulkanShaderCompiler::LoadShaderSourceFile(ShaderCompileResult& Result)
     Result.Status = ECompilationStatus::Loading;
 
     std::optional<ERHIShaderType> ShaderType = Utils::GetShaderKind(Result.Path);
-    if (!ShaderType.has_value()) {
+    if (!ShaderType.has_value())
+    {
         LOG(LogVulkanShaderCompiler, Error, "Can't recognise the shader type ! {}", Result.Path.filename().string());
         return false;
     }
     Result.ShaderType = ShaderType.value();
     Result.SourceCode = ::Utils::ReadFile(Result.Path);
-    if (Result.SourceCode.empty()) {
+    if (Result.SourceCode.empty())
+    {
         LOG(LogVulkanShaderCompiler, Error, "Shader file not found ! \"{}\"", Result.Path.string().c_str());
         return false;
     }
@@ -270,10 +294,12 @@ bool FVulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
     shaderc::PreprocessedSourceCompilationResult PreProcessResult =
         ShaderCompiler.PreprocessGlsl(Result.SourceCode, ShaderKind, Result.Path.string().c_str(), Options);
 
-    if (PreProcessResult.GetNumWarnings() > 0 || PreProcessResult.GetNumErrors() > 0) {
+    if (PreProcessResult.GetNumWarnings() > 0 || PreProcessResult.GetNumErrors() > 0)
+    {
         LOG(LogVulkanShaderCompiler, Warning, "{}", PreProcessResult.GetErrorMessage());
     }
-    if (PreProcessResult.GetCompilationStatus() != shaderc_compilation_status_success) {
+    if (PreProcessResult.GetCompilationStatus() != shaderc_compilation_status_success)
+    {
         LOG(LogVulkanShaderCompiler, Error, "Failed to pre-process: {}", PreProcessResult.GetErrorMessage());
         return false;
     }
@@ -284,7 +310,8 @@ bool FVulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
     Result.Status = ECompilationStatus::Compilation;
     shaderc::CompilationResult CompilationResult =
         ShaderCompiler.CompileGlslToSpv(PreprocessCode, ShaderKind, Result.Path.string().c_str(), Options);
-    if (CompilationResult.GetCompilationStatus() != shaderc_compilation_status_success) {
+    if (CompilationResult.GetCompilationStatus() != shaderc_compilation_status_success)
+    {
         LOG(LogVulkanShaderCompiler, Error, "Failed to compile shader \"{}\": {}", Result.Path.string().c_str(),
             CompilationResult.GetErrorMessage());
         return false;
@@ -298,12 +325,14 @@ static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resou
 {
     StageIO.Reserve(ResourceStage.size());
     unsigned AccumulatedOffset = 0;
-    for (const spirv_cross::Resource& resource: ResourceStage) {
+    for (const spirv_cross::Resource& resource: ResourceStage)
+    {
         ShaderResource::FStageIO& OutResource = StageIO.Emplace();
 
         const spirv_cross::SPIRType& ResourceType = Compiler.get_type(resource.base_type_id);
         std::optional<EVertexElementType> ElementType = Utils::SPRIVTypeToVertexElement(ResourceType);
-        if (!ElementType.has_value()) {
+        if (!ElementType.has_value())
+        {
             return false;
         }
 
@@ -315,10 +344,10 @@ static bool GetStageReflection(const spirv_cross::SmallVector<spirv_cross::Resou
 
         AccumulatedOffset += GetSizeOfElementType(OutResource.Type);
     }
-    std::sort(StageIO.begin(), StageIO.end(), [](const ShaderResource::FStageIO& A, const ShaderResource::FStageIO& B) {
-        return A.Location < B.Location;
-    });
-    for (const ShaderResource::FStageIO& Resource: StageIO) {
+    std::sort(StageIO.begin(), StageIO.end(), [](const ShaderResource::FStageIO& A, const ShaderResource::FStageIO& B)
+              { return A.Location < B.Location; });
+    for (const ShaderResource::FStageIO& Resource: StageIO)
+    {
         LOG(LogVulkanShaderCompiler, Info, "- {}", Resource);
     }
     return true;
@@ -333,7 +362,8 @@ static ::RTTI::FParameter RecursiveTypeDescription(const spirv_cross::Compiler& 
     const spirv_cross::SPIRType& BaseType = Compiler.get_type(BaseTypeID);
     Parameter.Name = std::string(Compiler.get_member_name(BaseTypeID, Index));
 
-    switch (Type.basetype) {
+    switch (Type.basetype)
+    {
         case spirv_cross::SPIRType::Struct:
             Parameter.Type = ::RTTI::EParameterType::Struct;
             break;
@@ -350,9 +380,12 @@ static ::RTTI::FParameter RecursiveTypeDescription(const spirv_cross::Compiler& 
             Parameter.Type = ::RTTI::EParameterType::Invalid;
             break;
     }
-    if (Type.member_types.size()) {
+    if (Type.member_types.size())
+    {
         Parameter.Size = Compiler.get_declared_struct_size(Type);
-    } else {
+    }
+    else
+    {
         Parameter.Size = sizeof(uint32);    // If there is not subtype, that means it is a scalar type, so uint32
     }
 
@@ -361,7 +394,8 @@ static ::RTTI::FParameter RecursiveTypeDescription(const spirv_cross::Compiler& 
     Parameter.Rows = Type.vecsize;
 
     BaseTypeID = Compiler.get_type(ID).self;
-    for (uint32 i = 0; i < Type.member_types.size(); ++i) {
+    for (uint32 i = 0; i < Type.member_types.size(); ++i)
+    {
 
         Parameter.Members.Add(RecursiveTypeDescription(Compiler, BaseTypeID, Type.member_types[i], i));
     }
@@ -372,11 +406,13 @@ static bool GetPushConstantReflection(const spirv_cross::Compiler& Compiler,
                                       const spirv_cross::SmallVector<spirv_cross::Resource>& PushConstants,
                                       std::optional<ShaderResource::FPushConstantRange>& OutPushConstant)
 {
-    if (PushConstants.size() == 0) {
+    if (PushConstants.size() == 0)
+    {
         // Nothing to do, technically still a success.
         return true;
     }
-    if (!ensureAlways(PushConstants.size() == 1)) {
+    if (!ensureAlways(PushConstants.size() == 1))
+    {
         return false;
     }
 
@@ -414,7 +450,8 @@ static bool GetStorageBufferReflection(const spirv_cross::Compiler& Compiler,
                                        TArray<ShaderResource::FStorageBuffer>& OutStorageBuffers,
                                        TMap<std::string, VkWriteDescriptorSet>& WriteDescriptorSet)
 {
-    for (const spirv_cross::Resource& resource: ShaderStorageBuffers) {
+    for (const spirv_cross::Resource& resource: ShaderStorageBuffers)
+    {
         const spirv_cross::SPIRType& Type = Compiler.get_type(resource.base_type_id);
 
         ShaderResource::FStorageBuffer& Buffer = OutStorageBuffers.Emplace();
@@ -427,7 +464,8 @@ static bool GetStorageBufferReflection(const spirv_cross::Compiler& Compiler,
         Buffer.Parameter.Rows = Type.vecsize;
         Buffer.Parameter.Columns = Type.columns;
 
-        for (unsigned int i = 0; i < Type.member_types.size(); ++i) {
+        for (unsigned int i = 0; i < Type.member_types.size(); ++i)
+        {
             spirv_cross::TypeID ID = Type.member_types[i];
             Buffer.Parameter.Members.Add(RecursiveTypeDescription(Compiler, resource.base_type_id, ID, i));
         }
@@ -444,7 +482,8 @@ static bool GetUniformBufferReflection(const spirv_cross::Compiler& Compiler,
                                        TArray<ShaderResource::FUniformBuffer>& OutUniformBuffers,
                                        TMap<std::string, VkWriteDescriptorSet>& WriteDescriptorSet)
 {
-    for (const spirv_cross::Resource& resource: ShaderUniformBuffers) {
+    for (const spirv_cross::Resource& resource: ShaderUniformBuffers)
+    {
         const spirv_cross::SPIRType& Type = Compiler.get_type(resource.base_type_id);
 
         ShaderResource::FUniformBuffer& Buffer = OutUniformBuffers.Emplace();
@@ -457,7 +496,8 @@ static bool GetUniformBufferReflection(const spirv_cross::Compiler& Compiler,
         Buffer.Parameter.Rows = Type.vecsize;
         Buffer.Parameter.Columns = Type.columns;
 
-        for (unsigned int i = 0; i < Type.member_types.size(); ++i) {
+        for (unsigned int i = 0; i < Type.member_types.size(); ++i)
+        {
             spirv_cross::TypeID ID = Type.member_types[i];
             Buffer.Parameter.Members.Add(RecursiveTypeDescription(Compiler, resource.base_type_id, ID, i));
         }
@@ -484,29 +524,34 @@ bool FVulkanShaderCompiler::GenerateReflection(ShaderCompileResult& Result)
     const spirv_cross::ShaderResources& resources = compiler.get_shader_resources();
 
     LOG(LogVulkanShaderCompiler, Info, "Stage input:{}", resources.stage_inputs.empty() ? " None" : "");
-    if (!GetStageReflection(resources.stage_inputs, compiler, Result.Reflection.StageInput)) {
+    if (!GetStageReflection(resources.stage_inputs, compiler, Result.Reflection.StageInput))
+    {
         return false;
     }
 
     LOG(LogVulkanShaderCompiler, Info, "Stage output:{}", resources.stage_outputs.empty() ? " None" : "");
-    if (!GetStageReflection(resources.stage_outputs, compiler, Result.Reflection.StageOutput)) {
+    if (!GetStageReflection(resources.stage_outputs, compiler, Result.Reflection.StageOutput))
+    {
         return false;
     }
 
     LOG(LogVulkanShaderCompiler, Info, "Push Constant Buffers:{}",
         resources.push_constant_buffers.empty() ? " None" : "");
-    if (!GetPushConstantReflection(compiler, resources.push_constant_buffers, Result.Reflection.PushConstants)) {
+    if (!GetPushConstantReflection(compiler, resources.push_constant_buffers, Result.Reflection.PushConstants))
+    {
         return false;
     }
 
     LOG(LogVulkanShaderCompiler, Info, "Storage Buffers:{}", resources.storage_buffers.empty() ? " None" : "");
     if (!GetStorageBufferReflection(compiler, resources.storage_buffers, Result.Reflection.StorageBuffers,
-                                    Result.Reflection.WriteDescriptorSet)) {
+                                    Result.Reflection.WriteDescriptorSet))
+    {
         return false;
     }
     LOG(LogVulkanShaderCompiler, Info, "Uniform Buffers:{}", resources.uniform_buffers.empty() ? " None" : "");
     if (!GetUniformBufferReflection(compiler, resources.uniform_buffers, Result.Reflection.UniformBuffers,
-                                    Result.Reflection.WriteDescriptorSet)) {
+                                    Result.Reflection.WriteDescriptorSet))
+    {
         return false;
     }
 

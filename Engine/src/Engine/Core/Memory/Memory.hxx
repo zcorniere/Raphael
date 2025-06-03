@@ -1,6 +1,7 @@
 #pragma once
 
-struct Memory {
+struct Memory
+{
     static void* Malloc(uint32 Size, uint32 Alignment = 0);
     static void* Realloc(void* Original, uint32 Size, uint32 Alignment = 0);
 
@@ -58,7 +59,8 @@ public:
         if (Size > std::numeric_limits<std::size_t>::max() / sizeof(T))
             throw std::bad_array_new_length();
 
-        if (T* p = static_cast<T*>(Memory::Malloc(Size * sizeof(T)))) {
+        if (T* p = static_cast<T*>(Memory::Malloc(Size * sizeof(T))))
+        {
             return p;
         }
 

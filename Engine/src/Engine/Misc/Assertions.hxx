@@ -48,7 +48,7 @@ private:
 
 #ifndef NDEBUG
 
-    #define RAPHAEL_ENSURE_IMPL(Always, Expression, Format, ...)                                           \
+    #define RAPHAEL_ENSURE_IMPL(Always, Expression, Format, ...) \
         (((Expression)) || (([__VA_OPT__(&)] {                                                             \
                                 static std::atomic_bool bExecuted = false;                                 \
                                 if (!bExecuted || Always) {                                                \
@@ -73,7 +73,8 @@ private:
 
     #define RAPHAEL_CHECK_IMPL(Expression, Format, ...)                                                        \
         {                                                                                                      \
-            if (!(Expression)) [[unlikely]] {                                                                  \
+            if (!(Expression)) [[unlikely]]                                                                    \
+            {                                                                                                  \
                 const std::string Message = std::format("Assertion failed: " STR(#Expression) " in {}" Format, \
                                                         ::RTTI::FilePosition() __VA_OPT__(, ) __VA_ARGS__);    \
                 ::Raphael::Debug::HandleCheckFailure(Message, true);                                           \
@@ -119,7 +120,8 @@ private:
     #define checkNoReentry()                                                    \
         {                                                                       \
             static std::atomic_bool MACRO_EXPENDER(beenHere, __LINE__) = false; \
-            if (MACRO_EXPENDER(beenHere, __LINE__) == true) [[unlikely]] {      \
+            if (MACRO_EXPENDER(beenHere, __LINE__) == true) [[unlikely]]        \
+            {                                                                   \
                 ::Compiler::Unreachable();                                      \
             }                                                                   \
             MACRO_EXPENDER(beenHere, __LINE__) = true;                          \

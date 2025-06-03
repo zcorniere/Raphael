@@ -11,7 +11,8 @@ template <unsigned Size, typename T>
 struct TVector;
 
 template <unsigned TRows, unsigned TColumns, typename T>
-struct TMatrix {
+struct TMatrix
+{
     using Type = T;
     using ColumnType = TVector<TColumns, T>;
 
@@ -30,9 +31,11 @@ public:
     {
         unsigned i = 0;
         unsigned j = 0;
-        auto AdderLambda = [this, &i, &j](T Type) {
+        auto AdderLambda = [this, &i, &j](T Type)
+        {
             Data[i][j++] = Type;
-            if (j / TColumns) {
+            if (j / TColumns)
+            {
                 j = 0;
                 i++;
             }

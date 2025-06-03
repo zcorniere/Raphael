@@ -14,12 +14,18 @@ private:
     {
     public:
         Iterator(TMap& InMap, TSizeType Index)
-            : StartingSize(InMap.NumElements), Map(InMap), Index(Index), CurrentBucket(nullptr), CurrentBucketIndex(0)
+            : StartingSize(InMap.NumElements)
+            , Map(InMap)
+            , Index(Index)
+            , CurrentBucket(nullptr)
+            , CurrentBucketIndex(0)
 
         {
-            if (Index < Map.Buckets.Size()) {
+            if (Index < Map.Buckets.Size())
+            {
                 CurrentBucket = &Map.Buckets[Index];
-                if (CurrentBucket->Size() == 0) {
+                if (CurrentBucket->Size() == 0)
+                {
                     AdvanceBucket();
                 }
             }
@@ -66,12 +72,16 @@ private:
     private:
         void AdvanceBucketIndex()
         {
-            if (CurrentBucket == nullptr) {
+            if (CurrentBucket == nullptr)
+            {
                 AdvanceBucket();
-            } else {
+            }
+            else
+            {
                 CurrentBucketIndex++;
             }
-            if (CurrentBucketIndex >= CurrentBucket->Size()) {
+            if (CurrentBucketIndex >= CurrentBucket->Size())
+            {
                 AdvanceBucket();
             }
         }
@@ -79,12 +89,16 @@ private:
         {
             Index++;
             CurrentBucketIndex = 0;
-            if (Index < Map.Buckets.Size()) {
+            if (Index < Map.Buckets.Size())
+            {
                 CurrentBucket = &Map.Buckets[Index];
-                if (CurrentBucket->Size() == 0) {
+                if (CurrentBucket->Size() == 0)
+                {
                     AdvanceBucket();
                 }
-            } else {
+            }
+            else
+            {
                 CurrentBucket = nullptr;
             }
         }
@@ -107,12 +121,18 @@ private:
     {
     public:
         ConstIterator(const TMap& InMap, TSizeType Index)
-            : StartingSize(InMap.NumElements), Map(InMap), Index(Index), CurrentBucket(nullptr), CurrentBucketIndex(0)
+            : StartingSize(InMap.NumElements)
+            , Map(InMap)
+            , Index(Index)
+            , CurrentBucket(nullptr)
+            , CurrentBucketIndex(0)
 
         {
-            if (Index < Map.Buckets.Size()) {
+            if (Index < Map.Buckets.Size())
+            {
                 CurrentBucket = &Map.Buckets[Index];
-                if (CurrentBucket->Size() == 0) {
+                if (CurrentBucket->Size() == 0)
+                {
                     AdvanceBucket();
                 }
             }
@@ -159,12 +179,16 @@ private:
     private:
         void AdvanceBucketIndex()
         {
-            if (CurrentBucket == nullptr) {
+            if (CurrentBucket == nullptr)
+            {
                 AdvanceBucket();
-            } else {
+            }
+            else
+            {
                 CurrentBucketIndex++;
             }
-            if (CurrentBucketIndex >= CurrentBucket->Size()) {
+            if (CurrentBucketIndex >= CurrentBucket->Size())
+            {
                 AdvanceBucket();
             }
         }
@@ -172,12 +196,16 @@ private:
         {
             Index++;
             CurrentBucketIndex = 0;
-            if (Index < Map.Buckets.Size()) {
+            if (Index < Map.Buckets.Size())
+            {
                 CurrentBucket = &Map.Buckets[Index];
-                if (CurrentBucket->Size() == 0) {
+                if (CurrentBucket->Size() == 0)
+                {
                     AdvanceBucket();
                 }
-            } else {
+            }
+            else
+            {
                 CurrentBucket = nullptr;
             }
         }
@@ -242,12 +270,14 @@ public:
     TValue& Insert(const TKey& Key, TValue& Value)
     {
         TValue* const FoundValue = Find(Key);
-        if (FoundValue != nullptr) {
+        if (FoundValue != nullptr)
+        {
             *FoundValue = Value;
             return *FoundValue;
         }
 
-        if (NumElements >= Buckets.Size() * FLoadFactor) {
+        if (NumElements >= Buckets.Size() * FLoadFactor)
+        {
             Rehash(Buckets.Size() * 2);    // Rehash to double the size
         }
 
@@ -266,12 +296,14 @@ public:
     TValue& Insert(const TKey& Key, TValue&& Value)
     {
         TValue* const FoundValue = Find(Key);
-        if (FoundValue != nullptr) {
+        if (FoundValue != nullptr)
+        {
             *FoundValue = std::move(Value);
             return *FoundValue;
         }
 
-        if (NumElements >= Buckets.Size() * FLoadFactor) {
+        if (NumElements >= Buckets.Size() * FLoadFactor)
+        {
             Rehash(Buckets.Size() * 2);    // Rehash to double the size
         }
 
@@ -295,10 +327,12 @@ public:
         Bucket& CurrentBucket = Buckets[BucketIndex];
 
         // Find the element in the bucket, and remove it
-        for (TSizeType i = 0; i < CurrentBucket.Size(); i++) {
+        for (TSizeType i = 0; i < CurrentBucket.Size(); i++)
+        {
             const TPair<TKey, TValue>& Pair = CurrentBucket[i];
             const TSizeType PairHash = Hash(Pair.template Get<0>());
-            if (PairHash == HashValue) {
+            if (PairHash == HashValue)
+            {
                 CurrentBucket.RemoveAt(i, RemovedValue);
                 NumElements--;
                 return true;
@@ -329,7 +363,8 @@ public:
     requires(std::is_default_constructible<TValue>::value)
     {
         TValue* Value = Find(Key);
-        if (Value == nullptr) {
+        if (Value == nullptr)
+        {
             return Emplace(Key);
         }
         return *Value;
@@ -340,7 +375,8 @@ public:
     /// @return The value of the element if found, nullptr otherwise
     const TValue* Find(const TKey& Key) const
     {
-        if (Buckets.Size() == 0) {
+        if (Buckets.Size() == 0)
+        {
             return nullptr;
         }
 
@@ -348,9 +384,11 @@ public:
         const TSizeType BucketIndex = HashValue % Buckets.Size();
         const Bucket& CurrentBucket = Buckets[BucketIndex];
 
-        for (const TPair<TKey, TValue>& Pair: CurrentBucket) {
+        for (const TPair<TKey, TValue>& Pair: CurrentBucket)
+        {
             const TSizeType PairHash = Hash(Pair.template Get<0>());
-            if (PairHash == HashValue) {
+            if (PairHash == HashValue)
+            {
                 return &Pair.template Get<1>();
             }
         }
@@ -362,7 +400,8 @@ public:
     /// @return The value of the element if found, nullptr otherwise
     TValue* Find(const TKey& Key)
     {
-        if (Buckets.Size() == 0) {
+        if (Buckets.Size() == 0)
+        {
             return nullptr;
         }
 
@@ -370,9 +409,11 @@ public:
         const TSizeType BucketIndex = HashValue % Buckets.Size();
         Bucket& CurrentBucket = Buckets[BucketIndex];
 
-        for (TPair<TKey, TValue>& Pair: CurrentBucket) {
+        for (TPair<TKey, TValue>& Pair: CurrentBucket)
+        {
             const TSizeType PairHash = Hash(Pair.template Get<0>());
-            if (PairHash == HashValue) {
+            if (PairHash == HashValue)
+            {
                 return &Pair.template Get<1>();
             }
         }
@@ -390,8 +431,10 @@ public:
     void Rehash(const TSizeType NewCount = MinimalSize)
     {
         TArray<Bucket, 16u> NewBuckets(NewCount);
-        for (const Bucket& CurrentBucket: Buckets) {
-            for (const TPair<TKey, TValue>& Pair: CurrentBucket) {
+        for (const Bucket& CurrentBucket: Buckets)
+        {
+            for (const TPair<TKey, TValue>& Pair: CurrentBucket)
+            {
                 const TSizeType HashValue = Hash(Pair.template Get<0>());
                 const TSizeType BucketIndex = HashValue % NewBuckets.Size();
                 NewBuckets[BucketIndex].Add(std::move(Pair));

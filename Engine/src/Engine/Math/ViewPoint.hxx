@@ -18,14 +18,19 @@ public:
     /// @param Far The far plane
     /// @param AspectRatio The aspect ratio of the screen
     TViewPoint(T FOV, T Near, T Far, T AspectRatio = T(0))
-        : m_FOV(DegreeToRadian(FOV)), m_AspectRatio(AspectRatio), m_Near(Near), m_Far(Far), bProjectionMatrixDirty(true)
+        : m_FOV(DegreeToRadian(FOV))
+        , m_AspectRatio(AspectRatio)
+        , m_Near(Near)
+        , m_Far(Far)
+        , bProjectionMatrixDirty(true)
     {
     }
 
     void SetFOV(T FOV)
     {
         const T NewFOV = DegreeToRadian(FOV);
-        if (m_FOV == NewFOV) {
+        if (m_FOV == NewFOV)
+        {
             return;
         }
         m_FOV = NewFOV;
@@ -37,7 +42,8 @@ public:
     }
     void SetAspectRatio(T AspectRatio)
     {
-        if (m_AspectRatio == AspectRatio) {
+        if (m_AspectRatio == AspectRatio)
+        {
             return;
         }
         m_AspectRatio = AspectRatio;
@@ -49,7 +55,8 @@ public:
     }
     void SetNear(T Near)
     {
-        if (m_Near == Near) {
+        if (m_Near == Near)
+        {
             return;
         }
         m_Near = Near;
@@ -61,7 +68,8 @@ public:
     }
     void SetFar(T Far)
     {
-        if (m_Far == Far) {
+        if (m_Far == Far)
+        {
             return;
         }
         m_Far = Far;
@@ -74,7 +82,8 @@ public:
 
     TMatrix4<T> GetProjectionMatrix()
     {
-        if (bProjectionMatrixDirty) {
+        if (bProjectionMatrixDirty)
+        {
             ComputeProjectionMatrix();
             bProjectionMatrixDirty = false;
         }
@@ -83,7 +92,8 @@ public:
 
     TMatrix4<T> GetViewMatrix(const TTransform<T>& InTransform)
     {
-        if (bViewMatrixDirty) {
+        if (bViewMatrixDirty)
+        {
             ComputeViewMatrix(InTransform);
             bViewMatrixDirty = false;
         }

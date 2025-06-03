@@ -44,10 +44,12 @@ void RWorld::Tick(double DeltaTime)
     {
         RPH_PROFILE_FUNC("Actor Tick - parallel");
         std::shared_ptr<std::latch> Latch =
-            GEngine->GetThreadPool().ParallelFor(Actors.Size(), [this, DeltaTime](unsigned i) {
-                Ref<AActor>& Actor = Actors[i];
-                HandleActorTick(Actor.Raw(), DeltaTime);
-            });
+            GEngine->GetThreadPool().ParallelFor(Actors.Size(),
+                                                 [this, DeltaTime](unsigned i)
+                                                 {
+                                                     Ref<AActor>& Actor = Actors[i];
+                                                     HandleActorTick(Actor.Raw(), DeltaTime);
+                                                 });
         Latch->wait();
     }
 
@@ -61,7 +63,8 @@ void RWorld::HandleActorTick(AActor* const Actor, double DeltaTime)
     Actor->Tick(DeltaTime);
 
     RSceneComponent* const RootComponent = Actor->GetRootComponent();
-    if (RootComponent->IsTransformDirty()) {
+    if (RootComponent->IsTransformDirty())
+    {
         UpdateActorLocation(Actor->ID(), RootComponent);
         RootComponent->ClearDirtyTransformFlag();
     }

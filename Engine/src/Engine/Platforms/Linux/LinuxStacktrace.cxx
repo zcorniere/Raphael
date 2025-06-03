@@ -10,9 +10,12 @@ StacktraceContent FLinuxStacktrace::GetStackTraceFromReturnAddress(void* returnA
     trace.Depth = backtrace(reinterpret_cast<void**>(trace.StackTrace), trace.MaxDepth);
     trace.CurrentDepth = trace.Depth;
 
-    if (returnAddress != nullptr) {
-        for (std::uint32_t i = 0; i < trace.Depth; ++i) {
-            if (trace.StackTrace[i] != int64(returnAddress)) {
+    if (returnAddress != nullptr)
+    {
+        for (std::uint32_t i = 0; i < trace.Depth; ++i)
+        {
+            if (trace.StackTrace[i] != int64(returnAddress))
+            {
                 continue;
             }
             trace.CurrentDepth = i;
@@ -28,18 +31,23 @@ bool FLinuxStacktrace::TryFillDetailedSymbolInfo(int64 ProgramCounter, DetailedS
     Dl_info info;
     bool ret = dladdr(reinterpret_cast<void*>(ProgramCounter), &info);
 
-    if (ret) {
+    if (ret)
+    {
         detailed_info.ProgramCounter = ProgramCounter;
 
         const char* ModulePath = info.dli_fname;
         const char* ModuleName = std::strrchr(ModulePath, '/');
-        if (ModuleName) {
+        if (ModuleName)
+        {
             ModuleName += 1;
-        } else {
+        }
+        else
+        {
             ModuleName = ModulePath;
         }
         std::strncpy(detailed_info.ModuleName, ModuleName, DetailedSymbolInfo::MaxNameLength);
-        if (info.dli_sname != nullptr) {
+        if (info.dli_sname != nullptr)
+        {
             std::strncpy(detailed_info.FunctionName, info.dli_sname, DetailedSymbolInfo::MaxNameLength);
         }
     }

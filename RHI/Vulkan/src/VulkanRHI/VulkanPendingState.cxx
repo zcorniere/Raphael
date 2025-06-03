@@ -4,7 +4,8 @@ namespace VulkanRHI
 {
 
 FVulkanPendingState::FVulkanPendingState(FVulkanDevice* InDevice, FVulkanCommandContext& InCmdContext)
-    : IDeviceChild(InDevice), CmdContext(InCmdContext)
+    : IDeviceChild(InDevice)
+    , CmdContext(InCmdContext)
 {
     Reset();
 }
@@ -26,7 +27,8 @@ void FVulkanPendingState::Reset()
 void FVulkanPendingState::SetVertexBuffer(Ref<RVulkanBuffer>& Buffer, uint32 BufferIndex, uint32 Offset)
 {
     check(EnumHasAnyFlags(EBufferUsageFlags::VertexBuffer, Buffer->GetUsage()));
-    if (VertexSources.Size() <= BufferIndex) {
+    if (VertexSources.Size() <= BufferIndex)
+    {
         VertexSources.Resize(BufferIndex + 1);
     }
     VertexSources[BufferIndex] = {Buffer, Offset};
@@ -36,7 +38,8 @@ bool FVulkanPendingState::SetGraphicsPipeline(Ref<RVulkanGraphicsPipeline>& InPi
 {
     bool bNeedReset = bForceReset;
 
-    if (CurrentPipeline != InPipeline) {
+    if (CurrentPipeline != InPipeline)
+    {
         CurrentPipeline = InPipeline;
         bNeedReset = true;
     }
@@ -47,20 +50,24 @@ bool FVulkanPendingState::SetGraphicsPipeline(Ref<RVulkanGraphicsPipeline>& InPi
 
 void FVulkanPendingState::PrepareForDraw(FVulkanCmdBuffer* CommandBuffer)
 {
-    if (Viewports.Size() > 0) {
+    if (Viewports.Size() > 0)
+    {
         VulkanAPI::vkCmdSetViewport(CommandBuffer->GetHandle(), 0, Viewports.Size(), Viewports.Raw());
     }
 
-    if (Scissors.Size() > 0) {
+    if (Scissors.Size() > 0)
+    {
         VulkanAPI::vkCmdSetScissor(CommandBuffer->GetHandle(), 0, Scissors.Size(), Scissors.Raw());
     }
 
     CurrentPipeline->Bind(CommandBuffer->GetHandle());
-    for (VkDescriptorSet Set: DescriptorSets) {
+    for (VkDescriptorSet Set: DescriptorSets)
+    {
         VulkanAPI::vkCmdBindDescriptorSets(CommandBuffer->GetHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS,
                                            CurrentPipeline->GetPipelineLayout(), 0, 1, &Set, 0, nullptr);
     }
-    if (PushConstantData.Size() > 0) {
+    if (PushConstantData.Size() > 0)
+    {
         VulkanAPI::vkCmdPushConstants(CommandBuffer->GetHandle(), CurrentPipeline->GetPipelineLayout(),
                                       VK_SHADER_STAGE_VERTEX_BIT, 0, PushConstantData.Size(), PushConstantData.Raw());
     }
@@ -70,7 +77,8 @@ void FVulkanPendingState::PrepareForDraw(FVulkanCmdBuffer* CommandBuffer)
     TArray<VkDeviceSize> Offsets;
     Offsets.Reserve(VertexSources.Size());
 
-    for (const FVertexSource& VertexSource: VertexSources) {
+    for (const FVertexSource& VertexSource: VertexSources)
+    {
         VertexBuffers.Add(VertexSource.Buffer->GetHandle());
         Offsets.Add(VertexSource.Offset);
     }

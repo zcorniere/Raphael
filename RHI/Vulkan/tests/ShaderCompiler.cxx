@@ -36,7 +36,8 @@ static void CheckParameter(const RTTI::FParameter& Expected, const RTTI::FParame
     INFO_N_CHECK("Parameter", Rows, Got, Expected)
 
     REQUIRE(Got.Members.Size() == Expected.Members.Size());
-    for (unsigned i = 0; i < Got.Members.Size(); i++) {
+    for (unsigned i = 0; i < Got.Members.Size(); i++)
+    {
         CheckParameter(Expected.Members[i], Got.Members[i]);
     }
 }
@@ -45,7 +46,8 @@ static void CheckReflection(const VulkanRHI::RVulkanShader::FReflectionData& Exp
                             const VulkanRHI::RVulkanShader::FReflectionData& GotReflection)
 {
     REQUIRE(GotReflection.PushConstants.has_value() == ExpectedReflection.PushConstants.has_value());
-    if (GotReflection.PushConstants.has_value() && ExpectedReflection.PushConstants.has_value()) {
+    if (GotReflection.PushConstants.has_value() && ExpectedReflection.PushConstants.has_value())
+    {
         INFO_N_CHECK("Push Constants:", Offset, GotReflection.PushConstants.value(),
                      ExpectedReflection.PushConstants.value());
         INFO_N_CHECK("Push Constants:", Size, GotReflection.PushConstants.value(),
@@ -55,7 +57,8 @@ static void CheckReflection(const VulkanRHI::RVulkanShader::FReflectionData& Exp
     }
 
     REQUIRE(GotReflection.StageInput.Size() == ExpectedReflection.StageInput.Size());
-    for (unsigned i = 0; i < GotReflection.StageInput.Size(); i++) {
+    for (unsigned i = 0; i < GotReflection.StageInput.Size(); i++)
+    {
         INFO_N_CHECK("Stage Input", Name, GotReflection.StageInput[i], GotReflection.StageInput[i])
 
         INFO("Type: " << magic_enum::enum_name(GotReflection.StageInput[i].Type)
@@ -68,7 +71,8 @@ static void CheckReflection(const VulkanRHI::RVulkanShader::FReflectionData& Exp
     }
 
     REQUIRE(GotReflection.StageOutput.Size() == ExpectedReflection.StageOutput.Size());
-    for (unsigned i = 0; i < GotReflection.StageOutput.Size(); i++) {
+    for (unsigned i = 0; i < GotReflection.StageOutput.Size(); i++)
+    {
         INFO_N_CHECK("Stage Output", Name, GotReflection.StageOutput[i], GotReflection.StageOutput[i])
 
         INFO("Type: " << magic_enum::enum_name(GotReflection.StageOutput[i].Type)
@@ -81,14 +85,16 @@ static void CheckReflection(const VulkanRHI::RVulkanShader::FReflectionData& Exp
     }
 
     REQUIRE(GotReflection.StorageBuffers.Size() == ExpectedReflection.StorageBuffers.Size());
-    for (unsigned i = 0; i < GotReflection.StorageBuffers.Size(); i++) {
+    for (unsigned i = 0; i < GotReflection.StorageBuffers.Size(); i++)
+    {
         INFO_N_CHECK("Storage Buffer", Set, GotReflection.StorageBuffers[i], GotReflection.StorageBuffers[i])
         INFO_N_CHECK("Storage Buffer", Binding, GotReflection.StorageBuffers[i], GotReflection.StorageBuffers[i])
         CheckParameter(ExpectedReflection.StorageBuffers[i].Parameter, GotReflection.StorageBuffers[i].Parameter);
     }
 
     REQUIRE(GotReflection.UniformBuffers.Size() == ExpectedReflection.UniformBuffers.Size());
-    for (unsigned i = 0; i < GotReflection.UniformBuffers.Size(); i++) {
+    for (unsigned i = 0; i < GotReflection.UniformBuffers.Size(); i++)
+    {
         INFO_N_CHECK("Uniform Buffer", Set, GotReflection.UniformBuffers[i], GotReflection.UniformBuffers[i])
         INFO_N_CHECK("Uniform Buffer", Binding, GotReflection.UniformBuffers[i], GotReflection.UniformBuffers[i])
         CheckParameter(ExpectedReflection.UniformBuffers[i].Parameter, GotReflection.UniformBuffers[i].Parameter);

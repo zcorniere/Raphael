@@ -46,7 +46,8 @@ void FBaseApplication::WindowEventHandler(FEvent& Event)
     dispatcher.Dispatch<FWindowMinimizeEvent>([this](FWindowMinimizeEvent& Event) { return OnWindowMinimize(Event); });
     dispatcher.Dispatch<FWindowCloseEvent>([this](FWindowCloseEvent& Event) { return OnWindowClose(Event); });
 
-    if (!Event.Handled) {
+    if (!Event.Handled)
+    {
         LOG(LogBaseApplication, Trace, "Unhandled Event : {}", Event);
     }
 }
@@ -65,11 +66,13 @@ bool FBaseApplication::OnWindowResize(FWindowResizeEvent& E)
 
     const uint32 width = E.GetWidth();
     const uint32 height = E.GetHeight();
-    if (width == 0 || height == 0) {
+    if (width == 0 || height == 0)
+    {
         return false;
     }
     // The viewport was not created yet
-    if (MainViewport) {
+    if (MainViewport)
+    {
         MainViewport->ResizeViewport(width, height);
     }
     return false;

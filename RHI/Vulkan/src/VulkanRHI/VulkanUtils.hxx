@@ -8,7 +8,8 @@
 #define VK_CHECK_RESULT(f)                                  \
     {                                                       \
         const VkResult ScopedResult = (f);                  \
-        if (ScopedResult != VK_SUCCESS) {                   \
+        if (ScopedResult != VK_SUCCESS)                     \
+        {                                                   \
             VulkanRHI::VulkanCheckResult(ScopedResult, #f); \
         }                                                   \
     }
@@ -16,7 +17,8 @@
 #define VK_CHECK_RESULT_EXPANDED(f)                         \
     {                                                       \
         const VkResult ScopedResult = (f);                  \
-        if (ScopedResult < VK_SUCCESS) {                    \
+        if (ScopedResult < VK_SUCCESS)                      \
+        {                                                   \
             VulkanRHI::VulkanCheckResult(ScopedResult, #f); \
         }                                                   \
     }
@@ -49,7 +51,8 @@ constexpr bool VKHasAnyFlags(VkFlags Flags, BitsType Contains)
 /// Convert the RHI VertexElementType to VK_FORMAT_*
 FORCEINLINE VkFormat VertexElementToFormat(const EVertexElementType Type)
 {
-    switch (Type) {
+    switch (Type)
+    {
         case EVertexElementType::Float1:
             return VK_FORMAT_R32_SFLOAT;
         case EVertexElementType::Float2:
@@ -81,7 +84,8 @@ FORCEINLINE VkFormat VertexElementToFormat(const EVertexElementType Type)
 /// Transform RHI Image Format to VK_FORMAT_*
 FORCEINLINE VkFormat ImageFormatToFormat(const EImageFormat Format)
 {
-    switch (Format) {
+    switch (Format)
+    {
         case EImageFormat::D32_SFLOAT:
             return VK_FORMAT_D32_SFLOAT;
         case EImageFormat::R8G8B8_SRGB:
@@ -96,7 +100,8 @@ FORCEINLINE VkFormat ImageFormatToFormat(const EImageFormat Format)
 /// Transform RHI Image Format to VK_FORMAT_*
 FORCEINLINE EImageFormat VkFormatToImageFormat(const VkFormat Format)
 {
-    switch (Format) {
+    switch (Format)
+    {
         case VK_FORMAT_D32_SFLOAT:
             return EImageFormat::D32_SFLOAT;
         case VK_FORMAT_R8G8B8_SRGB:
@@ -113,7 +118,8 @@ FORCEINLINE EImageFormat VkFormatToImageFormat(const VkFormat Format)
 
 FORCEINLINE VkImageViewType TextureDimensionToVkImageViewType(EImageDimension Dimension)
 {
-    switch (Dimension) {
+    switch (Dimension)
+    {
         case EImageDimension::Texture2D:
             return VK_IMAGE_VIEW_TYPE_2D;
     }
@@ -124,10 +130,12 @@ FORCEINLINE VkImageAspectFlags TextureUsageFlagToVkImageAspectFlags(ETextureUsag
 {
     VkImageAspectFlags ReturnFlag = VK_IMAGE_ASPECT_NONE;
 
-    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::RenderTargetable | ETextureUsageFlags::ResolveTargetable)) {
+    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::RenderTargetable | ETextureUsageFlags::ResolveTargetable))
+    {
         ReturnFlag |= VK_IMAGE_ASPECT_COLOR_BIT;
     }
-    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::DepthStencilTargetable)) {
+    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::DepthStencilTargetable))
+    {
         ReturnFlag |= VK_IMAGE_ASPECT_DEPTH_BIT;
     }
     return ReturnFlag;
@@ -135,7 +143,8 @@ FORCEINLINE VkImageAspectFlags TextureUsageFlagToVkImageAspectFlags(ETextureUsag
 
 FORCEINLINE VkAttachmentLoadOp RenderTargetLoadActionToVkAttachmentLoadOp(ERenderTargetLoadAction Action)
 {
-    switch (Action) {
+    switch (Action)
+    {
         case ERenderTargetLoadAction::Load:
             return VK_ATTACHMENT_LOAD_OP_LOAD;
         case ERenderTargetLoadAction::Clear:
@@ -148,7 +157,8 @@ FORCEINLINE VkAttachmentLoadOp RenderTargetLoadActionToVkAttachmentLoadOp(ERende
 
 FORCEINLINE VkAttachmentStoreOp RenderTargetStoreActionToVkAttachmentStoreOp(ERenderTargetStoreAction Action)
 {
-    switch (Action) {
+    switch (Action)
+    {
         case ERenderTargetStoreAction::Store:
             return VK_ATTACHMENT_STORE_OP_STORE;
         case ERenderTargetStoreAction::NoAction:
@@ -160,16 +170,20 @@ FORCEINLINE VkAttachmentStoreOp RenderTargetStoreActionToVkAttachmentStoreOp(ERe
 FORCEINLINE VkImageUsageFlags TextureUsageFlagsToVkImageUsageFlags(ETextureUsageFlags CreateFlags)
 {
     VkImageUsageFlags ReturnFlag = 0;
-    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::SampleTargetable)) {
+    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::SampleTargetable))
+    {
         ReturnFlag |= VK_IMAGE_USAGE_SAMPLED_BIT;
     }
-    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::TransferTargetable)) {
+    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::TransferTargetable))
+    {
         ReturnFlag |= VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
-    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::RenderTargetable | ETextureUsageFlags::ResolveTargetable)) {
+    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::RenderTargetable | ETextureUsageFlags::ResolveTargetable))
+    {
         ReturnFlag |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     }
-    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::DepthStencilTargetable)) {
+    if (EnumHasAnyFlags(CreateFlags, ETextureUsageFlags::DepthStencilTargetable))
+    {
         ReturnFlag |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
     }
     return ReturnFlag;
@@ -177,7 +191,8 @@ FORCEINLINE VkImageUsageFlags TextureUsageFlagsToVkImageUsageFlags(ETextureUsage
 
 FORCEINLINE VkImageType TextureDimensionToVkImageType(EImageDimension Dimension)
 {
-    switch (Dimension) {
+    switch (Dimension)
+    {
         case EImageDimension::Texture2D:
             return VK_IMAGE_TYPE_2D;
     }
@@ -186,7 +201,8 @@ FORCEINLINE VkImageType TextureDimensionToVkImageType(EImageDimension Dimension)
 
 FORCEINLINE VkVertexInputRate ConvertToVulkanType(EVertexInputMode Mode)
 {
-    switch (Mode) {
+    switch (Mode)
+    {
         case EVertexInputMode::PerVertex:
             return VK_VERTEX_INPUT_RATE_VERTEX;
         case EVertexInputMode::PerInstance:
@@ -198,7 +214,8 @@ FORCEINLINE VkVertexInputRate ConvertToVulkanType(EVertexInputMode Mode)
 /// Convert the PolygonMode to VK_POLYGON_*
 FORCEINLINE VkPolygonMode ConvertToVulkanType(EPolygonMode Mode)
 {
-    switch (Mode) {
+    switch (Mode)
+    {
         case EPolygonMode::Fill:
             return VK_POLYGON_MODE_FILL;
         case EPolygonMode::Line:
@@ -212,7 +229,8 @@ FORCEINLINE VkPolygonMode ConvertToVulkanType(EPolygonMode Mode)
 /// Convert the ShaderType to VK_SHADER_STAGE*
 FORCEINLINE VkShaderStageFlagBits ConvertToVulkanType(ERHIShaderType Type)
 {
-    switch (Type) {
+    switch (Type)
+    {
         case ERHIShaderType::Vertex:
             return VK_SHADER_STAGE_VERTEX_BIT;
         case ERHIShaderType::Fragment:
@@ -226,7 +244,8 @@ FORCEINLINE VkShaderStageFlagBits ConvertToVulkanType(ERHIShaderType Type)
 /// Convert the Cull mode to VK_CULL_*
 FORCEINLINE VkCullModeFlags ConvertToVulkanType(ECullMode Mode)
 {
-    switch (Mode) {
+    switch (Mode)
+    {
         case ECullMode::None:
             return VK_CULL_MODE_NONE;
         case ECullMode::Back:
@@ -242,7 +261,8 @@ FORCEINLINE VkCullModeFlags ConvertToVulkanType(ECullMode Mode)
 /// Convert the Front face to Vulkan  VK_FRONT_FACE_*
 FORCEINLINE VkFrontFace ConvertToVulkanType(EFrontFace Mode)
 {
-    switch (Mode) {
+    switch (Mode)
+    {
         case EFrontFace::Clockwise:
             return VK_FRONT_FACE_CLOCKWISE;
         case EFrontFace::CounterClockwise:
