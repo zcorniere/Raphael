@@ -20,6 +20,7 @@ public:
     requires std::derived_from<T, AActor>
     Ref<T> CreateActor(std::string Name, FTransform Transform)
     {
+        RPH_PROFILE_FUNC();
         Ref<T> Actor = Ref<T>::CreateNamed(Name);
         AddToWorld(Actor);
 
