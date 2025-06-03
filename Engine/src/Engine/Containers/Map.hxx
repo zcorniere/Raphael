@@ -362,6 +362,7 @@ public:
     TValue& FindOrAdd(const TKey& Key)
     requires(std::is_default_constructible<TValue>::value)
     {
+        RPH_PROFILE_FUNC();
         TValue* Value = Find(Key);
         if (Value == nullptr)
         {

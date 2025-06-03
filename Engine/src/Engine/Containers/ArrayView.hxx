@@ -2,7 +2,7 @@
 
 #include "Engine/Misc/MiscDefines.hxx"
 
-template <typename T, unsigned MinimalCapacity, typename SizeType>
+template <typename T, unsigned Alignment, typename SizeType>
 class TArray;
 
 template <typename T, typename SizeType = uint32>
@@ -23,13 +23,12 @@ public:
     {
     }
 
-    template <unsigned MinimalCapacity>
-    constexpr TArrayView(TArray<T, MinimalCapacity, SizeType>& Other): Data(Other.Raw())
-                                                                     , ArraySize(Other.Size())
+    template <unsigned Alignment>
+    constexpr TArrayView(TArray<T, Alignment, SizeType>& Other): Data(Other.Raw())
+                                                               , ArraySize(Other.Size())
     {
     }
 
-    template <unsigned MinimalCapacity>
     constexpr TArrayView(std::initializer_list<T> List): TArrayView(List.begin(), List.size())
     {
     }

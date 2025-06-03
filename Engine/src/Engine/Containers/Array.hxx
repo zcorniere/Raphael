@@ -4,19 +4,14 @@
 #include "Engine/Misc/MiscDefines.hxx"
 
 /// Simple array class that uses a custom allocator
-template <typename T, unsigned MinimalCapacity = 0, typename SizeType = uint32>
+template <typename T, unsigned Alignment = 0, typename SizeType = uint32>
 class TArray
 {
 public:
     using TSize = SizeType;
-    static const TSize DefaultCapacity = MinimalCapacity;
 
 public:
-    /// Initialize the array to the minimal size
-    constexpr TArray()
-    {
-        Reserve(MinimalCapacity);
-    }
+    constexpr TArray() = default;
     /// Initialize the array to the given size
     constexpr TArray(const TSize Count)
     {
@@ -299,7 +294,12 @@ public:
         }
 
         // Malloc new array, and move the old data to it, then free the old data
-        T* const NewData = (T*)Memory::Malloc(NewCapacity * sizeof(T));
+        TSize NewCapacityAligned = NewCapacity * sizeof(T);
+        if constexpr (Alignment > 0)
+        {
+            NewCapacityAligned = (NewCapacityAligned + Alignment - 1) & ~(Alignment - 1);
+        }
+        T* const NewData = (T*)Memory::Malloc(NewCapacityAligned, Alignment);
         if (Data)
         {
             MoveItems(NewData, Data, ArraySize);
