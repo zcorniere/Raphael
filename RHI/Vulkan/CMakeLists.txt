@@ -56,6 +56,10 @@ if(RPH_ENABLE_VULKAN_DEBUGGING)
     target_compile_definitions(${PROJECT_NAME} PUBLIC VULKAN_DEBUGGING_ENABLED=1)
 endif()
 
+if(OPTIMIZE_FOR_NATIVE)
+    target_compile_options(${PROJECT_NAME} PUBLIC -march=native)
+endif(OPTIMIZE_FOR_NATIVE)
+
 build_tests(${PROJECT_NAME} tests/ShaderCompiler.cxx)
 # Give the tests access to the RHI headers
 target_include_directories(${PROJECT_NAME}_Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)

@@ -135,6 +135,11 @@ if(RPH_ENABLE_PROFILING)
     target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
 endif(RPH_ENABLE_PROFILING)
 
+if(OPTIMIZE_FOR_NATIVE)
+    target_compile_options(${PROJECT_NAME} PUBLIC -march=native)
+endif()
+
+
 option(RPH_NAN_CHECKS "Enable NaN checks in the engine" ON)
 if(RPH_NAN_CHECKS)
     message(STATUS "RPH - NaN checks enabled")
