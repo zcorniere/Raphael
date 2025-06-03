@@ -206,6 +206,11 @@ namespace GLFWMemAllocator
 {
 void* Allocate(size_t Size, void*)
 {
+    if (Size % alignof(std::max_align_t) != 0)
+    {
+        // Align the size to the next multiple of alignof(std::max_align_t)
+        Size += alignof(std::max_align_t) - (Size % alignof(std::max_align_t));
+    }
     return Memory::Malloc(Size, alignof(std::max_align_t));
 }
 
