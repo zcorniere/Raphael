@@ -29,12 +29,15 @@ double FrameLimiter::EndFrame()
         const std::chrono::duration<double> SleepDuration = TargetFrameDuration - ElapsedTime;
         std::this_thread::sleep_for(std::chrono::duration_cast<std::chrono::milliseconds>(SleepDuration));
     }
+#ifdef NDEBUG
     else if (!FPlatform::isDebuggerPresent())
-    {    // Having a debugger attached will make the frame rate slower
-         // because, you know, breakpoints
+    {
+        // Having a debugger attached will make the frame rate slower
+        // because, you know, breakpoints
         LOG(LogTimer, Warning, "Frame rate is too low! Frame time was {:.3f} ms, where it is expected to be {:.3f} ms",
             ElapsedTime.count() * 1000, TargetFrameDuration.count() * 1000);
     }
+#endif
 
     // Recalculate the total time elapsed including sleep time
     const std::chrono::high_resolution_clock::time_point FinalEndTime = std::chrono::high_resolution_clock::now();
