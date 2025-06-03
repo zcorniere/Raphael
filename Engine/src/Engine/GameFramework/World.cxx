@@ -74,7 +74,6 @@ void RWorld::UpdateActorLocation(uint64 ID, RSceneComponent* const RootComponent
 {
     RPH_PROFILE_FUNC();
 
-    TRenderSceneLock<ERenderSceneLockType::Read> Lock(Scene);
     const FTransform RelativeTransform = RootComponent->GetRelativeTransform();
     Scene->UpdateActorLocation(ID, RelativeTransform);
 }
