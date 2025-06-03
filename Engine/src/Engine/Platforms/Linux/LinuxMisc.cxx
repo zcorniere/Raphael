@@ -119,6 +119,13 @@ bool SupportAVX512()
     return (ebx & (1 << 16)) != 0;    // Check if AVX512F is supported
 }
 
+bool SupportAVX2()
+{
+    unsigned int eax, ebx, ecx, edx;
+    __cpuid_count(7, 0, eax, ebx, ecx, edx);
+    return (ebx & (1 << 5)) != 0;    // AVX2 is bit 5 of EBX
+}
+
 const FCPUInformation& FLinuxMisc::GetCPUInformation()
 {
     static FCPUInformation Info;
@@ -130,8 +137,9 @@ const FCPUInformation& FLinuxMisc::GetCPUInformation()
     GetCPUBrand(Info.Brand);
     GetCPUVendor(Info.Vendor);
 
-    Info.AES = SupportAES();
     Info.AVX512 = SupportAVX512();
+    Info.AVX2 = SupportAVX2();
+    Info.AES = SupportAES();
 
     return Info;
 }

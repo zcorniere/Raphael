@@ -49,12 +49,12 @@ static void GetCPUVendor(char (&OutBuffer)[12 + 1])
 {
     union
     {
-        char Buffer[12 + 1];
+        int8 Buffer[12 + 1];
         struct
         {
-            int dw0;
-            int dw1;
-            int dw2;
+            int32 dw0;
+            int32 dw1;
+            int32 dw2;
         } Dw;
     } VendorResult;
 
@@ -74,7 +74,7 @@ static void GetCPUBrand(char (&OutBrandString)[0x40])
     // @see for more information http://msdn.microsoft.com/en-us/library/vstudio/hskdteyh(v=vs.100).aspx
     char BrandString[0x40] = {0};
     int32 CPUInfo[4] = {-1};
-    const SIZE_T CPUInfoSize = sizeof(CPUInfo);
+    const size_t CPUInfoSize = sizeof(CPUInfo);
 
     __cpuid(CPUInfo, 0x80000000);
     const uint32 MaxExtIDs = CPUInfo[0];

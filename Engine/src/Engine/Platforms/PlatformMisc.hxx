@@ -5,12 +5,13 @@
 #include <magic_enum/magic_enum.hpp>
 
 /// Structure that hold info about the CPU, things like instruction set, vendor named etc...
-struct FCPUInformation
-{
+struct FCPUInformation {
     char Vendor[12 + 1] = {0};
     char Brand[0x40] = {0};
     // Is the AVX512 extension supported ?
     bool AVX512 = false;
+    // Is the AVX2 extension supported ?
+    bool AVX2 = false;
     // Is the AES extension supported ?
     bool AES = false;
 };
