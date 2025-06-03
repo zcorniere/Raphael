@@ -2,6 +2,7 @@ namespace Math
 {
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 constexpr TMatrix<TRows, TColumns, T> TMatrix<TRows, TColumns, T>::Identity()
 {
     static_assert(TMatrix<TRows, TColumns, T>::IsSquare(), "Identity matrix must be square");
@@ -15,6 +16,7 @@ constexpr TMatrix<TRows, TColumns, T> TMatrix<TRows, TColumns, T>::Identity()
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 constexpr TMatrix<TRows, TColumns, T>::TMatrix()
 {
     std::memset(Data, 0, sizeof(Data));
@@ -22,6 +24,7 @@ constexpr TMatrix<TRows, TColumns, T>::TMatrix()
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 constexpr TMatrix<TRows, TColumns, T>::TMatrix(const Type& InDefaultValue)
 {
     static_assert(sizeof(TMatrix) == Rows * Columns * sizeof(T), "TMatrix is wider than it should be");
@@ -36,30 +39,39 @@ constexpr TMatrix<TRows, TColumns, T>::TMatrix(const Type& InDefaultValue)
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 constexpr TVector<TColumns, T>& TMatrix<TRows, TColumns, T>::operator[](unsigned Index)
 {
+    assert(Index < TRows);
     return Data[Index];
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 constexpr const TVector<TColumns, T>& TMatrix<TRows, TColumns, T>::operator[](unsigned Index) const
 {
+    assert(Index < TRows);
     return Data[Index];
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 constexpr T& TMatrix<TRows, TColumns, T>::operator[](unsigned Row, unsigned Column)
 {
+    assert(Row < TRows && Column < TColumns);
     return Data[Row][Column];
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 constexpr T TMatrix<TRows, TColumns, T>::operator[](unsigned Row, unsigned Column) const
 {
+    assert(Row < TRows && Column < TColumns);
     return Data[Row][Column];
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 constexpr TMatrix<TRows, TColumns, T> operator+(const TMatrix<TRows, TColumns, T>& lhs,
                                                 const TMatrix<TRows, TColumns, T>& rhs)
 {
@@ -75,6 +87,7 @@ constexpr TMatrix<TRows, TColumns, T> operator+(const TMatrix<TRows, TColumns, T
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 constexpr TMatrix<TRows, TColumns, T> operator-(const TMatrix<TRows, TColumns, T>& lhs,
                                                 const TMatrix<TRows, TColumns, T>& rhs)
 {
@@ -90,6 +103,7 @@ constexpr TMatrix<TRows, TColumns, T> operator-(const TMatrix<TRows, TColumns, T
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 constexpr TMatrix<TRows, TColumns, T> operator-(const TMatrix<TRows, TColumns, T>& lhs)
 {
     TMatrix<TRows, TColumns, T> Result;
@@ -104,6 +118,7 @@ constexpr TMatrix<TRows, TColumns, T> operator-(const TMatrix<TRows, TColumns, T
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 constexpr TMatrix<TRows, TColumns, T> operator*(const TMatrix<TRows, TColumns, T>& lhs,
                                                 const TMatrix<TRows, TColumns, T>& rhs)
 {
@@ -122,6 +137,7 @@ constexpr TMatrix<TRows, TColumns, T> operator*(const TMatrix<TRows, TColumns, T
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 constexpr TVector<TColumns, T> operator*(const TMatrix<TRows, TColumns, T>& lhs, const TVector<TColumns, T>& rhs)
 {
     TVector<TColumns, T> Result;
@@ -138,6 +154,7 @@ constexpr TVector<TColumns, T> operator*(const TMatrix<TRows, TColumns, T>& lhs,
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 constexpr bool operator==(const TMatrix<TRows, TColumns, T>& lhs, const TMatrix<TRows, TColumns, T>& rhs)
 {
     for (unsigned i = 0; i < TRows; i++)
@@ -154,7 +171,7 @@ constexpr bool operator==(const TMatrix<TRows, TColumns, T>& lhs, const TMatrix<
 }
 
 template <unsigned TRows, unsigned TColumns, typename T>
-requires std::is_floating_point_v<T>
+requires(TRows > 0 && TColumns > 0 && std::is_floating_point_v<T>)
 void CheckNaN(const TMatrix<TRows, TColumns, T>& m)
 {
 #if RPH_NAN_CHECKS
@@ -174,6 +191,7 @@ void CheckNaN(const TMatrix<TRows, TColumns, T>& m)
 }    // namespace Math
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 struct std::formatter<Math::TMatrix<TRows, TColumns, T>, char> : public std::formatter<Math::TVector<TColumns, T>>
 {
     template <class FormatContext>
@@ -195,6 +213,7 @@ struct std::formatter<Math::TMatrix<TRows, TColumns, T>, char> : public std::for
 };
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 std::ostream& operator<<(std::ostream& os, const Math::TMatrix<TRows, TColumns, T>& m)
 {
     os << std::format("{:.6f}", m);

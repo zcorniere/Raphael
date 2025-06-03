@@ -11,6 +11,7 @@ template <unsigned Size, typename T>
 struct TVector;
 
 template <unsigned TRows, unsigned TColumns, typename T>
+requires(TRows > 0 && TColumns > 0)
 struct TMatrix
 {
     using Type = T;
@@ -29,6 +30,7 @@ public:
     requires((std::is_same_v<T, ArgsType> && ...) && sizeof...(ArgsType) == TRows * TColumns)
     constexpr TMatrix(ArgsType... Args)
     {
+        static_assert(sizeof(TMatrix) == TRows * TColumns * sizeof(T), "TMatrix is wider than it should be");
         unsigned i = 0;
         unsigned j = 0;
         auto AdderLambda = [this, &i, &j](T Type)
@@ -85,7 +87,7 @@ template <unsigned TRows, unsigned TColumns, typename T>
 constexpr bool operator==(const TMatrix<TRows, TColumns, T>& lhs, const TMatrix<TRows, TColumns, T>& rhs);
 
 template <unsigned TRows, unsigned TColumns, typename T>
-requires std::is_floating_point_v<T>
+requires(TRows > 0 && TColumns > 0 && std::is_floating_point_v<T>)
 void CheckNaN(const TMatrix<TRows, TColumns, T>& m);
 
 }    // namespace Math
