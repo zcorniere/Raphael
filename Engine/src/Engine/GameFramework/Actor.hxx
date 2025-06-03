@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Engine/Core/UUID.hxx"
-
 #include "Engine/GameFramework/Components/MeshComponent.hxx"
 
-class AActor : public RObject, public Raphael::FUUID
+class AActor : public RObject
 {
     RTTI_DECLARE_TYPEINFO(AActor, RObject)
 public:

@@ -2,6 +2,7 @@
 
 #include <atomic>
 
+#include <Engine/Core/UUID.hxx>
 #include <Engine/Misc/Assertions.hxx>
 
 template <typename T>
@@ -28,7 +29,7 @@ bool AreThereAnyLiveObject(bool bPrintObjects = true);
 
 }    // namespace RObjectUtils
 
-class FNamedClass : public RTTI::FEnable
+class FNamedClass : public RTTI::FEnable, public Raphael::FUUID
 {
     RTTI_DECLARE_TYPEINFO(FNamedClass);
 
@@ -443,7 +444,7 @@ namespace std
 template <typename T>
 struct hash<Ref<T>>
 {
-    std::size_t operator()(const Ref<T>& ref) const
+    FORCEINLINE std::size_t operator()(const Ref<T>& ref) const
     {
         return std::hash<const T*>{}(ref.Raw());
     }
@@ -452,7 +453,7 @@ struct hash<Ref<T>>
 template <typename T>
 struct hash<WeakRef<T>>
 {
-    std::size_t operator()(const WeakRef<T>& ref) const
+    FORCEINLINE std::size_t operator()(const WeakRef<T>& ref) const
     {
         return std::hash<const T*>{}(ref.Raw());
     }
