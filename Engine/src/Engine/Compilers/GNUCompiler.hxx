@@ -22,6 +22,8 @@ static_assert(false, "GNU Compiler header included without compiling with GNU");
             __builtin_unreachable(); \
     }
 
+#define RESTRICT __restrict__
+
 ///
 /// @brief Wrapper around GCC intrinsics functions
 ///

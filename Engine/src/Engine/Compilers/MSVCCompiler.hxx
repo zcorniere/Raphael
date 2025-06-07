@@ -23,6 +23,8 @@ static_assert(false, "MSVC Compiler header included without compiling with MSVC"
 
 #define ASSUME(...) __assume((__VA_ARGS__)) /* Assume code will ALWAYS be true */
 
+#define RESTRICT __restrict
+
 ///
 /// @brief Wrapper around MSCV intrinsics functions
 ///

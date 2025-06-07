@@ -16,6 +16,8 @@ static_assert(false, "Clang Compiler header included without compiling with clan
 
 #define ASSUME(...) __builtin_assume((__VA_ARGS__)) /* Assume code will ALWAYS be true */
 
+#define RESTRICT __restrict__
+
 ///
 /// @brief Wrapper around clang intrinsics function
 ///

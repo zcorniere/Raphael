@@ -18,12 +18,12 @@ size_t ComputeModelMatrixBatch_AVX512(size_t Count, const T* PositionX, const T*
 
 template <>
 [[gnu::target("avx2")]]
-size_t ComputeModelMatrixBatch_AVX2(size_t Count, const float* __restrict__ PositionX,
-                                    const float* __restrict__ PositionY, const float* __restrict__ PositionZ,
-                                    const float* __restrict__ QuaternionX, const float* __restrict__ QuaternionY,
-                                    const float* __restrict__ QuaternionZ, const float* __restrict__ QuaternionW,
-                                    const float* __restrict__ ScaleX, const float* __restrict__ ScaleY,
-                                    const float* __restrict__ ScaleZ, float* __restrict__ OutModelMatrix)
+size_t ComputeModelMatrixBatch_AVX2(size_t Count, const float* RESTRICT PositionX, const float* RESTRICT PositionY,
+                                    const float* RESTRICT PositionZ, const float* RESTRICT QuaternionX,
+                                    const float* RESTRICT QuaternionY, const float* RESTRICT QuaternionZ,
+                                    const float* RESTRICT QuaternionW, const float* RESTRICT ScaleX,
+                                    const float* RESTRICT ScaleY, const float* RESTRICT ScaleZ,
+                                    float* RESTRICT OutModelMatrix)
 {
     RPH_PROFILE_FUNC()
     size_t i = 0;
@@ -100,12 +100,12 @@ size_t ComputeModelMatrixBatch_AVX2(size_t Count, const float* __restrict__ Posi
 
 template <>
 [[gnu::target("avx512f")]]
-size_t ComputeModelMatrixBatch_AVX512(size_t Count, const float* __restrict__ PositionX,
-                                      const float* __restrict__ PositionY, const float* __restrict__ PositionZ,
-                                      const float* __restrict__ QuaternionX, const float* __restrict__ QuaternionY,
-                                      const float* __restrict__ QuaternionZ, const float* __restrict__ QuaternionW,
-                                      const float* __restrict__ ScaleX, const float* __restrict__ ScaleY,
-                                      const float* __restrict__ ScaleZ, float* __restrict__ OutModelMatrix)
+size_t ComputeModelMatrixBatch_AVX512(size_t Count, const float* RESTRICT PositionX, const float* RESTRICT PositionY,
+                                      const float* RESTRICT PositionZ, const float* RESTRICT QuaternionX,
+                                      const float* RESTRICT QuaternionY, const float* RESTRICT QuaternionZ,
+                                      const float* RESTRICT QuaternionW, const float* RESTRICT ScaleX,
+                                      const float* RESTRICT ScaleY, const float* RESTRICT ScaleZ,
+                                      float* RESTRICT OutModelMatrix)
 {
     RPH_PROFILE_FUNC()
     size_t i = 0;
@@ -195,7 +195,7 @@ void ComputeModelMatrixBatch(const size_t Count, const float* PositionX, const f
     const FCPUInformation& CPUInfo = FPlatformMisc::GetCPUInformation();
     if (CPUInfo.AVX512 && Count >= 16)
     {
-        size_t BatchCount = (Count / 16) * 16;    // largest multiple of 16 <= Count
+        const size_t BatchCount = (Count / 16) * 16;    // largest multiple of 16 <= Count
         if (BatchCount > 0)
         {
             WorkedCount += ComputeModelMatrixBatch_AVX512(
@@ -207,8 +207,8 @@ void ComputeModelMatrixBatch(const size_t Count, const float* PositionX, const f
     }
     if (CPUInfo.AVX2 && Count >= 8)
     {
-        size_t Remaining = Count - WorkedCount;
-        size_t BatchCount = (Remaining / 8) * 8;
+        const size_t Remaining = Count - WorkedCount;
+        const size_t BatchCount = (Remaining / 8) * 8;
         if (BatchCount > 0)
         {
             WorkedCount += ComputeModelMatrixBatch_AVX2(
@@ -222,10 +222,10 @@ void ComputeModelMatrixBatch(const size_t Count, const float* PositionX, const f
     // Fallback to scalar implementation
     for (; WorkedCount < Count; WorkedCount++)
     {
-        TVector3<float> Location(PositionX[WorkedCount], PositionY[WorkedCount], PositionZ[WorkedCount]);
-        TQuaternion<float> Rotation(QuaternionW[WorkedCount], QuaternionX[WorkedCount], QuaternionY[WorkedCount],
-                                    QuaternionZ[WorkedCount]);
-        TVector3<float> Scale(ScaleX[WorkedCount], ScaleY[WorkedCount], ScaleZ[WorkedCount]);
+        const TVector3<float> Location(PositionX[WorkedCount], PositionY[WorkedCount], PositionZ[WorkedCount]);
+        const TQuaternion<float> Rotation(QuaternionW[WorkedCount], QuaternionX[WorkedCount], QuaternionY[WorkedCount],
+                                          QuaternionZ[WorkedCount]);
+        const TVector3<float> Scale(ScaleX[WorkedCount], ScaleY[WorkedCount], ScaleZ[WorkedCount]);
         TTransform<float> Transform(Location, Rotation, Scale);
 
         OutModelMatrix[WorkedCount] = Transform.GetModelMatrix();
