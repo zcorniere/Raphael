@@ -4,7 +4,9 @@ void* FStdMalloc::Alloc(uint32 Size, uint32 Alignment)
 {
     if (Alignment != 0)
     {
-        return std::aligned_alloc(Alignment, Size);
+        // Realign the size
+        const std::size_t SizeAligned = Size + (Alignment - 1) & ~(Alignment - 1);
+        return std::aligned_alloc(Alignment, SizeAligned);
     }
     else
     {

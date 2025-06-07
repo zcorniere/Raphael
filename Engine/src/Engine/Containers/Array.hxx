@@ -294,12 +294,7 @@ public:
         }
 
         // Malloc new array, and move the old data to it, then free the old data
-        TSize NewCapacityAligned = NewCapacity * sizeof(T);
-        if constexpr (Alignment > 0)
-        {
-            NewCapacityAligned = (NewCapacityAligned + Alignment - 1) & ~(Alignment - 1);
-        }
-        T* const NewData = (T*)Memory::Malloc(NewCapacityAligned, Alignment);
+        T* const NewData = (T*)Memory::Malloc(NewCapacity * sizeof(T), Alignment);
         if (Data)
         {
             MoveItems(NewData, Data, ArraySize);
