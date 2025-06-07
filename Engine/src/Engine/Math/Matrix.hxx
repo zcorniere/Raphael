@@ -10,17 +10,25 @@ namespace Math
 template <unsigned Size, typename T>
 struct TVector;
 
+/// This type represent a matrix
+/// @note the matrix is **row major**
 template <unsigned TRows, unsigned TColumns, typename T>
 requires(TRows > 0 && TColumns > 0)
 struct TMatrix
 {
     using Type = T;
-    using ColumnType = TVector<TColumns, T>;
+    using Rowtype = TVector<TColumns, T>;
 
     static constexpr const unsigned Rows = TRows;
     static constexpr const unsigned Columns = TColumns;
 
-    static constexpr TMatrix Identity();
+    static constexpr bool IsSquare()
+    {
+        return Rows == Columns;
+    }
+
+    static constexpr TMatrix Identity(const T Value = T(1))
+    requires(TMatrix::IsSquare());
 
 public:
     constexpr TMatrix();
@@ -46,11 +54,6 @@ public:
         (AdderLambda(Args), ...);
     }
 
-    static constexpr bool IsSquare()
-    {
-        return Rows == Columns;
-    }
-
     constexpr TVector<TColumns, T>& operator[](unsigned Index);
     constexpr const TVector<TColumns, T>& operator[](unsigned Index) const;
 
@@ -58,7 +61,7 @@ public:
     constexpr T operator[](unsigned Row, unsigned Column) const;
 
 private:
-    ColumnType Data[Rows];
+    Rowtype Data[Rows];
 };
 
 template <unsigned TRows, unsigned TColumns, typename T>
@@ -77,7 +80,10 @@ constexpr TMatrix<TRows, TColumns, T> operator*(const TMatrix<TRows, TColumns, T
                                                 const TMatrix<TRows, TColumns, T>& rhs);
 
 template <unsigned TRows, unsigned TColumns, typename T>
-constexpr TVector<TColumns, T> operator*(const TMatrix<TRows, TColumns, T>& lhs, const TVector<TColumns, T>& rhs);
+constexpr TVector<TColumns, T> operator*(const TVector<TColumns, T>& lhs, const TMatrix<TRows, TColumns, T>& rhs);
+template <unsigned TRows, unsigned TColumns, typename T>
+constexpr TMatrix<TRows, TColumns, T> operator*(const TMatrix<TRows, TColumns, T>& lhs,
+                                                const TVector<TColumns, T>& rhs);
 
 template <unsigned TRows, unsigned TColumns, typename T>
 constexpr TMatrix<TRows, TColumns, T> operator/(const TMatrix<TRows, TColumns, T>& lhs,

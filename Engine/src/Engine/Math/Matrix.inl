@@ -3,14 +3,13 @@ namespace Math
 
 template <unsigned TRows, unsigned TColumns, typename T>
 requires(TRows > 0 && TColumns > 0)
-constexpr TMatrix<TRows, TColumns, T> TMatrix<TRows, TColumns, T>::Identity()
+constexpr TMatrix<TRows, TColumns, T> TMatrix<TRows, TColumns, T>::Identity(const T Value)
+requires(TMatrix::IsSquare())
 {
-    static_assert(TMatrix<TRows, TColumns, T>::IsSquare(), "Identity matrix must be square");
-
-    TMatrix Result;
+    TMatrix Result(T(0));
     for (int i = 0; i < TRows; ++i)
     {
-        Result[i][i] = 1.0f;
+        Result[i][i] = Value;
     }
     return Result;
 }
