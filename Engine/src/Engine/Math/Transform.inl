@@ -96,4 +96,20 @@ TMatrix4<T> TTransform<T>::GetScaleMatrix() const
     return ScaleMatrix;
 }
 
+template <typename T>
+TMatrix4<T> TTransform<T>::GetModelMatrix()
+{
+    if (!bModelMatrixDirty)
+    {
+        return ModelMatrix;
+    }
+
+    RPH_PROFILE_FUNC()
+    ModelMatrix = GetTranslationMatrix() * Rotation.GetRotationMatrix() * GetScaleMatrix();
+
+    Math::CheckNaN(ModelMatrix);
+    bModelMatrixDirty = false;
+    return ModelMatrix;
+}
+
 }    // namespace Math

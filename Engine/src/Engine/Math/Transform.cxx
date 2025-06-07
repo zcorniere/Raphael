@@ -5,83 +5,6 @@
 namespace Math
 {
 
-[[gnu::target("avx2")]]
-void ComputeModelMatrix_AVX2(TMatrix4<float>& ModelMatrix, const TVector3<float>& Location,
-                             const TQuaternion<float>& Rotation, const TVector3<float>& Scale)
-{
-
-    // Unpack quaternion
-    float x = Rotation.x, y = Rotation.y, z = Rotation.z, w = Rotation.w;
-
-    // Compute rotation matrix (classic formula)
-    float xx = x * x, yy = y * y, zz = z * z;
-    float xy = x * y, xz = x * z, yz = y * z;
-    float wx = w * x, wy = w * y, wz = w * z;
-
-    float rot[9] = {1.0f - 2.0f * (yy + zz), 2.0f * (xy - wz),        2.0f * (xz + wy),
-                    2.0f * (xy + wz),        1.0f - 2.0f * (xx + zz), 2.0f * (yz - wx),
-                    2.0f * (xz - wy),        2.0f * (yz + wx),        1.0f - 2.0f * (xx + yy)};
-
-    // Prepare scale vector for three matrix columns
-    __m256 scale_vec = _mm256_set_ps(Scale[2], Scale[1], Scale[0],    // for m[8], m[7], m[6]
-                                     Scale[2], Scale[1], Scale[0],    // for m[5], m[4], m[3]
-                                     Scale[2], Scale[1]               // for m[2], m[1]
-    );
-    // Prepare rotation (pad last element for 8-float load)
-    float rot_pad[8] = {rot[0], rot[1], rot[2], rot[3], rot[4], rot[5], rot[6], rot[7]};
-    __m256 rot_vec = _mm256_loadu_ps(rot_pad);
-
-    // Multiply rotation by scale (element-wise)
-    __m256 rot_scaled = _mm256_mul_ps(rot_vec, scale_vec);
-
-    // Store scaled matrix back (first 8 elements)
-    float rot_scaled_arr[9];
-    _mm256_storeu_ps(rot_scaled_arr, rot_scaled);
-    rot_scaled_arr[8] = rot[8] * Scale[2];
-
-    // Fill the 4x4 row-major model matrix
-    // Fill the 4x4 row-major model matrix
-    ModelMatrix[0, 0] = rot_scaled_arr[0];
-    ModelMatrix[0, 1] = rot_scaled_arr[1];
-    ModelMatrix[0, 2] = rot_scaled_arr[2];
-    ModelMatrix[0, 3] = 0.0f;
-    ModelMatrix[1, 0] = rot_scaled_arr[3];
-    ModelMatrix[1, 1] = rot_scaled_arr[4];
-    ModelMatrix[1, 2] = rot_scaled_arr[5];
-    ModelMatrix[1, 3] = 0.0f;
-    ModelMatrix[2, 0] = rot_scaled_arr[6];
-    ModelMatrix[2, 1] = rot_scaled_arr[7];
-    ModelMatrix[2, 2] = rot_scaled_arr[8];
-    ModelMatrix[2, 3] = 0.0f;
-    ModelMatrix[3, 0] = Location[0];
-    ModelMatrix[3, 1] = Location[1];
-    ModelMatrix[3, 2] = Location[2];
-    ModelMatrix[3, 3] = 1.0f;
-}
-
-template <>
-TMatrix4<float> TTransform<float>::GetModelMatrix()
-{
-    if (!bModelMatrixDirty)
-    {
-        return ModelMatrix;
-    }
-    if (FPlatformMisc::GetCPUInformation().AVX2)
-    {
-        RPH_PROFILE_FUNC("TTransform<float>::GetModelMatrix - AVX")
-        ComputeModelMatrix_AVX2(ModelMatrix, Location, Rotation, Scale);
-    }
-    else
-    {
-        RPH_PROFILE_FUNC()
-        ModelMatrix = GetTranslationMatrix() * Rotation.GetRotationMatrix() * GetScaleMatrix();
-    }
-
-    Math::CheckNaN(ModelMatrix);
-    bModelMatrixDirty = false;
-    return ModelMatrix;
-}
-
 template <typename T>
 size_t ComputeModelMatrixBatch_AVX2(size_t Count, const T* PositionX, const T* PositionY, const T* PositionZ,
                                     const T* QuaternionX, const T* QuaternionY, const T* QuaternionZ,
@@ -289,7 +212,7 @@ void ComputeModelMatrixBatch(const size_t Count, const float* PositionX, const f
         if (BatchCount > 0)
         {
             WorkedCount += ComputeModelMatrixBatch_AVX2(
-                Count, PositionX + WorkedCount, PositionY + WorkedCount, PositionZ + WorkedCount,
+                Remaining, PositionX + WorkedCount, PositionY + WorkedCount, PositionZ + WorkedCount,
                 QuaternionX + WorkedCount, QuaternionY + WorkedCount, QuaternionZ + WorkedCount,
                 QuaternionW + WorkedCount, ScaleX + WorkedCount, ScaleY + WorkedCount, ScaleZ + WorkedCount,
                 reinterpret_cast<float*>(OutModelMatrix + WorkedCount));
