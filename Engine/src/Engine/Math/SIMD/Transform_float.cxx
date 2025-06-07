@@ -5,18 +5,6 @@
 namespace Math
 {
 
-template <typename T>
-size_t ComputeModelMatrixBatch_AVX2(size_t Count, const T* PositionX, const T* PositionY, const T* PositionZ,
-                                    const T* QuaternionX, const T* QuaternionY, const T* QuaternionZ,
-                                    const T* QuaternionW, const T* ScaleX, const T* ScaleY, const T* ScaleZ,
-                                    T* OutModelMatrix);
-template <typename T>
-size_t ComputeModelMatrixBatch_AVX512(size_t Count, const T* PositionX, const T* PositionY, const T* PositionZ,
-                                      const T* QuaternionX, const T* QuaternionY, const T* QuaternionZ,
-                                      const T* QuaternionW, const T* ScaleX, const T* ScaleY, const T* ScaleZ,
-                                      T* OutModelMatrix);
-
-template <>
 [[gnu::target("avx2")]]
 size_t ComputeModelMatrixBatch_AVX2(size_t Count, const float* RESTRICT PositionX, const float* RESTRICT PositionY,
                                     const float* RESTRICT PositionZ, const float* RESTRICT QuaternionX,
@@ -98,7 +86,6 @@ size_t ComputeModelMatrixBatch_AVX2(size_t Count, const float* RESTRICT Position
     return i;
 }
 
-template <>
 [[gnu::target("avx512f")]]
 size_t ComputeModelMatrixBatch_AVX512(size_t Count, const float* RESTRICT PositionX, const float* RESTRICT PositionY,
                                       const float* RESTRICT PositionZ, const float* RESTRICT QuaternionX,
