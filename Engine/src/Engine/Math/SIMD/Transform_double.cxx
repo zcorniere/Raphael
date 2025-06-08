@@ -15,40 +15,40 @@ size_t ComputeModelMatrixBatch_AVX2(size_t Count, const double* RESTRICT Positio
 {
     RPH_PROFILE_FUNC()
     size_t i = 0;
-    for (i = 0; i + 3 < Count; i += 4)
+    for (; i + 3 < Count; i += 4)
     {
-        __m256d X = _mm256_load_pd(QuaternionX + i);
-        __m256d Y = _mm256_load_pd(QuaternionY + i);
-        __m256d Z = _mm256_load_pd(QuaternionZ + i);
-        __m256d W = _mm256_load_pd(QuaternionW + i);
-        __m256d SX = _mm256_load_pd(ScaleX + i);
-        __m256d SY = _mm256_load_pd(ScaleY + i);
-        __m256d SZ = _mm256_load_pd(ScaleZ + i);
-        __m256d TX = _mm256_load_pd(PositionX + i);
-        __m256d TY = _mm256_load_pd(PositionY + i);
-        __m256d TZ = _mm256_load_pd(PositionZ + i);
-        __m256d one = _mm256_set1_pd(1.0f);
-        __m256d two = _mm256_set1_pd(2.0f);
+        const __m256 X = _mm256_load_pd(QuaternionX + i);
+        const __m256 Y = _mm256_load_pd(QuaternionY + i);
+        const __m256 Z = _mm256_load_pd(QuaternionZ + i);
+        const __m256 W = _mm256_load_pd(QuaternionW + i);
+        const __m256 SX = _mm256_load_pd(ScaleX + i);
+        const __m256 SY = _mm256_load_pd(ScaleY + i);
+        const __m256 SZ = _mm256_load_pd(ScaleZ + i);
+        const __m256 one = _mm256_set1_pd(1.0f);
+        const __m256 two = _mm256_set1_pd(2.0f);
 
-        __m256d xx = _mm256_mul_pd(X, X);
-        __m256d yy = _mm256_mul_pd(Y, Y);
-        __m256d zz = _mm256_mul_pd(Z, Z);
-        __m256d xy = _mm256_mul_pd(X, Y);
-        __m256d xz = _mm256_mul_pd(X, Z);
-        __m256d yz = _mm256_mul_pd(Y, Z);
-        __m256d wx = _mm256_mul_pd(W, X);
-        __m256d wy = _mm256_mul_pd(W, Y);
-        __m256d wz = _mm256_mul_pd(W, Z);
+        const __m256 xx = _mm256_mul_pd(X, X);
+        const __m256 yy = _mm256_mul_pd(Y, Y);
+        const __m256 zz = _mm256_mul_pd(Z, Z);
+        const __m256 xy = _mm256_mul_pd(X, Y);
+        const __m256 xz = _mm256_mul_pd(X, Z);
+        const __m256 yz = _mm256_mul_pd(Y, Z);
+        const __m256 wx = _mm256_mul_pd(W, X);
+        const __m256 wy = _mm256_mul_pd(W, Y);
+        const __m256 wz = _mm256_mul_pd(W, Z);
 
-        __m256d m00 = _mm256_sub_pd(one, _mm256_mul_pd(two, _mm256_add_pd(yy, zz)));
-        __m256d m01 = _mm256_mul_pd(two, _mm256_sub_pd(xy, wz));
-        __m256d m02 = _mm256_mul_pd(two, _mm256_add_pd(xz, wy));
-        __m256d m10 = _mm256_mul_pd(two, _mm256_add_pd(xy, wz));
-        __m256d m11 = _mm256_sub_pd(one, _mm256_mul_pd(two, _mm256_add_pd(xx, zz)));
-        __m256d m12 = _mm256_mul_pd(two, _mm256_sub_pd(yz, wx));
-        __m256d m20 = _mm256_mul_pd(two, _mm256_sub_pd(xz, wy));
-        __m256d m21 = _mm256_mul_pd(two, _mm256_add_pd(yz, wx));
-        __m256d m22 = _mm256_sub_pd(one, _mm256_mul_pd(two, _mm256_add_pd(xx, yy)));
+        // MATCH SCALAR VERSION!
+        __m256 m00 = _mm256_sub_pd(one, _mm256_mul_pd(two, _mm256_add_pd(yy, zz)));
+        __m256 m01 = _mm256_mul_pd(two, _mm256_add_pd(xy, wz));
+        __m256 m02 = _mm256_mul_pd(two, _mm256_sub_pd(xz, wy));
+
+        __m256 m10 = _mm256_mul_pd(two, _mm256_sub_pd(xy, wz));
+        __m256 m11 = _mm256_sub_pd(one, _mm256_mul_pd(two, _mm256_add_pd(xx, zz)));
+        __m256 m12 = _mm256_mul_pd(two, _mm256_add_pd(yz, wx));
+
+        __m256 m20 = _mm256_mul_pd(two, _mm256_add_pd(xz, wy));
+        __m256 m21 = _mm256_mul_pd(two, _mm256_sub_pd(yz, wx));
+        __m256 m22 = _mm256_sub_pd(one, _mm256_mul_pd(two, _mm256_add_pd(xx, yy)));
 
         // Apply scale
         m00 = _mm256_mul_pd(m00, SX);
@@ -69,17 +69,20 @@ size_t ComputeModelMatrixBatch_AVX2(size_t Count, const double* RESTRICT Positio
             M[1] = ((double*)&m01)[j];
             M[2] = ((double*)&m02)[j];
             M[3] = 0.0f;
+
             M[4] = ((double*)&m10)[j];
             M[5] = ((double*)&m11)[j];
             M[6] = ((double*)&m12)[j];
             M[7] = 0.0f;
+
             M[8] = ((double*)&m20)[j];
             M[9] = ((double*)&m21)[j];
             M[10] = ((double*)&m22)[j];
             M[11] = 0.0f;
-            M[12] = ((double*)&TX)[j];
-            M[13] = ((double*)&TY)[j];
-            M[14] = ((double*)&TZ)[j];
+
+            M[12] = PositionX[i + j];
+            M[13] = PositionY[i + j];
+            M[14] = PositionZ[i + j];
             M[15] = 1.0f;
         }
     }
@@ -98,38 +101,38 @@ size_t ComputeModelMatrixBatch_AVX512(size_t Count, const double* RESTRICT Posit
     size_t i = 0;
     for (; i + 7 < Count; i += 8)
     {
-        __m512d X = _mm512_load_pd(QuaternionX + i);
-        __m512d Y = _mm512_load_pd(QuaternionY + i);
-        __m512d Z = _mm512_load_pd(QuaternionZ + i);
-        __m512d W = _mm512_load_pd(QuaternionW + i);
-        __m512d SX = _mm512_load_pd(ScaleX + i);
-        __m512d SY = _mm512_load_pd(ScaleY + i);
-        __m512d SZ = _mm512_load_pd(ScaleZ + i);
-        __m512d TX = _mm512_load_pd(PositionX + i);
-        __m512d TY = _mm512_load_pd(PositionY + i);
-        __m512d TZ = _mm512_load_pd(PositionZ + i);
-        __m512d one = _mm512_set1_pd(1.0f);
-        __m512d two = _mm512_set1_pd(2.0f);
+        const __m512 X = _mm512_load_pd(QuaternionX + i);
+        const __m512 Y = _mm512_load_pd(QuaternionY + i);
+        const __m512 Z = _mm512_load_pd(QuaternionZ + i);
+        const __m512 W = _mm512_load_pd(QuaternionW + i);
+        const __m512 SX = _mm512_load_pd(ScaleX + i);
+        const __m512 SY = _mm512_load_pd(ScaleY + i);
+        const __m512 SZ = _mm512_load_pd(ScaleZ + i);
+        const __m512 one = _mm512_set1_pd(1.0f);
+        const __m512 two = _mm512_set1_pd(2.0f);
 
-        __m512d xx = _mm512_mul_pd(X, X);
-        __m512d yy = _mm512_mul_pd(Y, Y);
-        __m512d zz = _mm512_mul_pd(Z, Z);
-        __m512d xy = _mm512_mul_pd(X, Y);
-        __m512d xz = _mm512_mul_pd(X, Z);
-        __m512d yz = _mm512_mul_pd(Y, Z);
-        __m512d wx = _mm512_mul_pd(W, X);
-        __m512d wy = _mm512_mul_pd(W, Y);
-        __m512d wz = _mm512_mul_pd(W, Z);
+        const __m512 xx = _mm512_mul_pd(X, X);
+        const __m512 yy = _mm512_mul_pd(Y, Y);
+        const __m512 zz = _mm512_mul_pd(Z, Z);
+        const __m512 xy = _mm512_mul_pd(X, Y);
+        const __m512 xz = _mm512_mul_pd(X, Z);
+        const __m512 yz = _mm512_mul_pd(Y, Z);
+        const __m512 wx = _mm512_mul_pd(W, X);
+        const __m512 wy = _mm512_mul_pd(W, Y);
+        const __m512 wz = _mm512_mul_pd(W, Z);
 
-        __m512d m00 = _mm512_sub_pd(one, _mm512_mul_pd(two, _mm512_add_pd(yy, zz)));
-        __m512d m01 = _mm512_mul_pd(two, _mm512_sub_pd(xy, wz));
-        __m512d m02 = _mm512_mul_pd(two, _mm512_add_pd(xz, wy));
-        __m512d m10 = _mm512_mul_pd(two, _mm512_add_pd(xy, wz));
-        __m512d m11 = _mm512_sub_pd(one, _mm512_mul_pd(two, _mm512_add_pd(xx, zz)));
-        __m512d m12 = _mm512_mul_pd(two, _mm512_sub_pd(yz, wx));
-        __m512d m20 = _mm512_mul_pd(two, _mm512_sub_pd(xz, wy));
-        __m512d m21 = _mm512_mul_pd(two, _mm512_add_pd(yz, wx));
-        __m512d m22 = _mm512_sub_pd(one, _mm512_mul_pd(two, _mm512_add_pd(xx, yy)));
+        // MATCH SCALAR VERSION!
+        __m512 m00 = _mm512_sub_pd(one, _mm512_mul_pd(two, _mm512_add_pd(yy, zz)));
+        __m512 m01 = _mm512_mul_pd(two, _mm512_add_pd(xy, wz));
+        __m512 m02 = _mm512_mul_pd(two, _mm512_sub_pd(xz, wy));
+
+        __m512 m10 = _mm512_mul_pd(two, _mm512_sub_pd(xy, wz));
+        __m512 m11 = _mm512_sub_pd(one, _mm512_mul_pd(two, _mm512_add_pd(xx, zz)));
+        __m512 m12 = _mm512_mul_pd(two, _mm512_add_pd(yz, wx));
+
+        __m512 m20 = _mm512_mul_pd(two, _mm512_add_pd(xz, wy));
+        __m512 m21 = _mm512_mul_pd(two, _mm512_sub_pd(yz, wx));
+        __m512 m22 = _mm512_sub_pd(one, _mm512_mul_pd(two, _mm512_add_pd(xx, yy)));
 
         // Apply scale
         m00 = _mm512_mul_pd(m00, SX);
@@ -150,17 +153,20 @@ size_t ComputeModelMatrixBatch_AVX512(size_t Count, const double* RESTRICT Posit
             M[1] = ((double*)&m01)[j];
             M[2] = ((double*)&m02)[j];
             M[3] = 0.0f;
+
             M[4] = ((double*)&m10)[j];
             M[5] = ((double*)&m11)[j];
             M[6] = ((double*)&m12)[j];
             M[7] = 0.0f;
+
             M[8] = ((double*)&m20)[j];
             M[9] = ((double*)&m21)[j];
             M[10] = ((double*)&m22)[j];
             M[11] = 0.0f;
-            M[12] = ((double*)&TX)[j];
-            M[13] = ((double*)&TY)[j];
-            M[14] = ((double*)&TZ)[j];
+
+            M[12] = PositionX[i + j];
+            M[13] = PositionY[i + j];
+            M[14] = PositionZ[i + j];
             M[15] = 1.0f;
         }
     }
@@ -180,9 +186,9 @@ void ComputeModelMatrixBatch(const size_t Count, const double* PositionX, const 
 
     size_t WorkedCount = 0;
     const FCPUInformation& CPUInfo = FPlatformMisc::GetCPUInformation();
-    if (CPUInfo.AVX512 && Count >= 8)
+    if (CPUInfo.AVX512 && Count >= 16)
     {
-        const size_t BatchCount = (Count / 8) * 8;    // largest multiple of 16 <= Count
+        const size_t BatchCount = (Count / 16) * 16;    // largest multiple of 16 <= Count
         if (BatchCount > 0)
         {
             WorkedCount += ComputeModelMatrixBatch_AVX512(
@@ -192,10 +198,10 @@ void ComputeModelMatrixBatch(const size_t Count, const double* PositionX, const 
                 reinterpret_cast<double*>(OutModelMatrix + WorkedCount));
         }
     }
-    if (CPUInfo.AVX2 && Count >= 4)
+    if (CPUInfo.AVX2 && Count >= 8)
     {
         const size_t Remaining = Count - WorkedCount;
-        const size_t BatchCount = (Remaining / 4) * 4;
+        const size_t BatchCount = (Remaining / 8) * 8;
         if (BatchCount > 0)
         {
             WorkedCount += ComputeModelMatrixBatch_AVX2(

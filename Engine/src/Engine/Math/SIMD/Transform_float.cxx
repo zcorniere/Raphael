@@ -15,39 +15,39 @@ size_t ComputeModelMatrixBatch_AVX2(size_t Count, const float* RESTRICT Position
 {
     RPH_PROFILE_FUNC()
     size_t i = 0;
-    for (i = 0; i + 7 < Count; i += 8)
+    for (; i + 7 < Count; i += 8)
     {
-        __m256 X = _mm256_load_ps(QuaternionX + i);
-        __m256 Y = _mm256_load_ps(QuaternionY + i);
-        __m256 Z = _mm256_load_ps(QuaternionZ + i);
-        __m256 W = _mm256_load_ps(QuaternionW + i);
-        __m256 SX = _mm256_load_ps(ScaleX + i);
-        __m256 SY = _mm256_load_ps(ScaleY + i);
-        __m256 SZ = _mm256_load_ps(ScaleZ + i);
-        __m256 TX = _mm256_load_ps(PositionX + i);
-        __m256 TY = _mm256_load_ps(PositionY + i);
-        __m256 TZ = _mm256_load_ps(PositionZ + i);
-        __m256 one = _mm256_set1_ps(1.0f);
-        __m256 two = _mm256_set1_ps(2.0f);
+        const __m256 X = _mm256_load_ps(QuaternionX + i);
+        const __m256 Y = _mm256_load_ps(QuaternionY + i);
+        const __m256 Z = _mm256_load_ps(QuaternionZ + i);
+        const __m256 W = _mm256_load_ps(QuaternionW + i);
+        const __m256 SX = _mm256_load_ps(ScaleX + i);
+        const __m256 SY = _mm256_load_ps(ScaleY + i);
+        const __m256 SZ = _mm256_load_ps(ScaleZ + i);
+        const __m256 one = _mm256_set1_ps(1.0f);
+        const __m256 two = _mm256_set1_ps(2.0f);
 
-        __m256 xx = _mm256_mul_ps(X, X);
-        __m256 yy = _mm256_mul_ps(Y, Y);
-        __m256 zz = _mm256_mul_ps(Z, Z);
-        __m256 xy = _mm256_mul_ps(X, Y);
-        __m256 xz = _mm256_mul_ps(X, Z);
-        __m256 yz = _mm256_mul_ps(Y, Z);
-        __m256 wx = _mm256_mul_ps(W, X);
-        __m256 wy = _mm256_mul_ps(W, Y);
-        __m256 wz = _mm256_mul_ps(W, Z);
+        const __m256 xx = _mm256_mul_ps(X, X);
+        const __m256 yy = _mm256_mul_ps(Y, Y);
+        const __m256 zz = _mm256_mul_ps(Z, Z);
+        const __m256 xy = _mm256_mul_ps(X, Y);
+        const __m256 xz = _mm256_mul_ps(X, Z);
+        const __m256 yz = _mm256_mul_ps(Y, Z);
+        const __m256 wx = _mm256_mul_ps(W, X);
+        const __m256 wy = _mm256_mul_ps(W, Y);
+        const __m256 wz = _mm256_mul_ps(W, Z);
 
+        // MATCH SCALAR VERSION!
         __m256 m00 = _mm256_sub_ps(one, _mm256_mul_ps(two, _mm256_add_ps(yy, zz)));
-        __m256 m01 = _mm256_mul_ps(two, _mm256_sub_ps(xy, wz));
-        __m256 m02 = _mm256_mul_ps(two, _mm256_add_ps(xz, wy));
-        __m256 m10 = _mm256_mul_ps(two, _mm256_add_ps(xy, wz));
+        __m256 m01 = _mm256_mul_ps(two, _mm256_add_ps(xy, wz));
+        __m256 m02 = _mm256_mul_ps(two, _mm256_sub_ps(xz, wy));
+
+        __m256 m10 = _mm256_mul_ps(two, _mm256_sub_ps(xy, wz));
         __m256 m11 = _mm256_sub_ps(one, _mm256_mul_ps(two, _mm256_add_ps(xx, zz)));
-        __m256 m12 = _mm256_mul_ps(two, _mm256_sub_ps(yz, wx));
-        __m256 m20 = _mm256_mul_ps(two, _mm256_sub_ps(xz, wy));
-        __m256 m21 = _mm256_mul_ps(two, _mm256_add_ps(yz, wx));
+        __m256 m12 = _mm256_mul_ps(two, _mm256_add_ps(yz, wx));
+
+        __m256 m20 = _mm256_mul_ps(two, _mm256_add_ps(xz, wy));
+        __m256 m21 = _mm256_mul_ps(two, _mm256_sub_ps(yz, wx));
         __m256 m22 = _mm256_sub_ps(one, _mm256_mul_ps(two, _mm256_add_ps(xx, yy)));
 
         // Apply scale
@@ -69,17 +69,20 @@ size_t ComputeModelMatrixBatch_AVX2(size_t Count, const float* RESTRICT Position
             M[1] = ((float*)&m01)[j];
             M[2] = ((float*)&m02)[j];
             M[3] = 0.0f;
+
             M[4] = ((float*)&m10)[j];
             M[5] = ((float*)&m11)[j];
             M[6] = ((float*)&m12)[j];
             M[7] = 0.0f;
+
             M[8] = ((float*)&m20)[j];
             M[9] = ((float*)&m21)[j];
             M[10] = ((float*)&m22)[j];
             M[11] = 0.0f;
-            M[12] = ((float*)&TX)[j];
-            M[13] = ((float*)&TY)[j];
-            M[14] = ((float*)&TZ)[j];
+
+            M[12] = PositionX[i + j];
+            M[13] = PositionY[i + j];
+            M[14] = PositionZ[i + j];
             M[15] = 1.0f;
         }
     }
@@ -98,37 +101,37 @@ size_t ComputeModelMatrixBatch_AVX512(size_t Count, const float* RESTRICT Positi
     size_t i = 0;
     for (; i + 15 < Count; i += 16)
     {
-        __m512 X = _mm512_load_ps(QuaternionX + i);
-        __m512 Y = _mm512_load_ps(QuaternionY + i);
-        __m512 Z = _mm512_load_ps(QuaternionZ + i);
-        __m512 W = _mm512_load_ps(QuaternionW + i);
-        __m512 SX = _mm512_load_ps(ScaleX + i);
-        __m512 SY = _mm512_load_ps(ScaleY + i);
-        __m512 SZ = _mm512_load_ps(ScaleZ + i);
-        __m512 TX = _mm512_load_ps(PositionX + i);
-        __m512 TY = _mm512_load_ps(PositionY + i);
-        __m512 TZ = _mm512_load_ps(PositionZ + i);
-        __m512 one = _mm512_set1_ps(1.0f);
-        __m512 two = _mm512_set1_ps(2.0f);
+        const __m512 X = _mm512_load_ps(QuaternionX + i);
+        const __m512 Y = _mm512_load_ps(QuaternionY + i);
+        const __m512 Z = _mm512_load_ps(QuaternionZ + i);
+        const __m512 W = _mm512_load_ps(QuaternionW + i);
+        const __m512 SX = _mm512_load_ps(ScaleX + i);
+        const __m512 SY = _mm512_load_ps(ScaleY + i);
+        const __m512 SZ = _mm512_load_ps(ScaleZ + i);
+        const __m512 one = _mm512_set1_ps(1.0f);
+        const __m512 two = _mm512_set1_ps(2.0f);
 
-        __m512 xx = _mm512_mul_ps(X, X);
-        __m512 yy = _mm512_mul_ps(Y, Y);
-        __m512 zz = _mm512_mul_ps(Z, Z);
-        __m512 xy = _mm512_mul_ps(X, Y);
-        __m512 xz = _mm512_mul_ps(X, Z);
-        __m512 yz = _mm512_mul_ps(Y, Z);
-        __m512 wx = _mm512_mul_ps(W, X);
-        __m512 wy = _mm512_mul_ps(W, Y);
-        __m512 wz = _mm512_mul_ps(W, Z);
+        const __m512 xx = _mm512_mul_ps(X, X);
+        const __m512 yy = _mm512_mul_ps(Y, Y);
+        const __m512 zz = _mm512_mul_ps(Z, Z);
+        const __m512 xy = _mm512_mul_ps(X, Y);
+        const __m512 xz = _mm512_mul_ps(X, Z);
+        const __m512 yz = _mm512_mul_ps(Y, Z);
+        const __m512 wx = _mm512_mul_ps(W, X);
+        const __m512 wy = _mm512_mul_ps(W, Y);
+        const __m512 wz = _mm512_mul_ps(W, Z);
 
+        // MATCH SCALAR VERSION!
         __m512 m00 = _mm512_sub_ps(one, _mm512_mul_ps(two, _mm512_add_ps(yy, zz)));
-        __m512 m01 = _mm512_mul_ps(two, _mm512_sub_ps(xy, wz));
-        __m512 m02 = _mm512_mul_ps(two, _mm512_add_ps(xz, wy));
-        __m512 m10 = _mm512_mul_ps(two, _mm512_add_ps(xy, wz));
+        __m512 m01 = _mm512_mul_ps(two, _mm512_add_ps(xy, wz));
+        __m512 m02 = _mm512_mul_ps(two, _mm512_sub_ps(xz, wy));
+
+        __m512 m10 = _mm512_mul_ps(two, _mm512_sub_ps(xy, wz));
         __m512 m11 = _mm512_sub_ps(one, _mm512_mul_ps(two, _mm512_add_ps(xx, zz)));
-        __m512 m12 = _mm512_mul_ps(two, _mm512_sub_ps(yz, wx));
-        __m512 m20 = _mm512_mul_ps(two, _mm512_sub_ps(xz, wy));
-        __m512 m21 = _mm512_mul_ps(two, _mm512_add_ps(yz, wx));
+        __m512 m12 = _mm512_mul_ps(two, _mm512_add_ps(yz, wx));
+
+        __m512 m20 = _mm512_mul_ps(two, _mm512_add_ps(xz, wy));
+        __m512 m21 = _mm512_mul_ps(two, _mm512_sub_ps(yz, wx));
         __m512 m22 = _mm512_sub_ps(one, _mm512_mul_ps(two, _mm512_add_ps(xx, yy)));
 
         // Apply scale
@@ -150,17 +153,20 @@ size_t ComputeModelMatrixBatch_AVX512(size_t Count, const float* RESTRICT Positi
             M[1] = ((float*)&m01)[j];
             M[2] = ((float*)&m02)[j];
             M[3] = 0.0f;
+
             M[4] = ((float*)&m10)[j];
             M[5] = ((float*)&m11)[j];
             M[6] = ((float*)&m12)[j];
             M[7] = 0.0f;
+
             M[8] = ((float*)&m20)[j];
             M[9] = ((float*)&m21)[j];
             M[10] = ((float*)&m22)[j];
             M[11] = 0.0f;
-            M[12] = ((float*)&TX)[j];
-            M[13] = ((float*)&TY)[j];
-            M[14] = ((float*)&TZ)[j];
+
+            M[12] = PositionX[i + j];
+            M[13] = PositionY[i + j];
+            M[14] = PositionZ[i + j];
             M[15] = 1.0f;
         }
     }
