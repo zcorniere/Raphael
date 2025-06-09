@@ -93,6 +93,27 @@ static void GetCPUBrand(char (&OutBrandString)[0x40])
     std::memcpy(OutBrandString, BrandString, std::size(BrandString));
 }
 
+bool SupportAES()
+{
+    int Reg[4];
+    __cpuid(Reg, 1);
+    return (Reg[2] & 0x02000000) != 0;    // Check if AES is supported
+}
+
+bool SupportAVX512()
+{
+    int Reg[4];
+    __cpuidex(Reg, 7, 0);
+    return (Reg[1] & (1 << 16)) != 0;    // Check if AVX512F is supported
+}
+
+bool SupportAVX2()
+{
+    int Reg[4];
+    __cpuidex(Reg, 7, 0);
+    return (Reg[1] & (1 << 5)) != 0;    // AVX2 is bit 5 of EBX
+}
+
 const FCPUInformation& FWindowsMisc::GetCPUInformation()
 {
     static FCPUInformation Informations = {};
@@ -106,11 +127,9 @@ const FCPUInformation& FWindowsMisc::GetCPUInformation()
     GetCPUBrand(Informations.Brand);
     GetCPUVendor(Informations.Vendor);
 
-    int reg[4];
-    std::memset(reg, 0, sizeof(reg));
-
-    __cpuid(reg, 1);
-    Informations.AES = reg[2] & 0x02000000;
+    Informations.AES = SupportAES();
+    Informations.AVX2 = SupportAVX2();
+    Informations.AVX512 = SupportAVX512();
     return Informations;
 }
 // ------------------ Windows External Module --------------------------

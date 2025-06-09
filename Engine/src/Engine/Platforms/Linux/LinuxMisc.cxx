@@ -115,7 +115,7 @@ bool SupportAES()
 bool SupportAVX512()
 {
     unsigned int eax, ebx, ecx, edx;
-    __get_cpuid_count(7, 0, &eax, &ebx, &ecx, &edx);
+    __cpuid_count(7, 0, eax, ebx, ecx, edx);
     return (ebx & (1 << 16)) != 0;    // Check if AVX512F is supported
 }
 
