@@ -98,8 +98,8 @@ bool EditorApplication::OnEngineInitialization()
     Ref<ACameraActor> CameraActor =
         World->CreateActor<ACameraActor>("Main Camera", FTransform({0, 15, 0}, {}, {1, 1, 1}));
     RCameraComponent<float>* CameraComponent = CameraActor->GetComponent<RCameraComponent<float>>();
-    CameraComponent->SetFOV(80.0);
-    CameraComponent->SetNearFar(0.1, 1000.0);
+    CameraComponent->SetFOV(80.0f);
+    CameraComponent->SetNearFar(0.1f, 1000.0f);
 
     const unsigned GridSize = 10;
     for (float Row = 0; Row < GridSize; Row++)

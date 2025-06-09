@@ -142,7 +142,7 @@ private:
     TMap<uint64, TArray<FMeshRepresentation>> WorldActorRepresentation;
     TArray<WeakRef<RCameraComponent<float>>> CameraComponents;
 
-    FRWFifoLock Lock;
+    FRWFifoLock ContextLock;
     FRHIContext* const Context = nullptr;
 
     std::future<void> AsyncTaskUpdateResult;
@@ -160,12 +160,12 @@ inline TRenderSceneLock<LockType>::TRenderSceneLock(WeakRef<RRHIScene> InScene):
     if constexpr (LockType == ERenderSceneLockType::Read)
     {
         RPH_PROFILE_FUNC("TRenderSceneLock - Read Lock");
-        Scene->Lock.ReadLock();
+        Scene->ContextLock.ReadLock();
     }
     else
     {
         RPH_PROFILE_FUNC("TRenderSceneLock - Write Lock");
-        Scene->Lock.WriteLock();
+        Scene->ContextLock.WriteLock();
     }
 }
 
@@ -175,11 +175,11 @@ inline TRenderSceneLock<LockType>::~TRenderSceneLock()
     if constexpr (LockType == ERenderSceneLockType::Read)
     {
         RPH_PROFILE_FUNC("TRenderSceneLock - Read Unlock");
-        Scene->Lock.ReadUnlock();
+        Scene->ContextLock.ReadUnlock();
     }
     else
     {
         RPH_PROFILE_FUNC("TRenderSceneLock - Write Unlock");
-        Scene->Lock.WriteUnlock();
+        Scene->ContextLock.WriteUnlock();
     }
 }
