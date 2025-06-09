@@ -29,6 +29,7 @@ void FWindowsPlatform::Initialize()
     freopen_s(&fDummy, "CONOUT$", "w", stderr);
     freopen_s(&fDummy, "CONIN$", "w", stdin);
 
+#ifdef NDEBUG
     // Init the symbol loading system
     DWORD error;
     HANDLE hCurrentProcess = GetCurrentProcess();
@@ -51,6 +52,7 @@ void FWindowsPlatform::Initialize()
         fprintf(stderr, "SymInitialize returned error : %d\n", error);
         return;
     }
+#endif // NDEBUG
 }
 
 void FWindowsPlatform::Deinitialize()

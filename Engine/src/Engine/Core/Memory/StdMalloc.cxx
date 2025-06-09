@@ -1,5 +1,8 @@
 #include "Engine/Core/Memory/StdMalloc.hxx"
 
+// Windows does not have std::aligned_alloc because it is crap
+// So windows use a custom allocator by default
+#if !defined(PLATFORM_WINDOWS)
 void* FStdMalloc::Alloc(uint32 Size, uint32 Alignment)
 {
     if (Alignment != 0)
@@ -28,3 +31,4 @@ bool FStdMalloc::GetAllocationSize(void*, uint32&)
 {
     return 0;
 }
+#endif //PLATFORM_WINDOWS

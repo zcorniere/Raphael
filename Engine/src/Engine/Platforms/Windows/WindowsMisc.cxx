@@ -136,14 +136,7 @@ bool FWindowsMisc::BaseAllocator(void* TargetMemory)
 {
     checkNoReentry();
 
-    if (FCommandLine::Param("usemimalloc"))
-    {
-        new (TargetMemory) FMiMalloc;
-    }
-    else
-    {
-        new (TargetMemory) FStdMalloc;
-    }
+    new (TargetMemory) FMiMalloc;
     return true;
 }
 
