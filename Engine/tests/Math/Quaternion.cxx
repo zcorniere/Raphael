@@ -8,32 +8,36 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators_all.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-TEST_CASE("Quaternion operations - float", "[Math][Quaternion][Float]")
+#include "Common.hxx"
+
+TEMPLATE_TEST_CASE("Quaternion operations", "[Math][Quaternion]", float, double)
 {
-    Catch::StringMaker<float>::precision = 25;
+    Catch::StringMaker<TestType>::precision = 25;
 
-    const float Epsilon = 1e-5f;
+    const TestType Epsilon = TEpsilon<TestType>::Value;
 
-    const glm::quat _q1{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
-                        GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f)))};
-    const glm::quat _q2{
+    const glm::qua<TestType, glm::defaultp> _q1{
+        GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
+        GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f)))};
+    const glm::qua<TestType, glm::defaultp> _q2{
         GENERATE(take(1, random(-50.0f, 50.0f))),
         GENERATE(take(1, random(-50.0f, 50.0f))),
         GENERATE(take(1, random(-50.0f, 50.0f))),
         GENERATE(take(1, random(-50.0f, 50.0f))),
     };
 
-    const FQuaternion q1(_q1.w, _q1.x, _q1.y, _q1.z);
-    const FQuaternion q2(_q2.w, _q2.x, _q2.y, _q2.z);
+    const TQuaternion<TestType> q1(_q1.w, _q1.x, _q1.y, _q1.z);
+    const TQuaternion<TestType> q2(_q2.w, _q2.x, _q2.y, _q2.z);
 
     SECTION("Quaternion multiplication")
     {
-        const glm::quat ExpectedResult = _q1 * _q2;
-        const FQuaternion Result = q1 * q2;
+        const glm::qua<TestType, glm::defaultp> ExpectedResult = _q1 * _q2;
+        const TQuaternion<TestType> Result = q1 * q2;
 
         CHECK_THAT(Result.w, Catch::Matchers::WithinRel(ExpectedResult.w, Epsilon));
         CHECK_THAT(Result.x, Catch::Matchers::WithinRel(ExpectedResult.x, Epsilon));
@@ -43,104 +47,9 @@ TEST_CASE("Quaternion operations - float", "[Math][Quaternion][Float]")
 
     SECTION("Quaternion inverse")
     {
-        const glm::quat ExpectedResult = glm::inverse(_q1);
+        const glm::qua<TestType, glm::defaultp> ExpectedResult = glm::inverse(_q1);
 
-        const FQuaternion result = q1.Inverse();
-
-        CHECK_THAT(result.w, Catch::Matchers::WithinRel(ExpectedResult.w, Epsilon));
-        CHECK_THAT(result.x, Catch::Matchers::WithinRel(ExpectedResult.x, Epsilon));
-        CHECK_THAT(result.y, Catch::Matchers::WithinRel(ExpectedResult.y, Epsilon));
-        CHECK_THAT(result.z, Catch::Matchers::WithinRel(ExpectedResult.z, Epsilon));
-    }
-
-    SECTION("Quaternion normalization")
-    {
-        const glm::quat ExpectedResult = glm::normalize(_q1);
-
-        const FQuaternion result = q1.Normalize();
-
-        CHECK_THAT(result.w, Catch::Matchers::WithinRel(ExpectedResult.w, Epsilon));
-        CHECK_THAT(result.x, Catch::Matchers::WithinRel(ExpectedResult.x, Epsilon));
-        CHECK_THAT(result.y, Catch::Matchers::WithinRel(ExpectedResult.y, Epsilon));
-        CHECK_THAT(result.z, Catch::Matchers::WithinRel(ExpectedResult.z, Epsilon));
-    }
-
-    SECTION("Quaternion dot product")
-    {
-        const float ExpectedResult = glm::dot(_q1, _q2);
-        const float Result = q1.Dot(q2);
-
-        CHECK_THAT(Result, Catch::Matchers::WithinRel(ExpectedResult, Epsilon));
-    }
-
-    SECTION("Quaternion equality")
-    {
-        const glm::quat _q3 = _q2;
-
-        const FQuaternion q3 = q2;
-
-        REQUIRE(q3.w == _q3.w);
-        REQUIRE(q3.x == _q3.x);
-        REQUIRE(q3.y == _q3.y);
-        REQUIRE(q3.z == _q3.z);
-    }
-
-    SECTION("Quaternion rotation matrix")
-    {
-        const glm::mat4 ExpectedResult = glm::toMat4(_q1);
-
-        const FMatrix4 Result = q1.GetRotationMatrix();
-
-        INFO("Quaternion: " << glm::to_string(_q1));
-        INFO("Expected: " << glm::to_string(ExpectedResult));
-
-        INFO("Quaternion: " << q1);
-        INFO("Result: " << Result);
-        for (unsigned i = 0; i < 4; i++)
-        {
-            for (unsigned j = 0; j < 4; j++)
-            {
-                INFO("Result[" << i << "][" << j << "]: " << Result[i][j]);
-                INFO("ExpectedResult[" << i << "][" << j << "]: " << ExpectedResult[i][j]);
-                CHECK_THAT(Result[i][j], Catch::Matchers::WithinRel(ExpectedResult[i][j], Epsilon));
-            }
-        }
-    }
-}
-
-TEST_CASE("Quaternion operations - double", "[Math][Quaternion][Double]")
-{
-    Catch::StringMaker<double>::precision = 25;
-    const double Epsilon = 1e-12f;
-
-    const glm::dquat _q1{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
-                         GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f)))};
-    const glm::dquat _q2{
-        GENERATE(take(1, random(-50.0f, 50.0f))),
-        GENERATE(take(1, random(-50.0f, 50.0f))),
-        GENERATE(take(1, random(-50.0f, 50.0f))),
-        GENERATE(take(1, random(-50.0f, 50.0f))),
-    };
-
-    const DQuaternion q1(_q1.w, _q1.x, _q1.y, _q1.z);
-    const DQuaternion q2(_q2.w, _q2.x, _q2.y, _q2.z);
-
-    SECTION("Quaternion multiplication")
-    {
-        const glm::dquat ExpectedResult = _q1 * _q2;
-        const DQuaternion Result = q1 * q2;
-
-        CHECK_THAT(Result.w, Catch::Matchers::WithinRel(ExpectedResult.w, Epsilon));
-        CHECK_THAT(Result.x, Catch::Matchers::WithinRel(ExpectedResult.x, Epsilon));
-        CHECK_THAT(Result.y, Catch::Matchers::WithinRel(ExpectedResult.y, Epsilon));
-        CHECK_THAT(Result.z, Catch::Matchers::WithinRel(ExpectedResult.z, Epsilon));
-    }
-
-    SECTION("Quaternion inverse")
-    {
-        const glm::dquat ExpectedResult = glm::inverse(_q1);
-
-        const DQuaternion result = q1.Inverse();
+        const TQuaternion<TestType> result = q1.Inverse();
 
         CHECK_THAT(result.w, Catch::Matchers::WithinRel(ExpectedResult.w, Epsilon));
         CHECK_THAT(result.x, Catch::Matchers::WithinRel(ExpectedResult.x, Epsilon));
@@ -150,9 +59,9 @@ TEST_CASE("Quaternion operations - double", "[Math][Quaternion][Double]")
 
     SECTION("Quaternion normalization")
     {
-        const glm::dquat ExpectedResult = glm::normalize(_q1);
+        const glm::qua<TestType, glm::defaultp> ExpectedResult = glm::normalize(_q1);
 
-        const DQuaternion result = q1.Normalize();
+        const TQuaternion<TestType> result = q1.Normalize();
 
         CHECK_THAT(result.w, Catch::Matchers::WithinRel(ExpectedResult.w, Epsilon));
         CHECK_THAT(result.x, Catch::Matchers::WithinRel(ExpectedResult.x, Epsilon));
@@ -162,17 +71,17 @@ TEST_CASE("Quaternion operations - double", "[Math][Quaternion][Double]")
 
     SECTION("Quaternion dot product")
     {
-        const double ExpectedResult = glm::dot(_q1, _q2);
-        const double Result = q1.Dot(q2);
+        const TestType ExpectedResult = glm::dot(_q1, _q2);
+        const TestType Result = q1.Dot(q2);
 
         CHECK_THAT(Result, Catch::Matchers::WithinRel(ExpectedResult, Epsilon));
     }
 
     SECTION("Quaternion equality")
     {
-        const glm::dquat _q3 = _q2;
+        const glm::qua<TestType, glm::defaultp> _q3 = _q2;
 
-        const DQuaternion q3 = q2;
+        const TQuaternion<TestType> q3 = q2;
 
         REQUIRE(q3.w == _q3.w);
         REQUIRE(q3.x == _q3.x);
@@ -182,9 +91,9 @@ TEST_CASE("Quaternion operations - double", "[Math][Quaternion][Double]")
 
     SECTION("Quaternion rotation matrix")
     {
-        const glm::dmat4 ExpectedResult = glm::toMat4(_q1);
+        const glm::mat<4, 4, TestType> ExpectedResult = glm::toMat4(_q1);
 
-        const DMatrix4 Result = q1.GetRotationMatrix();
+        const TMatrix4<TestType> Result = q1.GetRotationMatrix();
 
         INFO("Quaternion: " << glm::to_string(_q1));
         INFO("Expected: " << glm::to_string(ExpectedResult));

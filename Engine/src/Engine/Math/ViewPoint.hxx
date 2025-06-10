@@ -100,11 +100,6 @@ public:
         return m_ViewMatrix;
     }
 
-    TMatrix4<T> GetViewProjectionMatrix()
-    {
-        return GetProjectionMatrix() * GetViewMatrix();
-    }
-
 private:
     void ComputeProjectionMatrix();
     void ComputeViewMatrix(const TTransform<T>& InTransform);

@@ -6,125 +6,143 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators_all.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-TEST_CASE("Degrees and Radians convertion")
+#include "Common.hxx"
+
+TEMPLATE_TEST_CASE("Degrees and Radians convertion", "[Math][DegreesRadians]", float, double)
 {
+    const TestType Epsilon = TEpsilon<TestType>::Value;
+
     SECTION("Degree to Radian")
     {
-        const float Value = GENERATE(take(10, random(-50.0f, 50.0f)));
-        const float Result = Math::DegreeToRadian(Value);
-        const float ExpectedResult = glm::radians(Value);
+        const TestType Value = GENERATE(take(10, random(-180.0f, 180.0f)));
+        const TestType Result = Math::DegreeToRadian(Value);
+        const TestType ExpectedResult = glm::radians(Value);
 
-        CHECK_THAT(Result, Catch::Matchers::WithinRel(ExpectedResult));
+        CHECK_THAT(Result, Catch::Matchers::WithinRel(ExpectedResult, Epsilon));
     }
 
     SECTION("Radian to Degree")
     {
-        const float Value = GENERATE(take(10, random(-50.0f, 50.0f)));
-        const float Result = Math::RadianToDegree(Value);
-        const float ExpectedResult = glm::degrees(Value);
+        const TestType Value = GENERATE(take(10, random(-1.0f, 1.0f)));
+        const TestType Result = Math::RadianToDegree(Value);
+        const TestType ExpectedResult = glm::degrees(Value);
 
-        CHECK_THAT(Result, Catch::Matchers::WithinRel(ExpectedResult));
+        CHECK_THAT(Result, Catch::Matchers::WithinRel(ExpectedResult, Epsilon));
     }
 }
 
-TEST_CASE("Dot product")
+TEMPLATE_TEST_CASE("Dot product", "[Math][DotProduct]", float, double)
 {
+    const TestType Epsilon = TEpsilon<TestType>::Value;
+
     SECTION("Dot product 2D")
     {
-        const glm::vec2 _v1{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f)))};
-        const glm::vec2 _v2{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f)))};
+        const glm::vec<2, TestType> _v1{GENERATE(take(1, random(-50.0f, 50.0f))),
+                                        GENERATE(take(1, random(-50.0f, 50.0f)))};
+        const glm::vec<2, TestType> _v2{GENERATE(take(1, random(-50.0f, 50.0f))),
+                                        GENERATE(take(1, random(-50.0f, 50.0f)))};
 
-        const FVector2 v1(_v1.x, _v1.y);
-        const FVector2 v2(_v2.x, _v2.y);
+        const TVector2<TestType> v1(_v1.x, _v1.y);
+        const TVector2<TestType> v2(_v2.x, _v2.y);
 
-        const float Result = Math::Dot(v1, v2);
-        const float ExpectedResult = glm::dot(_v1, _v2);
+        const TestType Result = Math::Dot(v1, v2);
+        const TestType ExpectedResult = glm::dot(_v1, _v2);
 
-        CHECK_THAT(Result, Catch::Matchers::WithinRel(ExpectedResult));
+        CHECK_THAT(Result, Catch::Matchers::WithinRel(ExpectedResult, Epsilon));
     }
 
-    SECTION("Dot product 3D")
+    SECTION("Dot product 3D", "[Math][DotProduct][3D]")
     {
-        const glm::vec3 _v1{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
-                            GENERATE(take(1, random(-50.0f, 50.0f)))};
-        const glm::vec3 _v2{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
-                            GENERATE(take(1, random(-50.0f, 50.0f)))};
+        const glm::vec<3, TestType> _v1{GENERATE(take(1, random(-50.0f, 50.0f))),
+                                        GENERATE(take(1, random(-50.0f, 50.0f))),
+                                        GENERATE(take(1, random(-50.0f, 50.0f)))};
+        const glm::vec<3, TestType> _v2{GENERATE(take(1, random(-50.0f, 50.0f))),
+                                        GENERATE(take(1, random(-50.0f, 50.0f))),
+                                        GENERATE(take(1, random(-50.0f, 50.0f)))};
 
-        const FVector3 v1(_v1.x, _v1.y, _v1.z);
-        const FVector3 v2(_v2.x, _v2.y, _v2.z);
+        const TVector3<TestType> v1(_v1.x, _v1.y, _v1.z);
+        const TVector3<TestType> v2(_v2.x, _v2.y, _v2.z);
 
-        const float Result = Math::Dot(v1, v2);
-        const float ExpectedResult = glm::dot(_v1, _v2);
+        const TestType Result = Math::Dot(v1, v2);
+        const TestType ExpectedResult = glm::dot(_v1, _v2);
 
-        CHECK_THAT(Result, Catch::Matchers::WithinRel(ExpectedResult));
+        CHECK_THAT(Result, Catch::Matchers::WithinRel(ExpectedResult, Epsilon));
     }
 }
 
-TEST_CASE("Normalize")
+TEMPLATE_TEST_CASE("Normalize", "[Math][Normalize]", float, double)
 {
+    const TestType Epsilon = TEpsilon<TestType>::Value;
+
     SECTION("Normalize 2D")
     {
-        const glm::vec2 _v1{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f)))};
+        const glm::vec<2, TestType> _v1{GENERATE(take(1, random(-50.0f, 50.0f))),
+                                        GENERATE(take(1, random(-50.0f, 50.0f)))};
 
-        const FVector2 v1(_v1.x, _v1.y);
+        const TVector2<TestType> v1(_v1.x, _v1.y);
 
-        const FVector2 Result = Math::Normalize(v1);
-        const glm::vec2 ExpectedResult = glm::normalize(_v1);
+        const TVector2<TestType> Result = Math::Normalize(v1);
+        const glm::vec<2, TestType> ExpectedResult = glm::normalize(_v1);
 
-        CHECK_THAT(Result.x, Catch::Matchers::WithinRel(ExpectedResult.x));
-        CHECK_THAT(Result.y, Catch::Matchers::WithinRel(ExpectedResult.y));
+        CHECK_THAT(Result.x, Catch::Matchers::WithinRel(ExpectedResult.x, Epsilon));
+        CHECK_THAT(Result.y, Catch::Matchers::WithinRel(ExpectedResult.y, Epsilon));
     }
 
     SECTION("Normalize 3D")
     {
-        const glm::vec3 _v1{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
-                            GENERATE(take(1, random(-50.0f, 50.0f)))};
+        const glm::vec<3, TestType> _v1{GENERATE(take(1, random(-50.0f, 50.0f))),
+                                        GENERATE(take(1, random(-50.0f, 50.0f))),
+                                        GENERATE(take(1, random(-50.0f, 50.0f)))};
 
-        const FVector3 v1(_v1.x, _v1.y, _v1.z);
+        const TVector3<TestType> v1(_v1.x, _v1.y, _v1.z);
 
-        const FVector3 Result = Math::Normalize(v1);
-        const glm::vec3 ExpectedResult = glm::normalize(_v1);
+        const TVector3<TestType> Result = Math::Normalize(v1);
+        const glm::vec<3, TestType> ExpectedResult = glm::normalize(_v1);
 
-        CHECK_THAT(Result.x, Catch::Matchers::WithinRel(ExpectedResult.x));
-        CHECK_THAT(Result.y, Catch::Matchers::WithinRel(ExpectedResult.y));
-        CHECK_THAT(Result.z, Catch::Matchers::WithinRel(ExpectedResult.z));
+        CHECK_THAT(Result.x, Catch::Matchers::WithinRel(ExpectedResult.x, Epsilon));
+        CHECK_THAT(Result.y, Catch::Matchers::WithinRel(ExpectedResult.y, Epsilon));
+        CHECK_THAT(Result.z, Catch::Matchers::WithinRel(ExpectedResult.z, Epsilon));
     }
 
     SECTION("Normalize 4D")
     {
-        const glm::vec4 _v1{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
-                            GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f)))};
+        const glm::vec<4, TestType> _v1{
+            GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
+            GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f)))};
 
-        const FVector4 v1(_v1.x, _v1.y, _v1.z, _v1.w);
+        const TVector4<TestType> v1(_v1.x, _v1.y, _v1.z, _v1.w);
 
-        const FVector4 Result = Math::Normalize(v1);
-        const glm::vec4 ExpectedResult = glm::normalize(_v1);
+        const TVector4<TestType> Result = Math::Normalize(v1);
+        const glm::vec<4, TestType> ExpectedResult = glm::normalize(_v1);
 
-        CHECK_THAT(Result.x, Catch::Matchers::WithinRel(ExpectedResult.x));
-        CHECK_THAT(Result.y, Catch::Matchers::WithinRel(ExpectedResult.y));
-        CHECK_THAT(Result.z, Catch::Matchers::WithinRel(ExpectedResult.z));
-        CHECK_THAT(Result.w, Catch::Matchers::WithinRel(ExpectedResult.w));
+        CHECK_THAT(Result.x, Catch::Matchers::WithinRel(ExpectedResult.x, Epsilon));
+        CHECK_THAT(Result.y, Catch::Matchers::WithinRel(ExpectedResult.y, Epsilon));
+        CHECK_THAT(Result.z, Catch::Matchers::WithinRel(ExpectedResult.z, Epsilon));
+        CHECK_THAT(Result.w, Catch::Matchers::WithinRel(ExpectedResult.w, Epsilon));
     }
 }
 
-TEST_CASE("Cross product")
+TEMPLATE_TEST_CASE("Cross product", "[Math][CrossProduct]", float, double)
 {
-    const glm::vec3 _v1{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
-                        GENERATE(take(1, random(-50.0f, 50.0f)))};
-    const glm::vec3 _v2{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
-                        GENERATE(take(1, random(-50.0f, 50.0f)))};
+    const TestType Epsilon = TEpsilon<TestType>::Value;
 
-    const FVector3 v1(_v1.x, _v1.y, _v1.z);
-    const FVector3 v2(_v2.x, _v2.y, _v2.z);
+    const glm::vec<3, TestType> _v1{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
+                                    GENERATE(take(1, random(-50.0f, 50.0f)))};
+    const glm::vec<3, TestType> _v2{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
+                                    GENERATE(take(1, random(-50.0f, 50.0f)))};
 
-    const FVector3 Result = Math::Cross(v1, v2);
-    const glm::vec3 ExpectedResult = glm::cross(_v1, _v2);
+    const TVector3<TestType> v1(_v1.x, _v1.y, _v1.z);
+    const TVector3<TestType> v2(_v2.x, _v2.y, _v2.z);
 
-    CHECK_THAT(Result.x, Catch::Matchers::WithinRel(ExpectedResult.x));
-    CHECK_THAT(Result.y, Catch::Matchers::WithinRel(ExpectedResult.y));
-    CHECK_THAT(Result.z, Catch::Matchers::WithinRel(ExpectedResult.z));
+    const TVector3<TestType> Result = Math::Cross(v1, v2);
+    const glm::vec<3, TestType> ExpectedResult = glm::cross(_v1, _v2);
+
+    CHECK_THAT(Result.x, Catch::Matchers::WithinRel(ExpectedResult.x, Epsilon));
+    CHECK_THAT(Result.y, Catch::Matchers::WithinRel(ExpectedResult.y, Epsilon));
+    CHECK_THAT(Result.z, Catch::Matchers::WithinRel(ExpectedResult.z, Epsilon));
 }

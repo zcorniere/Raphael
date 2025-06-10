@@ -16,13 +16,13 @@ constexpr static FVector3 RightVector = {0, 1, 0};
 template <typename T>
 constexpr T DegreeToRadian(T Degree)
 {
-    return Degree * (T(std::numbers::pi_v<double>) / T(180));
+    return Degree * (std::numbers::pi_v<T> / T(180));
 }
 
 template <typename T>
 constexpr T RadianToDegree(T Radian)
 {
-    return Radian * (T(180) / T(std::numbers::pi_v<double>));
+    return Radian * (T(180) / std::numbers::pi_v<T>);
 }
 
 template <typename T, unsigned Size>
