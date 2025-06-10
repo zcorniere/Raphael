@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Run ctest before pushing. Abort push if tests fail.
+
+echo "Running ctest before push..."
+
+# You may want to change the build directory if it's not ./build
+BUILD_DIR="./build"
+
+if [ ! -d "$BUILD_DIR" ]; then
+    echo "Build directory '$BUILD_DIR' does not exist."
+    echo "Please build your project before pushing."
+    exit 1
+fi
+
+cd "$BUILD_DIR" || exit 1
+
+ctest -j --output-on-failure
+CTEST_STATUS=$?
+
+if [ $CTEST_STATUS -ne 0 ]; then
+    echo "ctest failed. Aborting push."
+    exit 1
+else
+    echo "All tests passed! Proceeding with push."
+fi
+
+exit 0
