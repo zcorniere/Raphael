@@ -20,6 +20,12 @@ FEngine::FEngine()
     LOG(LogEngine, Trace, "Making sure the math still make sense: {} == {}", Math::RightVector,
         Math::Cross(Math::UpVector, Math::FrontVector));
     check(Math::RightVector == Math::Cross(Math::UpVector, Math::FrontVector));
+
+    const FCPUInformation &CPUInfo = FPlatformMisc::GetCPUInformation();
+    LOG(LogEngine, Info, "Running on {:s} ({:s})", CPUInfo.Vendor, CPUInfo.Brand);
+    LOG(LogEngine, Info, "CPU features: ");
+    LOG(LogEngine, Info, "- AVX2 is {}available", CPUInfo.AVX2 ? "" : "not ");
+    LOG(LogEngine, Info, "- AVX512 is {}available", CPUInfo.AVX512 ? "" : "not ");
 }
 
 FEngine::~FEngine()
