@@ -50,32 +50,20 @@ std::uint32_t FThreadPool::WorkerPoolRuntime::Run()
 
     while (!b_requestExit)
     {
-        try
         {
-            {
-                std::unique_lock lock(p_state->q_mutex);
-                if (p_state->qWork.empty())
-                    p_state->q_var.wait_for(lock, 10ms);
-                /// lock is owned by this thread when .wait return
+            std::unique_lock lock(p_state->q_mutex);
+            if (p_state->qWork.empty())
+                p_state->q_var.wait_for(lock, 10ms);
+            /// lock is owned by this thread when .wait return
 
-                if (p_state->qWork.empty())
-                    continue;
+            if (p_state->qWork.empty())
+                continue;
 
-                work = std::move(p_state->qWork.front());
-                p_state->qWork.pop();
-            }
-            if (work)
-                work(i_threadID);
+            work = std::move(p_state->qWork.front());
+            p_state->qWork.pop();
         }
-        catch (const std::exception& e)
-        {
-            LOG(LogWorkerThreadRuntime, Fatal, "{} : {}", i_threadID, e.what());
-        }
-        catch (...)
-        {
-            LOG(LogWorkerThreadRuntime, Fatal, "Unknown error on thread {}", i_threadID);
-            return 1;
-        }
+        if (work)
+            work(i_threadID);
     }
     return 0;
 }

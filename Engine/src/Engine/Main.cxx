@@ -16,7 +16,6 @@ DECLARE_LOGGER_CATEGORY(Core, LogEngine, Info)
 extern "C" IApplication* GetApplication();
 
 FORCEINLINE int EngineLoop()
-try
 {
     GEngine = new FEngine;
 
@@ -82,16 +81,6 @@ try
     delete GEngine;
 
     return ExitStatus;
-}
-catch (const std::exception& e)
-{
-    LOG(LogEngine, Error, "EngineLoop exception: {:s}", e.what());
-    return -1;
-}
-catch (...)
-{
-    LOG(LogEngine, Error, "EngineLoop unknown exception");
-    return -1;
 }
 
 #ifdef PLATFORM_WINDOWS

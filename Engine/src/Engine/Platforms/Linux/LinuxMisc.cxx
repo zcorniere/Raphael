@@ -11,6 +11,8 @@
 #include <cpuid.h>
 #include <dlfcn.h>
 #include <filesystem>
+
+#define XDG_NO_EXCEPTION
 #include <xdg.hpp>
 
 EBoxReturnType FLinuxMisc::DisplayMessageBox(EBoxMessageType MsgType, const std::string Title, const std::string Text)

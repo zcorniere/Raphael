@@ -1,4 +1,4 @@
-set(CMAKE_FOLDER  "Raphael/RHI/Vulkan/External")
+set(CMAKE_FOLDER "Raphael/RHI/Vulkan/External")
 
 # Vulkan Header
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Vulkan-Headers EXCLUDE_FROM_ALL)
@@ -9,7 +9,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Vulkan-Utility-Libraries EXCLUDE_FR
 # vma
 set(VMA_STATIC_VULKAN_FUNCTIONS
     OFF
-    CACHE BOOL ""  FORCE
+    CACHE BOOL "" FORCE
 )
 set(VMA_DYNAMIC_VULKAN_FUNCTIONS
     OFF
@@ -27,7 +27,6 @@ target_compile_definitions(
 target_include_directories(VulkanMemoryAllocator PUBLIC ${VMA_PATH}/include)
 set_target_properties(VulkanMemoryAllocator PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(VulkanMemoryAllocator PUBLIC Vulkan::Headers)
-
 
 # SPIRV-Headers
 set(SPIRV_HEADERS_SKIP_EXAMPLES
@@ -102,7 +101,6 @@ set(ENABLE_GLSLANG_BINARIES
 )
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glslang/ EXCLUDE_FROM_ALL)
 
-
 # shaderc
 set(SHADERC_SKIP_TESTS
     ON
@@ -127,6 +125,10 @@ set(SHADERC_ENABLE_SHARED_CRT
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/shaderc EXCLUDE_FROM_ALL)
 
 # SPIRV-Cross
+set(SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
+    ON
+    CACHE BOOL "" FORCE
+)
 set(SPIRV_CROSS_ENABLE_TESTS
     OFF
     CACHE BOOL "" FORCE
@@ -164,4 +166,3 @@ set(SPIRV_CROSS_ENABLE_UTIL
     CACHE BOOL "" FORCE
 )
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SPIRV-Cross EXCLUDE_FROM_ALL)
-

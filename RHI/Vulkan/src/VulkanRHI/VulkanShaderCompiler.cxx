@@ -7,6 +7,7 @@
 
 #include "VulkanShaderCompiler.hxx"
 
+#define SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
 #include <shaderc/shaderc.hpp>
 #include <spirv_cross.hpp>
 
@@ -190,7 +191,6 @@ void FVulkanShaderCompiler::SetOptimizationLevel(EOptimizationLevel InLevel)
 }
 
 Ref<RVulkanShader> FVulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile, bool bUnitTesting)
-try
 {
     RPH_PROFILE_FUNC()
 
@@ -237,12 +237,6 @@ try
     }
     return ShaderUnit;
 }
-catch (const spirv_cross::CompilerError& exception)
-{
-    LOG(LogVulkanShaderCompiler, Error, "Error during compilation of shader {}: {}", Path.filename().string(),
-        exception.what());
-    return nullptr;
-};
 
 Ref<RVulkanShader> FVulkanShaderCompiler::CheckCache(ShaderCompileResult& Result)
 {
