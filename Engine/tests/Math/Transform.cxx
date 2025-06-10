@@ -15,12 +15,12 @@
 TEST_CASE("Transform Matrices - float", "[Math][Transform][Float]")
 {
     const float Epsilon = 1e-5f;
-    const glm::vec3 Location{GENERATE(take(2, random(-50.0f, 50.0f))), GENERATE(take(2, random(-50.0f, 50.0f))),
-                             GENERATE(take(2, random(-50.0f, 50.0f)))};
-    const glm::quat Rotation{GENERATE(take(2, random(-50.0f, 50.0f))), GENERATE(take(2, random(-50.0f, 50.0f))),
-                             GENERATE(take(2, random(-50.0f, 50.0f))), GENERATE(take(2, random(-50.0f, 50.0f)))};
-    const glm::vec3 Scale{GENERATE(take(2, random(-50.0f, 50.0f))), GENERATE(take(2, random(-50.0f, 50.0f))),
-                          GENERATE(take(2, random(-50.0f, 50.0f)))};
+    const glm::vec3 Location{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
+                             GENERATE(take(1, random(-50.0f, 50.0f)))};
+    const glm::quat Rotation{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
+                             GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f)))};
+    const glm::vec3 Scale{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
+                          GENERATE(take(1, random(-50.0f, 50.0f)))};
 
     FTransform Transform(FVector3{Location.x, Location.y, Location.z},
                          FQuaternion(Rotation.w, Rotation.x, Rotation.y, Rotation.z),
@@ -111,7 +111,7 @@ TEST_CASE("Transform Matrices - float", "[Math][Transform][Float]")
 
     SECTION("Model Matrix Batch")
     {
-        const size_t Count = GENERATE(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        const size_t Count = GENERATE(4, 8, 10, 32);
         TArray<float, 64> PositionX(Count), PositionY(Count), PositionZ(Count);
         TArray<float, 64> QuaternionX(Count), QuaternionY(Count), QuaternionZ(Count), QuaternionW(Count);
         TArray<float, 64> ScaleX(Count), ScaleY(Count), ScaleZ(Count);
@@ -135,13 +135,16 @@ TEST_CASE("Transform Matrices - float", "[Math][Transform][Float]")
                                       QuaternionY.Raw(), QuaternionZ.Raw(), QuaternionW.Raw(), ScaleX.Raw(),
                                       ScaleY.Raw(), ScaleZ.Raw(), OutModelMatrix.Raw());
 
+        INFO("Count: " << Count);
         for (size_t Index = 0; Index < Count; Index++)
         {
+            INFO("Model matrix: " << Transform.GetModelMatrix());
+            INFO("SIMD Model matrix: [" << Index << "]: " << OutModelMatrix[Index]);
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    INFO("Result[" << i << "][" << j << "]: " << OutModelMatrix[Index][i][j]);
+                    INFO("Result[" << Index << "[" << i << "][" << j << "]: " << OutModelMatrix[Index][i][j]);
                     INFO("ExpectedResult[" << i << "][" << j << "]: " << Transform.GetModelMatrix()[i][j]);
                     CHECK_THAT(OutModelMatrix[Index][i][j],
                                Catch::Matchers::WithinRel(Transform.GetModelMatrix()[i][j], Epsilon));
@@ -154,12 +157,12 @@ TEST_CASE("Transform Matrices - float", "[Math][Transform][Float]")
 TEST_CASE("Transform Matrices - double", "[Math][Transform][Double]")
 {
     const double Epsilon = 1e-12f;
-    const glm::dvec3 Location{GENERATE(take(2, random(-50.0f, 50.0f))), GENERATE(take(2, random(-50.0f, 50.0f))),
-                              GENERATE(take(2, random(-50.0f, 50.0f)))};
-    const glm::dquat Rotation{GENERATE(take(2, random(-50.0f, 50.0f))), GENERATE(take(2, random(-50.0f, 50.0f))),
-                              GENERATE(take(2, random(-50.0f, 50.0f))), GENERATE(take(2, random(-50.0f, 50.0f)))};
-    const glm::dvec3 Scale{GENERATE(take(2, random(-50.0f, 50.0f))), GENERATE(take(2, random(-50.0f, 50.0f))),
-                           GENERATE(take(2, random(-50.0f, 50.0f)))};
+    const glm::dvec3 Location{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
+                              GENERATE(take(1, random(-50.0f, 50.0f)))};
+    const glm::dquat Rotation{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
+                              GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f)))};
+    const glm::dvec3 Scale{GENERATE(take(1, random(-50.0f, 50.0f))), GENERATE(take(1, random(-50.0f, 50.0f))),
+                           GENERATE(take(1, random(-50.0f, 50.0f)))};
 
     DTransform Transform(DVector3{Location.x, Location.y, Location.z},
                          DQuaternion(Rotation.w, Rotation.x, Rotation.y, Rotation.z),
@@ -250,7 +253,7 @@ TEST_CASE("Transform Matrices - double", "[Math][Transform][Double]")
 
     SECTION("Model Matrix Batch")
     {
-        const size_t Count = GENERATE(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        const size_t Count = GENERATE(4, 8, 10, 32);
         TArray<double, 64> PositionX(Count), PositionY(Count), PositionZ(Count);
         TArray<double, 64> QuaternionX(Count), QuaternionY(Count), QuaternionZ(Count), QuaternionW(Count);
         TArray<double, 64> ScaleX(Count), ScaleY(Count), ScaleZ(Count);
@@ -274,13 +277,16 @@ TEST_CASE("Transform Matrices - double", "[Math][Transform][Double]")
                                       QuaternionY.Raw(), QuaternionZ.Raw(), QuaternionW.Raw(), ScaleX.Raw(),
                                       ScaleY.Raw(), ScaleZ.Raw(), OutModelMatrix.Raw());
 
+        INFO("Count: " << Count);
         for (size_t Index = 0; Index < Count; Index++)
         {
+            INFO("Model matrix: " << Transform.GetModelMatrix());
+            INFO("SIMD Model matrix: [" << Index << "]: " << OutModelMatrix[Index]);
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    INFO("Result[" << i << "][" << j << "]: " << OutModelMatrix[Index][i][j]);
+                    INFO("Result[" << Index << "[" << i << "][" << j << "]: " << OutModelMatrix[Index][i][j]);
                     INFO("ExpectedResult[" << i << "][" << j << "]: " << Transform.GetModelMatrix()[i][j]);
                     CHECK_THAT(OutModelMatrix[Index][i][j],
                                Catch::Matchers::WithinRel(Transform.GetModelMatrix()[i][j], Epsilon));

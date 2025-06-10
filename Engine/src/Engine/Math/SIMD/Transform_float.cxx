@@ -52,13 +52,13 @@ size_t ComputeModelMatrixBatch_AVX2(size_t Count, const float* RESTRICT Position
 
         // Apply scale
         m00 = _mm256_mul_ps(m00, SX);
-        m01 = _mm256_mul_ps(m01, SY);
-        m02 = _mm256_mul_ps(m02, SZ);
-        m10 = _mm256_mul_ps(m10, SX);
+        m01 = _mm256_mul_ps(m01, SX);
+        m02 = _mm256_mul_ps(m02, SX);
+        m10 = _mm256_mul_ps(m10, SY);
         m11 = _mm256_mul_ps(m11, SY);
-        m12 = _mm256_mul_ps(m12, SZ);
-        m20 = _mm256_mul_ps(m20, SX);
-        m21 = _mm256_mul_ps(m21, SY);
+        m12 = _mm256_mul_ps(m12, SY);
+        m20 = _mm256_mul_ps(m20, SZ);
+        m21 = _mm256_mul_ps(m21, SZ);
         m22 = _mm256_mul_ps(m22, SZ);
 
         // Store each matrix (row-major, 4x4)
@@ -136,13 +136,13 @@ size_t ComputeModelMatrixBatch_AVX512(size_t Count, const float* RESTRICT Positi
 
         // Apply scale
         m00 = _mm512_mul_ps(m00, SX);
-        m01 = _mm512_mul_ps(m01, SY);
-        m02 = _mm512_mul_ps(m02, SZ);
-        m10 = _mm512_mul_ps(m10, SX);
+        m01 = _mm512_mul_ps(m01, SX);
+        m02 = _mm512_mul_ps(m02, SX);
+        m10 = _mm512_mul_ps(m10, SY);
         m11 = _mm512_mul_ps(m11, SY);
-        m12 = _mm512_mul_ps(m12, SZ);
-        m20 = _mm512_mul_ps(m20, SX);
-        m21 = _mm512_mul_ps(m21, SY);
+        m12 = _mm512_mul_ps(m12, SY);
+        m20 = _mm512_mul_ps(m20, SZ);
+        m21 = _mm512_mul_ps(m21, SZ);
         m22 = _mm512_mul_ps(m22, SZ);
 
         // Store each matrix (row-major, 4x4)
