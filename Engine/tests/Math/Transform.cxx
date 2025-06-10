@@ -12,6 +12,38 @@
 #include <catch2/generators/catch_generators_all.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
+template <typename T>
+void PrepareModelMatrixBatch(const size_t Count, const TTransform<T> Source, TArray<T, 64>& PositionX,
+                             TArray<T, 64>& PositionY, TArray<T, 64>& PositionZ, TArray<T, 64>& QuaternionX,
+                             TArray<T, 64>& QuaternionY, TArray<T, 64>& QuaternionZ, TArray<T, 64>& QuaternionW,
+                             TArray<T, 64>& ScaleX, TArray<T, 64>& ScaleY, TArray<T, 64>& ScaleZ)
+{
+    PositionX.Resize(Count);
+    PositionY.Resize(Count);
+    PositionZ.Resize(Count);
+    QuaternionX.Resize(Count);
+    QuaternionY.Resize(Count);
+    QuaternionZ.Resize(Count);
+    QuaternionW.Resize(Count);
+    ScaleX.Resize(Count);
+    ScaleY.Resize(Count);
+    ScaleZ.Resize(Count);
+
+    for (size_t i = 0; i < Count; ++i)
+    {
+        PositionX[i] = Source.GetLocation().x;
+        PositionY[i] = Source.GetLocation().y;
+        PositionZ[i] = Source.GetLocation().z;
+        QuaternionX[i] = Source.GetRotation().x;
+        QuaternionY[i] = Source.GetRotation().y;
+        QuaternionZ[i] = Source.GetRotation().z;
+        QuaternionW[i] = Source.GetRotation().w;
+        ScaleX[i] = Source.GetScale().x;
+        ScaleY[i] = Source.GetScale().y;
+        ScaleZ[i] = Source.GetScale().z;
+    }
+}
+
 TEST_CASE("Transform Matrices - float", "[Math][Transform][Float]")
 {
     const float Epsilon = 1e-5f;
@@ -109,34 +141,76 @@ TEST_CASE("Transform Matrices - float", "[Math][Transform][Float]")
         }
     }
 
-    SECTION("Model Matrix Batch")
+    SECTION("Model Matrix Batch - AVX2")
     {
-        const size_t Count = GENERATE(4, 8, 10, 32);
-        TArray<float, 64> PositionX(Count), PositionY(Count), PositionZ(Count);
-        TArray<float, 64> QuaternionX(Count), QuaternionY(Count), QuaternionZ(Count), QuaternionW(Count);
-        TArray<float, 64> ScaleX(Count), ScaleY(Count), ScaleZ(Count);
-        TArray<FMatrix4, 64> OutModelMatrix(Count);
-
-        for (size_t i = 0; i < Count; ++i)
+        if (!FPlatformMisc::GetCPUInformation().AVX2)
         {
-            PositionX[i] = Location.x;
-            PositionY[i] = Location.y;
-            PositionZ[i] = Location.z;
-            QuaternionX[i] = Rotation.x;
-            QuaternionY[i] = Rotation.y;
-            QuaternionZ[i] = Rotation.z;
-            QuaternionW[i] = Rotation.w;
-            ScaleX[i] = Scale.x;
-            ScaleY[i] = Scale.y;
-            ScaleZ[i] = Scale.z;
+            SKIP("AVX2 is not supported on this CPU");
         }
 
-        Math::ComputeModelMatrixBatch(Count, PositionX.Raw(), PositionY.Raw(), PositionZ.Raw(), QuaternionX.Raw(),
-                                      QuaternionY.Raw(), QuaternionZ.Raw(), QuaternionW.Raw(), ScaleX.Raw(),
-                                      ScaleY.Raw(), ScaleZ.Raw(), OutModelMatrix.Raw());
+        const size_t Count = GENERATE(8, 16, 32);
+        TArray<float, 64> PositionX, PositionY, PositionZ;
+        TArray<float, 64> QuaternionX, QuaternionY, QuaternionZ, QuaternionW;
+        TArray<float, 64> ScaleX, ScaleY, ScaleZ;
+        TArray<FMatrix4, 64> OutModelMatrix(Count);
+
+        PrepareModelMatrixBatch(Count, Transform, PositionX, PositionY, PositionZ, QuaternionX, QuaternionY,
+                                QuaternionZ, QuaternionW, ScaleX, ScaleY, ScaleZ);
+
+        int WorkedCount = Math::ComputeModelMatrixBatch_AVX2(
+            Count, PositionX.Raw(), PositionY.Raw(), PositionZ.Raw(), QuaternionX.Raw(), QuaternionY.Raw(),
+            QuaternionZ.Raw(), QuaternionW.Raw(), ScaleX.Raw(), ScaleY.Raw(), ScaleZ.Raw(),
+            reinterpret_cast<float*>(OutModelMatrix.Raw()));
+        REQUIRE(WorkedCount == Count);
 
         INFO("Count: " << Count);
-        for (size_t Index = 0; Index < Count; Index++)
+        for (size_t Index = 0; Index < WorkedCount; Index++)
+        {
+            INFO("Model matrix: " << Transform.GetModelMatrix());
+            INFO("SIMD Model matrix: [" << Index << "]: " << OutModelMatrix[Index]);
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    INFO("Result[" << Index << "[" << i << "][" << j << "]: " << OutModelMatrix[Index][i][j]);
+                    INFO("ExpectedResult[" << i << "][" << j << "]: " << Transform.GetModelMatrix()[i][j]);
+                    CHECK_THAT(OutModelMatrix[Index][i][j],
+                               Catch::Matchers::WithinRel(Transform.GetModelMatrix()[i][j], Epsilon));
+                }
+            }
+        }
+    }
+    SECTION("Model Matrix Batch - AVX512")
+    {
+        if (!FPlatformMisc::GetCPUInformation().AVX512)
+        {
+            SKIP("AVX512 is not supported on this CPU");
+        }
+
+        const size_t Count = GENERATE(8, 16, 32);
+        TArray<float, 64> PositionX, PositionY, PositionZ;
+        TArray<float, 64> QuaternionX, QuaternionY, QuaternionZ, QuaternionW;
+        TArray<float, 64> ScaleX, ScaleY, ScaleZ;
+        TArray<FMatrix4, 64> OutModelMatrix(Count);
+
+        PrepareModelMatrixBatch(Count, Transform, PositionX, PositionY, PositionZ, QuaternionX, QuaternionY,
+                                QuaternionZ, QuaternionW, ScaleX, ScaleY, ScaleZ);
+
+        int WorkedCount = Math::ComputeModelMatrixBatch_AVX512(
+            Count, PositionX.Raw(), PositionY.Raw(), PositionZ.Raw(), QuaternionX.Raw(), QuaternionY.Raw(),
+            QuaternionZ.Raw(), QuaternionW.Raw(), ScaleX.Raw(), ScaleY.Raw(), ScaleZ.Raw(),
+            reinterpret_cast<float*>(OutModelMatrix.Raw()));
+        if (Count == 8)
+        {
+            REQUIRE(WorkedCount == 0);    // AVX512 float should refuse 8 elements
+        }
+        else
+        {
+            REQUIRE(WorkedCount == Count);
+        }
+
+        INFO("Count: " << Count);
+        for (size_t Index = 0; Index < WorkedCount; Index++)
         {
             INFO("Model matrix: " << Transform.GetModelMatrix());
             INFO("SIMD Model matrix: [" << Index << "]: " << OutModelMatrix[Index]);
@@ -251,34 +325,70 @@ TEST_CASE("Transform Matrices - double", "[Math][Transform][Double]")
         }
     }
 
-    SECTION("Model Matrix Batch")
+    SECTION("Model Matrix Batch - AVX2")
     {
-        const size_t Count = GENERATE(4, 8, 10, 32);
-        TArray<double, 64> PositionX(Count), PositionY(Count), PositionZ(Count);
-        TArray<double, 64> QuaternionX(Count), QuaternionY(Count), QuaternionZ(Count), QuaternionW(Count);
-        TArray<double, 64> ScaleX(Count), ScaleY(Count), ScaleZ(Count);
-        TArray<DMatrix4, 64> OutModelMatrix(Count);
-
-        for (size_t i = 0; i < Count; ++i)
+        if (!FPlatformMisc::GetCPUInformation().AVX2)
         {
-            PositionX[i] = Location.x;
-            PositionY[i] = Location.y;
-            PositionZ[i] = Location.z;
-            QuaternionX[i] = Rotation.x;
-            QuaternionY[i] = Rotation.y;
-            QuaternionZ[i] = Rotation.z;
-            QuaternionW[i] = Rotation.w;
-            ScaleX[i] = Scale.x;
-            ScaleY[i] = Scale.y;
-            ScaleZ[i] = Scale.z;
+            SKIP("AVX2 is not supported on this CPU");
         }
 
-        Math::ComputeModelMatrixBatch(Count, PositionX.Raw(), PositionY.Raw(), PositionZ.Raw(), QuaternionX.Raw(),
-                                      QuaternionY.Raw(), QuaternionZ.Raw(), QuaternionW.Raw(), ScaleX.Raw(),
-                                      ScaleY.Raw(), ScaleZ.Raw(), OutModelMatrix.Raw());
+        const size_t Count = GENERATE(8, 16, 32);
+        TArray<double, 64> PositionX, PositionY, PositionZ;
+        TArray<double, 64> QuaternionX, QuaternionY, QuaternionZ, QuaternionW;
+        TArray<double, 64> ScaleX, ScaleY, ScaleZ;
+        TArray<DMatrix4, 64> OutModelMatrix(Count);
+
+        PrepareModelMatrixBatch(Count, Transform, PositionX, PositionY, PositionZ, QuaternionX, QuaternionY,
+                                QuaternionZ, QuaternionW, ScaleX, ScaleY, ScaleZ);
+
+        int WorkedCount = Math::ComputeModelMatrixBatch_AVX2(
+            Count, PositionX.Raw(), PositionY.Raw(), PositionZ.Raw(), QuaternionX.Raw(), QuaternionY.Raw(),
+            QuaternionZ.Raw(), QuaternionW.Raw(), ScaleX.Raw(), ScaleY.Raw(), ScaleZ.Raw(),
+            reinterpret_cast<double*>(OutModelMatrix.Raw()));
+        REQUIRE(WorkedCount == Count);
 
         INFO("Count: " << Count);
-        for (size_t Index = 0; Index < Count; Index++)
+        for (size_t Index = 0; Index < WorkedCount; Index++)
+        {
+            INFO("Model matrix: " << Transform.GetModelMatrix());
+            INFO("SIMD Model matrix: [" << Index << "]: " << OutModelMatrix[Index]);
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    INFO("Result[" << Index << "[" << i << "][" << j << "]: " << OutModelMatrix[Index][i][j]);
+                    INFO("ExpectedResult[" << i << "][" << j << "]: " << Transform.GetModelMatrix()[i][j]);
+                    CHECK_THAT(OutModelMatrix[Index][i][j],
+                               Catch::Matchers::WithinRel(Transform.GetModelMatrix()[i][j], Epsilon));
+                }
+            }
+        }
+    }
+
+    SECTION("Model Matrix Batch - AVX512")
+    {
+        if (!FPlatformMisc::GetCPUInformation().AVX512)
+        {
+            SKIP("AVX512 is not supported on this CPU");
+        }
+
+        const size_t Count = GENERATE(8, 16, 32);
+        TArray<double, 64> PositionX, PositionY, PositionZ;
+        TArray<double, 64> QuaternionX, QuaternionY, QuaternionZ, QuaternionW;
+        TArray<double, 64> ScaleX, ScaleY, ScaleZ;
+        TArray<DMatrix4, 64> OutModelMatrix(Count);
+
+        PrepareModelMatrixBatch(Count, Transform, PositionX, PositionY, PositionZ, QuaternionX, QuaternionY,
+                                QuaternionZ, QuaternionW, ScaleX, ScaleY, ScaleZ);
+
+        int WorkedCount = Math::ComputeModelMatrixBatch_AVX512(
+            Count, PositionX.Raw(), PositionY.Raw(), PositionZ.Raw(), QuaternionX.Raw(), QuaternionY.Raw(),
+            QuaternionZ.Raw(), QuaternionW.Raw(), ScaleX.Raw(), ScaleY.Raw(), ScaleZ.Raw(),
+            reinterpret_cast<double*>(OutModelMatrix.Raw()));
+        REQUIRE(WorkedCount == Count);
+
+        INFO("Count: " << Count);
+        for (size_t Index = 0; Index < WorkedCount; Index++)
         {
             INFO("Model matrix: " << Transform.GetModelMatrix());
             INFO("SIMD Model matrix: [" << Index << "]: " << OutModelMatrix[Index]);
