@@ -1,8 +1,5 @@
 #include "VulkanRHI/VulkanRHI.hxx"
 
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_vulkan.h>
-
 #include "Engine/Misc/Utils.hxx"
 
 #include "Engine/Platforms/PlatformMisc.hxx"
@@ -111,30 +108,6 @@ void FVulkanDynamicRHI::Init()
 
 void FVulkanDynamicRHI::PostInit()
 {
-    VkFormat DefaultFormat = VK_FORMAT_B8G8R8A8_UNORM;
-    ImGui_ImplVulkan_InitInfo InitInfo{
-        .Instance = m_Instance,
-        .PhysicalDevice = Device->GetPhysicalHandle(),
-        .Device = Device->GetHandle(),
-        .QueueFamily = Device->GetGraphicsQueue()->GetFamilyIndex(),
-        .Queue = Device->GetGraphicsQueue()->GetHandle(),
-        .MinImageCount = 2,
-        .ImageCount = 2,
-        .UseDynamicRendering = true,
-        .PipelineRenderingCreateInfo =
-            VkPipelineRenderingCreateInfo{
-                .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR,
-                .pNext = nullptr,
-                .viewMask = 0,
-                .colorAttachmentCount = 1,
-                .pColorAttachmentFormats = &DefaultFormat,
-                .depthAttachmentFormat = VK_FORMAT_UNDEFINED,
-                .stencilAttachmentFormat = VK_FORMAT_UNDEFINED,
-            },
-        .Allocator = VULKAN_CPU_ALLOCATOR,
-        .CheckVkResultFn = [](VkResult Result) { VK_CHECK_RESULT(Result); },
-    };
-    ImGuiStuff.Initialize(Device.get(), InitInfo);
 }
 
 void FVulkanDynamicRHI::FlushDeletionQueue()
@@ -170,8 +143,6 @@ void FVulkanDynamicRHI::UnregisterScene(WeakRef<RRHIScene> Scene)
 void FVulkanDynamicRHI::Shutdown()
 {
     WaitUntilIdle();
-
-    ImGuiStuff.Shutdown();
 
     ShaderCompiler.reset();
 

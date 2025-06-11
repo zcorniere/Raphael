@@ -3,7 +3,7 @@ set(CMAKE_FOLDER "Raphael/Editor")
 
 add_executable(${PROJECT_NAME} EditorApplication.cxx Actor/Oscillator.cxx)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelEngine imgui)
+target_link_libraries(${PROJECT_NAME} PUBLIC RaphaelEngine)
 target_precompile_headers(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/Engine/src/Engine/Raphael.hxx)
 target_compile_options(
     ${PROJECT_NAME}

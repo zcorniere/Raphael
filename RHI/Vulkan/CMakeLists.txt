@@ -13,20 +13,13 @@ file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VulkanRHI/RenderPass/*.cxx
 )
 
-
-add_library(
-    ${PROJECT_NAME} STATIC EXCLUDE_FROM_ALL
-    ${VULKAN_RENDERER_FILES}
-    # Compile the imgui vulkan backend
-    ${CMAKE_SOURCE_DIR}/External/imgui/backends/imgui_impl_vulkan.cpp
-)
+add_library(${PROJECT_NAME} STATIC EXCLUDE_FROM_ALL ${VULKAN_RENDERER_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_precompile_headers(${PROJECT_NAME} PRIVATE VulkanRHI.pch.hxx)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 target_link_libraries(
     ${PROJECT_NAME}
-    PRIVATE imgui
-            spirv-cross-core
+    PRIVATE spirv-cross-core
             shaderc
             VulkanMemoryAllocator
             Vulkan::UtilityHeaders
@@ -51,7 +44,6 @@ target_compile_options(
             /wd4702>
 )
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC IMGUI_IMPL_VULKAN_NO_PROTOTYPES=1)
 if(RPH_ENABLE_VULKAN_DEBUGGING)
     target_compile_definitions(${PROJECT_NAME} PUBLIC VULKAN_DEBUGGING_ENABLED=1)
 endif()

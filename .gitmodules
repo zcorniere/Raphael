@@ -40,9 +40,6 @@
 [submodule "Engine/External/ModernDialogs"]
 	path = Engine/External/ModernDialogs
 	url = https://github.com/GamesTrap/ModernDialogs.git
-[submodule "External/imgui"]
-	path = External/imgui
-	url = https://github.com/ocornut/imgui.git
 [submodule "RHI/Vulkan/External/Vulkan-Utility-Libraries"]
 	path = RHI/Vulkan/External/Vulkan-Utility-Libraries
 	url = https://github.com/KhronosGroup/Vulkan-Utility-Libraries.git
