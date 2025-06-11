@@ -5,6 +5,8 @@
 
 class FKeyEvent : public FEvent
 {
+    RTTI_DECLARE_TYPEINFO(FKeyEvent, FEvent)
+
 public:
     inline EKeyCode GetKeyCode() const
     {
@@ -23,6 +25,8 @@ protected:
 
 class FKeyPressedEvent : public FKeyEvent
 {
+    RTTI_DECLARE_TYPEINFO(FKeyPressedEvent, FKeyEvent)
+
 public:
     FKeyPressedEvent(EKeyCode keycode, int repeatCount): FKeyEvent(keycode), m_RepeatCount(repeatCount)
     {
@@ -41,6 +45,8 @@ private:
 
 class FKeyReleasedEvent : public FKeyEvent
 {
+    RTTI_DECLARE_TYPEINFO(FKeyReleasedEvent, FKeyEvent)
+
 public:
     FKeyReleasedEvent(EKeyCode keycode): FKeyEvent(keycode)
     {
@@ -51,6 +57,8 @@ public:
 
 class FKeyTypedEvent : public FKeyEvent
 {
+    RTTI_DECLARE_TYPEINFO(FKeyTypedEvent, FKeyEvent)
+
 public:
     FKeyTypedEvent(EKeyCode keycode): FKeyEvent(keycode)
     {
