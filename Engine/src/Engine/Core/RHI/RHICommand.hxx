@@ -89,6 +89,18 @@ private:
     Ref<RRHIMaterial> Material = nullptr;
 };
 
+RHICOMMAND_MACRO(FRHISetGraphicsPipeline)
+{
+public:
+    FRHISetGraphicsPipeline(Ref<RRHIGraphicsPipeline> InPipeline);
+    virtual ~FRHISetGraphicsPipeline() = default;
+
+    virtual void Execute(FFRHICommandList & CommandList) override final;
+
+private:
+    Ref<RRHIGraphicsPipeline> Pipeline = nullptr;
+};
+
 RHICOMMAND_MACRO(FRHISetVertexBuffer)
 {
 public:

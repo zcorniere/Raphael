@@ -114,6 +114,10 @@ public:
     /// @brief Set the current Material
     /// @note The material must be baked before calling this function
     void SetMaterial(const Ref<RRHIMaterial>& Material);
+
+    /// @brief Set the pipeline state, bypassing the material
+    void SetGraphicsPipeline(const Ref<RRHIGraphicsPipeline>& Pipeline);
+
     /// @brief Set the vertex buffer
     void SetVertexBuffer(const Ref<RRHIBuffer>& VertexBuffer, uint32 BufferIndex = 0, uint32 Offset = 0);
 

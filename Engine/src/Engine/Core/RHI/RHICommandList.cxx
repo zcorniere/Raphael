@@ -49,6 +49,11 @@ void FFRHICommandList::SetMaterial(const Ref<RRHIMaterial>& Material)
     Enqueue(new FRHISetMaterial(Material));
 }
 
+void FFRHICommandList::SetGraphicsPipeline(const Ref<RRHIGraphicsPipeline>& Pipeline)
+{
+    Enqueue(new FRHISetGraphicsPipeline(Pipeline));
+}
+
 void FFRHICommandList::SetVertexBuffer(const Ref<RRHIBuffer>& VertexBuffer, uint32 BufferIndex, uint32 Offset)
 {
     Enqueue(new FRHISetVertexBuffer(VertexBuffer, BufferIndex, Offset));
