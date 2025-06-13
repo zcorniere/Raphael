@@ -67,9 +67,15 @@ public:
     {
         return GetCategoryFlags() & category;
     }
+    inline bool IsHandled() const
+    {
+        return Handled;
+    }
 
-public:
+private:
     bool Handled = false;
+
+    friend class FEventDispatcher;
 };
 
 template <typename T>
@@ -79,19 +85,16 @@ concept DispatchableEvent = std::derived_from<T, FEvent> && requires(T a) {
 
 class FEventDispatcher
 {
-private:
-    template <DispatchableEvent T>
-    using EventFn = std::function<bool(T&)>;
-
 public:
     FEventDispatcher(FEvent& event): m_Event(event)
     {
     }
 
-    template <DispatchableEvent T>
-    bool Dispatch(EventFn<T>&& func)
+    template <DispatchableEvent T, typename Fn>
+    requires std::is_invocable_r_v<bool, Fn, T&>
+    bool Dispatch(Fn&& func)
     {
-        if (m_Event.GetEventType() == T::GetStaticType() && !m_Event.Handled)
+        if (m_Event.GetEventType() == T::GetStaticType() && !m_Event.IsHandled())
         {
             T* const CastedEvent = m_Event.Cast<T>();
             check(CastedEvent);

@@ -1,7 +1,9 @@
 #include "EditorApplication.hxx"
 
 #include "Engine/Core/Engine.hxx"
+#include "Engine/Core/Events/KeyEvent.hxx"
 #include "Engine/Core/RHI/RHIScene.hxx"
+#include "Engine/UI/Slate.hxx"
 
 #include <Engine/Core/Log.hxx>
 #include <Engine/Core/RHI/RHICommandList.hxx>
@@ -135,9 +137,37 @@ void EditorApplication::Tick(const double DeltaTime)
 
     Super::Tick(DeltaTime);
 
+    if (bShowUI)
+    {
         MainViewport->GetSlateInstance()->Rect(0, 0, 800, 800, {.169, .169, .169, 1});
         MainViewport->GetSlateInstance()->Rect(10, 10, 100, 100, {.169, .552, 0, 1});
+    }
+
     MainWindow->SetText(std::to_string(1.0f / DeltaTime));
+}
+
+void EditorApplication::WindowEventHandler(FEvent& Event)
+{
+    RPH_PROFILE_FUNC()
+
+    Super::WindowEventHandler(Event);
+
+    FEventDispatcher Dispatcher(Event);
+    Dispatcher.Dispatch<FKeyPressedEvent>(
+        [this](FKeyPressedEvent& KeyEvent) -> bool
+        {
+            if (KeyEvent.GetKeyCode() == EKeyCode::F2)
+            {
+                bShowUI = !bShowUI;
+                return true;
+            }
+            return false;
+        });
+
+    if (Event.IsHandled())
+    {
+        return;
+    }
 }
 
 // Not really extern "C" but I use it to mark that this function will be called by an external unit

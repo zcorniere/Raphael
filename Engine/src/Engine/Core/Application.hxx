@@ -35,9 +35,10 @@ public:
 
     virtual void Tick(const double DeltaTime) override;
 
-private:
+protected:
     virtual void WindowEventHandler(FEvent& Event);
 
+private:
     virtual bool OnWindowResize(FWindowResizeEvent& e);
     virtual bool OnWindowMinimize(FWindowMinimizeEvent& e);
     virtual bool OnWindowClose(FWindowCloseEvent& e);

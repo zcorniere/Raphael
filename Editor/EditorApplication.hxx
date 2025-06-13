@@ -13,8 +13,11 @@ public:
     bool OnEngineInitialization() override;
     void OnEngineDestruction() override;
 
+    virtual void WindowEventHandler(FEvent& Event) override;
+
     void Tick(const double DeltaTime) override;
 
 private:
+    bool bShowUI = false;
     Ref<RWorld> World;
 };

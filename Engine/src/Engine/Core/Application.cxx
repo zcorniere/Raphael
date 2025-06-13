@@ -45,11 +45,6 @@ void FBaseApplication::WindowEventHandler(FEvent& Event)
     dispatcher.Dispatch<FWindowResizeEvent>([this](FWindowResizeEvent& Event) { return OnWindowResize(Event); });
     dispatcher.Dispatch<FWindowMinimizeEvent>([this](FWindowMinimizeEvent& Event) { return OnWindowMinimize(Event); });
     dispatcher.Dispatch<FWindowCloseEvent>([this](FWindowCloseEvent& Event) { return OnWindowClose(Event); });
-
-    if (!Event.Handled)
-    {
-        LOG(LogBaseApplication, Trace, "Unhandled Event : {}", Event);
-    }
 }
 
 void FBaseApplication::Tick(const double DeltaTime)
