@@ -407,11 +407,11 @@ public:
     }
     T* Raw()
     {
-        return m_Instance;
+        return IsValid() ? m_Instance : nullptr;
     }
     const T* Raw() const
     {
-        return m_Instance;
+        return IsValid() ? m_Instance : nullptr;
     }
     operator bool() const
     {
