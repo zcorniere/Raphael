@@ -22,6 +22,7 @@ void FVulkanPendingState::Reset()
     Scissors.Resize(1);
 
     CurrentPipeline = nullptr;
+    DescriptorSets.Clear();
 }
 
 void FVulkanPendingState::SetVertexBuffer(Ref<RVulkanBuffer>& Buffer, uint32 BufferIndex, uint32 Offset)
@@ -43,7 +44,7 @@ bool FVulkanPendingState::SetGraphicsPipeline(Ref<RVulkanGraphicsPipeline>& InPi
         CurrentPipeline = InPipeline;
         bNeedReset = true;
     }
-    /// TODO: reset descriptor sets
+    DescriptorSets.Clear();
 
     return bNeedReset;
 }
