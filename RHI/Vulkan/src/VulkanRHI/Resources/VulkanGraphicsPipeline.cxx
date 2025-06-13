@@ -41,12 +41,21 @@ bool FGraphicsPipelineDescription::Validate() const
     // Vertex shader is required
     if (!VertexShader.IsValid())
         return false;
+    if (VertexShader->GetShaderType() != ERHIShaderType::Vertex)
+        return false;
+
     // Fragment and vertex shader must be different
     if (VertexShader == FragmentShader)
         return false;
     // If there is a Fragment shader, it must be valid
-    if (FragmentShader != nullptr && !FragmentShader.IsValid())
-        return false;
+    if (FragmentShader != nullptr)
+    {
+        if (!FragmentShader.IsValid())
+            return false;
+
+        if (FragmentShader->GetShaderType() != ERHIShaderType::Fragment)
+            return false;
+    }
 
     return true;
 }
@@ -138,7 +147,7 @@ bool RVulkanGraphicsPipeline::Create()
     };
     VkPipelineInputAssemblyStateCreateInfo InputAssembly{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
-        .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+        .topology = Desc.Topology,
         .primitiveRestartEnable = VK_FALSE,
     };
 

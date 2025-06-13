@@ -102,6 +102,7 @@ VulkanRHI::FVulkanDynamicRHI::CreateGraphicsPipeline(const FRHIGraphicsPipelineS
     Desc.Rasterizer.FrontFaceCulling = ConvertToVulkanType(Config.Rasterizer.FrontFaceCulling);
     Desc.Rasterizer.PolygonMode = ConvertToVulkanType(Config.Rasterizer.PolygonMode);
     Desc.AttachmentFormats = Config.AttachmentFormats;
+    Desc.Topology = ConvertToVulkanType(Config.Topology);
 
     unsigned NextLocation = 0;
     for (unsigned BufferLayoutIndex = 0; BufferLayoutIndex < Config.VertexBufferLayouts.Size(); BufferLayoutIndex++)

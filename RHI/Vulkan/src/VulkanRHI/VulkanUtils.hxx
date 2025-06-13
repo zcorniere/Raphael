@@ -48,6 +48,17 @@ constexpr bool VKHasAnyFlags(VkFlags Flags, BitsType Contains)
     return (Flags & Contains) != 0;
 }
 
+FORCEINLINE VkPrimitiveTopology ConvertToVulkanType(const EPrimitiveTopology Topology)
+{
+    switch (Topology)
+    {
+        case EPrimitiveTopology::TriangleList:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        case EPrimitiveTopology::TriangleStrip:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    }
+}
+
 /// Convert the RHI VertexElementType to VK_FORMAT_*
 FORCEINLINE VkFormat VertexElementToFormat(const EVertexElementType Type)
 {

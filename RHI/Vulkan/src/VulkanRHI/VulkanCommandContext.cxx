@@ -183,11 +183,11 @@ void FVulkanCommandContext::SetScissor(IVector2 Offset, UVector2 Size)
     PendingState->SetScissor(Offset, Size);
 }
 
-void FVulkanCommandContext::Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances)
+void FVulkanCommandContext::Draw(uint32 BaseVertexIndex, uint32 NumVertex, uint32 NumInstances)
 {
     FVulkanCmdBuffer* CmdBuffer = CommandManager->GetActiveCmdBuffer();
     PendingState->PrepareForDraw(CmdBuffer);
-    VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), NumPrimitives * 3, NumInstances, BaseVertexIndex, 0);
+    VulkanAPI::vkCmdDraw(CmdBuffer->GetHandle(), NumVertex, NumInstances, BaseVertexIndex, 0);
 }
 
 void FVulkanCommandContext::DrawIndexed(Ref<RRHIBuffer> InIndexBuffer, int32 BaseVertexIndex, uint32 FirstInstance,

@@ -12,6 +12,12 @@ struct FRHIAttachmentFormats
     bool operator==(const FRHIAttachmentFormats&) const = default;
 };
 
+enum class EPrimitiveTopology
+{
+    TriangleList,
+    TriangleStrip,
+};
+
 struct FRHIGraphicsPipelineSpecification
 {
     std::string VertexShader;
@@ -29,6 +35,8 @@ struct FRHIGraphicsPipelineSpecification
         TArray<FElement> Parameter;
     };
     TArray<FVertexBufferLayout> VertexBufferLayouts;
+
+    EPrimitiveTopology Topology = EPrimitiveTopology::TriangleList;
 
     struct FRasterizerDesc
     {

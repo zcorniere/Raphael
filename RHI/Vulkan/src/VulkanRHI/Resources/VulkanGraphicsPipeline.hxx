@@ -47,6 +47,8 @@ struct FGraphicsPipelineDescription
     };
     FRasterizer Rasterizer;
 
+    VkPrimitiveTopology Topology;
+
     FRHIAttachmentFormats AttachmentFormats;
 
     Ref<RVulkanShader> VertexShader;

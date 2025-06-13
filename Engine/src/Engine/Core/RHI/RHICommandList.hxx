@@ -125,9 +125,9 @@ public:
     /// @brief Draw to the current render target
     ///
     /// @param BaseVertexIndex The index of the first vertex to draw
-    /// @param NumPrimitives The number of primitives to draw
+    /// @param NumVertex The number of primitives to draw
     /// @param NumInstances The number of instances to draw
-    void Draw(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances);
+    void Draw(uint32 BaseVertexIndex, uint32 NumVertex, uint32 NumInstances);
     /// @brief Draw to the current render target using an index buffer
     ///
     /// @param IndexBuffer The buffer containing the indices
