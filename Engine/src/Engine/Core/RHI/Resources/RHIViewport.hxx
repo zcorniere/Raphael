@@ -3,6 +3,7 @@
 #include "Engine/Core/RHI/RHIResource.hxx"
 
 class RRHITexture;
+class RSlate;
 
 /// @brief Represent a viewport used by the RHI to be drawn on
 class RRHIViewport : public RRHIResource
@@ -26,4 +27,6 @@ public:
     {
         return static_cast<float>(GetSize().x) / static_cast<float>(GetSize().y);
     }
+
+    virtual Ref<RSlate> GetSlateInstance(bool bCreate = false) = 0;
 };

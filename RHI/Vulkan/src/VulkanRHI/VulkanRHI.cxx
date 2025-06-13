@@ -14,6 +14,8 @@
 #include "VulkanRHI/VulkanShaderCompiler.hxx"
 #include "VulkanRHI/VulkanUtils.hxx"
 
+#include "Engine/UI/Slate.hxx"
+
 // RHI Creation Implementation
 extern "C" FGenericRHI* RHI_CreateRHI()
 {
@@ -64,7 +66,22 @@ void FVulkanDynamicRHI::Tick(double fDeltaTime)
         if (Scene.IsValid())
         {
             ENQUEUE_RENDER_COMMAND(RenderScene)
-            ([Scene](FFRHICommandList& CommandList) mutable { Scene->TickRenderer(CommandList); });
+            (
+                [Scene](FFRHICommandList& CommandList) mutable
+                {
+                    CommandList.BeginRenderingViewport(Scene->GetViewport());
+
+                    Scene->TickRenderer(CommandList);
+
+                    RRHIViewport* Viewport = Scene->GetViewport();
+                    Ref<RSlate> Slate = Viewport->GetSlateInstance();
+                    if (Slate)
+                    {
+                        Slate->Draw();
+                    }
+
+                    CommandList.EndRenderingViewport(Viewport);
+                });
         }
     }
 

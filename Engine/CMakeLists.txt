@@ -14,7 +14,6 @@ else()
     message(FATAL_ERROR "${RPH_SELECTED_RHI} is not supported !")
 endif()
 
-
 add_subdirectory(External/)
 
 if(WIN32)
@@ -70,6 +69,7 @@ add_library(
     src/Engine/Math/SIMD/Transform_double.cxx
     src/Engine/Threading/Thread.cxx
     src/Engine/Threading/ThreadPool.cxx
+    src/Engine/UI/Slate.cxx
     ${PLATFORM_SOURCE_FILES}
     ${COMPILER_SOURCE_FILE}
 )
@@ -140,7 +140,6 @@ endif(RPH_ENABLE_PROFILING)
 if(OPTIMIZE_FOR_NATIVE)
     target_compile_options(${PROJECT_NAME} PUBLIC -march=native)
 endif()
-
 
 option(RPH_NAN_CHECKS "Enable NaN checks in the engine" ON)
 if(RPH_NAN_CHECKS)

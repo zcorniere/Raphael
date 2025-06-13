@@ -116,6 +116,10 @@ public:
     virtual ~RRHIScene();
 
     void SetViewport(Ref<RRHIViewport>& InViewport);
+    RRHIViewport* GetViewport()
+    {
+        return RenderPassTarget.Viewport.Raw();
+    }
     void SetRenderPassTarget(const FRHIRenderPassTarget& InRenderPassTarget);
 
     void PreTick();

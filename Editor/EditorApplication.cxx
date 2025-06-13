@@ -117,6 +117,8 @@ bool EditorApplication::OnEngineInitialization()
         }
     }
 
+    MainViewport->GetSlateInstance(true);
+
     return true;
 }
 
@@ -133,6 +135,8 @@ void EditorApplication::Tick(const double DeltaTime)
 
     Super::Tick(DeltaTime);
 
+        MainViewport->GetSlateInstance()->Rect(0, 0, 800, 800, {.169, .169, .169, 1});
+        MainViewport->GetSlateInstance()->Rect(10, 10, 100, 100, {.169, .552, 0, 1});
     MainWindow->SetText(std::to_string(1.0f / DeltaTime));
 }
 

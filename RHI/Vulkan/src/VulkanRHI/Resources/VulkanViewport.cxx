@@ -11,6 +11,7 @@
 #include "VulkanRHI/VulkanSynchronization.hxx"
 
 #include "Engine/Core/Window.hxx"
+#include "Engine/UI/Slate.hxx"
 
 namespace VulkanRHI
 {
@@ -37,6 +38,8 @@ RVulkanViewport::~RVulkanViewport()
     }
     TexturesViews.Clear();
     RenderingDoneSemaphores.Clear();
+
+    SlateInstance = nullptr;
 }
 
 void RVulkanViewport::SetName(std::string_view InName)
@@ -308,6 +311,15 @@ bool RVulkanViewport::TryPresenting(FVulkanQueue* PresentQueue)
         AttemptsPending -= 1;
     }
     return Status >= RVulkanSwapChain::EStatus::Healty;
+}
+
+Ref<RSlate> RVulkanViewport::GetSlateInstance(bool bCreate)
+{
+    if (bCreate && !SlateInstance)
+    {
+        SlateInstance = Ref<RSlate>::Create(this);
+    }
+    return SlateInstance;
 }
 
 }    // namespace VulkanRHI

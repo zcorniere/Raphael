@@ -269,7 +269,6 @@ void RRHIScene::TickRenderer(FFRHICommandList& CommandList)
                                             static_cast<float>(RenderPassTarget.Viewport->GetSize().y), 1.0f});
         CommandList.SetScissor({0, 0},
                                {RenderPassTarget.Viewport->GetSize().x, RenderPassTarget.Viewport->GetSize().y});
-        CommandList.BeginRenderingViewport(RenderPassTarget.Viewport.Raw());
     }
     else
     {
@@ -311,11 +310,6 @@ void RRHIScene::TickRenderer(FFRHICommandList& CommandList)
     }
 
     CommandList.EndRendering();
-
-    if (RenderPassTarget.Viewport)
-    {
-        CommandList.EndRenderingViewport(RenderPassTarget.Viewport.Raw());
-    }
 }
 
 void RRHIScene::UpdateCameraAspectRatio()

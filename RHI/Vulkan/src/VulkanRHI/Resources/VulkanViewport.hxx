@@ -48,6 +48,8 @@ public:
         return DepthBuffer.As<RRHITexture>();
     }
 
+    virtual Ref<RSlate> GetSlateInstance(bool bCreate = false) override;
+
 private:
     void CreateSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo);
     void DeleteSwapchain(VulkanSwapChainRecreateInfo* RecreateInfo);
@@ -71,6 +73,8 @@ private:
 
     int32 AcquiredImageIndex = -1;
     Ref<RSemaphore> AcquiredSemaphore = nullptr;
+
+    Ref<RSlate> SlateInstance = nullptr;
 
     friend class FVulkanDynamicRHI;
 };
