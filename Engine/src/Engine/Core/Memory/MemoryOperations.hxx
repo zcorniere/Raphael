@@ -6,11 +6,10 @@ FORCEINLINE void ConstructItems(ElementType* Ptr, SizeType Count)
     checkSlow(Count >= 0);
     checkSlow(Ptr);
 
-    std::memset(Ptr, 0, Count * sizeof(ElementType));
     // Nothing to do if the type is trivially constructible
     if constexpr (std::is_trivially_default_constructible_v<ElementType>)
     {
-        return;
+        std::memset(Ptr, 0, Count * sizeof(ElementType));
     }
     else if constexpr (std::is_default_constructible_v<ElementType>)
     {

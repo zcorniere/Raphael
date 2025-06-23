@@ -24,7 +24,7 @@ enum class EParameterStructOption
         StructureName()                                                                                              \
         {                                                                                                            \
             static_assert(std::is_standard_layout<StructureName>::value, #StructureName " must be standard layout"); \
-            std::memset(this, 0, sizeof(*this));                                                                     \
+            std::memset((void*)this, 0, sizeof(*this));                                                              \
         }                                                                                                            \
                                                                                                                      \
     private:                                                                                                         \
