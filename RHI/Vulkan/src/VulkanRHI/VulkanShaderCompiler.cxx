@@ -190,7 +190,7 @@ void FVulkanShaderCompiler::SetOptimizationLevel(EOptimizationLevel InLevel)
     Level = InLevel;
 }
 
-Ref<RVulkanShader> FVulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile, bool bUnitTesting)
+Ref<RVulkanShader> FVulkanShaderCompiler::Get(std::filesystem::path Path, bool bForceCompile)
 {
     RPH_PROFILE_FUNC()
 
@@ -229,7 +229,7 @@ Ref<RVulkanShader> FVulkanShaderCompiler::Get(std::filesystem::path Path, bool b
     }
 
     ShaderUnit = Ref<RVulkanShader>::CreateNamed(Path.filename().string(), Result.ShaderType, Result.CompiledCode,
-                                                 Result.Reflection, !bUnitTesting);
+                                                 Result.Reflection);
     Result.Status = ECompilationStatus::Done;
     {
         std::unique_lock Lock(m_ShaderCacheMutex);
@@ -304,11 +304,16 @@ bool FVulkanShaderCompiler::CompileShader(ShaderCompileResult& Result)
     Result.Status = ECompilationStatus::Compilation;
     shaderc::CompilationResult CompilationResult =
         ShaderCompiler.CompileGlslToSpv(PreprocessCode, ShaderKind, Result.Path.string().c_str(), Options);
-    if (CompilationResult.GetCompilationStatus() != shaderc_compilation_status_success)
+    if (CompilationResult.GetNumErrors() > 0)
     {
-        LOG(LogVulkanShaderCompiler, Error, "Failed to compile shader \"{}\": {}", Result.Path.string().c_str(),
+        LOG(LogVulkanShaderCompiler, Error, "Failed to compile shader \"{}\":\n{}", Result.Path.string().c_str(),
             CompilationResult.GetErrorMessage());
         return false;
+    }
+    if (CompilationResult.GetNumWarnings() > 0)
+    {
+        LOG(LogVulkanShaderCompiler, Warning, "Compilation warning for shader \"{}\":\n{}",
+            Result.Path.string().c_str(), CompilationResult.GetErrorMessage());
     }
     Result.CompiledCode = TArray(CompilationResult.begin(), CompilationResult.end());
     return true;

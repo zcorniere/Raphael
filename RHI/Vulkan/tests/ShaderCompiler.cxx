@@ -112,12 +112,12 @@ TEST_CASE("Vulkan Shader Compiler: Simple Compilation")
     FVulkanShaderCompiler Compiler;
     Compiler.SetOptimizationLevel(FVulkanShaderCompiler::EOptimizationLevel::None);
 
-    Ref<RVulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath, false, true);
+    Ref<RVulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath, false);
     REQUIRE(ShaderResult);
 
     SECTION("Test shader Cache")
     {
-        Ref<RVulkanShader> CachedResult = Compiler.Get(SimpleShaderPath, false, true);
+        Ref<RVulkanShader> CachedResult = Compiler.Get(SimpleShaderPath, false);
 
         CHECK(ShaderResult == CachedResult);
     }
@@ -211,7 +211,7 @@ TEST_CASE("Vulkan Shader Compiler: Complex Compilation")
     FVulkanShaderCompiler Compiler;
     Compiler.SetOptimizationLevel(VulkanRHI::FVulkanShaderCompiler::EOptimizationLevel::None);
 
-    Ref<RVulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath, false, true);
+    Ref<RVulkanShader> ShaderResult = Compiler.Get(SimpleShaderPath, false);
     REQUIRE(ShaderResult);
 
     CHECK(ShaderResult->GetShaderType() == ERHIShaderType::Fragment);

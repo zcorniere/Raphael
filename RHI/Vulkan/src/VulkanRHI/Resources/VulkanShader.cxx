@@ -111,7 +111,7 @@ void RVulkanShader::RVulkanShaderHandle::SetName(std::string_view Name)
 }
 
 RVulkanShader::RVulkanShader(ERHIShaderType Type, const TArray<uint32>& InSPIRVCode,
-                             const FReflectionData& InReflectionData, bool bCreateDescriptorSetLayout)
+                             const FReflectionData& InReflectionData)
     : Super(Type)
     , SPIRVCode(InSPIRVCode)
     , m_ReflectionData(InReflectionData)
@@ -124,10 +124,6 @@ RVulkanShader::RVulkanShader(ERHIShaderType Type, const TArray<uint32>& InSPIRVC
         .codeSize = SPIRVCode.Size() * sizeof(uint32),
         .pCode = SPIRVCode.Raw(),
     };
-    if (bCreateDescriptorSetLayout)
-    {
-        CreateDescriptorSetLayout();
-    }
 }
 
 RVulkanShader::~RVulkanShader()

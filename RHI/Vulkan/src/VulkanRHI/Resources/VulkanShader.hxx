@@ -109,8 +109,7 @@ public:
     };
 
 public:
-    RVulkanShader(ERHIShaderType Type, const TArray<uint32>& InSPRIVCode, const FReflectionData& InReflectionData,
-                  bool bCreateDescriptorSetLayout = true);
+    RVulkanShader(ERHIShaderType Type, const TArray<uint32>& InSPRIVCode, const FReflectionData& InReflectionData);
     virtual ~RVulkanShader();
 
     const FReflectionData& GetReflectionData() const
@@ -134,7 +133,6 @@ public:
         return DescriptorPoolSizes;
     }
 
-private:
     void CreateDescriptorSetLayout();
 
 private:

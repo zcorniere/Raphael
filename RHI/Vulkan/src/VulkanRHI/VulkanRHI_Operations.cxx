@@ -88,6 +88,7 @@ Ref<RRHIShader> FVulkanDynamicRHI::CreateShader(const std::filesystem::path Path
 {
     std::filesystem::path RefPath = DataLocationFinder::GetShaderPath();
     Ref<RVulkanShader> Shader = ShaderCompiler->Get(RefPath / Path, bForceCompile);
+    Shader->CreateDescriptorSetLayout();
     return Shader;
 }
 
