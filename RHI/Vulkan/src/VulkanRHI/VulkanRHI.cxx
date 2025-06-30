@@ -46,7 +46,7 @@ FVulkanDynamicRHI::FVulkanDynamicRHI(): Device(nullptr), ShaderCompiler(nullptr)
             "Unable to initialize Vulkan.");
         LOG(LogVulkanRHI, Fatal,
             "Failed to find all of the required Vulkan entry points; make sure your driver supports Vulkan!");
-        Utils::RequestExit(1);
+        Utils::RequestExit(1, true);
     }
 }
 
@@ -222,7 +222,7 @@ VkInstance FVulkanDynamicRHI::CreateInstance(const TArray<const char*>& Validati
             "Unable to load Vulkan library and/or acquire the necessary function pointers. Make sure an "
             "up-to-date libvulkan.so.1 is installed.");
         LOG(LogVulkanRHI, Fatal, "Cannot find a compatible Vulkan driver.");
-        Utils::RequestExit(1);
+        Utils::RequestExit(1, true);
     }
     else if (Result == VK_ERROR_EXTENSION_NOT_PRESENT)
     {
@@ -234,7 +234,7 @@ VkInstance FVulkanDynamicRHI::CreateInstance(const TArray<const char*>& Validati
                         "path is set appropriately.",
                         MissingExtensions));
         LOG(LogVulkanRHI, Fatal, "Extension not found : {} !", MissingExtensions);
-        Utils::RequestExit(1);
+        Utils::RequestExit(1, true);
     }
     else if (Result != VK_SUCCESS)
     {
@@ -242,7 +242,7 @@ VkInstance FVulkanDynamicRHI::CreateInstance(const TArray<const char*>& Validati
         FPlatformMisc::DisplayMessageBox(EBoxMessageType::Ok, "No Vulkan driver found!",
                                          "Vulkan failed to create instance !\n\nDo you have a compatible Vulkan "
                                          "driver (ICD) installed?");
-        Utils::RequestExit(1);
+        Utils::RequestExit(1, true);
     }
 
     VK_CHECK_RESULT(Result);
@@ -253,7 +253,7 @@ VkInstance FVulkanDynamicRHI::CreateInstance(const TArray<const char*>& Validati
         FPlatformMisc::DisplayMessageBox(EBoxMessageType::Ok,
                                          "Failed to find all required Vulkan entry points! Try updating your driver.",
                                          "No Vulkan entry points found!");
-        Utils::RequestExit(1);
+        Utils::RequestExit(1, true);
     }
 
     LOG(LogVulkanRHI, Info, "Using {} Instance extensions {}", InstanceExtensions.Size(),
