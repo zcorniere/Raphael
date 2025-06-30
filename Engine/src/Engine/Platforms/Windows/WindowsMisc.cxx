@@ -29,7 +29,7 @@ EBoxReturnType FWindowsMisc::DisplayMessageBox(EBoxMessageType MsgType, const st
             break;
     }
 
-    int Result = ::MessageBox(nullptr, Text.data(), Caption.data(), WindowFlags);
+    int Result = ::MessageBox(nullptr, Caption.data(), Text.data(), WindowFlags);
 
     switch (Result)
     {
