@@ -53,8 +53,11 @@ void RVulkanTexture::Invalidate()
             instance->DestroyTexture();
             instance->CreateTexture();
 
-            FVulkanCommandContext* Context = CommandList.GetContext()->Cast<FVulkanCommandContext>();
-            Context->SetLayout(instance.Raw(), Layout);
+            if (Layout != VK_IMAGE_LAYOUT_UNDEFINED)
+            {
+                FVulkanCommandContext* Context = CommandList.GetContext()->Cast<FVulkanCommandContext>();
+                Context->SetLayout(instance.Raw(), Layout);
+            }
         });
 }
 
