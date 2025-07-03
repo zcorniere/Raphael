@@ -100,31 +100,26 @@ void FVulkanCommandContext::RHIBeginRendering(const FRHIRenderPassDescription& D
         VkImageLayout ExpectedLayout = Texture->GetDefaultLayout();
         if (ExpectedLayout != VK_IMAGE_LAYOUT_UNDEFINED && ExpectedLayout != Texture->GetLayout())
         {
-            Texture->SetLayout(CommandManager->GetUploadCmdBuffer(), ExpectedLayout);
+            Texture->SetLayout(CommandManager->GetActiveCmdBuffer(), ExpectedLayout);
             return true;
         }
         return false;
     };
 
-    bool bNeedTransition = false;
     TArray<VkRenderingAttachmentInfo> ColorAttachments;
     ColorAttachments.Reserve(Description.ColorTargets.Size());
     for (const FRHIRenderTarget& ColorTarget: Description.ColorTargets)
     {
-        bNeedTransition |= TransitionToCorrectLayout(ColorTarget);
+        TransitionToCorrectLayout(ColorTarget);
         ColorAttachments.Add(RenderTargetToAttachmentInfo(ColorTarget));
     }
     std::optional<VkRenderingAttachmentInfo> DepthAttachment = std::nullopt;
     if (Description.DepthTarget)
     {
-        bNeedTransition |= TransitionToCorrectLayout(Description.DepthTarget.value());
+        TransitionToCorrectLayout(Description.DepthTarget.value());
         DepthAttachment = RenderTargetToAttachmentInfo(Description.DepthTarget.value());
     }
 
-    if (bNeedTransition)
-    {
-        CommandManager->SubmitUploadCmdBuffer();
-    }
     VkRenderingInfo RenderingInfo{
         .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
         .pNext = nullptr,
